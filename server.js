@@ -44,13 +44,12 @@ function parseWunderground(html) {
     }
 
     // Today's high
-    const highPatterns = [
-      /Today[^}]{0,200}High[^}]{0,100}([\d.]+)/is,
-      /"tempHigh"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
-      /data-testid="highTempValue"[^>]*>([-\d.]+)</,
-      /"maxTemp"\s*:\s*([-\d.]+)/,
-      /class="high-temp"[^>]*>\s*([-\d.]+)/,
-    ];
+const highPatterns = [
+  /"tempHigh"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([\d.]+)/,
+  /data-testid="highTempValue"[^>]*>([\d.]+)</,
+  /"maxTemp"\s*:\s*([\d.]+)/,
+  /High\D{0,10}([\d]{2,3})/,
+];
     for (const p of highPatterns) {
       const m = html.match(p);
       if (m) { high = parseFloat(m[1]); break; }

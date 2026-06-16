@@ -8,9 +8,8 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const CACHE = {};
-const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+const CACHE_TTL = 10 * 60 * 1000;
 
-// US stations — display in °F, everything else convert to °C
 const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA']);
 
 function toC(f) {
@@ -22,18 +21,19 @@ const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
   'Accept-Language': 'en-US,en;q=0.5',
-  'Accept-Encoding': 'gzip, deflate, br',
+  'Accept-Encoding': 'identity',
   'Connection': 'keep-alive',
   'Upgrade-Insecure-Requests': '1',
 };
 
 function parseWunderground(html) {
   try {
-    let temp = null, high = null, low = null, cond = '', humidity = null, wind = null;
+    let temp = null, high = null, cond = '', humidity = null, wind = null;
 
-    // Current temperature - try multiple patterns
+    // ── CURRENT TEMP ──
     const tempPatterns = [
       /class="wu-value wu-value-to"[^>]*>\s*([-\d.]+)\s*</,
+      /"temperature"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
       /"temperature"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
       /data-testid="TemperatureValue"[^>]*>([-\d.]+)</,
       /"temp"\s*:\s*([-\d.]+)/,
@@ -43,71 +43,94 @@ function parseWunderground(html) {
       if (m) { temp = parseFloat(m[1]); break; }
     }
 
-    // Today's high
-const highPatterns = [
-  /"tempHigh"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([\d.]+)/,
-  /data-testid="highTempValue"[^>]*>([\d.]+)</,
-  /"maxTemp"\s*:\s*([\d.]+)/,
-  /High\D{0,10}([\d]{2,3})/,
-];
+    // ── TODAY'S HIGH — try every known pattern ──
+    const highPatterns = [
+      // Wunderground embeds data as JSON inside a <script> tag
+      /"tempHigh"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
+      /"tempHigh"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
+      /"high"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
+      /"high"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
+      // data-testid patterns
+      /data-testid="highTempValue"[^>]*>([-\d.]+)</,
+      /data-testid="HighTemp"[^>]*>([-\d.]+)</,
+      // Inline text patterns
+      /High\s*<[^>]+>\s*([\d]+)/i,
+      /class="high[^"]*"[^>]*>\s*([\d]+)/i,
+      // Fallback — any maxTemp
+      /"maxTemp"\s*:\s*([-\d.]+)/,
+      /"max"\s*:\s*([-\d.]+)/,
+    ];
     for (const p of highPatterns) {
       const m = html.match(p);
       if (m) { high = parseFloat(m[1]); break; }
     }
 
-    // Condition
+    // ── CONDITION ──
     const condPatterns = [
       /data-testid="wxPhrase"[^>]*>([^<]+)</,
       /"phrase"\s*:\s*"([^"]+)"/,
-      /class="condition-icon[^"]*"[^>]*alt="([^"]+)"/,
       /"conditionPhrase"\s*:\s*"([^"]+)"/,
+      /class="condition-icon[^"]*"[^>]*alt="([^"]+)"/,
     ];
     for (const p of condPatterns) {
       const m = html.match(p);
       if (m) { cond = m[1].trim(); break; }
     }
 
-    // Humidity
+    // ── HUMIDITY ──
     const humM = html.match(/data-testid="HumiditySection"[^>]*>.*?(\d+)%/s) ||
                  html.match(/"humidity"\s*:\s*(\d+)/);
     if (humM) humidity = parseInt(humM[1]);
 
-    // Wind
-    const windM = html.match(/data-testid="Wind"[^>]*>.*?([\d.]+)\s*(km\/h|mph|kph)/is) ||
+    // ── WIND ──
+    const windM = html.match(/"windSpeed"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([\d.]+)/) ||
                   html.match(/"windSpeed"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([\d.]+)/);
     if (windM) wind = parseFloat(windM[1]);
 
-    return { temp, high, low, cond, humidity, wind };
+    return { temp, high, cond, humidity, wind };
   } catch(e) {
-    return { temp: null, high: null, low: null, cond: '', humidity: null, wind: null };
+    return { temp: null, high: null, cond: '', humidity: null, wind: null };
   }
 }
 
+// ── DEBUG endpoint — shows raw snippets from Wunderground HTML ──
+app.get('/debug/:station', async (req, res) => {
+  const url = `https://www.wunderground.com/weather/${req.params.station}`;
+  try {
+    const response = await fetch(url, { headers: HEADERS, timeout: 12000 });
+    const html = await response.text();
+    const parsed = parseWunderground(html);
+
+    // Pull 200-char snippets around key terms so we can see what's there
+    const snippets = {};
+    ['tempHigh','high','maxTemp','High','TemperatureValue','highTempValue'].forEach(term => {
+      const idx = html.indexOf(term);
+      if (idx !== -1) snippets[term] = html.slice(Math.max(0,idx-30), idx+120);
+    });
+
+    res.json({ parsed, htmlLength: html.length, snippets });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ── WEATHER endpoint ──
 app.get('/weather/:station', async (req, res) => {
   const { station } = req.params;
   const cacheKey = station.toUpperCase();
 
-  // Return cached data if fresh
   if (CACHE[cacheKey] && (Date.now() - CACHE[cacheKey].ts) < CACHE_TTL) {
     return res.json({ ...CACHE[cacheKey].data, cached: true });
   }
 
   const url = `https://www.wunderground.com/weather/${station}`;
-
   try {
-    const response = await fetch(url, {
-      headers: HEADERS,
-      timeout: 10000,
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
+    const response = await fetch(url, { headers: HEADERS, timeout: 12000 });
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const html = await response.text();
     const raw = parseWunderground(html);
 
-    // Convert °F → °C for non-US stations (Wunderground returns °F by default)
     const isUS = US_STATIONS.has(cacheKey);
     const data = {
       ...raw,
@@ -116,23 +139,18 @@ app.get('/weather/:station', async (req, res) => {
       unit: isUS ? 'F' : 'C',
     };
 
-    // Cache the result
     CACHE[cacheKey] = { data, ts: Date.now() };
-
     res.json({ ...data, station: cacheKey, cached: false, source: 'wunderground' });
   } catch(err) {
-    // Return cached stale data if available
-    if (CACHE[cacheKey]) {
-      return res.json({ ...CACHE[cacheKey].data, cached: true, stale: true });
-    }
+    if (CACHE[cacheKey]) return res.json({ ...CACHE[cacheKey].data, cached: true, stale: true });
     res.status(500).json({ error: err.message, station: cacheKey });
   }
 });
 
-// Health check
+// ── HEALTH ──
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`PolyScan server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`PolyScan running on port ${PORT}`));

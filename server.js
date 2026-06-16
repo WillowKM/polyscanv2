@@ -12,25 +12,47 @@ const CACHE_TTL = 10 * 60 * 1000;
 
 const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA']);
 
+// Coordinates for Open-Meteo forecast high (keyed by station code)
+const STATION_COORDS = {
+  NZWN: { lat: -41.33, lon: 174.81 },
+  RJTT: { lat: 35.55,  lon: 139.78 },
+  RKSI: { lat: 37.46,  lon: 126.44 },
+  WSSS: { lat: 1.36,   lon: 103.99 },
+  WMKK: { lat: 2.74,   lon: 101.71 },
+  ZUUU: { lat: 30.58,  lon: 103.95 },
+  ZBAA: { lat: 40.08,  lon: 116.58 },
+  VILK: { lat: 26.76,  lon: 80.89  },
+  OPKC: { lat: 24.90,  lon: 67.17  },
+  OEJN: { lat: 21.68,  lon: 39.16  },
+  LLBG: { lat: 32.01,  lon: 34.89  },
+  EPWA: { lat: 52.17,  lon: 20.97  },
+  LFPB: { lat: 48.97,  lon: 2.44   },
+  EGLC: { lat: 51.51,  lon: 0.05   },
+  LEMD: { lat: 40.47,  lon: -3.57  },
+  KATL: { lat: 33.64,  lon: -84.43 },
+  KLGA: { lat: 40.78,  lon: -73.87 },
+  KSEA: { lat: 47.44,  lon: -122.31},
+  KSFO: { lat: 37.62,  lon: -122.38},
+  KMIA: { lat: 25.80,  lon: -80.28 },
+};
+
 function toC(f) {
   if (f === null || isNaN(f)) return null;
   return parseFloat(((f - 32) * 5 / 9).toFixed(1));
 }
 
-const HEADERS = {
+const WU_HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
   'Accept-Language': 'en-US,en;q=0.5',
   'Accept-Encoding': 'identity',
   'Connection': 'keep-alive',
-  'Upgrade-Insecure-Requests': '1',
 };
 
 function parseWunderground(html) {
   try {
-    let temp = null, high = null, cond = '', humidity = null, wind = null;
+    let temp = null, cond = '', humidity = null;
 
-    // ── CURRENT TEMP ──
     const tempPatterns = [
       /class="wu-value wu-value-to"[^>]*>\s*([-\d.]+)\s*</,
       /"temperature"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
@@ -43,78 +65,45 @@ function parseWunderground(html) {
       if (m) { temp = parseFloat(m[1]); break; }
     }
 
-    // ── TODAY'S HIGH — try every known pattern ──
-    const highPatterns = [
-      // Wunderground embeds data as JSON inside a <script> tag
-      /"tempHigh"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
-      /"tempHigh"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
-      /"high"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
-      /"high"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
-      // data-testid patterns
-      /data-testid="highTempValue"[^>]*>([-\d.]+)</,
-      /data-testid="HighTemp"[^>]*>([-\d.]+)</,
-      // Inline text patterns
-      /High\s*<[^>]+>\s*([\d]+)/i,
-      /class="high[^"]*"[^>]*>\s*([\d]+)/i,
-      // Fallback — any maxTemp
-      /"maxTemp"\s*:\s*([-\d.]+)/,
-      /"max"\s*:\s*([-\d.]+)/,
-    ];
-    for (const p of highPatterns) {
-      const m = html.match(p);
-      if (m) { high = parseFloat(m[1]); break; }
-    }
-
-    // ── CONDITION ──
     const condPatterns = [
       /data-testid="wxPhrase"[^>]*>([^<]+)</,
       /"phrase"\s*:\s*"([^"]+)"/,
       /"conditionPhrase"\s*:\s*"([^"]+)"/,
-      /class="condition-icon[^"]*"[^>]*alt="([^"]+)"/,
     ];
     for (const p of condPatterns) {
       const m = html.match(p);
       if (m) { cond = m[1].trim(); break; }
     }
 
-    // ── HUMIDITY ──
     const humM = html.match(/data-testid="HumiditySection"[^>]*>.*?(\d+)%/s) ||
                  html.match(/"humidity"\s*:\s*(\d+)/);
     if (humM) humidity = parseInt(humM[1]);
 
-    // ── WIND ──
-    const windM = html.match(/"windSpeed"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([\d.]+)/) ||
-                  html.match(/"windSpeed"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([\d.]+)/);
-    if (windM) wind = parseFloat(windM[1]);
-
-    return { temp, high, cond, humidity, wind };
+    return { temp, cond, humidity };
   } catch(e) {
-    return { temp: null, high: null, cond: '', humidity: null, wind: null };
+    return { temp: null, cond: '', humidity: null };
   }
 }
 
-// ── DEBUG endpoint — shows raw snippets from Wunderground HTML ──
-app.get('/debug/:station', async (req, res) => {
-  const url = `https://www.wunderground.com/weather/${req.params.station}`;
+// Fetch forecast high from Open-Meteo (free, no key, no CORS issues server-side)
+async function fetchForecastHigh(station) {
+  const coords = STATION_COORDS[station];
+  if (!coords) return null;
   try {
-    const response = await fetch(url, { headers: HEADERS, timeout: 12000 });
-    const html = await response.text();
-    const parsed = parseWunderground(html);
-
-    // Pull 200-char snippets around key terms so we can see what's there
-    const snippets = {};
-    ['tempHigh','high','maxTemp','High','TemperatureValue','highTempValue'].forEach(term => {
-      const idx = html.indexOf(term);
-      if (idx !== -1) snippets[term] = html.slice(Math.max(0,idx-30), idx+120);
-    });
-
-    res.json({ parsed, htmlLength: html.length, snippets });
+    // temperature_unit=fahrenheit so US cities get °F, others we convert
+    const isUS = US_STATIONS.has(station);
+    const unit = isUS ? 'fahrenheit' : 'celsius';
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&daily=temperature_2m_max&temperature_unit=${unit}&timezone=auto&forecast_days=1`;
+    const res = await fetch(url, { timeout: 8000 });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const high = json?.daily?.temperature_2m_max?.[0];
+    return high !== undefined ? parseFloat(high.toFixed(1)) : null;
   } catch(e) {
-    res.status(500).json({ error: e.message });
+    return null;
   }
-});
+}
 
-// ── WEATHER endpoint ──
 app.get('/weather/:station', async (req, res) => {
   const { station } = req.params;
   const cacheKey = station.toUpperCase();
@@ -123,31 +112,39 @@ app.get('/weather/:station', async (req, res) => {
     return res.json({ ...CACHE[cacheKey].data, cached: true });
   }
 
-  const url = `https://www.wunderground.com/weather/${station}`;
+  const isUS = US_STATIONS.has(cacheKey);
+
   try {
-    const response = await fetch(url, { headers: HEADERS, timeout: 12000 });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    // Fetch current temp from Wunderground + forecast high from Open-Meteo in parallel
+    const [wuRes, forecastHigh] = await Promise.allSettled([
+      fetch(`https://www.wunderground.com/weather/${station}`, { headers: WU_HEADERS, timeout: 12000 }),
+      fetchForecastHigh(cacheKey),
+    ]);
 
-    const html = await response.text();
-    const raw = parseWunderground(html);
+    let raw = { temp: null, cond: '', humidity: null };
+    if (wuRes.status === 'fulfilled' && wuRes.value.ok) {
+      const html = await wuRes.value.text();
+      raw = parseWunderground(html);
+    }
 
-    const isUS = US_STATIONS.has(cacheKey);
+    const high = forecastHigh.status === 'fulfilled' ? forecastHigh.value : null;
+
     const data = {
-      ...raw,
       temp: isUS ? raw.temp : toC(raw.temp),
-      high: isUS ? raw.high : toC(raw.high),
+      high: high, // already in correct unit from Open-Meteo
+      cond: raw.cond,
+      humidity: raw.humidity,
       unit: isUS ? 'F' : 'C',
     };
 
     CACHE[cacheKey] = { data, ts: Date.now() };
-    res.json({ ...data, station: cacheKey, cached: false, source: 'wunderground' });
+    res.json({ ...data, station: cacheKey, cached: false, source: 'wu+openmeteo' });
   } catch(err) {
     if (CACHE[cacheKey]) return res.json({ ...CACHE[cacheKey].data, cached: true, stale: true });
     res.status(500).json({ error: err.message, station: cacheKey });
   }
 });
 
-// ── HEALTH ──
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length });
 });

@@ -334,6 +334,7 @@ function buildCard(city, ti, wx) {
   const { timeStr, dateStr, zone } = ti;
   const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
   const cd = condDisplay(wx.cond);
+  const unit = wx.unit === 'F' ? '°F' : '°C';
   const tempStr = wx.temp !== null ? Math.round(wx.temp) : '—';
   const highStr = wx.high !== null ? Math.round(wx.high) : '—';
 
@@ -356,13 +357,13 @@ function buildCard(city, ti, wx) {
   <div class="tr">
     <div class="curr">
       <div class="curr-val">${tempStr}</div>
-      <div class="curr-unit">°C</div>
+      <div class="curr-unit">${unit}</div>
     </div>
     <div class="high-block">
       <div class="high-row">
         <span class="high-arr">▲</span>
         <span class="high-val">${highStr}</span>
-        <span class="high-unit">°C</span>
+        <span class="high-unit">${unit}</span>
       </div>
       <div class="high-lbl">Today's high</div>
     </div>

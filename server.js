@@ -12,28 +12,28 @@ const CACHE_TTL = 10 * 60 * 1000;
 
 const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA']);
 
-// Coordinates for Open-Meteo forecast high (keyed by station code)
-const STATION_COORDS = {
-  NZWN: { lat: -41.33, lon: 174.81 },
-  RJTT: { lat: 35.55,  lon: 139.78 },
-  RKSI: { lat: 37.46,  lon: 126.44 },
-  WSSS: { lat: 1.36,   lon: 103.99 },
-  WMKK: { lat: 2.74,   lon: 101.71 },
-  ZUUU: { lat: 30.58,  lon: 103.95 },
-  ZBAA: { lat: 40.08,  lon: 116.58 },
-  VILK: { lat: 26.76,  lon: 80.89  },
-  OPKC: { lat: 24.90,  lon: 67.17  },
-  OEJN: { lat: 21.68,  lon: 39.16  },
-  LLBG: { lat: 32.01,  lon: 34.89  },
-  EPWA: { lat: 52.17,  lon: 20.97  },
-  LFPB: { lat: 48.97,  lon: 2.44   },
-  EGLC: { lat: 51.51,  lon: 0.05   },
-  LEMD: { lat: 40.47,  lon: -3.57  },
-  KATL: { lat: 33.64,  lon: -84.43 },
-  KLGA: { lat: 40.78,  lon: -73.87 },
-  KSEA: { lat: 47.44,  lon: -122.31},
-  KSFO: { lat: 37.62,  lon: -122.38},
-  KMIA: { lat: 25.80,  lon: -80.28 },
+// Country code + city slug for Wunderground hourly URL
+const STATION_META = {
+  NZWN: { cc:'nz', city:'wellington'    },
+  RJTT: { cc:'jp', city:'tokyo'         },
+  RKSI: { cc:'kr', city:'incheon'       },
+  WSSS: { cc:'sg', city:'singapore'     },
+  WMKK: { cc:'my', city:'kuala-lumpur'  },
+  ZUUU: { cc:'cn', city:'chengdu'       },
+  ZBAA: { cc:'cn', city:'beijing'       },
+  VILK: { cc:'in', city:'lucknow'       },
+  OPKC: { cc:'pk', city:'karachi'       },
+  OEJN: { cc:'sa', city:'jeddah'        },
+  LLBG: { cc:'il', city:'tel-aviv'      },
+  EPWA: { cc:'pl', city:'warsaw'        },
+  LFPB: { cc:'fr', city:'paris'         },
+  EGLC: { cc:'gb', city:'london'        },
+  LEMD: { cc:'es', city:'madrid'        },
+  KATL: { cc:'us', city:'atlanta'       },
+  KLGA: { cc:'us', city:'new-york'      },
+  KSEA: { cc:'us', city:'seattle'       },
+  KSFO: { cc:'us', city:'san-francisco' },
+  KMIA: { cc:'us', city:'miami'         },
 };
 
 function toC(f) {
@@ -49,59 +49,120 @@ const WU_HEADERS = {
   'Connection': 'keep-alive',
 };
 
-function parseWunderground(html) {
-  try {
-    let temp = null, cond = '', humidity = null;
-
-    const tempPatterns = [
-      /class="wu-value wu-value-to"[^>]*>\s*([-\d.]+)\s*</,
-      /"temperature"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
-      /"temperature"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
-      /data-testid="TemperatureValue"[^>]*>([-\d.]+)</,
-      /"temp"\s*:\s*([-\d.]+)/,
-    ];
-    for (const p of tempPatterns) {
-      const m = html.match(p);
-      if (m) { temp = parseFloat(m[1]); break; }
-    }
-
-    const condPatterns = [
-      /data-testid="wxPhrase"[^>]*>([^<]+)</,
-      /"phrase"\s*:\s*"([^"]+)"/,
-      /"conditionPhrase"\s*:\s*"([^"]+)"/,
-    ];
-    for (const p of condPatterns) {
-      const m = html.match(p);
-      if (m) { cond = m[1].trim(); break; }
-    }
-
-    const humM = html.match(/data-testid="HumiditySection"[^>]*>.*?(\d+)%/s) ||
-                 html.match(/"humidity"\s*:\s*(\d+)/);
-    if (humM) humidity = parseInt(humM[1]);
-
-    return { temp, cond, humidity };
-  } catch(e) {
-    return { temp: null, cond: '', humidity: null };
+function parseCurrentTemp(html) {
+  const patterns = [
+    /class="wu-value wu-value-to"[^>]*>\s*([-\d.]+)\s*</,
+    /"temperature"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
+    /"temperature"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/,
+    /data-testid="TemperatureValue"[^>]*>([-\d.]+)</,
+    /"temp"\s*:\s*([-\d.]+)/,
+  ];
+  for (const p of patterns) {
+    const m = html.match(p);
+    if (m) return parseFloat(m[1]);
   }
+  return null;
 }
 
-// Fetch forecast high from Open-Meteo (free, no key, no CORS issues server-side)
-async function fetchForecastHigh(station) {
-  const coords = STATION_COORDS[station];
-  if (!coords) return null;
+function parseCond(html) {
+  const patterns = [
+    /data-testid="wxPhrase"[^>]*>([^<]+)</,
+    /"phrase"\s*:\s*"([^"]+)"/,
+    /"conditionPhrase"\s*:\s*"([^"]+)"/,
+  ];
+  for (const p of patterns) {
+    const m = html.match(p);
+    if (m) return m[1].trim();
+  }
+  return '';
+}
+
+function parseHumidity(html) {
+  const m = html.match(/data-testid="HumiditySection"[^>]*>.*?(\d+)%/s) ||
+            html.match(/"humidity"\s*:\s*(\d+)/);
+  return m ? parseInt(m[1]) : null;
+}
+
+// Extract forecast high from the hourly page
+// The hourly page has all temps for the day — we find the max
+function parseHourlyHigh(html) {
   try {
-    // temperature_unit=fahrenheit so US cities get °F, others we convert
-    const isUS = US_STATIONS.has(station);
-    const unit = isUS ? 'fahrenheit' : 'celsius';
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.lat}&longitude=${coords.lon}&daily=temperature_2m_max&temperature_unit=${unit}&timezone=auto&forecast_days=1`;
-    const res = await fetch(url, { timeout: 8000 });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const high = json?.daily?.temperature_2m_max?.[0];
-    return high !== undefined ? parseFloat(high.toFixed(1)) : null;
+    // Wunderground hourly page has temps in a table
+    // Pattern: numbers inside the hourly table cells
+    const allTemps = [];
+
+    // Try JSON data embedded in page
+    const jsonMatch = html.match(/"temperature"\s*:\s*\[([\d\s,.-]+)\]/);
+    if (jsonMatch) {
+      jsonMatch[1].split(',').forEach(v => {
+        const n = parseFloat(v.trim());
+        if (!isNaN(n) && n > -50 && n < 150) allTemps.push(n);
+      });
+    }
+
+    // Try table row pattern — hourly rows contain temp values
+    const rowPattern = /class="[^"]*hourly[^"]*"[^>]*>[\s\S]{0,500}?([-\d]+)\s*°/gi;
+    let m;
+    while ((m = rowPattern.exec(html)) !== null) {
+      const n = parseFloat(m[1]);
+      if (!isNaN(n) && n > -50 && n < 150) allTemps.push(n);
+    }
+
+    // Try span/td patterns for temperature values
+    const spanPattern = /<(?:span|td)[^>]*>\s*([-]?\d{1,3})\s*<\/(?:span|td)>/g;
+    while ((m = spanPattern.exec(html)) !== null) {
+      const n = parseInt(m[1]);
+      if (!isNaN(n) && n > 0 && n < 130) allTemps.push(n);
+    }
+
+    if (allTemps.length === 0) return null;
+    return Math.max(...allTemps);
   } catch(e) {
     return null;
   }
+}
+
+function todayString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+async function fetchStation(station) {
+  const meta = STATION_META[station];
+  const isUS = US_STATIONS.has(station);
+  const today = todayString();
+
+  // Fetch current conditions page + hourly page in parallel
+  const currentUrl = `https://www.wunderground.com/weather/${station}`;
+  const hourlyUrl  = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${station}/date/${today}`;
+
+  const [currentRes, hourlyRes] = await Promise.allSettled([
+    fetch(currentUrl, { headers: WU_HEADERS, timeout: 12000 }),
+    fetch(hourlyUrl,  { headers: WU_HEADERS, timeout: 12000 }),
+  ]);
+
+  let temp = null, cond = '', humidity = null, high = null;
+
+  if (currentRes.status === 'fulfilled' && currentRes.value.ok) {
+    const html = await currentRes.value.text();
+    temp     = parseCurrentTemp(html);
+    cond     = parseCond(html);
+    humidity = parseHumidity(html);
+  }
+
+  if (hourlyRes.status === 'fulfilled' && hourlyRes.value.ok) {
+    const html = await hourlyRes.value.text();
+    high = parseHourlyHigh(html);
+  }
+
+  // Convert to correct units
+  return {
+    temp: isUS ? temp : toC(temp),
+    high: isUS ? high : toC(high),
+    cond,
+    humidity,
+    unit: isUS ? 'F' : 'C',
+  };
 }
 
 app.get('/weather/:station', async (req, res) => {
@@ -112,36 +173,31 @@ app.get('/weather/:station', async (req, res) => {
     return res.json({ ...CACHE[cacheKey].data, cached: true });
   }
 
-  const isUS = US_STATIONS.has(cacheKey);
-
   try {
-    // Fetch current temp from Wunderground + forecast high from Open-Meteo in parallel
-    const [wuRes, forecastHigh] = await Promise.allSettled([
-      fetch(`https://www.wunderground.com/weather/${station}`, { headers: WU_HEADERS, timeout: 12000 }),
-      fetchForecastHigh(cacheKey),
-    ]);
-
-    let raw = { temp: null, cond: '', humidity: null };
-    if (wuRes.status === 'fulfilled' && wuRes.value.ok) {
-      const html = await wuRes.value.text();
-      raw = parseWunderground(html);
-    }
-
-    const high = forecastHigh.status === 'fulfilled' ? forecastHigh.value : null;
-
-    const data = {
-      temp: isUS ? raw.temp : toC(raw.temp),
-      high: high, // already in correct unit from Open-Meteo
-      cond: raw.cond,
-      humidity: raw.humidity,
-      unit: isUS ? 'F' : 'C',
-    };
-
+    const data = await fetchStation(cacheKey);
     CACHE[cacheKey] = { data, ts: Date.now() };
-    res.json({ ...data, station: cacheKey, cached: false, source: 'wu+openmeteo' });
+    res.json({ ...data, station: cacheKey, cached: false });
   } catch(err) {
     if (CACHE[cacheKey]) return res.json({ ...CACHE[cacheKey].data, cached: true, stale: true });
     res.status(500).json({ error: err.message, station: cacheKey });
+  }
+});
+
+// Debug — shows raw hourly HTML snippet to verify parsing
+app.get('/debug/:station', async (req, res) => {
+  const meta = STATION_META[req.params.station.toUpperCase()];
+  if (!meta) return res.status(400).json({ error: 'unknown station' });
+  const today = todayString();
+  const url = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${req.params.station}/date/${today}`;
+  try {
+    const r = await fetch(url, { headers: WU_HEADERS, timeout: 12000 });
+    const html = await r.text();
+    const high = parseHourlyHigh(html);
+    // Return a sample of the HTML around temp-looking content
+    const sample = html.slice(0, 3000);
+    res.json({ high, htmlLength: html.length, sample });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
   }
 });
 

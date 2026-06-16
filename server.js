@@ -10,6 +10,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 const CACHE = {};
 const CACHE_TTL = 10 * 60 * 1000; // 10 minutes
 
+// US stations — display in °F, everything else convert to °C
+const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA']);
+
+function toC(f) {
+  if (f === null || isNaN(f)) return null;
+  return parseFloat(((f - 32) * 5 / 9).toFixed(1));
+}
+
 const HEADERS = {
   'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -98,7 +106,16 @@ app.get('/weather/:station', async (req, res) => {
     }
 
     const html = await response.text();
-    const data = parseWunderground(html);
+    const raw = parseWunderground(html);
+
+    // Convert °F → °C for non-US stations (Wunderground returns °F by default)
+    const isUS = US_STATIONS.has(cacheKey);
+    const data = {
+      ...raw,
+      temp: isUS ? raw.temp : toC(raw.temp),
+      high: isUS ? raw.high : toC(raw.high),
+      unit: isUS ? 'F' : 'C',
+    };
 
     // Cache the result
     CACHE[cacheKey] = { data, ts: Date.now() };

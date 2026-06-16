@@ -334,7 +334,7 @@ function buildCard(city, ti, wx) {
   const { timeStr, dateStr, zone } = ti;
   const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
   const cd = condDisplay(wx.cond);
-  const unit = wx.unit === 'F' ? '°F' : '°C';
+  const unit = (wx.unit === 'F' || ['KATL','KLGA','KSEA','KSFO','KMIA'].includes(wx.station)) ? '°F' : '°C';
   const tempStr = wx.temp !== null ? Math.round(wx.temp) : '—';
   const highStr = wx.high !== null ? Math.round(wx.high) : '—';
 

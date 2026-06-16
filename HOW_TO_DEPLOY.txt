@@ -1,0 +1,67 @@
+==================================================
+POLYSCAN — HOW TO DEPLOY (FREE, 10 MINUTES)
+==================================================
+
+You need two free accounts:
+1. GitHub — github.com (store your files)
+2. Render  — render.com (host your app online)
+
+==================================================
+STEP 1 — UPLOAD TO GITHUB
+==================================================
+
+1. Go to github.com and sign in (or create free account)
+2. Click the green "New" button to create a repository
+3. Name it: polyscan
+4. Click "Create repository"
+5. On the next page click "uploading an existing file"
+6. Drag and drop ALL files in this folder:
+   - server.js
+   - package.json
+   - render.yaml
+   - the "public" folder (contains index.html)
+7. Click "Commit changes"
+
+==================================================
+STEP 2 — DEPLOY ON RENDER
+==================================================
+
+1. Go to render.com and sign in with GitHub
+2. Click "New +" then "Web Service"
+3. Connect your GitHub account if asked
+4. Select your "polyscan" repository
+5. Render will auto-detect the settings
+6. Make sure these are set:
+   - Build Command: npm install
+   - Start Command: node server.js
+   - Plan: Free
+7. Click "Create Web Service"
+8. Wait 2-3 minutes while it builds
+
+==================================================
+STEP 3 — YOUR PERMANENT LINK
+==================================================
+
+Once deployed Render gives you a link like:
+  https://polyscan.onrender.com
+
+That is your permanent scanner link.
+- Open it on any browser on your laptop
+- Open it on your TV browser
+- Bookmark it on your phone
+- It runs 24/7 with no Claude needed
+
+==================================================
+IMPORTANT NOTES
+==================================================
+
+- Free Render plan "sleeps" after 15 min of no activity
+  To keep it always awake, use uptimerobot.com (free)
+  Set it to ping your Render URL every 5 minutes
+
+- Weather data refreshes every 10 minutes automatically
+
+- The scanner reads exact Wunderground stations
+  (same sources Polymarket uses for resolution)
+
+==================================================

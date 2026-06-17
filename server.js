@@ -217,6 +217,49 @@ app.get('/weather/:station', async (req, res) => {
   }
 });
 
+app.get('/debug/:station', async (req, res) => {
+  const station = req.params.station.toUpperCase();
+  const meta = STATION_META[station];
+  if (!meta) return res.status(400).json({ error: 'unknown station' });
+  const today = todayString();
+  const currentUrl = `https://www.wunderground.com/weather/${station}`;
+  const hourlyUrl  = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${station}/date/${today}`;
+  try {
+    const [cr, hr] = await Promise.allSettled([
+      fetch(currentUrl, { headers: WU_HEADERS, timeout: 12000 }),
+      fetch(hourlyUrl,  { headers: WU_HEADERS, timeout: 12000 }),
+    ]);
+    const currentHtml = (cr.status==='fulfilled' && cr.value.ok) ? await cr.value.text() : '';
+    const hourlyHtml  = (hr.status==='fulfilled' && hr.value.ok) ? await hr.value.text() : '';
+
+    // Pull key snippets so we can see exactly what patterns exist
+    const snippets = {};
+    const terms = ['phrase','tempHigh','temperature','wxPhrase','conditionPhrase','humidity','imperial','metric'];
+    terms.forEach(t => {
+      const idx = currentHtml.indexOf(t);
+      if (idx !== -1) snippets['current_'+t] = currentHtml.slice(Math.max(0,idx-20), idx+120);
+    });
+    terms.forEach(t => {
+      const idx = hourlyHtml.indexOf(t);
+      if (idx !== -1) snippets['hourly_'+t] = hourlyHtml.slice(Math.max(0,idx-20), idx+120);
+    });
+
+    res.json({
+      currentHtmlLen: currentHtml.length,
+      hourlyHtmlLen:  hourlyHtml.length,
+      parsed: {
+        temp: parseCurrentTemp(currentHtml),
+        cond: parseCond(currentHtml),
+        humidity: parseHumidity(currentHtml),
+        high: parseHourlyHigh(hourlyHtml, US_STATIONS.has(station)),
+      },
+      snippets
+    });
+  } catch(e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length });
 });

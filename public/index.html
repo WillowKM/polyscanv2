@@ -161,6 +161,8 @@ body { display: flex; flex-direction: column; height: 100vh; }
 .hum { font-size:10px; color:var(--muted); }
 .hum span { color:var(--text); font-weight:500; }
 .station { font-size:10px; color:var(--muted); background:rgba(255,255,255,0.04); padding:2px 7px; border-radius:4px; letter-spacing:.4px; }
+.sun-row { display:flex; align-items:center; gap:10px; font-size:10px; color:var(--muted); margin-top:3px; }
+.sun-row span { color:#FFD60A; font-weight:500; }
 
 /* loading */
 .loading-bar { height:12px; border-radius:4px; margin:4px 0; background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; }
@@ -314,6 +316,8 @@ function buildCard(city, ti, wx) {
     : '<span class="trend-arrow trend-down">↓</span>';
   const humStr  = (wx && wx.humidity != null)
     ? `<div class="hum">Humidity <span>${wx.humidity}%</span></div>` : '';
+  const sunStr = (wx && (wx.sunrise || wx.sunset))
+    ? `<div class="sun-row">🌅 <span>${wx.sunrise || '—'}</span> &nbsp; 🌇 <span>${wx.sunset || '—'}</span></div>` : '';
   const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
 
   return `<div class="card ${ti.zone}">
@@ -354,6 +358,7 @@ function buildCard(city, ti, wx) {
       <div class="station">${city.station}</div>
     </div>
   </div>
+  ${sunStr}
 </div>`;
 }
 

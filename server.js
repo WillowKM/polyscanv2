@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const CACHE = {};
-const PREV_TEMPS = {}; // track previous temp for arrow direction
+const PREV_TEMPS = {};
 const CACHE_TTL = 10 * 60 * 1000;
 
 const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ']);
@@ -90,25 +90,64 @@ function parseHumidity(html) {
   return m ? parseInt(m[1]) : null;
 }
 
-function parseHourlyHigh(html) {
+// Improved hourly high parser
+// Wunderground hourly page embeds JSON data in a <script> tag
+// We look specifically for the daily forecast high, not random numbers
+function parseHourlyHigh(html, isUS) {
   try {
-    const allTemps = [];
-    const jsonMatch = html.match(/"temperature"\s*:\s*\[([\d\s,.-]+)\]/);
-    if (jsonMatch) {
-      jsonMatch[1].split(',').forEach(v => {
-        const n = parseFloat(v.trim());
-        if (!isNaN(n) && n > -50 && n < 150) allTemps.push(n);
-      });
-    }
-    const spanPattern = /<(?:span|td)[^>]*>\s*([-]?\d{1,3})\s*<\/(?:span|td)>/g;
+    // Strategy 1: Find JSON array of hourly temps and take the max
+    // WU embeds data like: "temperature":{"imperial":{"value":84}...
+    // across multiple hourly entries — collect all and take max
+    const imperialTemps = [];
+    const metricTemps = [];
+
+    const impPattern = /"temperature"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/g;
+    const metPattern = /"temperature"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/g;
+
     let m;
-    while ((m = spanPattern.exec(html)) !== null) {
-      const n = parseInt(m[1]);
-      if (!isNaN(n) && n > 0 && n < 130) allTemps.push(n);
+    while ((m = impPattern.exec(html)) !== null) {
+      const n = parseFloat(m[1]);
+      if (!isNaN(n) && n > -60 && n < 150) imperialTemps.push(n);
     }
-    if (allTemps.length === 0) return null;
-    return Math.max(...allTemps);
-  } catch(e) { return null; }
+    while ((m = metPattern.exec(html)) !== null) {
+      const n = parseFloat(m[1]);
+      if (!isNaN(n) && n > -60 && n < 60) metricTemps.push(n);
+    }
+
+    // Strategy 2: Look for explicit daily high in the forecast section
+    const dailyHighImp = html.match(/"tempHigh"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/);
+    const dailyHighMet = html.match(/"tempHigh"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/);
+
+    if (dailyHighImp) return parseFloat(dailyHighImp[1]);
+    if (dailyHighMet) return parseFloat(dailyHighMet[1]);
+
+    // Strategy 3: Use max of hourly temps
+    // For US stations use imperial, otherwise use metric
+    if (isUS && imperialTemps.length > 0) {
+      // Filter out outliers — temps should be in realistic range for the day
+      const sorted = imperialTemps.sort((a,b)=>a-b);
+      // Remove bottom 10% outliers (cold overnight readings) and take max of day
+      const dayTemps = sorted.slice(Math.floor(sorted.length * 0.1));
+      return Math.max(...dayTemps);
+    }
+
+    if (!isUS && metricTemps.length > 0) {
+      const sorted = metricTemps.sort((a,b)=>a-b);
+      const dayTemps = sorted.slice(Math.floor(sorted.length * 0.1));
+      return Math.max(...dayTemps);
+    }
+
+    // Fallback: use imperial and convert
+    if (imperialTemps.length > 0) {
+      const sorted = imperialTemps.sort((a,b)=>a-b);
+      const max = Math.max(...sorted.slice(Math.floor(sorted.length * 0.1)));
+      return isUS ? max : toC(max);
+    }
+
+    return null;
+  } catch(e) {
+    return null;
+  }
 }
 
 function todayString() {
@@ -140,20 +179,19 @@ async function fetchStation(station) {
 
   if (hourlyRes.status === 'fulfilled' && hourlyRes.value.ok) {
     const html = await hourlyRes.value.text();
-    high = parseHourlyHigh(html);
+    high = parseHourlyHigh(html, isUS);
   }
 
-  // Track temp direction
   const prevTemp = PREV_TEMPS[station] || null;
-  let trend = 'up'; // default — assume climbing
+  let trend = 'up';
   if (prevTemp !== null && temp !== null) {
     trend = temp >= prevTemp ? 'up' : 'down';
   }
   if (temp !== null) PREV_TEMPS[station] = temp;
 
   return {
-    temp:     isUS ? temp     : toC(temp),
-    high:     isUS ? high     : toC(high),
+    temp:     isUS ? temp : toC(temp),
+    high:     isUS ? high : (high !== null ? (high > 60 ? toC(high) : high) : null),
     cond,
     humidity,
     trend,

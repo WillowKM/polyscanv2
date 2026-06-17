@@ -93,6 +93,44 @@ function parseHumidity(html) {
   return m ? parseInt(m[1]) : null;
 }
 
+function parseSunTimes(html) {
+  try {
+    // WU embeds sunrise/sunset as sunriseTimeLocal and sunsetTimeLocal
+    const riseM = html.match(/"sunriseTimeLocal"\s*:\s*"([^"]+)"/) ||
+                  html.match(/"sunrise"\s*:\s*"([^"]+)"/);
+    const setM  = html.match(/"sunsetTimeLocal"\s*:\s*"([^"]+)"/) ||
+                  html.match(/"sunset"\s*:\s*"([^"]+)"/);
+
+    if (!riseM && !setM) return { sunrise: null, sunset: null };
+
+    function fmtTime(str) {
+      if (!str) return null;
+      // Format: "2026-06-17T06:24:00+0200" or "06:24:00"
+      const d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      }
+      // Fallback: extract HH:MM
+      const t = str.match(/(\d{1,2}):(\d{2})/);
+      if (t) {
+        const h = parseInt(t[1]);
+        const m = t[2];
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h % 12 || 12;
+        return `${h12}:${m} ${ampm}`;
+      }
+      return null;
+    }
+
+    return {
+      sunrise: riseM ? fmtTime(riseM[1]) : null,
+      sunset:  setM  ? fmtTime(setM[1])  : null,
+    };
+  } catch(e) {
+    return { sunrise: null, sunset: null };
+  }
+}
+
 // Parse hourly high from Wunderground hourly page
 // Debug confirmed: WU embeds hourly JSON as "temp":XX inside imperial objects
 // We collect all hourly temp readings and take the daily max
@@ -176,13 +214,16 @@ async function fetchStation(station) {
     fetch(hourlyUrl,  { headers: WU_HEADERS, timeout: 12000 }),
   ]);
 
-  let temp = null, cond = '', humidity = null, high = null;
+  let temp = null, cond = '', humidity = null, high = null, sunrise = null, sunset = null;
 
   if (currentRes.status === 'fulfilled' && currentRes.value.ok) {
     const html = await currentRes.value.text();
     temp     = parseCurrentTemp(html);
     cond     = parseCond(html);
     humidity = parseHumidity(html);
+    const sun = parseSunTimes(html);
+    sunrise  = sun.sunrise;
+    sunset   = sun.sunset;
   }
 
   if (hourlyRes.status === 'fulfilled' && hourlyRes.value.ok) {
@@ -197,12 +238,18 @@ async function fetchStation(station) {
   }
   if (temp !== null) PREV_TEMPS[station] = temp;
 
+  // Use stale cache high if fresh fetch returned null
+  const cachedHigh = CACHE[station] ? CACHE[station].data.high : null;
+  const finalHigh = high !== null ? high : cachedHigh;
+
   return {
     temp:     isUS ? temp : toC(temp),
-    high:     isUS ? high : (high !== null ? (high > 60 ? toC(high) : high) : null),
+    high:     isUS ? finalHigh : (finalHigh !== null ? (finalHigh > 60 ? toC(finalHigh) : finalHigh) : null),
     cond,
     humidity,
     trend,
+    sunrise,
+    sunset,
     unit: isUS ? 'F' : 'C',
   };
 }

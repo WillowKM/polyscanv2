@@ -8,11 +8,11 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const CACHE = {};
+const PREV_TEMPS = {}; // track previous temp for arrow direction
 const CACHE_TTL = 10 * 60 * 1000;
 
-const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA']);
+const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ']);
 
-// Country code + city slug for Wunderground hourly URL
 const STATION_META = {
   NZWN: { cc:'nz', city:'wellington'    },
   RJTT: { cc:'jp', city:'tokyo'         },
@@ -21,19 +21,26 @@ const STATION_META = {
   WMKK: { cc:'my', city:'kuala-lumpur'  },
   ZUUU: { cc:'cn', city:'chengdu'       },
   ZBAA: { cc:'cn', city:'beijing'       },
+  ZSPD: { cc:'cn', city:'shanghai'      },
   VILK: { cc:'in', city:'lucknow'       },
   OPKC: { cc:'pk', city:'karachi'       },
   OEJN: { cc:'sa', city:'jeddah'        },
   LLBG: { cc:'il', city:'tel-aviv'      },
+  LTFM: { cc:'tr', city:'istanbul'      },
   EPWA: { cc:'pl', city:'warsaw'        },
   LFPB: { cc:'fr', city:'paris'         },
   EGLC: { cc:'gb', city:'london'        },
   LEMD: { cc:'es', city:'madrid'        },
+  FACT: { cc:'za', city:'cape-town'     },
   KATL: { cc:'us', city:'atlanta'       },
   KLGA: { cc:'us', city:'new-york'      },
   KSEA: { cc:'us', city:'seattle'       },
   KSFO: { cc:'us', city:'san-francisco' },
   KMIA: { cc:'us', city:'miami'         },
+  KBKF: { cc:'us', city:'denver'        },
+  KHOU: { cc:'us', city:'houston'       },
+  KORD: { cc:'us', city:'chicago'       },
+  CYYZ: { cc:'ca', city:'toronto'       },
 };
 
 function toC(f) {
@@ -83,15 +90,9 @@ function parseHumidity(html) {
   return m ? parseInt(m[1]) : null;
 }
 
-// Extract forecast high from the hourly page
-// The hourly page has all temps for the day — we find the max
 function parseHourlyHigh(html) {
   try {
-    // Wunderground hourly page has temps in a table
-    // Pattern: numbers inside the hourly table cells
     const allTemps = [];
-
-    // Try JSON data embedded in page
     const jsonMatch = html.match(/"temperature"\s*:\s*\[([\d\s,.-]+)\]/);
     if (jsonMatch) {
       jsonMatch[1].split(',').forEach(v => {
@@ -99,27 +100,15 @@ function parseHourlyHigh(html) {
         if (!isNaN(n) && n > -50 && n < 150) allTemps.push(n);
       });
     }
-
-    // Try table row pattern — hourly rows contain temp values
-    const rowPattern = /class="[^"]*hourly[^"]*"[^>]*>[\s\S]{0,500}?([-\d]+)\s*°/gi;
-    let m;
-    while ((m = rowPattern.exec(html)) !== null) {
-      const n = parseFloat(m[1]);
-      if (!isNaN(n) && n > -50 && n < 150) allTemps.push(n);
-    }
-
-    // Try span/td patterns for temperature values
     const spanPattern = /<(?:span|td)[^>]*>\s*([-]?\d{1,3})\s*<\/(?:span|td)>/g;
+    let m;
     while ((m = spanPattern.exec(html)) !== null) {
       const n = parseInt(m[1]);
       if (!isNaN(n) && n > 0 && n < 130) allTemps.push(n);
     }
-
     if (allTemps.length === 0) return null;
     return Math.max(...allTemps);
-  } catch(e) {
-    return null;
-  }
+  } catch(e) { return null; }
 }
 
 function todayString() {
@@ -132,7 +121,6 @@ async function fetchStation(station) {
   const isUS = US_STATIONS.has(station);
   const today = todayString();
 
-  // Fetch current conditions page + hourly page in parallel
   const currentUrl = `https://www.wunderground.com/weather/${station}`;
   const hourlyUrl  = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${station}/date/${today}`;
 
@@ -155,12 +143,20 @@ async function fetchStation(station) {
     high = parseHourlyHigh(html);
   }
 
-  // Convert to correct units
+  // Track temp direction
+  const prevTemp = PREV_TEMPS[station] || null;
+  let trend = 'up'; // default — assume climbing
+  if (prevTemp !== null && temp !== null) {
+    trend = temp >= prevTemp ? 'up' : 'down';
+  }
+  if (temp !== null) PREV_TEMPS[station] = temp;
+
   return {
-    temp: isUS ? temp : toC(temp),
-    high: isUS ? high : toC(high),
+    temp:     isUS ? temp     : toC(temp),
+    high:     isUS ? high     : toC(high),
     cond,
     humidity,
+    trend,
     unit: isUS ? 'F' : 'C',
   };
 }
@@ -183,27 +179,9 @@ app.get('/weather/:station', async (req, res) => {
   }
 });
 
-// Debug — shows raw hourly HTML snippet to verify parsing
-app.get('/debug/:station', async (req, res) => {
-  const meta = STATION_META[req.params.station.toUpperCase()];
-  if (!meta) return res.status(400).json({ error: 'unknown station' });
-  const today = todayString();
-  const url = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${req.params.station}/date/${today}`;
-  try {
-    const r = await fetch(url, { headers: WU_HEADERS, timeout: 12000 });
-    const html = await r.text();
-    const high = parseHourlyHigh(html);
-    // Return a sample of the HTML around temp-looking content
-    const sample = html.slice(0, 3000);
-    res.json({ high, htmlLength: html.length, sample });
-  } catch(e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`PolyScan running on port ${PORT}`));
+app.listen(PORT, () => console.log(`PolyScan 24/7 running on port ${PORT}`));

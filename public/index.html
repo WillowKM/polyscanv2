@@ -16,211 +16,183 @@
   --muted:  #4A5A72;
   --green:  #00E676;
   --green-bg:     rgba(0,230,118,0.07);
-  --green-border: rgba(0,230,118,0.28);
+  --green-border: rgba(0,230,118,0.30);
   --orange: #FF9F0A;
   --orange-bg:    rgba(255,159,10,0.07);
-  --orange-border:rgba(255,159,10,0.28);
+  --orange-border:rgba(255,159,10,0.30);
   --red:    #FF3B5C;
   --red-bg:       rgba(255,59,92,0.06);
-  --red-border:   rgba(255,59,92,0.22);
+  --red-border:   rgba(255,59,92,0.24);
   --accent: #3D8EFF;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100vh; overflow: hidden; }
+html, body { height: 100vh; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Inter', sans-serif;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
+body { display: flex; flex-direction: column; height: 100vh; }
 
-/* ── COMPACT HEADER ── */
+/* ── HEADER ── */
 .hdr {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 16px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 20px;
   background: var(--bg2);
   border-bottom: 1px solid var(--border);
-  flex-shrink: 0;
-  gap: 12px;
-  flex-wrap: nowrap;
+  flex-shrink: 0; gap: 14px; flex-wrap: nowrap;
 }
-
-.logo {
-  font-family: 'Orbitron', monospace;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--accent);
-  white-space: nowrap;
-}
-.logo span { color: var(--green); }
-
-.vdiv { width: 1px; height: 22px; background: var(--border); flex-shrink: 0; }
-
-.sa-block { display: flex; align-items: center; gap: 6px; }
-.sa-label { font-size: 9px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; white-space: nowrap; }
-.sa-val   { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.sa-date  { font-size: 12px; font-weight: 500; white-space: nowrap; }
-
-.legend { display: flex; gap: 12px; align-items: center; }
-.leg { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); white-space: nowrap; }
-.leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-
-.upd { font-size: 10px; color: var(--accent); white-space: nowrap; }
+.logo { font-family:'Orbitron',monospace; font-size:14px; font-weight:700; letter-spacing:2px; color:var(--accent); white-space:nowrap; }
+.logo .g { color:var(--green); }
+.logo .o { color:var(--orange); font-size:12px; }
+.vdiv { width:1px; height:24px; background:var(--border); flex-shrink:0; }
+.sa-block { display:flex; align-items:center; gap:6px; }
+.sa-label { font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; white-space:nowrap; }
+.sa-val   { font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.sa-date  { font-size:12px; font-weight:500; white-space:nowrap; }
+.legend { display:flex; gap:14px; align-items:center; }
+.leg { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--muted); white-space:nowrap; }
+.leg-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.upd { font-size:10px; color:var(--accent); white-space:nowrap; text-align:right; }
 
 /* ── ZONE BANNER ── */
-.zones {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  flex-shrink: 0;
-}
-.zone {
-  display: flex; align-items: center; gap: 8px;
-  padding: 4px 14px;
-  border-bottom: 2px solid;
-}
-.zone.g { border-color: var(--green);  background: rgba(0,230,118,0.03); }
-.zone.o { border-color: var(--orange); background: rgba(255,159,10,0.03); border-left: 1px solid var(--border); border-right: 1px solid var(--border); }
-.zone.r { border-color: var(--red);    background: rgba(255,59,92,0.02); }
-
-.zdot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; animation: zp 2s ease-in-out infinite; }
-.zone.g .zdot { background: var(--green);  box-shadow: 0 0 6px var(--green); }
-.zone.o .zdot { background: var(--orange); box-shadow: 0 0 6px var(--orange); animation-delay:.4s; }
-.zone.r .zdot { background: var(--red);    box-shadow: 0 0 6px var(--red);   animation-delay:.8s; }
+.zones { display:grid; grid-template-columns:repeat(3,1fr); flex-shrink:0; }
+.zone { display:flex; align-items:center; gap:8px; padding:5px 16px; border-bottom:2px solid; }
+.zone.g { border-color:var(--green);  background:rgba(0,230,118,0.03); }
+.zone.o { border-color:var(--orange); background:rgba(255,159,10,0.03); border-left:1px solid var(--border); border-right:1px solid var(--border); }
+.zone.r { border-color:var(--red);    background:rgba(255,59,92,0.02); }
+.zdot { width:9px; height:9px; border-radius:50%; flex-shrink:0; animation:zp 2s ease-in-out infinite; }
+.zone.g .zdot { background:var(--green);  box-shadow:0 0 7px var(--green); }
+.zone.o .zdot { background:var(--orange); box-shadow:0 0 7px var(--orange); animation-delay:.4s; }
+.zone.r .zdot { background:var(--red);    box-shadow:0 0 7px var(--red);   animation-delay:.8s; }
 @keyframes zp { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.8)} }
+.zlbl { font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; }
+.zone.g .zlbl { color:var(--green); }
+.zone.o .zlbl { color:var(--orange); }
+.zone.r .zlbl { color:var(--red); }
+.zsub { font-size:9px; color:var(--muted); margin-left:auto; }
 
-.zlbl { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; }
-.zone.g .zlbl { color: var(--green); }
-.zone.o .zlbl { color: var(--orange); }
-.zone.r .zlbl { color: var(--red); }
-.zsub { font-size: 9px; color: var(--muted); margin-left: auto; }
-
-/* ── MAIN GRID — 3 cols, fills remaining height ── */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  flex: 1;
-  min-height: 0;
-  gap: 0;
+/* ── PAGE CONTAINER ── */
+.pages { flex:1; min-height:0; position:relative; }
+.page {
+  position:absolute; inset:0;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:0;
+  opacity:0;
+  transition:opacity 0.6s ease;
+  pointer-events:none;
 }
+.page.active { opacity:1; pointer-events:all; }
 
 .col {
-  display: grid;
-  grid-template-rows: repeat(9, 1fr);
-  border-right: 1px solid var(--border);
-  padding: 4px;
-  gap: 4px;
-  min-height: 0;
+  display:grid;
+  border-right:1px solid var(--border);
+  padding:5px;
+  gap:5px;
+  min-height:0;
 }
-.col:last-child { border-right: none; }
+.col:last-child { border-right:none; }
+
+/* page 1 = 5 rows, page 2 = 5 rows (14 + 13 cities) */
+.page-1 .col { grid-template-rows: repeat(5,1fr); }
+.page-2 .col:nth-child(1) { grid-template-rows: repeat(5,1fr); }
+.page-2 .col:nth-child(2) { grid-template-rows: repeat(5,1fr); }
+.page-2 .col:nth-child(3) { grid-template-rows: repeat(3,1fr); }
 
 /* ── CITY CARD ── */
 .card {
-  border-radius: 7px;
-  padding: 5px 8px;
-  border: 1px solid;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 0;
+  border-radius:10px;
+  padding:10px 14px;
+  border:1px solid;
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  min-height:0;
+  cursor:default;
 }
+.card.g { background:var(--green-bg);  border-color:var(--green-border); }
+.card.o { background:var(--orange-bg); border-color:var(--orange-border); }
+.card.r { background:var(--red-bg);    border-color:var(--red-border); }
+.card::after { content:''; position:absolute; top:0; left:15%; right:15%; height:2px; border-radius:0 0 4px 4px; }
+.card.g::after { background:var(--green);  opacity:.5; }
+.card.o::after { background:var(--orange); opacity:.5; }
+.card.r::after { background:var(--red);    opacity:.4; }
 
-.card.g { background: var(--green-bg);  border-color: var(--green-border); }
-.card.o { background: var(--orange-bg); border-color: var(--orange-border); }
-.card.r { background: var(--red-bg);    border-color: var(--red-border); }
-
-.card::after {
-  content:''; position:absolute; top:0; left:20%; right:20%; height:1.5px; border-radius:0 0 3px 3px;
-}
-.card.g::after { background: var(--green);  opacity:.4; }
-.card.o::after { background: var(--orange); opacity:.4; }
-.card.r::after { background: var(--red);    opacity:.3; }
-
-/* top row */
-.ct { display:flex; justify-content:space-between; align-items:flex-start; }
-.cname { font-size: 11px; font-weight: 600; line-height:1.2; }
-.cdate { font-size: 8px; color: var(--muted); margin-top:1px; }
-
+/* card top */
+.ct { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; }
+.cname { font-size:15px; font-weight:600; line-height:1.2; }
+.cdate { font-size:10px; color:var(--muted); margin-top:2px; }
 .ctime-block { text-align:right; flex-shrink:0; }
-.ctime { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
-.card.g .ctime { color: var(--green); }
-.card.o .ctime { color: var(--orange); }
-.card.r .ctime { color: var(--red); }
-.czlbl { font-size: 8px; color: var(--muted); text-align:right; }
+.ctime { font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; }
+.card.g .ctime { color:var(--green); }
+.card.o .ctime { color:var(--orange); }
+.card.r .ctime { color:var(--red); }
+.czlbl { font-size:9px; color:var(--muted); text-align:right; margin-top:1px; }
 
 /* temp row */
-.tr { display:flex; align-items:center; justify-content:space-between; }
-
+.tr { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
 .curr { display:flex; align-items:baseline; gap:2px; }
-.curr-val  { font-size: 26px; font-weight: 700; line-height:1; font-variant-numeric: tabular-nums; }
-.curr-unit { font-size: 11px; color: var(--muted); padding-bottom:2px; }
-.card.g .curr-val { color: var(--green); }
-.card.o .curr-val { color: var(--orange); }
-.card.r .curr-val { color: var(--red); }
-
-.trend-arrow { font-size: 16px; font-weight: 700; margin-left: 4px; line-height:1; }
-.trend-up   { color: var(--green); }
-.trend-down { color: var(--red); }
-
+.curr-val  { font-size:38px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; }
+.curr-unit { font-size:14px; color:var(--muted); padding-bottom:4px; }
+.card.g .curr-val { color:var(--green); }
+.card.o .curr-val { color:var(--orange); }
+.card.r .curr-val { color:var(--red); }
+.trend-arrow { font-size:22px; font-weight:700; margin-left:5px; line-height:1; }
+.trend-up   { color:var(--green); }
+.trend-down { color:var(--red); }
 .high-block { text-align:right; }
-.high-row { display:flex; align-items:center; gap:3px; justify-content:flex-end; }
-.high-arr { font-size:9px; color:var(--red); }
-.high-val { font-size:14px; font-weight:600; font-variant-numeric:tabular-nums; }
-.high-unit { font-size:9px; color:var(--muted); }
-.high-lbl { font-size:8px; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; }
+.high-row { display:flex; align-items:center; gap:4px; justify-content:flex-end; margin-bottom:2px; }
+.high-arr  { font-size:11px; color:var(--red); }
+.high-val  { font-size:22px; font-weight:600; font-variant-numeric:tabular-nums; }
+.high-unit { font-size:11px; color:var(--muted); }
+.high-lbl  { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; }
 
-/* bottom row */
-.cb {
-  display:flex; align-items:center; justify-content:space-between;
-  padding-top:3px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-}
-.cond { display:flex; align-items:center; gap:4px; font-size:9px; }
-.cond-icon { font-size:13px; line-height:1; }
-
+/* bottom */
+.cb { display:flex; align-items:center; justify-content:space-between; padding-top:6px; border-top:1px solid rgba(255,255,255,0.06); }
+.cond { display:flex; align-items:center; gap:6px; font-size:12px; }
+.cond-icon { font-size:20px; line-height:1; }
 .sunny  { color:#FFD60A; }
 .cloudy { color:#8E9AAB; }
 .rain   { color:#3D8EFF; }
 .storm  { color:#B48CFF; }
 .snow   { color:#C8E6FF; }
 .fog    { color:#6B7A8D; }
-
-.hum { font-size: 9px; color: var(--muted); }
-.hum span { color: var(--text); font-weight:500; }
-.station { font-size: 9px; color: var(--muted); background:rgba(255,255,255,0.04); padding:1px 5px; border-radius:3px; letter-spacing:.4px; }
+.meta { display:flex; align-items:center; gap:8px; }
+.hum { font-size:10px; color:var(--muted); }
+.hum span { color:var(--text); font-weight:500; }
+.station { font-size:10px; color:var(--muted); background:rgba(255,255,255,0.04); padding:2px 7px; border-radius:4px; letter-spacing:.4px; }
 
 /* loading */
-.loading-bar { height:10px; border-radius:3px; margin:3px 0; background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; }
+.loading-bar { height:12px; border-radius:4px; margin:4px 0; background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; }
 @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
 
 /* ── FOOTER ── */
 .ftr {
-  padding: 4px 16px;
-  border-top: 1px solid var(--border);
-  background: var(--bg2);
+  padding:6px 20px;
+  border-top:1px solid var(--border);
+  background:var(--bg2);
   display:flex; align-items:center; justify-content:space-between;
   flex-shrink:0;
 }
-.ftr-left  { font-size:10px; color:var(--muted); }
+.ftr-left { font-size:10px; color:var(--muted); }
 .ftr-left strong { color:var(--accent); }
-.ftr-right { display:flex; align-items:center; gap:14px; }
-.ftr-stat  { display:flex; align-items:center; gap:4px; font-size:10px; color:var(--muted); }
-.live-dot  { width:6px; height:6px; border-radius:50%; background:var(--green); animation:zp 2s ease-in-out infinite; }
+.ftr-right { display:flex; align-items:center; gap:16px; }
+.ftr-stat { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--muted); }
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:zp 2s ease-in-out infinite; }
+
+/* ── PAGE INDICATOR ── */
+.page-indicator { display:flex; align-items:center; gap:8px; }
+.pip { width:24px; height:4px; border-radius:2px; background:var(--border); transition:all 0.3s; cursor:pointer; }
+.pip.active { background:var(--accent); width:32px; }
+.page-timer { font-size:10px; color:var(--muted); margin-left:4px; }
+.page-label { font-size:10px; color:var(--muted); }
 </style>
 </head>
 <body>
 
-<!-- COMPACT HEADER -->
+<!-- HEADER -->
 <div class="hdr">
-  <div class="logo">POLY<span>SCAN</span> <span style="color:var(--orange);font-size:11px;">24/7</span></div>
+  <div class="logo">POLY<span class="g">SCAN</span> <span class="o">24/7</span></div>
   <div class="vdiv"></div>
   <div class="sa-block">
     <span class="sa-label">SAST</span>
@@ -247,11 +219,9 @@ body {
   <div class="zone r"><div class="zdot"></div><div class="zlbl">Monitor</div><div class="zsub">Not yet in window</div></div>
 </div>
 
-<!-- 3-COLUMN GRID -->
-<div class="grid">
-  <div class="col" id="col-g"></div>
-  <div class="col" id="col-o"></div>
-  <div class="col" id="col-r"></div>
+<!-- PAGES -->
+<div class="pages" id="pages">
+  <!-- Rendered by JS -->
 </div>
 
 <!-- FOOTER -->
@@ -260,6 +230,12 @@ body {
   <div class="ftr-right">
     <div class="ftr-stat"><div class="live-dot"></div>Live</div>
     <div class="ftr-stat" id="peakStat">— in peak</div>
+    <div class="page-indicator">
+      <div class="pip active" id="pip1" onclick="goToPage(0)"></div>
+      <div class="pip" id="pip2" onclick="goToPage(1)"></div>
+      <div class="page-label" id="pageLabel">Page 1 of 2</div>
+      <div class="page-timer" id="pageTimer">· switching in 30s</div>
+    </div>
     <div class="ftr-stat" id="loadStat">Loading…</div>
   </div>
 </div>
@@ -283,7 +259,7 @@ const CITIES = [
   { name:'Paris',         station:'LFPB', tz:'Europe/Paris',        country:'FR' },
   { name:'London',        station:'EGLC', tz:'Europe/London',       country:'GB' },
   { name:'Madrid',        station:'LEMD', tz:'Europe/Madrid',       country:'ES' },
-  { name:'Cape Town',     station:'FACT', tz:'Africa/Johannesburg',  country:'ZA' },
+  { name:'Cape Town',     station:'FACT', tz:'Africa/Johannesburg', country:'ZA' },
   { name:'Atlanta',       station:'KATL', tz:'America/New_York',    country:'US' },
   { name:'New York',      station:'KLGA', tz:'America/New_York',    country:'US' },
   { name:'Miami',         station:'KMIA', tz:'America/New_York',    country:'US' },
@@ -294,6 +270,12 @@ const CITIES = [
   { name:'Seattle',       station:'KSEA', tz:'America/Los_Angeles', country:'US' },
   { name:'San Francisco', station:'KSFO', tz:'America/Los_Angeles', country:'US' },
 ];
+
+let weatherCache = {};
+let currentPage = 0;
+let pageTimerCount = 30;
+let pageTimerInterval = null;
+let switchInterval = null;
 
 function cityTimeInfo(tz) {
   const now = new Date();
@@ -307,44 +289,42 @@ function cityTimeInfo(tz) {
 function condDisplay(cond) {
   if (!cond) return { icon:'🌡️', label:'—', cls:'cloudy' };
   const lo = cond.toLowerCase();
-  if (lo.includes('thunder')||lo.includes('storm'))        return { icon:'⛈️',  label:'Thunderstorm', cls:'storm' };
-  if (lo.includes('heavy rain')||lo.includes('downpour'))  return { icon:'🌧️', label:'Heavy rain',    cls:'rain'  };
+  if (lo.includes('thunder')||lo.includes('storm'))       return { icon:'⛈️',  label:'Thunderstorm',  cls:'storm'  };
+  if (lo.includes('heavy rain')||lo.includes('downpour')) return { icon:'🌧️', label:'Heavy rain',     cls:'rain'   };
   if (lo.includes('rain')||lo.includes('shower')||lo.includes('drizzle')) return { icon:'🌦️', label:'Rain/Showers', cls:'rain' };
-  if (lo.includes('snow')||lo.includes('blizzard'))        return { icon:'❄️',  label:'Snow',         cls:'snow'  };
-  if (lo.includes('freezing'))                             return { icon:'🌨️', label:'Freezing rain', cls:'snow'  };
+  if (lo.includes('snow')||lo.includes('blizzard'))       return { icon:'❄️',  label:'Snow',          cls:'snow'   };
+  if (lo.includes('freezing'))                            return { icon:'🌨️', label:'Freezing rain',  cls:'snow'   };
   if (lo.includes('fog')||lo.includes('mist')||lo.includes('haze')) return { icon:'🌫️', label:'Fog/Haze', cls:'fog' };
-  if (lo.includes('overcast'))                             return { icon:'☁️',  label:'Overcast',      cls:'cloudy'};
-  if (lo.includes('cloudy'))                               return { icon:'🌥️', label:'Cloudy',        cls:'cloudy'};
-  if (lo.includes('partly')||lo.includes('mostly sunny'))  return { icon:'⛅',  label:'Partly cloudy', cls:'cloudy'};
+  if (lo.includes('overcast'))                            return { icon:'☁️',  label:'Overcast',       cls:'cloudy' };
+  if (lo.includes('cloudy'))                              return { icon:'🌥️', label:'Cloudy',         cls:'cloudy' };
+  if (lo.includes('partly')||lo.includes('mostly sunny')) return { icon:'⛅',  label:'Partly cloudy',  cls:'cloudy' };
   if (lo.includes('clear')||lo.includes('sunny')||lo.includes('fair')) return { icon:'☀️', label:'Clear/Sunny', cls:'sunny' };
-  if (lo.includes('wind')||lo.includes('breezy'))          return { icon:'💨',  label:'Windy',         cls:'cloudy'};
-  return { icon:'🌡️', label: cond.length > 14 ? cond.slice(0,14)+'…' : cond, cls:'cloudy' };
+  if (lo.includes('wind')||lo.includes('breezy'))         return { icon:'💨',  label:'Windy',          cls:'cloudy' };
+  return { icon:'🌡️', label: cond.length>16?cond.slice(0,16)+'…':cond, cls:'cloudy' };
 }
 
 function buildCard(city, ti, wx) {
-  const { name, station, country } = city;
-  const { timeStr, dateStr, zone } = ti;
-  const zlabels = { g:'🟢 PEAK', o:'🟠 SOON', r:'🔴 MONITOR' };
   const cd = condDisplay(wx ? wx.cond : '');
-  const unit = (wx && wx.unit === 'F') ? '°F' : '°C';
-  const tempStr = (wx && wx.temp !== null && wx.temp !== undefined) ? Math.round(wx.temp) : '—';
-  const highStr = (wx && wx.high !== null && wx.high !== undefined) ? Math.round(wx.high) : '—';
+  const unit = (wx && wx.unit==='F') ? '°F' : '°C';
+  const tempStr = (wx && wx.temp != null) ? Math.round(wx.temp) : '—';
+  const highStr = (wx && wx.high != null) ? Math.round(wx.high) : '—';
   const trend   = wx ? wx.trend : 'up';
-  const trendArrow = trend === 'up'
+  const arrow   = trend==='up'
     ? '<span class="trend-arrow trend-up">↑</span>'
     : '<span class="trend-arrow trend-down">↓</span>';
-  const humStr = (wx && wx.humidity !== null && wx.humidity !== undefined) ? `<div class="hum">Humidity <span>${wx.humidity}%</span></div>` : '';
+  const humStr  = (wx && wx.humidity != null)
+    ? `<div class="hum">Humidity <span>${wx.humidity}%</span></div>` : '';
+  const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
 
-  return `
-<div class="card ${zone}">
+  return `<div class="card ${ti.zone}">
   <div class="ct">
     <div>
-      <div class="cname">${name}</div>
-      <div class="cdate">${dateStr} · ${country}</div>
+      <div class="cname">${city.name}</div>
+      <div class="cdate">${ti.dateStr} · ${city.country}</div>
     </div>
     <div class="ctime-block">
-      <div class="ctime">${timeStr}</div>
-      <div class="czlbl">${zlabels[zone]}</div>
+      <div class="ctime">${ti.timeStr}</div>
+      <div class="czlbl">${zlabels[ti.zone]}</div>
     </div>
   </div>
   <div class="tr">
@@ -353,7 +333,7 @@ function buildCard(city, ti, wx) {
         <div class="curr-val">${tempStr}</div>
         <div class="curr-unit">${unit}</div>
       </div>
-      ${trendArrow}
+      ${arrow}
     </div>
     <div class="high-block">
       <div class="high-row">
@@ -369,27 +349,73 @@ function buildCard(city, ti, wx) {
       <span class="cond-icon">${cd.icon}</span>
       <span class="${cd.cls}">${cd.label}</span>
     </div>
-    <div style="display:flex;align-items:center;gap:6px">
+    <div class="meta">
       ${humStr}
-      <div class="station">${station}</div>
+      <div class="station">${city.station}</div>
     </div>
   </div>
 </div>`;
 }
 
 function buildLoadingCard(city, ti) {
-  const zlabels = { g:'🟢 PEAK', o:'🟠 SOON', r:'🔴 MONITOR' };
-  return `
-<div class="card ${ti.zone}">
+  const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
+  return `<div class="card ${ti.zone}">
   <div class="ct">
     <div><div class="cname">${city.name}</div><div class="cdate">${ti.dateStr} · ${city.country}</div></div>
     <div class="ctime-block"><div class="ctime">${ti.timeStr}</div><div class="czlbl">${zlabels[ti.zone]}</div></div>
   </div>
-  <div class="loading-bar" style="width:55%"></div>
-  <div class="cb" style="margin-top:2px">
-    <span style="font-size:9px;color:var(--muted)">⏳ Fetching…</span>
+  <div class="loading-bar" style="width:60%;margin-top:8px"></div>
+  <div class="loading-bar" style="width:40%;margin-top:6px"></div>
+  <div class="cb" style="margin-top:6px">
+    <span style="font-size:10px;color:var(--muted)">⏳ Fetching…</span>
     <div class="station">${city.station}</div>
   </div>
+</div>`;
+}
+
+function sortCities() {
+  return CITIES.map(c => ({ city:c, ti:cityTimeInfo(c.tz) }))
+    .sort((a,b) => {
+      const order={g:0,o:1,r:2};
+      if (order[a.ti.zone]!==order[b.ti.zone]) return order[a.ti.zone]-order[b.ti.zone];
+      return b.ti.h24-a.ti.h24;
+    });
+}
+
+function buildPages(sorted, useCache) {
+  // Page 1: first 14, Page 2: remaining 13
+  const page1 = sorted.slice(0,14);
+  const page2 = sorted.slice(14);
+
+  function makeCol(items, loading) {
+    return items.map(x => loading
+      ? buildLoadingCard(x.city, x.ti)
+      : buildCard(x.city, x.ti, weatherCache[x.city.station] || null)
+    ).join('');
+  }
+
+  // Page 1: 3 cols of 5/5/4
+  const p1c1 = page1.slice(0,5);
+  const p1c2 = page1.slice(5,10);
+  const p1c3 = page1.slice(10,14);
+
+  // Page 2: 3 cols of 5/5/3
+  const p2c1 = page2.slice(0,5);
+  const p2c2 = page2.slice(5,10);
+  const p2c3 = page2.slice(10);
+
+  const loading = !useCache;
+
+  return `
+<div class="page page-1 ${currentPage===0?'active':''}" id="page-0">
+  <div class="col" style="grid-template-rows:repeat(5,1fr)">${makeCol(p1c1,loading)}</div>
+  <div class="col" style="grid-template-rows:repeat(5,1fr)">${makeCol(p1c2,loading)}</div>
+  <div class="col" style="grid-template-rows:repeat(4,1fr)">${makeCol(p1c3,loading)}</div>
+</div>
+<div class="page page-2 ${currentPage===1?'active':''}" id="page-1">
+  <div class="col" style="grid-template-rows:repeat(5,1fr)">${makeCol(p2c1,loading)}</div>
+  <div class="col" style="grid-template-rows:repeat(5,1fr)">${makeCol(p2c2,loading)}</div>
+  <div class="col" style="grid-template-rows:repeat(${p2c3.length},1fr)">${makeCol(p2c3,loading)}</div>
 </div>`;
 }
 
@@ -399,84 +425,73 @@ async function fetchWeather(station) {
     if (!res.ok) throw new Error('err');
     return await res.json();
   } catch(e) {
-    return { temp:null, high:null, cond:'', humidity:null, trend:'up', unit:'C' };
+    return null;
   }
-}
-
-function sortCities() {
-  return CITIES.map(c => ({ city:c, ti:cityTimeInfo(c.tz) }))
-    .sort((a,b) => {
-      const order = { g:0, o:1, r:2 };
-      if (order[a.ti.zone] !== order[b.ti.zone]) return order[a.ti.zone] - order[b.ti.zone];
-      return b.ti.h24 - a.ti.h24;
-    });
-}
-
-// Fill 3 columns of exactly 9 rows each
-function distributeToColumns(sorted) {
-  const greens  = sorted.filter(x=>x.ti.zone==='g');
-  const oranges = sorted.filter(x=>x.ti.zone==='o');
-  const reds    = sorted.filter(x=>x.ti.zone==='r');
-
-  // Each column gets 9 slots
-  // Fill green col with greens, overflow goes to orange col top, etc
-  const col1 = [], col2 = [], col3 = [];
-
-  // Distribute: green col = greens (pad with overflow oranges if <9)
-  // orange col = oranges (pad with overflow greens or reds)
-  // red col = reds
-
-  // Simple: just fill col1=greens, col2=oranges, col3=reds, each max 9
-  const g9 = greens.slice(0,9);
-  const o9 = oranges.slice(0,9);
-  const r9 = reds.slice(0,9);
-
-  // If a col has fewer than 9, pad from overflow of other zones
-  const gOver = greens.slice(9);
-  const oOver = oranges.slice(9);
-  const rOver = reds.slice(9);
-  const overflow = [...gOver, ...oOver, ...rOver];
-
-  while (g9.length < 9 && overflow.length) g9.push(overflow.shift());
-  while (o9.length < 9 && overflow.length) o9.push(overflow.shift());
-  while (r9.length < 9 && overflow.length) r9.push(overflow.shift());
-
-  return { g9, o9, r9 };
 }
 
 async function renderAll() {
   const sorted = sortCities();
-  const { g9, o9, r9 } = distributeToColumns(sorted);
+  const pages = document.getElementById('pages');
 
-  const colG = document.getElementById('col-g');
-  const colO = document.getElementById('col-o');
-  const colR = document.getElementById('col-r');
-
-  colG.innerHTML = g9.map(x=>buildLoadingCard(x.city,x.ti)).join('');
-  colO.innerHTML = o9.map(x=>buildLoadingCard(x.city,x.ti)).join('');
-  colR.innerHTML = r9.map(x=>buildLoadingCard(x.city,x.ti)).join('');
+  // Show loading state
+  pages.innerHTML = buildPages(sorted, false);
 
   const greens = sorted.filter(x=>x.ti.zone==='g');
   document.getElementById('peakStat').textContent = `${greens.length} in peak`;
   document.getElementById('loadStat').textContent = `Fetching 27 stations…`;
 
-  const allCols = [
-    { items: g9, col: colG },
-    { items: o9, col: colO },
-    { items: r9, col: colR },
-  ];
+  // Fetch all weather in parallel
+  const results = await Promise.allSettled(
+    sorted.map(x => fetchWeather(x.city.station))
+  );
 
-  for (const { items, col } of allCols) {
-    const results = await Promise.allSettled(items.map(x=>fetchWeather(x.city.station)));
-    col.innerHTML = items.map((x,i) => {
-      const wx = results[i].status==='fulfilled' ? results[i].value : null;
-      return buildCard(x.city, x.ti, wx);
-    }).join('');
-  }
+  results.forEach((r,i) => {
+    if (r.status==='fulfilled' && r.value) {
+      weatherCache[sorted[i].city.station] = r.value;
+    }
+  });
+
+  // Re-render with data
+  pages.innerHTML = buildPages(sorted, true);
+  showPage(currentPage);
 
   document.getElementById('lastUpd').textContent =
     `Updated ${new Date().toLocaleTimeString('en-ZA',{timeZone:'Africa/Johannesburg'})} SAST`;
   document.getElementById('loadStat').textContent = `27/27 stations`;
+}
+
+function showPage(n) {
+  document.querySelectorAll('.page').forEach((p,i) => {
+    p.classList.toggle('active', i===n);
+  });
+  document.getElementById('pip1').classList.toggle('active', n===0);
+  document.getElementById('pip2').classList.toggle('active', n===1);
+  document.getElementById('pageLabel').textContent = `Page ${n+1} of 2`;
+  pageTimerCount = 30;
+}
+
+function goToPage(n) {
+  currentPage = n;
+  showPage(n);
+  // Reset auto-switch timer
+  if (switchInterval) clearInterval(switchInterval);
+  startAutoSwitch();
+}
+
+function startAutoSwitch() {
+  pageTimerCount = 30;
+  if (switchInterval) clearInterval(switchInterval);
+  switchInterval = setInterval(() => {
+    currentPage = (currentPage + 1) % 2;
+    showPage(currentPage);
+  }, 30000);
+
+  if (pageTimerInterval) clearInterval(pageTimerInterval);
+  pageTimerInterval = setInterval(() => {
+    pageTimerCount--;
+    if (pageTimerCount <= 0) pageTimerCount = 30;
+    document.getElementById('pageTimer').textContent = `· switching in ${pageTimerCount}s`;
+  }, 1000);
 }
 
 function updateSAClock() {
@@ -487,14 +502,14 @@ function updateSAClock() {
     new Intl.DateTimeFormat('en-ZA',{timeZone:'Africa/Johannesburg',weekday:'short',day:'numeric',month:'short',year:'numeric'}).format(now);
 }
 
-function refreshZones() {
+function refreshZoneTimes() {
   document.querySelectorAll('.card').forEach(card => {
     const nameEl = card.querySelector('.cname');
     if (!nameEl) return;
     const city = CITIES.find(c=>c.name===nameEl.textContent);
     if (!city) return;
     const ti = cityTimeInfo(city.tz);
-    const zlabels = { g:'🟢 PEAK', o:'🟠 SOON', r:'🔴 MONITOR' };
+    const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
     card.className = `card ${ti.zone}`;
     const timeEl = card.querySelector('.ctime');
     if (timeEl) timeEl.textContent = ti.timeStr;
@@ -503,9 +518,11 @@ function refreshZones() {
   });
 }
 
+// Boot
 updateSAClock();
 setInterval(updateSAClock, 1000);
-setInterval(refreshZones, 60000);
+setInterval(refreshZoneTimes, 60000);
+startAutoSwitch();
 renderAll();
 setInterval(renderAll, 10 * 60 * 1000);
 </script>

@@ -8,35 +8,52 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@600;700&display=swap');
 
 :root {
-  --bg:     #07090F;
+  --bg:     #05070B;
   --bg2:    #0C1018;
   --bg3:    #121824;
-  --border: rgba(255,255,255,0.07);
+  --border: rgba(255,255,255,0.08);
   --text:   #E8EDF5;
-  --muted:  #4A5A72;
+  --muted:  #5C6E88;
   --green:  #00E676;
-  --green-bg:     rgba(0,230,118,0.07);
-  --green-border: rgba(0,230,118,0.30);
+  --green-bg:     rgba(0,230,118,0.05);
+  --green-border: rgba(0,230,118,0.35);
   --orange: #FF9F0A;
-  --orange-bg:    rgba(255,159,10,0.07);
-  --orange-border:rgba(255,159,10,0.30);
+  --orange-bg:    rgba(255,159,10,0.05);
+  --orange-border:rgba(255,159,10,0.35);
   --red:    #FF3B5C;
-  --red-bg:       rgba(255,59,92,0.06);
-  --red-border:   rgba(255,59,92,0.24);
+  --red-bg:       rgba(255,59,92,0.04);
+  --red-border:   rgba(255,59,92,0.30);
   --accent: #3D8EFF;
+  
+  /* TV Overscan Safe-Zone Pad */
+  --tv-pad-x: 1.5vw;
+  --tv-pad-y: 1.5vh;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100vh; overflow: hidden; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+html, body { 
+  height: 100vh; 
+  max-height: 100vh;
+  overflow: hidden; 
+  background: var(--bg); 
+  color: var(--text); 
+  font-family: 'Inter', sans-serif; 
+}
 
-body { display: flex; flex-direction: column; height: 100vh; }
+body { 
+  display: flex; 
+  flex-direction: column; 
+  height: 100vh; 
+  padding: var(--tv-pad-y) var(--tv-pad-x); /* Creates the protective buffer border for TV screens */
+}
 
 /* ── HEADER ── */
 .hdr {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 7px 20px;
+  padding: 8px 16px;
   background: var(--bg2);
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--border);
+  border-radius: 6px 6px 0 0;
   flex-shrink: 0; gap: 14px; flex-wrap: nowrap;
 }
 .logo { font-family:'Orbitron',monospace; font-size:14px; font-weight:700; letter-spacing:2px; color:var(--accent); white-space:nowrap; }
@@ -45,19 +62,27 @@ body { display: flex; flex-direction: column; height: 100vh; }
 .vdiv { width:1px; height:24px; background:var(--border); flex-shrink:0; }
 .sa-block { display:flex; align-items:center; gap:6px; }
 .sa-label { font-size:9px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; white-space:nowrap; }
-.sa-val   { font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; }
-.sa-date  { font-size:12px; font-weight:500; white-space:nowrap; }
+.sa-val   { font-size:16px; font-weight:600; font-variant-numeric:tabular-nums; white-space:nowrap; color: #FFF; }
+.sa-date  { font-size:12px; font-weight:500; white-space:nowrap; color: var(--text); }
 .legend { display:flex; gap:14px; align-items:center; }
 .leg { display:flex; align-items:center; gap:5px; font-size:10px; color:var(--muted); white-space:nowrap; }
 .leg-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
 .upd { font-size:10px; color:var(--accent); white-space:nowrap; text-align:right; }
 
 /* ── ZONE BANNER ── */
-.zones { display:grid; grid-template-columns:repeat(3,1fr); flex-shrink:0; }
-.zone { display:flex; align-items:center; gap:8px; padding:5px 16px; border-bottom:2px solid; }
-.zone.g { border-color:var(--green);  background:rgba(0,230,118,0.03); }
-.zone.o { border-color:var(--orange); background:rgba(255,159,10,0.03); border-left:1px solid var(--border); border-right:1px solid var(--border); }
-.zone.r { border-color:var(--red);    background:rgba(255,59,92,0.02); }
+.zones { 
+  display:grid; 
+  grid-template-columns:repeat(3,1fr); 
+  flex-shrink:0; 
+  background: var(--bg2);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+.zone { display:flex; align-items:center; gap:8px; padding:6px 16px; border-bottom:2px solid; }
+.zone.g { border-color:var(--green);  background:rgba(0,230,118,0.02); }
+.zone.o { border-color:var(--orange); background:rgba(255,159,10,0.02); border-left:1px solid var(--border); border-right:1px solid var(--border); }
+.zone.r { border-color:var(--red);    background:rgba(255,59,92,0.01); }
 .zdot { width:9px; height:9px; border-radius:50%; flex-shrink:0; animation:zp 2s ease-in-out infinite; }
 .zone.g .zdot { background:var(--green);  box-shadow:0 0 7px var(--green); }
 .zone.o .zdot { background:var(--orange); box-shadow:0 0 7px var(--orange); animation-delay:.4s; }
@@ -70,108 +95,115 @@ body { display: flex; flex-direction: column; height: 100vh; }
 .zsub { font-size:9px; color:var(--muted); margin-left:auto; }
 
 /* ── PAGE CONTAINER ── */
-.pages { flex:1; min-height:0; position:relative; }
+.pages { 
+  flex:1; 
+  position:relative; 
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  border-right: 1px solid var(--border);
+  height: 100%;
+  min-height: 0; 
+}
 .page {
-  position:absolute; inset:0;
+  position:absolute; 
+  inset:0;
   display:grid;
   grid-template-columns:repeat(3,1fr);
-  gap:0;
+  gap:4px;
+  padding:4px;
   opacity:0;
-  transition:opacity 0.6s ease;
+  transition:opacity 0.4s ease-in-out;
   pointer-events:none;
+  height: 100%;
 }
 .page.active { opacity:1; pointer-events:all; }
 
 .col {
   display:grid;
-  border-right:1px solid var(--border);
-  padding:5px;
-  gap:5px;
+  gap:4px;
+  height: 100%;
   min-height:0;
 }
-.col:last-child { border-right:none; }
 
-/* page 1 = 5 rows, page 2 = 5 rows (14 + 13 cities) */
-.page-1 .col { grid-template-rows: repeat(5,1fr); }
-.page-2 .col:nth-child(1) { grid-template-rows: repeat(5,1fr); }
-.page-2 .col:nth-child(2) { grid-template-rows: repeat(5,1fr); }
-.page-2 .col:nth-child(3) { grid-template-rows: repeat(3,1fr); }
+/* Rigid vertical row configurations using fractional limits */
+.page-1 .col { grid-template-rows: repeat(5, 1fr); }
+.page-2 .col:nth-child(1) { grid-template-rows: repeat(5, 1fr); }
+.page-2 .col:nth-child(2) { grid-template-rows: repeat(5, 1fr); }
+.page-2 .col:nth-child(3) { grid-template-rows: repeat(3, 1fr); }
 
 /* ── CITY CARD ── */
 .card {
-  border-radius:8px;
-  padding:8px 10px;
-  border:1px solid;
+  border-radius:4px;
+  padding:6px 10px;
+  border:1px solid var(--border);
   position:relative;
   overflow:hidden;
   display:flex;
   flex-direction:column;
   justify-content:space-between;
   min-height:0;
-  cursor:default;
+  height: 100%;
+  background: #090D14;
 }
 .card.g { background:var(--green-bg);  border-color:var(--green-border); }
 .card.o { background:var(--orange-bg); border-color:var(--orange-border); }
 .card.r { background:var(--red-bg);    border-color:var(--red-border); }
-.card::after { content:''; position:absolute; top:0; left:15%; right:15%; height:2px; border-radius:0 0 4px 4px; }
-.card.g::after { background:var(--green);  opacity:.5; }
-.card.o::after { background:var(--orange); opacity:.5; }
-.card.r::after { background:var(--red);    opacity:.4; }
 
-/* card top */
-.ct { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px; }
-.cname { font-size:13px; font-weight:600; line-height:1.2; }
-.cdate { font-size:10px; color:var(--muted); margin-top:2px; }
+/* Card structural sections */
+.ct { display:flex; justify-content:space-between; align-items:flex-start; }
+.cname { font-size:13px; font-weight:600; line-height:1.2; color: #FFF; }
+.cdate { font-size:10px; color:var(--muted); margin-top:1px; }
 .ctime-block { text-align:right; flex-shrink:0; }
 .ctime { font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; }
 .card.g .ctime { color:var(--green); }
 .card.o .ctime { color:var(--orange); }
 .card.r .ctime { color:var(--red); }
-.czlbl { font-size:9px; color:var(--muted); text-align:right; margin-top:1px; }
+.czlbl { font-size:8.5px; font-weight:700; text-align:right; margin-top:1px; letter-spacing: 0.5px; }
 
-/* temp row */
-.tr { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
-.curr { display:flex; align-items:baseline; gap:2px; }
-.curr-val  { font-size:30px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; }
-.curr-unit { font-size:14px; color:var(--muted); padding-bottom:4px; }
+/* Temp middle display row */
+.tr { display:flex; align-items:center; justify-content:space-between; margin: auto 0; }
+.curr { display:flex; align-items:baseline; gap:1px; }
+.curr-val  { font-size:28px; font-weight:700; line-height:1; font-variant-numeric:tabular-nums; }
+.curr-unit { font-size:13px; color:var(--muted); font-weight:500; }
 .card.g .curr-val { color:var(--green); }
 .card.o .curr-val { color:var(--orange); }
 .card.r .curr-val { color:var(--red); }
-.trend-arrow { font-size:16px; font-weight:700; margin-left:5px; line-height:1; }
+.trend-arrow { font-size:15px; font-weight:700; margin-left:4px; line-height:1; }
 .trend-up   { color:var(--green); }
 .trend-down { color:var(--red); }
 .high-block { text-align:right; }
-.high-row { display:flex; align-items:center; gap:4px; justify-content:flex-end; margin-bottom:2px; }
-.high-arr  { font-size:11px; color:var(--red); }
-.high-val  { font-size:18px; font-weight:600; font-variant-numeric:tabular-nums; }
+.high-row { display:flex; align-items:center; gap:2px; justify-content:flex-end; }
+.high-arr  { font-size:10px; color:var(--red); }
+.high-val  { font-size:17px; font-weight:600; font-variant-numeric:tabular-nums; color: #FFF; }
 .high-unit { font-size:10px; color:var(--muted); }
-.high-lbl  { font-size:9px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; }
+.high-lbl  { font-size:8.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; }
 
-/* bottom */
-.cond { display:flex; align-items:center; gap:5px; font-size:11px; }
-.cond-icon { font-size:14px; line-height:1; }
+/* Bottom Data Block */
+.card-btm { display:flex; flex-direction:column; gap:2px; padding-top:4px; border-top:1px solid rgba(255,255,255,0.05); }
+.cond-row { display:flex; align-items:center; gap:5px; width: 100%; }
+.cond-text { font-size:10.5px; font-weight:500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 110px; }
+.cond-icon { font-size:13px; line-height:1; flex-shrink: 0; }
 .sunny  { color:#FFD60A; }
-.cloudy { color:#8E9AAB; }
+.cloudy { color:#A2B1C6; }
 .rain   { color:#3D8EFF; }
 .storm  { color:#B48CFF; }
 .snow   { color:#C8E6FF; }
-.fog    { color:#6B7A8D; }
-.card-btm { display:flex; flex-direction:column; gap:3px; padding-top:5px; border-top:1px solid rgba(255,255,255,0.06); }
-.cond-row { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
-.hum-inline { font-size:10px; color:var(--muted); }
-.station { font-size:10px; color:var(--muted); background:rgba(255,255,255,0.04); padding:1px 6px; border-radius:3px; letter-spacing:.4px; margin-left:auto; }
-.sun-row { display:flex; align-items:center; justify-content:center; gap:16px; font-size:10px; padding:2px 0; }
-.sun-row .sr, .sun-row .ss { color:#FFD60A; font-weight:500; }
+.fog    { color:#8A9BB4; }
+.hum-inline { font-size:10px; color:var(--muted); flex-shrink: 0; }
+.station { font-size:9px; color:var(--muted); font-family: monospace; background:rgba(255,255,255,0.05); padding:1px 4px; border-radius:2px; margin-left:auto; flex-shrink: 0; }
+.sun-row { display:flex; align-items:center; justify-content:space-between; font-size:9.5px; color: var(--muted); padding-top:1px; }
+.sun-row span { display: inline-flex; align-items: center; gap: 3px; }
 
-/* loading */
-.loading-bar { height:12px; border-radius:4px; margin:4px 0; background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; }
+/* Shimmer Loading placeholders */
+.loading-bar { height:10px; border-radius:2px; margin:4px 0; background:linear-gradient(90deg,var(--bg3) 25%,var(--bg2) 50%,var(--bg3) 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; }
 @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
 
 /* ── FOOTER ── */
 .ftr {
-  padding:6px 20px;
-  border-top:1px solid var(--border);
+  padding:6px 16px;
+  border:1px solid var(--border);
   background:var(--bg2);
+  border-radius: 0 0 6px 6px;
   display:flex; align-items:center; justify-content:space-between;
   flex-shrink:0;
 }
@@ -183,15 +215,14 @@ body { display: flex; flex-direction: column; height: 100vh; }
 
 /* ── PAGE INDICATOR ── */
 .page-indicator { display:flex; align-items:center; gap:8px; }
-.pip { width:24px; height:4px; border-radius:2px; background:var(--border); transition:all 0.3s; cursor:pointer; }
-.pip.active { background:var(--accent); width:32px; }
+.pip { width:20px; height:4px; border-radius:2px; background:var(--border); transition:all 0.3s; cursor:pointer; }
+.pip.active { background:var(--accent); width:28px; }
 .page-timer { font-size:10px; color:var(--muted); margin-left:4px; }
 .page-label { font-size:10px; color:var(--muted); }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="hdr">
   <div class="logo">POLY<span class="g">SCAN</span> <span class="o">24/7</span></div>
   <div class="vdiv"></div>
@@ -205,27 +236,23 @@ body { display: flex; flex-direction: column; height: 100vh; }
   </div>
   <div class="vdiv"></div>
   <div class="legend">
-    <div class="leg"><div class="leg-dot" style="background:var(--green);box-shadow:0 0 4px var(--green)"></div>Peak — Trade now (1–4pm local)</div>
-    <div class="leg"><div class="leg-dot" style="background:var(--orange);box-shadow:0 0 4px var(--orange)"></div>Approaching (within 3hrs)</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--green);box-shadow:0 0 4px var(--green)"></div>Peak (1–4pm local)</div>
+    <div class="leg"><div class="leg-dot" style="background:var(--orange);box-shadow:0 0 4px var(--orange)"></div>Approaching (<3hrs)</div>
     <div class="leg"><div class="leg-dot" style="background:var(--red);box-shadow:0 0 4px var(--red)"></div>Monitor</div>
   </div>
   <div class="vdiv"></div>
   <div class="upd" id="lastUpd">Loading…</div>
 </div>
 
-<!-- ZONE BANNERS -->
 <div class="zones">
   <div class="zone g"><div class="zdot"></div><div class="zlbl">Peak hours — Trade now</div><div class="zsub">1:00 PM – 4:00 PM local</div></div>
   <div class="zone o"><div class="zdot"></div><div class="zlbl">Approaching peak</div><div class="zsub">Within 3 hours</div></div>
   <div class="zone r"><div class="zdot"></div><div class="zlbl">Monitor</div><div class="zsub">Not yet in window</div></div>
 </div>
 
-<!-- PAGES -->
 <div class="pages" id="pages">
-  <!-- Rendered by JS -->
-</div>
+  </div>
 
-<!-- FOOTER -->
 <div class="ftr">
   <div class="ftr-left"><strong>PolyScan 24/7</strong> · 27 cities · Wunderground exact stations · Auto-refresh every 10 min</div>
   <div class="ftr-right">
@@ -290,18 +317,18 @@ function cityTimeInfo(tz) {
 function condDisplay(cond) {
   if (!cond) return { icon:'🌡️', label:'—', cls:'cloudy' };
   const lo = cond.toLowerCase();
-  if (lo.includes('thunder')||lo.includes('storm'))       return { icon:'⛈️',  label:'Thunderstorm',  cls:'storm'  };
-  if (lo.includes('heavy rain')||lo.includes('downpour')) return { icon:'🌧️', label:'Heavy rain',     cls:'rain'   };
+  if (lo.includes('thunder')||lo.includes('storm'))       return { icon:'⛈️',  label:'Storm',  cls:'storm'  };
+  if (lo.includes('heavy rain')||lo.includes('downpour')) return { icon:'🌧️', label:'Hvy Rain',     cls:'rain'   };
   if (lo.includes('rain')||lo.includes('shower')||lo.includes('drizzle')) return { icon:'🌦️', label:'Rain/Showers', cls:'rain' };
   if (lo.includes('snow')||lo.includes('blizzard'))       return { icon:'❄️',  label:'Snow',          cls:'snow'   };
-  if (lo.includes('freezing'))                            return { icon:'🌨️', label:'Freezing rain',  cls:'snow'   };
+  if (lo.includes('freezing'))                            return { icon:'🌨️', label:'Frz Rain',  cls:'snow'   };
   if (lo.includes('fog')||lo.includes('mist')||lo.includes('haze')) return { icon:'🌫️', label:'Fog/Haze', cls:'fog' };
   if (lo.includes('overcast'))                            return { icon:'☁️',  label:'Overcast',       cls:'cloudy' };
   if (lo.includes('cloudy'))                              return { icon:'🌥️', label:'Cloudy',         cls:'cloudy' };
-  if (lo.includes('partly')||lo.includes('mostly sunny')) return { icon:'⛅',  label:'Partly cloudy',  cls:'cloudy' };
+  if (lo.includes('partly')||lo.includes('mostly sunny')) return { icon:'⛅',  label:'Partly Cl',  cls:'cloudy' };
   if (lo.includes('clear')||lo.includes('sunny')||lo.includes('fair')) return { icon:'☀️', label:'Clear/Sunny', cls:'sunny' };
   if (lo.includes('wind')||lo.includes('breezy'))         return { icon:'💨',  label:'Windy',          cls:'cloudy' };
-  return { icon:'🌡️', label: cond.length>16?cond.slice(0,16)+'…':cond, cls:'cloudy' };
+  return { icon:'🌡️', label: cond.length>12?cond.slice(0,12)+'…':cond, cls:'cloudy' };
 }
 
 function buildCard(city, ti, wx) {
@@ -313,8 +340,7 @@ function buildCard(city, ti, wx) {
   const arrow   = trend==='up'
     ? '<span class="trend-arrow trend-up">↑</span>'
     : '<span class="trend-arrow trend-down">↓</span>';
-  // humidity and sun now rendered inline in card-btm
-  const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
+  const zlabels = { g:'PEAK NOW', o:'APPROACHING', r:'MONITOR' };
 
   return `<div class="card ${ti.zone}">
   <div class="ct">
@@ -347,17 +373,17 @@ function buildCard(city, ti, wx) {
   <div class="card-btm">
     <div class="cond-row">
       <span class="cond-icon">${cd.icon}</span>
-      <span class="${cd.cls}">${cd.label}</span>
+      <span class="cond-text ${cd.cls}">${cd.label}</span>
       ${wx && wx.humidity != null ? `<span class="hum-inline">· ${wx.humidity}%</span>` : ''}
       <span class="station">${city.station}</span>
     </div>
-    ${wx && (wx.sunrise || wx.sunset) ? `<div class="sun-row"><span class="sr">🌅 ${wx.sunrise||'—'}</span><span class="ss">🌇 ${wx.sunset||'—'}</span></div>` : ''}
+    ${wx && (wx.sunrise || wx.sunset) ? `<div class="sun-row"><span>🌅 ${wx.sunrise||'—'}</span><span>🌇 ${wx.sunset||'—'}</span></div>` : ''}
   </div>
 </div>`;
 }
 
 function buildLoadingCard(city, ti) {
-  const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
+  const zlabels = { g:'PEAK NOW', o:'APPROACHING', r:'MONITOR' };
   return `<div class="card ${ti.zone}">
   <div class="ct">
     <div><div class="cname">${city.name}</div><div class="cdate">${ti.dateStr} · ${city.country}</div></div>
@@ -365,9 +391,9 @@ function buildLoadingCard(city, ti) {
   </div>
   <div class="loading-bar" style="width:60%;margin-top:8px"></div>
   <div class="loading-bar" style="width:40%;margin-top:6px"></div>
-  <div class="cb" style="margin-top:6px">
-    <span style="font-size:10px;color:var(--muted)">⏳ Fetching…</span>
-    <div class="station">${city.station}</div>
+  <div class="cond-row" style="margin-top:4px">
+    <span style="font-size:9.5px;color:var(--muted)">⏳ Fetching…</span>
+    <span class="station">${city.station}</span>
   </div>
 </div>`;
 }
@@ -382,7 +408,6 @@ function sortCities() {
 }
 
 function buildPages(sorted, useCache) {
-  // Page 1: first 14, Page 2: remaining 13
   const page1 = sorted.slice(0,14);
   const page2 = sorted.slice(14);
 
@@ -393,12 +418,10 @@ function buildPages(sorted, useCache) {
     ).join('');
   }
 
-  // Page 1: 3 cols of 5/5/4
   const p1c1 = page1.slice(0,5);
   const p1c2 = page1.slice(5,10);
   const p1c3 = page1.slice(10,14);
 
-  // Page 2: 3 cols of 5/5/3
   const p2c1 = page2.slice(0,5);
   const p2c2 = page2.slice(5,10);
   const p2c3 = page2.slice(10);
@@ -407,14 +430,14 @@ function buildPages(sorted, useCache) {
 
   return `
 <div class="page page-1 ${currentPage===0?'active':''}" id="page-0">
-  <div class="col" style="grid-template-rows:repeat(5,1fr)">${makeCol(p1c1,loading)}</div>
-  <div class="col" style="grid-template-rows:repeat(5,1fr)">${makeCol(p1c2,loading)}</div>
-  <div class="col" style="grid-template-rows:repeat(4,1fr)">${makeCol(p1c3,loading)}</div>
+  <div class="col">${makeCol(p1c1,loading)}</div>
+  <div class="col">${makeCol(p1c2,loading)}</div>
+  <div class="col">${makeCol(p1c3,loading)}</div>
 </div>
 <div class="page page-2 ${currentPage===1?'active':''}" id="page-1">
-  <div class="col" style="grid-template-rows:repeat(5,1fr)">${makeCol(p2c1,loading)}</div>
-  <div class="col" style="grid-template-rows:repeat(5,1fr)">${makeCol(p2c2,loading)}</div>
-  <div class="col" style="grid-template-rows:repeat(${p2c3.length},1fr)">${makeCol(p2c3,loading)}</div>
+  <div class="col">${makeCol(p2c1,loading)}</div>
+  <div class="col">${makeCol(p2c2,loading)}</div>
+  <div class="col">${makeCol(p2c3,loading)}</div>
 </div>`;
 }
 
@@ -432,14 +455,12 @@ async function renderAll() {
   const sorted = sortCities();
   const pages = document.getElementById('pages');
 
-  // Show loading state
   pages.innerHTML = buildPages(sorted, false);
 
   const greens = sorted.filter(x=>x.ti.zone==='g');
   document.getElementById('peakStat').textContent = `${greens.length} in peak`;
-  document.getElementById('loadStat').textContent = `Fetching 27 stations…`;
+  document.getElementById('loadStat').textContent = `Fetching…`;
 
-  // Fetch all weather in parallel
   const results = await Promise.allSettled(
     sorted.map(x => fetchWeather(x.city.station))
   );
@@ -450,7 +471,6 @@ async function renderAll() {
     }
   });
 
-  // Re-render with data
   pages.innerHTML = buildPages(sorted, true);
   showPage(currentPage);
 
@@ -472,7 +492,6 @@ function showPage(n) {
 function goToPage(n) {
   currentPage = n;
   showPage(n);
-  // Reset auto-switch timer
   if (switchInterval) clearInterval(switchInterval);
   startAutoSwitch();
 }
@@ -508,7 +527,7 @@ function refreshZoneTimes() {
     const city = CITIES.find(c=>c.name===nameEl.textContent);
     if (!city) return;
     const ti = cityTimeInfo(city.tz);
-    const zlabels = { g:'🟢 PEAK NOW', o:'🟠 APPROACHING', r:'🔴 MONITOR' };
+    const zlabels = { g:'PEAK NOW', o:'APPROACHING', r:'MONITOR' };
     card.className = `card ${ti.zone}`;
     const timeEl = card.querySelector('.ctime');
     if (timeEl) timeEl.textContent = ti.timeStr;
@@ -517,7 +536,6 @@ function refreshZoneTimes() {
   });
 }
 
-// Boot
 updateSAClock();
 setInterval(updateSAClock, 1000);
 setInterval(refreshZoneTimes, 60000);

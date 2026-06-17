@@ -73,13 +73,16 @@ function parseCurrentTemp(html) {
 
 function parseCond(html) {
   const patterns = [
+    /"wxPhraseLong"\s*:\s*"([^"]+)"/,
+    /"wxPhraseMedium"\s*:\s*"([^"]+)"/,
+    /"wxPhraseShort"\s*:\s*"([^"]+)"/,
     /data-testid="wxPhrase"[^>]*>([^<]+)</,
     /"phrase"\s*:\s*"([^"]+)"/,
     /"conditionPhrase"\s*:\s*"([^"]+)"/,
   ];
   for (const p of patterns) {
     const m = html.match(p);
-    if (m) return m[1].trim();
+    if (m && m[1].trim() && m[1].trim() !== 'null') return m[1].trim();
   }
   return '';
 }
@@ -90,61 +93,66 @@ function parseHumidity(html) {
   return m ? parseInt(m[1]) : null;
 }
 
-// Improved hourly high parser
-// Wunderground hourly page embeds JSON data in a <script> tag
-// We look specifically for the daily forecast high, not random numbers
+// Parse hourly high from Wunderground hourly page
+// Debug confirmed: WU embeds hourly JSON as "temp":XX inside imperial objects
+// We collect all hourly temp readings and take the daily max
 function parseHourlyHigh(html, isUS) {
   try {
-    // Strategy 1: Find JSON array of hourly temps and take the max
-    // WU embeds data like: "temperature":{"imperial":{"value":84}...
-    // across multiple hourly entries — collect all and take max
-    const imperialTemps = [];
-    const metricTemps = [];
+    const temps = [];
 
-    const impPattern = /"temperature"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/g;
-    const metPattern = /"temperature"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/g;
-
+    // Pattern confirmed from debug: "imperial":{"temp":XX,"heatIndex"...
+    // Collect all imperial temp values from hourly entries
+    const impTempPattern = /"imperial"\s*:\s*\{[^}]*"temp"\s*:\s*([-\d.]+)/g;
     let m;
-    while ((m = impPattern.exec(html)) !== null) {
+    while ((m = impTempPattern.exec(html)) !== null) {
       const n = parseFloat(m[1]);
-      if (!isNaN(n) && n > -60 && n < 150) imperialTemps.push(n);
+      // Filter nulls and unrealistic values
+      if (!isNaN(n) && n > -40 && n < 130) temps.push(n);
     }
-    while ((m = metPattern.exec(html)) !== null) {
+
+    // Also try metric temp pattern
+    const metTempPattern = /"metric"\s*:\s*\{[^}]*"temp"\s*:\s*([-\d.]+)/g;
+    const metTemps = [];
+    while ((m = metTempPattern.exec(html)) !== null) {
       const n = parseFloat(m[1]);
-      if (!isNaN(n) && n > -60 && n < 60) metricTemps.push(n);
+      if (!isNaN(n) && n > -40 && n < 55) metTemps.push(n);
     }
 
-    // Strategy 2: Look for explicit daily high in the forecast section
-    const dailyHighImp = html.match(/"tempHigh"\s*:\s*\{\s*"imperial"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/);
-    const dailyHighMet = html.match(/"tempHigh"\s*:\s*\{\s*"metric"\s*:\s*\{\s*"value"\s*:\s*([-\d.]+)/);
-
-    if (dailyHighImp) return parseFloat(dailyHighImp[1]);
-    if (dailyHighMet) return parseFloat(dailyHighMet[1]);
-
-    // Strategy 3: Use max of hourly temps
-    // For US stations use imperial, otherwise use metric
-    if (isUS && imperialTemps.length > 0) {
-      // Filter out outliers — temps should be in realistic range for the day
-      const sorted = imperialTemps.sort((a,b)=>a-b);
-      // Remove bottom 10% outliers (cold overnight readings) and take max of day
-      const dayTemps = sorted.slice(Math.floor(sorted.length * 0.1));
-      return Math.max(...dayTemps);
+    // Also try compact pattern: "temp":XX anywhere in hourly data
+    const compactPattern = /"temp"\s*:\s*(\d{1,3}(?:\.\d)?)/g;
+    const compactTemps = [];
+    while ((m = compactPattern.exec(html)) !== null) {
+      const n = parseFloat(m[1]);
+      if (!isNaN(n) && n > 0 && n < 130) compactTemps.push(n);
     }
 
-    if (!isUS && metricTemps.length > 0) {
-      const sorted = metricTemps.sort((a,b)=>a-b);
-      const dayTemps = sorted.slice(Math.floor(sorted.length * 0.1));
-      return Math.max(...dayTemps);
+    // Pick best source
+    if (isUS) {
+      // US stations: prefer imperial temps
+      const src = temps.length > 3 ? temps : compactTemps;
+      if (src.length === 0) return null;
+      // Take max but ignore overnight lows by filtering bottom 20%
+      const sorted = src.slice().sort((a,b)=>a-b);
+      return Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
+    } else {
+      // Non-US: prefer metric if available, otherwise convert imperial
+      if (metTemps.length > 3) {
+        const sorted = metTemps.slice().sort((a,b)=>a-b);
+        return Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
+      }
+      if (temps.length > 3) {
+        const sorted = temps.slice().sort((a,b)=>a-b);
+        const maxF = Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
+        return toC(maxF);
+      }
+      if (compactTemps.length > 3) {
+        // Could be F or C — if values > 50 assume F
+        const sorted = compactTemps.slice().sort((a,b)=>a-b);
+        const maxVal = Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
+        return maxVal > 50 ? toC(maxVal) : maxVal;
+      }
+      return null;
     }
-
-    // Fallback: use imperial and convert
-    if (imperialTemps.length > 0) {
-      const sorted = imperialTemps.sort((a,b)=>a-b);
-      const max = Math.max(...sorted.slice(Math.floor(sorted.length * 0.1)));
-      return isUS ? max : toC(max);
-    }
-
-    return null;
   } catch(e) {
     return null;
   }

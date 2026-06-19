@@ -2,14 +2,20 @@ const express = require('express');
 const fetch = (...args) => import('node-fetch').then(({default: f}) => f(...args));
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 const CACHE = {};
+const POLY_CACHE = {};
 const PREV_TEMPS = {};
-const CACHE_TTL = 10 * 60 * 1000;
+const CACHE_TTL     = 10 * 60 * 1000;
+const POLY_CACHE_TTL = 3 * 60 * 1000; // refresh Polymarket odds every 3 min
+
+const MARKETS_FILE = path.join(__dirname, 'markets.json');
 
 const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ']);
 
@@ -43,6 +49,168 @@ const STATION_META = {
   CYYZ: { cc:'ca', city:'toronto'       },
 };
 
+// ── City name → URL slug mapping ───────────────────────────────────────────
+// Matches exactly how Polymarket constructs their event slugs
+const CITY_SLUGS = {
+  'Wellington':    'wellington',
+  'Tokyo':         'tokyo',
+  'Seoul':         'seoul',
+  'Shanghai':      'shanghai',
+  'Singapore':     'singapore',
+  'Kuala Lumpur':  'kuala-lumpur',
+  'Chengdu':       'chengdu',
+  'Beijing':       'beijing',
+  'Lucknow':       'lucknow',
+  'Karachi':       'karachi',
+  'Jeddah':        'jeddah',
+  'Tel Aviv':      'tel-aviv',
+  'Istanbul':      'istanbul',
+  'Warsaw':        'warsaw',
+  'Paris':         'paris',
+  'London':        'london',
+  'Madrid':        'madrid',
+  'Cape Town':     'cape-town',
+  'Atlanta':       'atlanta',
+  'New York':      'new-york',
+  'Miami':         'miami',
+  'Toronto':       'toronto',
+  'Chicago':       'chicago',
+  'Houston':       'houston',
+  'Denver':        'denver',
+  'Seattle':       'seattle',
+  'San Francisco': 'san-francisco',
+};
+
+// ── Date helpers ────────────────────────────────────────────────────────────
+function todayString() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+// Format: "june-19-2026"
+function polyDateSlug() {
+  const d = new Date();
+  const months = ['january','february','march','april','may','june',
+                  'july','august','september','october','november','december'];
+  return `${months[d.getMonth()]}-${d.getDate()}-${d.getFullYear()}`;
+}
+
+// Build the Polymarket event slug for a city on today's date
+// e.g. "highest-temperature-in-chicago-on-june-19-2026"
+function buildEventSlug(cityName) {
+  const citySlug = CITY_SLUGS[cityName];
+  if (!citySlug) return null;
+  return `highest-temperature-in-${citySlug}-on-${polyDateSlug()}`;
+}
+
+// Build the specific market slug when a bet temperature is known
+// e.g. "highest-temperature-in-london-on-june-18-2026-28c"
+function buildMarketSlug(cityName, tempC) {
+  const eventSlug = buildEventSlug(cityName);
+  if (!eventSlug) return null;
+  return `${eventSlug}-${tempC}c`;
+}
+
+// ── markets.json helpers ────────────────────────────────────────────────────
+function loadMarkets() {
+  try {
+    const raw = fs.readFileSync(MARKETS_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch(e) {
+    return { bets: [] };
+  }
+}
+
+function saveMarkets(data) {
+  fs.writeFileSync(MARKETS_FILE, JSON.stringify(data, null, 2));
+}
+
+// Remove bets from previous days automatically
+function cleanOldBets() {
+  const today = todayString();
+  const data = loadMarkets();
+  const before = data.bets.length;
+  data.bets = data.bets.filter(b => b.date === today);
+  if (data.bets.length !== before) saveMarkets(data);
+  return data;
+}
+
+// ── Polymarket Gamma API ────────────────────────────────────────────────────
+// Fetches all outcome probabilities for a city's today event
+async function fetchPolymarketEvent(cityName) {
+  const cacheKey = cityName;
+  if (POLY_CACHE[cacheKey] && (Date.now() - POLY_CACHE[cacheKey].ts) < POLY_CACHE_TTL) {
+    return POLY_CACHE[cacheKey].data;
+  }
+
+  const eventSlug = buildEventSlug(cityName);
+  if (!eventSlug) return null;
+
+  try {
+    const url = `https://gamma-api.polymarket.com/events?slug=${eventSlug}`;
+    const res = await fetch(url, {
+      headers: { 'Accept': 'application/json' },
+      timeout: 8000
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+
+    if (!json || !json.length) return null;
+    const event = json[0];
+
+    // Parse markets — each market is one temperature bracket
+    const markets = event.markets || [];
+    const outcomes = markets.map(m => {
+      // outcomePrices is a JSON string like '["0.45","0.55"]'
+      let yesProb = null;
+      try {
+        const prices = typeof m.outcomePrices === 'string'
+          ? JSON.parse(m.outcomePrices)
+          : m.outcomePrices;
+        yesProb = prices && prices[0] ? Math.round(parseFloat(prices[0]) * 100) : null;
+      } catch(e) {}
+
+      return {
+        bracket: m.groupItemTitle || m.question || '',
+        slug:    m.slug || '',
+        prob:    yesProb,
+        volume:  m.volume ? parseFloat(m.volume).toFixed(0) : '0',
+      };
+    }).filter(o => o.prob !== null);
+
+    const data = {
+      eventSlug,
+      title:    event.title || '',
+      outcomes,
+      volume:   event.volume ? parseFloat(event.volume).toFixed(0) : '0',
+    };
+
+    POLY_CACHE[cacheKey] = { data, ts: Date.now() };
+    return data;
+  } catch(e) {
+    return null;
+  }
+}
+
+// Find the probability for a specific temperature bracket
+function findBracketProb(polyData, tempC) {
+  if (!polyData || !polyData.outcomes) return null;
+  // Convert to F for US-style Polymarket brackets if needed
+  // Polymarket typically lists °C brackets for non-US: "28°C", "28c", "≥28°C"
+  // and °F brackets for US cities: "76-77°F" etc.
+  // We match the market slug: ends in "-28c" or the bracket contains "28"
+  const tempStr = String(tempC);
+  for (const o of polyData.outcomes) {
+    const slug = (o.slug || '').toLowerCase();
+    const bracket = (o.bracket || '').toLowerCase();
+    if (slug.endsWith(`-${tempStr}c`) || bracket.includes(tempStr)) {
+      return o.prob;
+    }
+  }
+  return null;
+}
+
+// ── Weather scraping (unchanged from original) ──────────────────────────────
 function toC(f) {
   if (f === null || isNaN(f)) return null;
   return parseFloat(((f - 32) * 5 / 9).toFixed(1));
@@ -95,110 +263,93 @@ function parseHumidity(html) {
 
 function parseSunTimes(html) {
   try {
-    // WU embeds sunrise/sunset as sunriseTimeLocal and sunsetTimeLocal
-    const riseM = html.match(/"sunriseTimeLocal"\s*:\s*"([^"]+)"/) ||
-                  html.match(/"sunrise"\s*:\s*"([^"]+)"/);
-    const setM  = html.match(/"sunsetTimeLocal"\s*:\s*"([^"]+)"/) ||
-                  html.match(/"sunset"\s*:\s*"([^"]+)"/);
-
-    if (!riseM && !setM) return { sunrise: null, sunset: null };
-
+    const risePatterns = [
+      /"sunriseTimeLocal"\s*:\s*"([^"]+)"/,
+      /"sunrise"\s*:\s*"([^"]+)"/,
+      /data-testid="SunriseValue"[^>]*>([^<]+)</,
+    ];
+    const setPatterns = [
+      /"sunsetTimeLocal"\s*:\s*"([^"]+)"/,
+      /"sunset"\s*:\s*"([^"]+)"/,
+      /data-testid="SunsetValue"[^>]*>([^<]+)</,
+    ];
+    let riseRaw = null, setRaw = null;
+    for (const p of risePatterns) { const m = html.match(p); if (m) { riseRaw = m[1]; break; } }
+    for (const p of setPatterns)  { const m = html.match(p); if (m) { setRaw  = m[1]; break; } }
+    if (!riseRaw && !setRaw) return { sunrise: null, sunset: null };
     function fmtTime(str) {
       if (!str) return null;
-      // Format: "2026-06-17T06:24:00+0200" or "06:24:00"
+      if (/^\d{1,2}:\d{2}\s*[AP]M$/i.test(str.trim())) return str.trim();
       const d = new Date(str);
-      if (!isNaN(d.getTime())) {
-        return d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-      }
-      // Fallback: extract HH:MM
+      if (!isNaN(d.getTime())) return d.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
       const t = str.match(/(\d{1,2}):(\d{2})/);
-      if (t) {
-        const h = parseInt(t[1]);
-        const m = t[2];
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        const h12 = h % 12 || 12;
-        return `${h12}:${m} ${ampm}`;
-      }
+      if (t) { const h=parseInt(t[1]); const m=t[2]; return `${h%12||12}:${m} ${h>=12?'PM':'AM'}`; }
       return null;
     }
-
-    return {
-      sunrise: riseM ? fmtTime(riseM[1]) : null,
-      sunset:  setM  ? fmtTime(setM[1])  : null,
-    };
-  } catch(e) {
-    return { sunrise: null, sunset: null };
-  }
+    return { sunrise: fmtTime(riseRaw), sunset: fmtTime(setRaw) };
+  } catch(e) { return { sunrise: null, sunset: null }; }
 }
 
-// Parse hourly high from Wunderground hourly page
-// Debug confirmed: WU embeds hourly JSON as "temp":XX inside imperial objects
-// We collect all hourly temp readings and take the daily max
+function parseForecastHighLow(html, isUS) {
+  try {
+    const maxImpM = html.match(/"temperatureMax"\s*:\s*\{"imperial"\s*:\s*\{"value"\s*:\s*([-\d.]+)/);
+    const maxMetM = html.match(/"temperatureMax"\s*:\s*\{[^}]*"metric"\s*:\s*\{"value"\s*:\s*([-\d.]+)/);
+    if (maxImpM || maxMetM) {
+      if (isUS && maxImpM)  return parseFloat(maxImpM[1]);
+      if (!isUS && maxMetM) return parseFloat(maxMetM[1]);
+      if (!isUS && maxImpM) return toC(parseFloat(maxImpM[1]));
+    }
+    const highM = html.match(/"tempHigh"\s*:\s*([-\d.]+)/);
+    if (highM) { const v = parseFloat(highM[1]); return isUS ? v : (v > 50 ? toC(v) : v); }
+    const highFM = html.match(/"high"\s*:\s*\{"fahrenheit"\s*:\s*"?([-\d.]+)"?[^}]*"celsius"\s*:\s*"?([-\d.]+)"?/);
+    if (highFM) return isUS ? parseFloat(highFM[1]) : parseFloat(highFM[2]);
+    return null;
+  } catch(e) { return null; }
+}
+
 function parseHourlyHigh(html, isUS) {
   try {
     const temps = [];
-
-    // Pattern confirmed from debug: "imperial":{"temp":XX,"heatIndex"...
-    // Collect all imperial temp values from hourly entries
     const impTempPattern = /"imperial"\s*:\s*\{[^}]*"temp"\s*:\s*([-\d.]+)/g;
     let m;
     while ((m = impTempPattern.exec(html)) !== null) {
       const n = parseFloat(m[1]);
-      // Filter nulls and unrealistic values
       if (!isNaN(n) && n > -40 && n < 130) temps.push(n);
     }
-
-    // Also try metric temp pattern
     const metTempPattern = /"metric"\s*:\s*\{[^}]*"temp"\s*:\s*([-\d.]+)/g;
     const metTemps = [];
     while ((m = metTempPattern.exec(html)) !== null) {
       const n = parseFloat(m[1]);
       if (!isNaN(n) && n > -40 && n < 55) metTemps.push(n);
     }
-
-    // Also try compact pattern: "temp":XX anywhere in hourly data
     const compactPattern = /"temp"\s*:\s*(\d{1,3}(?:\.\d)?)/g;
     const compactTemps = [];
     while ((m = compactPattern.exec(html)) !== null) {
       const n = parseFloat(m[1]);
       if (!isNaN(n) && n > 0 && n < 130) compactTemps.push(n);
     }
-
-    // Pick best source
     if (isUS) {
-      // US stations: prefer imperial temps
       const src = temps.length > 3 ? temps : compactTemps;
       if (src.length === 0) return null;
-      // Take max but ignore overnight lows by filtering bottom 20%
       const sorted = src.slice().sort((a,b)=>a-b);
       return Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
     } else {
-      // Non-US: prefer metric if available, otherwise convert imperial
       if (metTemps.length > 3) {
         const sorted = metTemps.slice().sort((a,b)=>a-b);
         return Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
       }
       if (temps.length > 3) {
         const sorted = temps.slice().sort((a,b)=>a-b);
-        const maxF = Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
-        return toC(maxF);
+        return toC(Math.max(...sorted.slice(Math.floor(sorted.length * 0.2))));
       }
       if (compactTemps.length > 3) {
-        // Could be F or C — if values > 50 assume F
         const sorted = compactTemps.slice().sort((a,b)=>a-b);
         const maxVal = Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
         return maxVal > 50 ? toC(maxVal) : maxVal;
       }
       return null;
     }
-  } catch(e) {
-    return null;
-  }
-}
-
-function todayString() {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  } catch(e) { return null; }
 }
 
 async function fetchStation(station) {
@@ -206,12 +357,14 @@ async function fetchStation(station) {
   const isUS = US_STATIONS.has(station);
   const today = todayString();
 
-  const currentUrl = `https://www.wunderground.com/weather/${station}`;
-  const hourlyUrl  = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${station}/date/${today}`;
+  const currentUrl  = `https://www.wunderground.com/weather/${station}`;
+  const hourlyUrl   = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${station}/date/${today}`;
+  const forecastUrl = `https://www.wunderground.com/forecast/${meta.cc}/${meta.city}/${station}`;
 
-  const [currentRes, hourlyRes] = await Promise.allSettled([
-    fetch(currentUrl, { headers: WU_HEADERS, timeout: 12000 }),
-    fetch(hourlyUrl,  { headers: WU_HEADERS, timeout: 12000 }),
+  const [currentRes, hourlyRes, forecastRes] = await Promise.allSettled([
+    fetch(currentUrl,  { headers: WU_HEADERS, timeout: 12000 }),
+    fetch(hourlyUrl,   { headers: WU_HEADERS, timeout: 12000 }),
+    fetch(forecastUrl, { headers: WU_HEADERS, timeout: 12000 }),
   ]);
 
   let temp = null, cond = '', humidity = null, high = null, sunrise = null, sunset = null;
@@ -222,46 +375,62 @@ async function fetchStation(station) {
     cond     = parseCond(html);
     humidity = parseHumidity(html);
     const sun = parseSunTimes(html);
-    sunrise  = sun.sunrise;
-    sunset   = sun.sunset;
+    sunrise = sun.sunrise; sunset = sun.sunset;
   }
 
-  if (hourlyRes.status === 'fulfilled' && hourlyRes.value.ok) {
+  if (forecastRes.status === 'fulfilled' && forecastRes.value.ok) {
+    const html = await forecastRes.value.text();
+    const fHigh = parseForecastHighLow(html, isUS);
+    if (fHigh !== null) high = fHigh;
+    if (!sunrise || !sunset) {
+      const sun = parseSunTimes(html);
+      if (!sunrise) sunrise = sun.sunrise;
+      if (!sunset)  sunset  = sun.sunset;
+    }
+  }
+
+  if (high === null && hourlyRes.status === 'fulfilled' && hourlyRes.value.ok) {
     const html = await hourlyRes.value.text();
-    high = parseHourlyHigh(html, isUS);
+    const hHigh = parseHourlyHigh(html, isUS);
+    if (hHigh !== null) high = hHigh;
+    if (!sunrise || !sunset) {
+      const sun = parseSunTimes(html);
+      if (!sunrise) sunrise = sun.sunrise;
+      if (!sunset)  sunset  = sun.sunset;
+    }
   }
 
   const prevTemp = PREV_TEMPS[station] || null;
   let trend = 'up';
-  if (prevTemp !== null && temp !== null) {
-    trend = temp >= prevTemp ? 'up' : 'down';
-  }
+  if (prevTemp !== null && temp !== null) trend = temp >= prevTemp ? 'up' : 'down';
   if (temp !== null) PREV_TEMPS[station] = temp;
 
-  // Use stale cache high if fresh fetch returned null
   const cachedHigh = CACHE[station] ? CACHE[station].data.high : null;
-  const finalHigh = high !== null ? high : cachedHigh;
+  const finalHigh  = high !== null ? high : cachedHigh;
+
+  let validatedHigh = finalHigh;
+  if (temp !== null && finalHigh !== null) {
+    const tempC = isUS ? toC(temp) : temp;
+    const highC = isUS ? toC(finalHigh) : finalHigh;
+    if (highC < tempC - 15) validatedHigh = null;
+  }
 
   return {
-    temp:     isUS ? temp : toC(temp),
-    high:     isUS ? finalHigh : (finalHigh !== null ? (finalHigh > 60 ? toC(finalHigh) : finalHigh) : null),
-    cond,
-    humidity,
-    trend,
-    sunrise,
-    sunset,
-    unit: isUS ? 'F' : 'C',
+    temp:    isUS ? temp : toC(temp),
+    high:    validatedHigh,
+    cond, humidity, trend, sunrise, sunset,
+    unit:    isUS ? 'F' : 'C',
   };
 }
 
-app.get('/weather/:station', async (req, res) => {
-  const { station } = req.params;
-  const cacheKey = station.toUpperCase();
+// ── API ROUTES ──────────────────────────────────────────────────────────────
 
+// Weather for a station
+app.get('/weather/:station', async (req, res) => {
+  const cacheKey = req.params.station.toUpperCase();
   if (CACHE[cacheKey] && (Date.now() - CACHE[cacheKey].ts) < CACHE_TTL) {
     return res.json({ ...CACHE[cacheKey].data, cached: true });
   }
-
   try {
     const data = await fetchStation(cacheKey);
     CACHE[cacheKey] = { data, ts: Date.now() };
@@ -272,52 +441,95 @@ app.get('/weather/:station', async (req, res) => {
   }
 });
 
-app.get('/debug/:station', async (req, res) => {
-  const station = req.params.station.toUpperCase();
-  const meta = STATION_META[station];
-  if (!meta) return res.status(400).json({ error: 'unknown station' });
-  const today = todayString();
-  const currentUrl = `https://www.wunderground.com/weather/${station}`;
-  const hourlyUrl  = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${station}/date/${today}`;
+// Get today's bets from markets.json
+app.get('/markets', (req, res) => {
+  const data = cleanOldBets();
+  res.json(data);
+});
+
+// Add a bet for today
+// Body: { city: "London", tempC: 28 }
+app.post('/markets/bet', (req, res) => {
+  const { city, tempC } = req.body;
+  if (!city || tempC === undefined) return res.status(400).json({ error: 'city and tempC required' });
+
+  const eventSlug  = buildEventSlug(city);
+  const marketSlug = buildMarketSlug(city, tempC);
+  if (!eventSlug) return res.status(400).json({ error: 'unknown city' });
+
+  const data = cleanOldBets();
+  // Remove existing bet for same city today (replace if changed mind)
+  data.bets = data.bets.filter(b => b.city !== city);
+  data.bets.push({
+    city,
+    tempC: parseInt(tempC),
+    date:        todayString(),
+    eventSlug,
+    marketSlug,
+    eventUrl:  `https://polymarket.com/event/${eventSlug}`,
+    marketUrl: `https://polymarket.com/event/${eventSlug}/${marketSlug}`,
+    addedAt:   new Date().toISOString(),
+  });
+  saveMarkets(data);
+  // Invalidate poly cache for this city
+  delete POLY_CACHE[city];
+  res.json({ ok: true, bet: data.bets.find(b => b.city === city) });
+});
+
+// Remove a bet
+app.delete('/markets/bet/:city', (req, res) => {
+  const city = req.params.city;
+  const data = loadMarkets();
+  data.bets = data.bets.filter(b => b.city !== city);
+  saveMarkets(data);
+  res.json({ ok: true });
+});
+
+// Live Polymarket odds for a city (uses Gamma API)
+app.get('/poly/:city', async (req, res) => {
+  const city = decodeURIComponent(req.params.city);
   try {
-    const [cr, hr] = await Promise.allSettled([
-      fetch(currentUrl, { headers: WU_HEADERS, timeout: 12000 }),
-      fetch(hourlyUrl,  { headers: WU_HEADERS, timeout: 12000 }),
-    ]);
-    const currentHtml = (cr.status==='fulfilled' && cr.value.ok) ? await cr.value.text() : '';
-    const hourlyHtml  = (hr.status==='fulfilled' && hr.value.ok) ? await hr.value.text() : '';
+    const data = await fetchPolymarketEvent(city);
+    if (!data) return res.status(404).json({ error: 'no market found' });
 
-    // Pull key snippets so we can see exactly what patterns exist
-    const snippets = {};
-    const terms = ['phrase','tempHigh','temperature','wxPhrase','conditionPhrase','humidity','imperial','metric'];
-    terms.forEach(t => {
-      const idx = currentHtml.indexOf(t);
-      if (idx !== -1) snippets['current_'+t] = currentHtml.slice(Math.max(0,idx-20), idx+120);
-    });
-    terms.forEach(t => {
-      const idx = hourlyHtml.indexOf(t);
-      if (idx !== -1) snippets['hourly_'+t] = hourlyHtml.slice(Math.max(0,idx-20), idx+120);
-    });
+    // If we have a stored bet for this city, also return the specific bracket prob
+    const markets = loadMarkets();
+    const bet = markets.bets.find(b => b.city === city);
+    let betProb = null;
+    if (bet) betProb = findBracketProb(data, bet.tempC);
 
-    res.json({
-      currentHtmlLen: currentHtml.length,
-      hourlyHtmlLen:  hourlyHtml.length,
-      parsed: {
-        temp: parseCurrentTemp(currentHtml),
-        cond: parseCond(currentHtml),
-        humidity: parseHumidity(currentHtml),
-        high: parseHourlyHigh(hourlyHtml, US_STATIONS.has(station)),
-      },
-      snippets
-    });
+    res.json({ ...data, betProb, bet: bet || null });
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
 });
 
+// Batch poly odds for multiple cities (used by ticker)
+app.post('/poly/batch', async (req, res) => {
+  const { cities } = req.body; // array of city names
+  if (!cities || !Array.isArray(cities)) return res.status(400).json({ error: 'cities array required' });
+
+  const markets = loadMarkets();
+  const results = await Promise.allSettled(
+    cities.map(async city => {
+      const polyData = await fetchPolymarketEvent(city);
+      const bet      = markets.bets.find(b => b.city === city);
+      let betProb    = null;
+      if (polyData && bet) betProb = findBracketProb(polyData, bet.tempC);
+      return { city, polyData, bet: bet || null, betProb };
+    })
+  );
+
+  const out = {};
+  results.forEach(r => {
+    if (r.status === 'fulfilled') out[r.value.city] = r.value;
+  });
+  res.json(out);
+});
+
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length });
+  res.json({ status:'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length, polyCached: Object.keys(POLY_CACHE).length });
 });
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`PolyScan 24/7 running on port ${PORT}`));
+app.listen(PORT, () => console.log(`PolyScan 24/7 by Willow running on port ${PORT}`));

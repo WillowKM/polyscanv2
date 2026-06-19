@@ -19,34 +19,37 @@ const MARKETS_FILE = path.join(__dirname, 'markets.json');
 
 const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ']);
 
+// lat/lon added for Open-Meteo daily-high lookups — coordinates match
+// each station's physical airport location so the high lines up with
+// the same place the current-temp reading comes from
 const STATION_META = {
-  NZWN: { cc:'nz', city:'wellington'    },
-  RJTT: { cc:'jp', city:'tokyo'         },
-  RKSI: { cc:'kr', city:'incheon'       },
-  WSSS: { cc:'sg', city:'singapore'     },
-  WMKK: { cc:'my', city:'kuala-lumpur'  },
-  ZUUU: { cc:'cn', city:'chengdu'       },
-  ZBAA: { cc:'cn', city:'beijing'       },
-  ZSPD: { cc:'cn', city:'shanghai'      },
-  VILK: { cc:'in', city:'lucknow'       },
-  OPKC: { cc:'pk', city:'karachi'       },
-  OEJN: { cc:'sa', city:'jeddah'        },
-  LLBG: { cc:'il', city:'tel-aviv'      },
-  LTFM: { cc:'tr', city:'istanbul'      },
-  EPWA: { cc:'pl', city:'warsaw'        },
-  LFPB: { cc:'fr', city:'paris'         },
-  EGLC: { cc:'gb', city:'london'        },
-  LEMD: { cc:'es', city:'madrid'        },
-  FACT: { cc:'za', city:'cape-town'     },
-  KATL: { cc:'us', city:'atlanta'       },
-  KLGA: { cc:'us', city:'new-york'      },
-  KSEA: { cc:'us', city:'seattle'       },
-  KSFO: { cc:'us', city:'san-francisco' },
-  KMIA: { cc:'us', city:'miami'         },
-  KBKF: { cc:'us', city:'denver'        },
-  KHOU: { cc:'us', city:'houston'       },
-  KORD: { cc:'us', city:'chicago'       },
-  CYYZ: { cc:'ca', city:'toronto'       },
+  NZWN: { cc:'nz', city:'wellington',     lat:-41.3272, lon:174.8053  },
+  RJTT: { cc:'jp', city:'tokyo',          lat:35.5494,  lon:139.7798  },
+  RKSI: { cc:'kr', city:'incheon',        lat:37.4602,  lon:126.4407  },
+  WSSS: { cc:'sg', city:'singapore',      lat:1.3644,   lon:103.9915  },
+  WMKK: { cc:'my', city:'kuala-lumpur',   lat:2.7456,   lon:101.7099  },
+  ZUUU: { cc:'cn', city:'chengdu',        lat:30.5785,  lon:103.9471  },
+  ZBAA: { cc:'cn', city:'beijing',        lat:40.0801,  lon:116.5846  },
+  ZSPD: { cc:'cn', city:'shanghai',       lat:31.1434,  lon:121.8052  },
+  VILK: { cc:'in', city:'lucknow',        lat:26.7606,  lon:80.8893   },
+  OPKC: { cc:'pk', city:'karachi',        lat:24.9008,  lon:67.1681   },
+  OEJN: { cc:'sa', city:'jeddah',         lat:21.6796,  lon:39.1565   },
+  LLBG: { cc:'il', city:'tel-aviv',       lat:32.0114,  lon:34.8867   },
+  LTFM: { cc:'tr', city:'istanbul',       lat:41.2753,  lon:28.7519   },
+  EPWA: { cc:'pl', city:'warsaw',         lat:52.1657,  lon:20.9671   },
+  LFPB: { cc:'fr', city:'paris',          lat:48.9694,  lon:2.4414    },
+  EGLC: { cc:'gb', city:'london',         lat:51.5053,  lon:0.0553    },
+  LEMD: { cc:'es', city:'madrid',         lat:40.4983,  lon:-3.5676   },
+  FACT: { cc:'za', city:'cape-town',      lat:-33.9648, lon:18.6017   },
+  KATL: { cc:'us', city:'atlanta',        lat:33.6407,  lon:-84.4277  },
+  KLGA: { cc:'us', city:'new-york',       lat:40.7769,  lon:-73.8740  },
+  KSEA: { cc:'us', city:'seattle',        lat:47.4502,  lon:-122.3088 },
+  KSFO: { cc:'us', city:'san-francisco',  lat:37.6213,  lon:-122.3790 },
+  KMIA: { cc:'us', city:'miami',          lat:25.7959,  lon:-80.2870  },
+  KBKF: { cc:'us', city:'denver',         lat:39.7149,  lon:-104.7563 },
+  KHOU: { cc:'us', city:'houston',        lat:29.6454,  lon:-95.2789  },
+  KORD: { cc:'us', city:'chicago',        lat:41.9742,  lon:-87.9073  },
+  CYYZ: { cc:'ca', city:'toronto',        lat:43.6777,  lon:-79.6248  },
 };
 
 // ── City name → URL slug mapping ───────────────────────────────────────────
@@ -352,6 +355,39 @@ function parseHourlyHigh(html, isUS) {
   } catch(e) { return null; }
 }
 
+// ── Open-Meteo daily high (free, no API key, no JS-rendering issue) ────────
+// Wunderground's forecast page now renders client-side via JavaScript, so
+// the old scraping approach below returns blank highs most of the time.
+// Open-Meteo serves clean server-rendered JSON for free, so we use it as
+// the primary source for today's forecast high. Returns °C always.
+const OPEN_METEO_CACHE = {};
+const OPEN_METEO_TTL = 10 * 60 * 1000;
+
+async function fetchOpenMeteoHigh(station) {
+  const meta = STATION_META[station];
+  if (!meta || meta.lat === undefined || meta.lon === undefined) return null;
+
+  if (OPEN_METEO_CACHE[station] && (Date.now() - OPEN_METEO_CACHE[station].ts) < OPEN_METEO_TTL) {
+    return OPEN_METEO_CACHE[station].high;
+  }
+
+  try {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${meta.lat}&longitude=${meta.lon}&daily=temperature_2m_max&timezone=auto&forecast_days=1`;
+    const res = await fetch(url, { timeout: 8000 });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const highC = json && json.daily && json.daily.temperature_2m_max
+      ? json.daily.temperature_2m_max[0]
+      : null;
+    if (highC === null || highC === undefined || isNaN(highC)) return null;
+
+    OPEN_METEO_CACHE[station] = { high: highC, ts: Date.now() };
+    return highC;
+  } catch(e) {
+    return null;
+  }
+}
+
 async function fetchStation(station) {
   const meta = STATION_META[station];
   const isUS = US_STATIONS.has(station);
@@ -378,14 +414,29 @@ async function fetchStation(station) {
     sunrise = sun.sunrise; sunset = sun.sunset;
   }
 
+  // PRIMARY: Open-Meteo for today's high — free, reliable, server-rendered JSON.
+  // This replaced the old Wunderground forecast-page scrape, which broke once
+  // Wunderground moved to client-side JS rendering (the high is no longer in
+  // the raw HTML we fetch). Open-Meteo always returns °C; we convert to °F
+  // below for US stations to match the rest of that station's display unit.
+  const meHighC = await fetchOpenMeteoHigh(station);
+  if (meHighC !== null) {
+    high = isUS ? (meHighC * 9/5 + 32) : meHighC;
+  }
+
+  // Sunrise/sunset still comes from Wunderground scraping — unaffected by
+  // the JS-rendering issue since that data is server-rendered on their pages.
   if (forecastRes.status === 'fulfilled' && forecastRes.value.ok) {
     const html = await forecastRes.value.text();
-    const fHigh = parseForecastHighLow(html, isUS);
-    if (fHigh !== null) high = fHigh;
     if (!sunrise || !sunset) {
       const sun = parseSunTimes(html);
       if (!sunrise) sunrise = sun.sunrise;
       if (!sunset)  sunset  = sun.sunset;
+    }
+    // FALLBACK: only if Open-Meteo failed, try the old scrape method
+    if (high === null) {
+      const fHigh = parseForecastHighLow(html, isUS);
+      if (fHigh !== null) high = fHigh;
     }
   }
 
@@ -405,6 +456,8 @@ async function fetchStation(station) {
   if (prevTemp !== null && temp !== null) trend = temp >= prevTemp ? 'up' : 'down';
   if (temp !== null) PREV_TEMPS[station] = temp;
 
+  const highSource = meHighC !== null ? 'open-meteo' : (high !== null ? 'wunderground-fallback' : 'cache');
+
   const cachedHigh = CACHE[station] ? CACHE[station].data.high : null;
   const finalHigh  = high !== null ? high : cachedHigh;
 
@@ -418,6 +471,7 @@ async function fetchStation(station) {
   return {
     temp:    isUS ? temp : toC(temp),
     high:    validatedHigh,
+    highSource,
     cond, humidity, trend, sunrise, sunset,
     unit:    isUS ? 'F' : 'C',
   };

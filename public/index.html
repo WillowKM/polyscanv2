@@ -131,6 +131,80 @@ body {
 }
 .ticker-btn:hover { background:rgba(61,142,255,0.22); }
 
+/* ── PERMANENT W/L RECORD BADGE ─────────────────────────────────── */
+.record-badge {
+  flex-shrink:0; height:100%; display:flex; align-items:center; gap:8px;
+  padding:0 12px; border-left:1px solid var(--border);
+  background:rgba(0,230,118,0.03);
+  cursor:pointer; transition:background .2s; position:relative;
+}
+.record-badge:hover { background:rgba(0,230,118,0.08); }
+.record-trophy { font-size:13px; line-height:1; flex-shrink:0; }
+.record-stats { display:flex; align-items:baseline; gap:4px; white-space:nowrap; }
+.record-w { color:var(--green); font-weight:700; font-size:13px; font-variant-numeric:tabular-nums; }
+.record-sep { color:var(--muted); font-size:11px; }
+.record-l { color:var(--red); font-weight:700; font-size:13px; font-variant-numeric:tabular-nums; }
+.record-pct { color:var(--muted); font-size:9px; margin-left:2px; font-weight:600; }
+.record-pulse {
+  position:absolute; top:4px; right:4px; width:5px; height:5px; border-radius:50%;
+  background:var(--green); opacity:0; transition:opacity .3s;
+}
+.record-pulse.show { animation: recordPulse 1.8s ease-out; }
+@keyframes recordPulse {
+  0%   { opacity:1; box-shadow:0 0 0 0 rgba(0,230,118,0.6); }
+  70%  { opacity:.4; box-shadow:0 0 0 8px rgba(0,230,118,0); }
+  100% { opacity:0; box-shadow:0 0 0 8px rgba(0,230,118,0); }
+}
+
+/* Toast for a freshly-settled bet */
+.settle-toast {
+  position:fixed; top:14px; right:14px; z-index:300;
+  background:var(--bg2); border:1px solid var(--border); border-radius:8px;
+  padding:12px 16px; min-width:220px; box-shadow:0 8px 24px rgba(0,0,0,0.5);
+  transform:translateX(120%); transition:transform .35s ease-out;
+}
+.settle-toast.show { transform:translateX(0); }
+.settle-toast.win  { border-color:var(--green-border); background:linear-gradient(135deg, var(--bg2), rgba(0,230,118,0.06)); }
+.settle-toast.loss { border-color:var(--red-border);   background:linear-gradient(135deg, var(--bg2), rgba(255,59,92,0.06)); }
+.settle-toast-title { font-size:11px; font-weight:700; letter-spacing:.5px; margin-bottom:3px; }
+.settle-toast.win  .settle-toast-title { color:var(--green); }
+.settle-toast.loss .settle-toast-title { color:var(--red); }
+.settle-toast-body { font-size:10.5px; color:var(--muted); }
+
+/* ── RECORD HISTORY MODAL ───────────────────────────────────────── */
+.record-modal {
+  background:var(--bg2); border:1px solid var(--border); border-radius:10px;
+  padding:22px 26px; width:min(460px, 92vw); max-height:80vh; overflow-y:auto;
+}
+.record-modal-title {
+  font-family:'Orbitron',monospace; font-size:11px; font-weight:700;
+  letter-spacing:2px; color:var(--green); margin-bottom:16px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.record-summary {
+  display:grid; grid-template-columns:repeat(3,1fr); gap:10px;
+  margin-bottom:18px; padding:14px; background:var(--bg3);
+  border-radius:6px; border:1px solid var(--border);
+}
+.record-sum-item { text-align:center; }
+.record-sum-val { font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; }
+.record-sum-val.win  { color:var(--green); }
+.record-sum-val.loss { color:var(--red); }
+.record-sum-lbl { font-size:8.5px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-top:3px; }
+.record-history-title { font-size:10px; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:8px; }
+.record-row {
+  display:flex; align-items:center; gap:8px; padding:8px 10px;
+  border-radius:4px; background:var(--bg3); border:1px solid var(--border);
+  margin-bottom:6px; font-size:11px;
+}
+.record-row.win  { border-left:3px solid var(--green); }
+.record-row.loss { border-left:3px solid var(--red); }
+.record-row-icon { font-size:13px; flex-shrink:0; }
+.record-row-city { font-weight:600; flex:1; }
+.record-row-temp { color:var(--purple); font-weight:600; font-variant-numeric:tabular-nums; }
+.record-row-date { font-size:9px; color:var(--muted); white-space:nowrap; }
+.record-empty { text-align:center; color:var(--muted); padding:24px; font-size:11px; }
+
 /* ── ZONE BANNER ────────────────────────────────────────────────── */
 .zones {
   display:grid; grid-template-columns:repeat(3,1fr); flex-shrink:0;
@@ -380,7 +454,42 @@ body {
       <div class="tick-item"><span class="tick-no-bet">Loading market data…</span></div>
     </div>
   </div>
+  <div class="record-badge" onclick="openRecordModal()" title="All-time win/loss record — never resets">
+    <span class="record-trophy">🏆</span>
+    <div class="record-stats">
+      <span class="record-w" id="recordW">0</span>
+      <span class="record-sep">W</span>
+      <span class="record-sep">·</span>
+      <span class="record-l" id="recordL">0</span>
+      <span class="record-sep">L</span>
+      <span class="record-pct" id="recordPct"></span>
+    </div>
+    <div class="record-pulse" id="recordPulse"></div>
+  </div>
   <button class="ticker-btn" onclick="openBetModal()">⊕ Place Bet</button>
+</div>
+
+<!-- SETTLEMENT TOAST -->
+<div class="settle-toast" id="settleToast">
+  <div class="settle-toast-title" id="settleToastTitle">WIN</div>
+  <div class="settle-toast-body" id="settleToastBody"></div>
+</div>
+
+<!-- RECORD HISTORY MODAL -->
+<div class="modal-overlay" id="recordModalOverlay" onclick="closeRecordModalIfOverlay(event)">
+  <div class="record-modal">
+    <div class="record-modal-title">
+      ALL-TIME RECORD
+      <button class="modal-close" onclick="closeRecordModal()">✕</button>
+    </div>
+    <div class="record-summary">
+      <div class="record-sum-item"><div class="record-sum-val win" id="rm-wins">0</div><div class="record-sum-lbl">Wins</div></div>
+      <div class="record-sum-item"><div class="record-sum-val loss" id="rm-losses">0</div><div class="record-sum-lbl">Losses</div></div>
+      <div class="record-sum-item"><div class="record-sum-val" id="rm-rate" style="color:var(--text)">—</div><div class="record-sum-lbl">Win Rate</div></div>
+    </div>
+    <div class="record-history-title">Settlement history</div>
+    <div id="recordHistoryList"></div>
+  </div>
 </div>
 
 <!-- ZONE BANNER -->
@@ -418,20 +527,30 @@ body {
       <button class="modal-close" onclick="closeBetModal()">✕</button>
     </div>
     <div class="modal-sub">
-      Select a city at <span>peak or approaching peak</span>, then enter the °C temperature bracket you bet on. The Polymarket link builds itself.
+      Select a city at <span>peak or approaching peak</span>, then enter the temperature bracket you bet on. The Polymarket link builds itself.
     </div>
 
     <div class="modal-field">
       <label>City</label>
-      <select class="modal-select" id="betCity" onchange="updateModalPreview()">
+      <select class="modal-select" id="betCity" onchange="onBetCityChange()">
         <!-- populated by JS — only peak/approaching cities -->
       </select>
     </div>
 
-    <div class="modal-field">
+    <!-- Non-US cities: single °C number -->
+    <div class="modal-field" id="tempFieldC">
       <label>Temperature bracket you bet on (°C)</label>
       <input class="modal-input" id="betTemp" type="number" min="0" max="55" placeholder="e.g. 28" oninput="updateModalPreview()">
-      <div class="modal-unit">Whole degrees Celsius only · e.g. if you bet on 28°C enter 28</div>
+      <div class="modal-unit">Whole degrees Celsius · e.g. if you bet ≥28°C enter 28</div>
+    </div>
+
+    <!-- US cities: °F range pairs dropdown -->
+    <div class="modal-field" id="tempFieldF" style="display:none">
+      <label>Temperature range you bet on (°F)</label>
+      <select class="modal-select" id="betTempF" onchange="updateModalPreview()">
+        <option value="">— select a range —</option>
+      </select>
+      <div class="modal-unit">Polymarket uses 2°F ranges for US cities · select the exact range you traded</div>
     </div>
 
     <div class="modal-preview" id="modalPreview">
@@ -484,12 +603,18 @@ const CITIES = [
 let weatherCache = {};
 let polyCache    = {};   // city → { outcomes, betProb, bet, fetchedAt }
 let todayBets    = [];   // from server /markets
+let recordData   = { settled: [], wins: 0, losses: 0 }; // permanent W/L tally, never resets
 let currentPage  = 0;
 let pageTimerCount = 30;
 let pageTimerInterval = null;
 let switchInterval    = null;
 
-// ── ZONE LOGIC (11am–4pm peak, 4hr approach) ──────────────────────────────
+// ── ZONE LOGIC (11am–4pm peak, 4hr approach PRE-PEAK ONLY) ────────────────
+// Peak:       11:00 AM – 3:59 PM  (h >= 11 && h < 16)
+// Approaching: 7:00 AM – 10:59 AM (h >= 7  && h < 11) — only BEFORE peak
+// Monitor:    everything else including AFTER peak (4pm onwards)
+// Removed the old 16:00–17:00 "wind-down" orange window — once a city
+// passes 4pm it has left peak and should show Monitor (red), not Approaching.
 function cityTimeInfo(tz) {
   const now = new Date();
   const h24 = parseInt(
@@ -498,9 +623,9 @@ function cityTimeInfo(tz) {
   const timeStr = new Intl.DateTimeFormat('en-US',{timeZone:tz,hour:'numeric',minute:'2-digit',hour12:true}).format(now);
   const dateStr = new Intl.DateTimeFormat('en-GB',{timeZone:tz,weekday:'short',day:'numeric',month:'short'}).format(now);
   let zone;
-  if (h24 >= 11 && h24 < 16)                    zone = 'g'; // PEAK
-  else if ((h24 >= 7 && h24 < 11)||(h24>=16&&h24<17)) zone = 'o'; // APPROACHING
-  else                                            zone = 'r'; // MONITOR
+  if (h24 >= 11 && h24 < 16) zone = 'g';      // PEAK
+  else if (h24 >= 7 && h24 < 11) zone = 'o';  // APPROACHING (pre-peak only)
+  else zone = 'r';                              // MONITOR (before 7am AND after 4pm)
   return { h24, timeStr, dateStr, zone };
 }
 
@@ -524,6 +649,11 @@ async function fetchPolyBatch(cities) {
     if (!res.ok) return;
     const data = await res.json();
     Object.assign(polyCache, data);
+
+    // Check if any bet just got permanently settled (hit 0% = win, 100% = loss)
+    Object.values(data).forEach(entry => {
+      if (entry.settled) handleNewSettlement(entry.settled);
+    });
   } catch(e) { /* silent */ }
 }
 
@@ -534,6 +664,89 @@ async function loadTodayBets() {
     todayBets = data.bets || [];
   } catch(e) { todayBets = []; }
 }
+
+// ── PERMANENT RECORD (W/L tally — never resets, survives updates) ─────────
+async function loadRecord() {
+  try {
+    const res = await fetch('/record');
+    if (!res.ok) return;
+    recordData = await res.json();
+    updateRecordBadge();
+  } catch(e) { /* silent */ }
+}
+
+function updateRecordBadge() {
+  const w = recordData.wins || 0;
+  const l = recordData.losses || 0;
+  const total = w + l;
+  document.getElementById('recordW').textContent = w;
+  document.getElementById('recordL').textContent = l;
+  document.getElementById('recordPct').textContent = total > 0 ? `${Math.round(w/total*100)}%` : '';
+}
+
+function handleNewSettlement(entry) {
+  // Avoid double-toasting the same settlement if it comes back in two polls
+  const seenKey = `${entry.city}|${entry.date}|${entry.tempC}`;
+  if (window._lastSettleSeen === seenKey) return;
+  window._lastSettleSeen = seenKey;
+
+  // Refresh the permanent tally from the server (source of truth)
+  loadRecord();
+
+  // Pulse the badge
+  const pulse = document.getElementById('recordPulse');
+  pulse.classList.remove('show');
+  void pulse.offsetWidth; // restart animation
+  pulse.classList.add('show');
+
+  // Show a toast
+  const toast = document.getElementById('settleToast');
+  const title = document.getElementById('settleToastTitle');
+  const body  = document.getElementById('settleToastBody');
+  const isWin = entry.outcome === 'WIN';
+
+  toast.className = 'settle-toast ' + (isWin ? 'win' : 'loss');
+  title.textContent = isWin ? '✓ WIN' : '✕ LOSS';
+  body.textContent = `${entry.city} ≥${entry.tempC}°C settled at ${Math.round(entry.finalProb)}%`;
+
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 5000);
+}
+
+function renderRecordModal() {
+  document.getElementById('rm-wins').textContent   = recordData.wins || 0;
+  document.getElementById('rm-losses').textContent = recordData.losses || 0;
+  const total = (recordData.wins||0) + (recordData.losses||0);
+  document.getElementById('rm-rate').textContent = total > 0
+    ? `${Math.round((recordData.wins||0)/total*100)}%` : '—';
+
+  const list = document.getElementById('recordHistoryList');
+  const settled = recordData.settled || [];
+  if (!settled.length) {
+    list.innerHTML = '<div class="record-empty">No bets settled yet — wins and losses will appear here permanently once a market hits 0% or 100%.</div>';
+    return;
+  }
+  list.innerHTML = settled.map(s => {
+    const isWin = s.outcome === 'WIN';
+    const dateDisp = new Date(s.settledAt).toLocaleDateString('en-GB', { day:'numeric', month:'short' });
+      const bracketDisp = s.bracketSlug
+        ? s.bracketSlug.toUpperCase().replace('F','°F').replace('C','°C')
+        : `≥${s.tempC}°C`;
+      return `<div class="record-row ${isWin?'win':'loss'}">
+      <span class="record-row-icon">${isWin?'✓':'✕'}</span>
+      <span class="record-row-city">${s.city}</span>
+      <span class="record-row-temp">${bracketDisp}</span>
+      <span class="record-row-date">${dateDisp}</span>
+    </div>`;
+  }).join('');
+}
+
+function openRecordModal() {
+  renderRecordModal();
+  document.getElementById('recordModalOverlay').classList.add('open');
+}
+function closeRecordModal() { document.getElementById('recordModalOverlay').classList.remove('open'); }
+function closeRecordModalIfOverlay(e) { if (e.target===document.getElementById('recordModalOverlay')) closeRecordModal(); }
 
 function getBet(cityName) {
   return todayBets.find(b => b.city === cityName) || null;
@@ -574,11 +787,17 @@ function buildTickerItems(sorted) {
         ? poly.betProb
         : null;
       const cls = probClass(prob);
+      const bDisp = bet.bracketSlug
+        ? bet.bracketSlug.toUpperCase().replace('F','°F').replace(/(\d)C$/,'$1°C')
+        : `≥${bet.tempC}°C`;
       probHtml = prob !== null
-        ? `<span class="tick-bet">≥${bet.tempC}°C</span><span class="tick-prob ${cls}">${prob}%</span>`
-        : `<span class="tick-bet">≥${bet.tempC}°C</span><span class="tick-prob none">—%</span>`;
+        ? `<span class="tick-bet">${bDisp}</span><span class="tick-prob ${cls}">${prob}%</span>`
+        : `<span class="tick-bet">${bDisp}</span><span class="tick-prob none">—%</span>`;
     } else if (bet) {
-      probHtml = `<span class="tick-bet">≥${bet.tempC}°C</span><span class="tick-prob none">loading…</span>`;
+      const bDisp = bet.bracketSlug
+        ? bet.bracketSlug.toUpperCase().replace('F','°F').replace(/(\d)C$/,'$1°C')
+        : `≥${bet.tempC}°C`;
+      probHtml = `<span class="tick-bet">${bDisp}</span><span class="tick-prob none">loading…</span>`;
     } else {
       // No bet — show top bracket probability if available
       if (poly && poly.polyData && poly.polyData.outcomes && poly.polyData.outcomes.length) {
@@ -647,9 +866,12 @@ function buildCard(city, ti, wx) {
   if (bet) {
     const prob = poly && poly.betProb !== null && poly.betProb !== undefined ? poly.betProb : null;
     const cls  = probClass(prob);
-    const probDisp = prob !== null ? `${prob}%` : '—';
+    const probDisp  = prob !== null ? `${prob}%` : '—';
+    const bracketDisp = bet.bracketSlug
+      ? bet.bracketSlug.toUpperCase().replace('F','°F').replace(/(\d)C$/,'$1°C')
+      : `≥${bet.tempC}°C`;
     polyHtml = `<div class="card-poly">
-      <span class="card-poly-bet">≥${bet.tempC}°C</span>
+      <span class="card-poly-bet">${bracketDisp}</span>
       <span class="card-poly-prob ${cls}">${probDisp}</span>
       <span class="card-poly-lbl">Poly</span>
       <a class="card-poly-link" href="${bet.marketUrl}" target="_blank">↗</a>
@@ -841,30 +1063,88 @@ function polyDateSlug() {
   const months=['january','february','march','april','may','june','july','august','september','october','november','december'];
   return `${months[d.getMonth()]}-${d.getDate()}-${d.getFullYear()}`;
 }
-function buildPreviewUrl(cityName, tempC) {
+
+// US cities use °F ranges in the slug: "atlanta-on-june-22-2026-88-89f"
+// Non-US cities use single °C: "london-on-june-18-2026-28c"
+const US_CITIES = new Set(['Atlanta','New York','Miami','Toronto','Chicago','Houston','Denver','Seattle','San Francisco']);
+
+// Generate the standard 2°F range brackets Polymarket uses for US cities
+// They run in even pairs: 70-71, 72-73 ... but also odd pairs confirmed in URLs
+// From search results: 78-79, 80-81, 82-83, 84-85, 86-87, 88-89, 90-91, 92-93 etc.
+// Pattern is always lo-(lo+1)°F — consecutive pairs stepping by 2
+function usRangeBrackets(centerF) {
+  // Generate a range of brackets around the expected high
+  const brackets = [];
+  const start = Math.max(50, Math.floor(centerF / 2) * 2 - 20);
+  const end   = start + 60;
+  for (let lo = start; lo <= end; lo += 2) {
+    const hi = lo + 1;
+    brackets.push({ label: `${lo}-${hi}°F`, slug: `${lo}-${hi}f`, lo, hi });
+  }
+  return brackets;
+}
+
+function isUSCity(cityName) { return US_CITIES.has(cityName); }
+
+function buildPreviewUrl(cityName, bracketSlug) {
   const slug = cityName.toLowerCase().replace(/\s+/g,'-');
   const dateSlug = polyDateSlug();
   const eventSlug = `highest-temperature-in-${slug}-on-${dateSlug}`;
-  const marketSlug = `${eventSlug}-${tempC}c`;
+  const marketSlug = `${eventSlug}-${bracketSlug}`;
   return `https://polymarket.com/event/${eventSlug}/${marketSlug}`;
+}
+
+function onBetCityChange() {
+  const city = document.getElementById('betCity').value;
+  const isUS = isUSCity(city);
+
+  // Show/hide the right input field
+  document.getElementById('tempFieldC').style.display = isUS ? 'none' : '';
+  document.getElementById('tempFieldF').style.display = isUS ? ''     : 'none';
+
+  if (isUS) {
+    // Populate the °F range dropdown
+    // Try to use today's forecast high as the center, else default to 85°F
+    const station = CITIES.find(c => c.name === city)?.station;
+    const wx = station ? weatherCache[station] : null;
+    // wx.high is in °F for US stations
+    const centerF = wx && wx.high ? Math.round(wx.high) : 85;
+    const brackets = usRangeBrackets(centerF);
+    const sel = document.getElementById('betTempF');
+    sel.innerHTML = '<option value="">— select a range —</option>' +
+      brackets.map(b => {
+        // Pre-select the bracket that contains the forecast high
+        const selected = (centerF >= b.lo && centerF <= b.hi) ? ' selected' : '';
+        return `<option value="${b.slug}"${selected}>${b.label}</option>`;
+      }).join('');
+  }
+  updateModalPreview();
 }
 
 function updateModalPreview() {
   const city = document.getElementById('betCity').value;
-  const temp = document.getElementById('betTemp').value;
   const preview = document.getElementById('modalPreview');
-  if (!city || !temp) {
+  const isUS = isUSCity(city);
+
+  let bracketSlug = '';
+  if (isUS) {
+    bracketSlug = document.getElementById('betTempF').value;
+  } else {
+    const v = document.getElementById('betTemp').value;
+    if (v) bracketSlug = `${v}c`;
+  }
+
+  if (!city || !bracketSlug) {
     preview.innerHTML = 'Select a city and temperature to see the Polymarket link…';
     return;
   }
-  const url = buildPreviewUrl(city, temp);
+  const url = buildPreviewUrl(city, bracketSlug);
   preview.innerHTML = `✓ Your Polymarket link:<br><span class="url">${url}</span>`;
 }
 
 function populateBetCityDropdown() {
   const sel = document.getElementById('betCity');
   const sorted = sortCities();
-  // Only peak and approaching
   const active = sorted.filter(x => x.ti.zone === 'g' || x.ti.zone === 'o');
   if (!active.length) {
     sel.innerHTML = '<option value="">No cities in peak/approaching window</option>';
@@ -872,24 +1152,26 @@ function populateBetCityDropdown() {
   }
   sel.innerHTML = active.map(({city,ti}) => {
     const label = ti.zone==='g' ? '🟢 PEAK' : '🟠 APPROACHING';
-    return `<option value="${city.name}">${city.name} · ${label}</option>`;
+    const usTag = isUSCity(city.name) ? ' · °F' : ' · °C';
+    return `<option value="${city.name}">${city.name}${usTag} · ${label}</option>`;
   }).join('');
-  updateModalPreview();
+  onBetCityChange(); // trigger field swap for first city
 }
 
 function renderBetList() {
   const list = document.getElementById('betList');
-  if (!todayBets.length) {
-    list.innerHTML = '';
-    return;
-  }
+  if (!todayBets.length) { list.innerHTML = ''; return; }
   list.innerHTML = `<div class="bet-list-title">Today's bets (${todayBets.length})</div>` +
     todayBets.map(b => {
       const poly = getPoly(b.city);
       const prob = poly && poly.betProb !== null && poly.betProb !== undefined ? `${poly.betProb}%` : '…';
+      // Display bracket — US bets store bracketSlug like "88-89f", non-US store tempC
+      const bracketDisp = b.bracketSlug
+        ? b.bracketSlug.replace('f','°F').replace('c','°C')
+        : `≥${b.tempC}°C`;
       return `<div class="bet-item">
         <span class="bet-item-city">${b.city}</span>
-        <span class="bet-item-temp">≥${b.tempC}°C</span>
+        <span class="bet-item-temp">${bracketDisp}</span>
         <span class="bet-item-prob ${prob==='…'?'loading':''}">${prob}</span>
         <button class="bet-item-del" onclick="deleteBet('${b.city}')" title="Remove">✕</button>
       </div>`;
@@ -906,31 +1188,46 @@ function closeBetModal()  { document.getElementById('betModalOverlay').classList
 function closeBetModalIfOverlay(e) { if (e.target===document.getElementById('betModalOverlay')) closeBetModal(); }
 
 async function saveBet() {
-  const city = document.getElementById('betCity').value;
-  const temp = parseInt(document.getElementById('betTemp').value);
-  if (!city || isNaN(temp) || temp < 0 || temp > 60) {
-    alert('Please select a city and enter a valid temperature (0–60°C).');
-    return;
+  const city  = document.getElementById('betCity').value;
+  const isUS  = isUSCity(city);
+  let bracketSlug, tempC;
+
+  if (isUS) {
+    bracketSlug = document.getElementById('betTempF').value;
+    if (!city || !bracketSlug) {
+      alert('Please select a city and a temperature range.');
+      return;
+    }
+    // Extract the lower bound as a representative °F value for record-keeping
+    tempC = null; // not applicable for US
+  } else {
+    const v = parseInt(document.getElementById('betTemp').value);
+    if (!city || isNaN(v) || v < 0 || v > 60) {
+      alert('Please select a city and enter a valid temperature (0–60°C).');
+      return;
+    }
+    bracketSlug = `${v}c`;
+    tempC = v;
   }
+
   try {
     const res = await fetch('/markets/bet', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ city, tempC: temp })
+      body: JSON.stringify({ city, tempC, bracketSlug, isUS })
     });
     if (!res.ok) throw new Error();
     await loadTodayBets();
-    // Refresh poly odds for this city
     await fetchPolyBatch([city]);
     renderBetList();
     updateBetStat();
-    // Refresh cards + ticker
     const sorted = sortCities();
     document.getElementById('pages').innerHTML = buildPages(sorted, true);
     showPage(currentPage);
     updateTicker(sorted);
-    // Clear input
+    // Clear inputs
     document.getElementById('betTemp').value = '';
+    document.getElementById('betTempF').value = '';
     updateModalPreview();
   } catch(e) {
     alert('Could not save bet. Is the server running?');
@@ -955,6 +1252,11 @@ async function deleteBet(city) {
 updateSAClock();
 setInterval(updateSAClock, 1000);
 setInterval(refreshZoneTimes, 60000);
+
+// Load the permanent W/L record immediately, then refresh it periodically
+// as a safety net in case a settlement happens between active poly polls
+loadRecord();
+setInterval(loadRecord, 60 * 1000);
 
 // Refresh poly odds every 3 minutes (without full weather re-fetch)
 setInterval(async () => {

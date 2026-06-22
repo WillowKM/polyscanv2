@@ -12,6 +12,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 const CACHE = {};
 const POLY_CACHE = {};
 const PREV_TEMPS = {};
+const DAILY_HIGHS = {}; // tracks highest observed temp per station per day — resets on server restart
 const CACHE_TTL     = 10 * 60 * 1000;
 const POLY_CACHE_TTL = 3 * 60 * 1000; // refresh Polymarket odds every 3 min
 
@@ -359,117 +360,23 @@ function parseSunTimes(html) {
   } catch(e) { return { sunrise: null, sunset: null }; }
 }
 
-function parseForecastHighLow(html, isUS) {
-  try {
-    const maxImpM = html.match(/"temperatureMax"\s*:\s*\{"imperial"\s*:\s*\{"value"\s*:\s*([-\d.]+)/);
-    const maxMetM = html.match(/"temperatureMax"\s*:\s*\{[^}]*"metric"\s*:\s*\{"value"\s*:\s*([-\d.]+)/);
-    if (maxImpM || maxMetM) {
-      if (isUS && maxImpM)  return parseFloat(maxImpM[1]);
-      if (!isUS && maxMetM) return parseFloat(maxMetM[1]);
-      if (!isUS && maxImpM) return toC(parseFloat(maxImpM[1]));
-    }
-    const highM = html.match(/"tempHigh"\s*:\s*([-\d.]+)/);
-    if (highM) { const v = parseFloat(highM[1]); return isUS ? v : (v > 50 ? toC(v) : v); }
-    const highFM = html.match(/"high"\s*:\s*\{"fahrenheit"\s*:\s*"?([-\d.]+)"?[^}]*"celsius"\s*:\s*"?([-\d.]+)"?/);
-    if (highFM) return isUS ? parseFloat(highFM[1]) : parseFloat(highFM[2]);
-    return null;
-  } catch(e) { return null; }
-}
-
-function parseHourlyHigh(html, isUS) {
-  try {
-    const temps = [];
-    const impTempPattern = /"imperial"\s*:\s*\{[^}]*"temp"\s*:\s*([-\d.]+)/g;
-    let m;
-    while ((m = impTempPattern.exec(html)) !== null) {
-      const n = parseFloat(m[1]);
-      if (!isNaN(n) && n > -40 && n < 130) temps.push(n);
-    }
-    const metTempPattern = /"metric"\s*:\s*\{[^}]*"temp"\s*:\s*([-\d.]+)/g;
-    const metTemps = [];
-    while ((m = metTempPattern.exec(html)) !== null) {
-      const n = parseFloat(m[1]);
-      if (!isNaN(n) && n > -40 && n < 55) metTemps.push(n);
-    }
-    const compactPattern = /"temp"\s*:\s*(\d{1,3}(?:\.\d)?)/g;
-    const compactTemps = [];
-    while ((m = compactPattern.exec(html)) !== null) {
-      const n = parseFloat(m[1]);
-      if (!isNaN(n) && n > 0 && n < 130) compactTemps.push(n);
-    }
-    if (isUS) {
-      const src = temps.length > 3 ? temps : compactTemps;
-      if (src.length === 0) return null;
-      const sorted = src.slice().sort((a,b)=>a-b);
-      return Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
-    } else {
-      if (metTemps.length > 3) {
-        const sorted = metTemps.slice().sort((a,b)=>a-b);
-        return Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
-      }
-      if (temps.length > 3) {
-        const sorted = temps.slice().sort((a,b)=>a-b);
-        return toC(Math.max(...sorted.slice(Math.floor(sorted.length * 0.2))));
-      }
-      if (compactTemps.length > 3) {
-        const sorted = compactTemps.slice().sort((a,b)=>a-b);
-        const maxVal = Math.max(...sorted.slice(Math.floor(sorted.length * 0.2)));
-        return maxVal > 50 ? toC(maxVal) : maxVal;
-      }
-      return null;
-    }
-  } catch(e) { return null; }
-}
-
-// ── Open-Meteo daily high (free, no API key, no JS-rendering issue) ────────
-// Wunderground's forecast page now renders client-side via JavaScript, so
-// the old scraping approach below returns blank highs most of the time.
-// Open-Meteo serves clean server-rendered JSON for free, so we use it as
-// the primary source for today's forecast high. Returns °C always.
-const OPEN_METEO_CACHE = {};
-const OPEN_METEO_TTL = 10 * 60 * 1000;
-
-async function fetchOpenMeteoHigh(station) {
-  const meta = STATION_META[station];
-  if (!meta || meta.lat === undefined || meta.lon === undefined) return null;
-
-  if (OPEN_METEO_CACHE[station] && (Date.now() - OPEN_METEO_CACHE[station].ts) < OPEN_METEO_TTL) {
-    return OPEN_METEO_CACHE[station].high;
-  }
-
-  try {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${meta.lat}&longitude=${meta.lon}&daily=temperature_2m_max&timezone=auto&forecast_days=1`;
-    const res = await fetch(url, { timeout: 8000 });
-    if (!res.ok) return null;
-    const json = await res.json();
-    const highC = json && json.daily && json.daily.temperature_2m_max
-      ? json.daily.temperature_2m_max[0]
-      : null;
-    if (highC === null || highC === undefined || isNaN(highC)) return null;
-
-    OPEN_METEO_CACHE[station] = { high: highC, ts: Date.now() };
-    return highC;
-  } catch(e) {
-    return null;
-  }
-}
-
 async function fetchStation(station) {
   const meta = STATION_META[station];
   const isUS = US_STATIONS.has(station);
-  const today = todayString();
 
+  // Only two pages needed now:
+  // 1. current-conditions → temp, cond, humidity, sunrise/sunset
+  // 2. forecast → sunrise/sunset fallback
+  // Hourly page was only ever used for high-temp scraping which we no longer do.
   const currentUrl  = `https://www.wunderground.com/weather/${station}`;
-  const hourlyUrl   = `https://www.wunderground.com/hourly/${meta.cc}/${meta.city}/${station}/date/${today}`;
   const forecastUrl = `https://www.wunderground.com/forecast/${meta.cc}/${meta.city}/${station}`;
 
-  const [currentRes, hourlyRes, forecastRes] = await Promise.allSettled([
+  const [currentRes, forecastRes] = await Promise.allSettled([
     fetch(currentUrl,  { headers: WU_HEADERS, timeout: 12000 }),
-    fetch(hourlyUrl,   { headers: WU_HEADERS, timeout: 12000 }),
     fetch(forecastUrl, { headers: WU_HEADERS, timeout: 12000 }),
   ]);
 
-  let temp = null, cond = '', humidity = null, high = null, sunrise = null, sunset = null;
+  let temp = null, cond = '', humidity = null, sunrise = null, sunset = null;
 
   if (currentRes.status === 'fulfilled' && currentRes.value.ok) {
     const html = await currentRes.value.text();
@@ -480,66 +387,41 @@ async function fetchStation(station) {
     sunrise = sun.sunrise; sunset = sun.sunset;
   }
 
-  // PRIMARY: Open-Meteo for today's high — free, reliable, server-rendered JSON.
-  // This replaced the old Wunderground forecast-page scrape, which broke once
-  // Wunderground moved to client-side JS rendering (the high is no longer in
-  // the raw HTML we fetch). Open-Meteo always returns °C; we convert to °F
-  // below for US stations to match the rest of that station's display unit.
-  const meHighC = await fetchOpenMeteoHigh(station);
-  if (meHighC !== null) {
-    high = isUS ? (meHighC * 9/5 + 32) : meHighC;
-  }
-
-  // Sunrise/sunset still comes from Wunderground scraping — unaffected by
-  // the JS-rendering issue since that data is server-rendered on their pages.
-  if (forecastRes.status === 'fulfilled' && forecastRes.value.ok) {
+  // Sunrise/sunset fallback from forecast page
+  if ((!sunrise || !sunset) && forecastRes.status === 'fulfilled' && forecastRes.value.ok) {
     const html = await forecastRes.value.text();
-    if (!sunrise || !sunset) {
-      const sun = parseSunTimes(html);
-      if (!sunrise) sunrise = sun.sunrise;
-      if (!sunset)  sunset  = sun.sunset;
-    }
-    // FALLBACK: only if Open-Meteo failed, try the old scrape method
-    if (high === null) {
-      const fHigh = parseForecastHighLow(html, isUS);
-      if (fHigh !== null) high = fHigh;
-    }
+    const sun = parseSunTimes(html);
+    if (!sunrise) sunrise = sun.sunrise;
+    if (!sunset)  sunset  = sun.sunset;
   }
 
-  if (high === null && hourlyRes.status === 'fulfilled' && hourlyRes.value.ok) {
-    const html = await hourlyRes.value.text();
-    const hHigh = parseHourlyHigh(html, isUS);
-    if (hHigh !== null) high = hHigh;
-    if (!sunrise || !sunset) {
-      const sun = parseSunTimes(html);
-      if (!sunrise) sunrise = sun.sunrise;
-      if (!sunset)  sunset  = sun.sunset;
-    }
-  }
-
+  // ── Trend ─────────────────────────────────────────────────────────────────
   const prevTemp = PREV_TEMPS[station] || null;
   let trend = 'up';
   if (prevTemp !== null && temp !== null) trend = temp >= prevTemp ? 'up' : 'down';
   if (temp !== null) PREV_TEMPS[station] = temp;
 
-  const highSource = meHighC !== null ? 'open-meteo' : (high !== null ? 'wunderground-fallback' : 'cache');
-
-  const cachedHigh = CACHE[station] ? CACHE[station].data.high : null;
-  const finalHigh  = high !== null ? high : cachedHigh;
-
-  let validatedHigh = finalHigh;
-  if (temp !== null && finalHigh !== null) {
-    const tempC = isUS ? toC(temp) : temp;
-    const highC = isUS ? toC(finalHigh) : finalHigh;
-    if (highC < tempC - 15) validatedHigh = null;
+  // ── Observed daily high ───────────────────────────────────────────────────
+  // Instead of forecasting or scraping, we simply track the highest current
+  // temp we have seen today from our own polling. Resets when the server
+  // restarts (Render restarts daily) or when the date changes.
+  // temp here is raw from Wunderground — still in °F for US stations at
+  // this point, converted to °C below in the return statement.
+  const today = todayString();
+  if (!DAILY_HIGHS[station] || DAILY_HIGHS[station].date !== today) {
+    // New day or first reading — initialise with current temp
+    if (temp !== null) DAILY_HIGHS[station] = { date: today, high: temp };
+  } else if (temp !== null && temp > DAILY_HIGHS[station].high) {
+    DAILY_HIGHS[station].high = temp;
   }
+  const observedHigh = DAILY_HIGHS[station] ? DAILY_HIGHS[station].high : null;
 
   return {
-    temp:    isUS ? temp : toC(temp),
-    high:    validatedHigh,
-    highSource,
+    temp:      isUS ? temp         : toC(temp),
+    high:      isUS ? observedHigh : toC(observedHigh),
+    highSource: 'observed',
     cond, humidity, trend, sunrise, sunset,
-    unit:    isUS ? 'F' : 'C',
+    unit: isUS ? 'F' : 'C',
   };
 }
 

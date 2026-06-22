@@ -16,6 +16,7 @@ const CACHE_TTL     = 10 * 60 * 1000;
 const POLY_CACHE_TTL = 3 * 60 * 1000; // refresh Polymarket odds every 3 min
 
 const MARKETS_FILE = path.join(__dirname, 'markets.json');
+const RECORD_FILE   = path.join(__dirname, 'record.json'); // permanent W/L tally — never auto-cleaned, survives deploys/updates
 
 const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ']);
 
@@ -138,6 +139,68 @@ function cleanOldBets() {
   return data;
 }
 
+// ── record.json — permanent win/loss tally ─────────────────────────────────
+// This file is NEVER auto-cleaned and is untouched by daily bet rollover or
+// code updates. A bet is settled (and removed from the active list) the
+// moment its live probability touches 0% or 100% — whichever comes first —
+// since you're betting NO on the bracket:
+//   probability → 0%   = market certain it WON'T happen = WIN
+//   probability → 100% = market certain it WILL happen   = LOSS
+function loadRecord() {
+  try {
+    const raw = fs.readFileSync(RECORD_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch(e) {
+    return { settled: [], wins: 0, losses: 0 };
+  }
+}
+
+function saveRecord(data) {
+  fs.writeFileSync(RECORD_FILE, JSON.stringify(data, null, 2));
+}
+
+// Checks a live probability against a bet and settles it permanently if
+// it has resolved. Returns the settlement entry if one occurred, else null.
+function maybeSettleBet(bet, prob) {
+  if (prob === null || prob === undefined) return null;
+  if (prob > 0 && prob < 100) return null; // still live, nothing to do
+
+  const outcome = prob <= 0 ? 'WIN' : 'LOSS';
+  const record = loadRecord();
+
+  // Guard against double-settling using bracketSlug (works for both US and non-US)
+  const key = `${bet.city}|${bet.date}|${bet.bracketSlug || bet.tempC}`;
+  const alreadySettled = record.settled.some(s => s.key === key);
+  if (alreadySettled) return null;
+
+  const entry = {
+    key,
+    city:        bet.city,
+    bracketSlug: bet.bracketSlug || `${bet.tempC}c`,
+    tempC:       bet.tempC,
+    date:        bet.date,
+    outcome,
+    finalProb:   prob,
+    marketUrl:   bet.marketUrl,
+    settledAt:   new Date().toISOString(),
+  };
+
+  record.settled.unshift(entry); // newest first
+  record.wins   = (record.wins   || 0) + (outcome === 'WIN'  ? 1 : 0);
+  record.losses = (record.losses || 0) + (outcome === 'LOSS' ? 1 : 0);
+  saveRecord(record);
+
+  // Remove the now-settled bet from the active markets list
+  const markets = loadMarkets();
+  markets.bets = markets.bets.filter(
+    b => !(b.city === bet.city && b.date === bet.date &&
+           (b.bracketSlug || `${b.tempC}c`) === (bet.bracketSlug || `${bet.tempC}c`))
+  );
+  saveMarkets(markets);
+
+  return entry;
+}
+
 // ── Polymarket Gamma API ────────────────────────────────────────────────────
 // Fetches all outcome probabilities for a city's today event
 async function fetchPolymarketEvent(cityName) {
@@ -195,20 +258,23 @@ async function fetchPolymarketEvent(cityName) {
   }
 }
 
-// Find the probability for a specific temperature bracket
-function findBracketProb(polyData, tempC) {
+// Find the probability for a specific temperature bracket.
+// bet.bracketSlug is either "28c" (non-US) or "88-89f" (US).
+// We match against the Polymarket market slug which ends the same way.
+function findBracketProb(polyData, bet) {
   if (!polyData || !polyData.outcomes) return null;
-  // Convert to F for US-style Polymarket brackets if needed
-  // Polymarket typically lists °C brackets for non-US: "28°C", "28c", "≥28°C"
-  // and °F brackets for US cities: "76-77°F" etc.
-  // We match the market slug: ends in "-28c" or the bracket contains "28"
-  const tempStr = String(tempC);
+  const targetSlug = (bet.bracketSlug || '').toLowerCase();
+  const tempStr    = bet.tempC !== null && bet.tempC !== undefined ? String(bet.tempC) : null;
+
   for (const o of polyData.outcomes) {
-    const slug = (o.slug || '').toLowerCase();
+    const slug    = (o.slug    || '').toLowerCase();
     const bracket = (o.bracket || '').toLowerCase();
-    if (slug.endsWith(`-${tempStr}c`) || bracket.includes(tempStr)) {
-      return o.prob;
-    }
+    // Match by slug suffix — most reliable
+    if (slug.endsWith(`-${targetSlug}`)) return o.prob;
+    // Fallback: slug contains the whole bracket (e.g. "88-89f" in slug)
+    if (targetSlug && slug.includes(targetSlug)) return o.prob;
+    // Fallback for non-US: bracket text contains the °C number
+    if (tempStr && bracket.includes(tempStr)) return o.prob;
   }
   return null;
 }
@@ -502,21 +568,28 @@ app.get('/markets', (req, res) => {
 });
 
 // Add a bet for today
-// Body: { city: "London", tempC: 28 }
+// Body: { city, tempC, bracketSlug, isUS }
+// Non-US: bracketSlug = "28c",  tempC = 28
+// US:     bracketSlug = "88-89f", tempC = null
 app.post('/markets/bet', (req, res) => {
-  const { city, tempC } = req.body;
-  if (!city || tempC === undefined) return res.status(400).json({ error: 'city and tempC required' });
+  const { city, tempC, bracketSlug, isUS } = req.body;
+  if (!city || !bracketSlug) return res.status(400).json({ error: 'city and bracketSlug required' });
 
   const eventSlug  = buildEventSlug(city);
-  const marketSlug = buildMarketSlug(city, tempC);
   if (!eventSlug) return res.status(400).json({ error: 'unknown city' });
 
+  // Build the market slug using whatever bracket format was sent
+  // Non-US: "highest-temperature-in-london-on-june-22-2026-28c"
+  // US:     "highest-temperature-in-atlanta-on-june-22-2026-88-89f"
+  const marketSlug = `${eventSlug}-${bracketSlug}`;
+
   const data = cleanOldBets();
-  // Remove existing bet for same city today (replace if changed mind)
   data.bets = data.bets.filter(b => b.city !== city);
   data.bets.push({
     city,
-    tempC: parseInt(tempC),
+    tempC:       tempC !== null && tempC !== undefined ? parseInt(tempC) : null,
+    bracketSlug, // e.g. "28c" or "88-89f"
+    isUS:        !!isUS,
     date:        todayString(),
     eventSlug,
     marketSlug,
@@ -525,7 +598,6 @@ app.post('/markets/bet', (req, res) => {
     addedAt:   new Date().toISOString(),
   });
   saveMarkets(data);
-  // Invalidate poly cache for this city
   delete POLY_CACHE[city];
   res.json({ ok: true, bet: data.bets.find(b => b.city === city) });
 });
@@ -550,9 +622,13 @@ app.get('/poly/:city', async (req, res) => {
     const markets = loadMarkets();
     const bet = markets.bets.find(b => b.city === city);
     let betProb = null;
-    if (bet) betProb = findBracketProb(data, bet.tempC);
+    let settled = null;
+    if (bet) {
+      betProb = findBracketProb(data, bet);
+      settled = maybeSettleBet(bet, betProb);
+    }
 
-    res.json({ ...data, betProb, bet: bet || null });
+    res.json({ ...data, betProb, bet: bet || null, settled });
   } catch(e) {
     res.status(500).json({ error: e.message });
   }
@@ -569,8 +645,12 @@ app.post('/poly/batch', async (req, res) => {
       const polyData = await fetchPolymarketEvent(city);
       const bet      = markets.bets.find(b => b.city === city);
       let betProb    = null;
-      if (polyData && bet) betProb = findBracketProb(polyData, bet.tempC);
-      return { city, polyData, bet: bet || null, betProb };
+      let settled    = null;
+      if (polyData && bet) {
+        betProb = findBracketProb(polyData, bet);
+        settled = maybeSettleBet(bet, betProb);
+      }
+      return { city, polyData, bet: bet || null, betProb, settled };
     })
   );
 
@@ -579,6 +659,11 @@ app.post('/poly/batch', async (req, res) => {
     if (r.status === 'fulfilled') out[r.value.city] = r.value;
   });
   res.json(out);
+});
+
+// Permanent win/loss record — never auto-cleaned, survives daily rollover and deploys
+app.get('/record', (req, res) => {
+  res.json(loadRecord());
 });
 
 app.get('/health', (req, res) => {

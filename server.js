@@ -16,8 +16,27 @@ const DAILY_HIGHS = {}; // tracks highest observed temp per station per day — 
 const CACHE_TTL     = 10 * 60 * 1000;
 const POLY_CACHE_TTL = 3 * 60 * 1000; // refresh Polymarket odds every 3 min
 
-const MARKETS_FILE = path.join(__dirname, 'markets.json');
-const RECORD_FILE   = path.join(__dirname, 'record.json'); // permanent W/L tally — never auto-cleaned, survives deploys/updates
+// ── PERSISTENT STORAGE ───────────────────────────────────────────────────────
+// Render's filesystem is EPHEMERAL by default — any file written to a plain
+// relative path (like the old `./markets.json`) gets wiped on every restart,
+// redeploy, or free-tier spin-down. That was the cause of the record/markets
+// data loss.
+//
+// Fix: set DATA_DIR to a Render persistent disk mount path (e.g. /var/data)
+// as an environment variable once you've attached a disk to this service.
+// Until you attach a disk, this still defaults to the project folder so
+// local dev keeps working unchanged — it just won't survive a Render restart
+// until DATA_DIR points at real persistent storage.
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+if (!fs.existsSync(DATA_DIR)) {
+  try { fs.mkdirSync(DATA_DIR, { recursive: true }); } catch(e) { console.error('Could not create DATA_DIR:', e.message); }
+}
+
+const MARKETS_FILE     = path.join(DATA_DIR, 'markets.json');
+const RECORD_FILE      = path.join(DATA_DIR, 'record.json');      // permanent trade W/L tally — never auto-cleaned, survives deploys/updates
+const PREDICTIONS_FILE = path.join(DATA_DIR, 'predictions.json'); // PolyScan's own estimate accuracy — separate from trade record
+
+console.log(`[storage] Using DATA_DIR = ${DATA_DIR}${process.env.DATA_DIR ? ' (persistent disk)' : ' (⚠️ EPHEMERAL — set DATA_DIR env var to a mounted disk path to persist across restarts)'}`);
 
 const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ']);
 

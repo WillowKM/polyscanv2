@@ -379,6 +379,146 @@ function parseSunTimes(html) {
   } catch(e) { return { sunrise: null, sunset: null }; }
 }
 
+// ── HOURLY DATA (for the stability engine) ──────────────────────────────────
+// Parses WU's hourly table page. WU renders this as a server-side table
+// (same page style as the reference screenshot: Time / Temp / Cloud Cover /
+// Dew Point / Humidity / Precip / Wind). We pull each row via a generic
+// regex sweep rather than relying on one exact markup shape, since hourly
+// page structure is more likely to shift than the current-conditions page.
+function parseHourlyRows(html) {
+  const rows = [];
+
+  const timeMatches     = [...html.matchAll(/data-testid="Ellipsis"[^>]*>([\d: ]+[APap][Mm])</g)].map(m => m[1].trim());
+  const tempMatches     = [...html.matchAll(/data-testid="TemperatureValue"[^>]*>(-?\d+)°?</g)].map(m => parseFloat(m[1]));
+  const dewMatches      = [...html.matchAll(/data-testid="DewPointValue"[^>]*>(-?\d+)°?</g)].map(m => parseFloat(m[1]));
+  const humidityMatches = [...html.matchAll(/data-testid="PercentageValue"[^>]*>(\d+)\s*%?</g)].map(m => parseFloat(m[1]));
+  const cloudMatches    = [...html.matchAll(/"cloudCover"\s*:\s*(\d+)/g)].map(m => parseFloat(m[1]));
+  const precipMatches   = [...html.matchAll(/data-testid="PrecipitationValue"[^>]*>(\d+)\s*%?</g)].map(m => parseFloat(m[1]));
+  const condMatches     = [...html.matchAll(/data-testid="wxPhrase"[^>]*>([^<]+)</g)].map(m => m[1].trim());
+  const windDirMatches  = [...html.matchAll(/data-testid="WindDirection"[^>]*>([A-Z]{1,3})</g)].map(m => m[1].trim());
+
+  const n = Math.max(tempMatches.length, dewMatches.length, cloudMatches.length);
+  for (let i = 0; i < n; i++) {
+    rows.push({
+      time:     timeMatches[i]     ?? null,
+      tempC:    tempMatches[i]     !== undefined ? tempMatches[i]     : null,
+      dewC:     dewMatches[i]      !== undefined ? dewMatches[i]      : null,
+      humidity: humidityMatches[i] !== undefined ? humidityMatches[i] : null,
+      cloud:    cloudMatches[i]    !== undefined ? cloudMatches[i]    : null,
+      precip:   precipMatches[i]   !== undefined ? precipMatches[i]   : null,
+      cond:     condMatches[i]     ?? '',
+      windDir:  windDirMatches[i]  ?? null,
+    });
+  }
+  return rows;
+}
+
+async function fetchHourly(station) {
+  try {
+    const url = `https://www.wunderground.com/hourly/${station}`;
+    const res = await fetch(url, { headers: WU_HEADERS, timeout: 12000 });
+    if (!res.ok) return [];
+    const html = await res.text();
+    return parseHourlyRows(html);
+  } catch(e) {
+    return [];
+  }
+}
+
+// ── STABILITY ENGINE ─────────────────────────────────────────────────────────
+// Five-signal check, built from the Beijing (volatile/overshoot) vs Incheon
+// (stable) case comparison. Returns a green/red badge plus a flag breakdown
+// so we can see WHY a city is flagged, and a suggested estimate adjustment
+// in °C to apply on top of the source forecast high.
+function computeStability(hourlyRows, isUS) {
+  const flags = {
+    dewPointDrift:   false,
+    cloudVolatility: false,
+    stormRecency:    false,
+    tempCurveShape:  false,
+    windShift:       false,
+  };
+  const notes = [];
+
+  const valid = hourlyRows.filter(r => r.dewC !== null || r.tempC !== null);
+  if (!valid.length) {
+    return { score: 'unknown', flags, notes: ['No hourly data parsed'], redCount: 0, estimateAdjustmentC: 0 };
+  }
+
+  // 1. Dew point drift — max minus min across the day so far
+  const dews = valid.map(r => r.dewC).filter(v => v !== null);
+  if (dews.length >= 2) {
+    const drift = Math.max(...dews) - Math.min(...dews);
+    const thresholdC = isUS ? 3.6 : 2; // ~2°C, converted loosely for °F cities
+    if (drift >= thresholdC) {
+      flags.dewPointDrift = true;
+      notes.push(`Dew point swung ${drift.toFixed(1)}° — air mass likely changing`);
+    }
+  }
+
+  // 2. Cloud cover volatility — range crosses both a clear band and an overcast band
+  const clouds = valid.map(r => r.cloud).filter(v => v !== null);
+  if (clouds.length >= 2) {
+    const hasLow  = clouds.some(c => c <= 20);
+    const hasHigh = clouds.some(c => c >= 70);
+    const range    = Math.max(...clouds) - Math.min(...clouds);
+    if (hasLow && hasHigh && range >= 50) {
+      flags.cloudVolatility = true;
+      notes.push('Cloud cover swings between clear and overcast');
+    }
+  }
+
+  // 3. Storm recency — thunderstorm/heavy rain in recent hours followed by clearing
+  const stormRegex = /thunder|storm|heavy rain|downpour/i;
+  const clearRegex = /fair|clear|sunny/i;
+  const recent = valid.slice(0, 12); // most recent ~12 hourly rows available
+  const hadStorm    = recent.some(r => stormRegex.test(r.cond || ''));
+  const nowClearing = valid.slice(0, 3).some(r => clearRegex.test(r.cond || ''));
+  if (hadStorm && nowClearing) {
+    flags.stormRecency = true;
+    notes.push('Recent storm clearing to fair — overshoot risk');
+  }
+
+  // 4. Temp curve shape — still climbing steeply with no plateau near peak
+  const temps = valid.map(r => r.tempC).filter(v => v !== null);
+  if (temps.length >= 4) {
+    const lastFew = temps.slice(-4);
+    const slope = (lastFew[lastFew.length - 1] - lastFew[0]) / (lastFew.length - 1);
+    const slopeThreshold = isUS ? 1.8 : 1; // per-hour, loosely scaled for °F
+    if (slope >= slopeThreshold) {
+      flags.tempCurveShape = true;
+      notes.push('Temp still climbing steadily with no plateau — may run above forecast');
+    }
+  }
+
+  // 5. Wind shift — abrupt direction change between the two most recent hours
+  const dirs = valid.map(r => r.windDir).filter(Boolean);
+  const compass = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+  if (dirs.length >= 2) {
+    const idx = d => compass.indexOf(d);
+    const a = idx(dirs[0]), b = idx(dirs[1]);
+    if (a >= 0 && b >= 0) {
+      let diff = Math.abs(a - b);
+      diff = Math.min(diff, 16 - diff);
+      if (diff >= 6) { // roughly >135°
+        flags.windShift = true;
+        notes.push('Abrupt wind direction shift — air mass change likely');
+      }
+    }
+  }
+
+  const redCount = Object.values(flags).filter(Boolean).length;
+  const score = redCount >= 2 ? 'red' : 'green';
+
+  // Heuristic estimate bump — starting point only, to be tuned against
+  // logged trade outcomes over time (Beijing-style overshoot went +2°C).
+  let estimateAdjustmentC = 0;
+  if (flags.stormRecency && flags.tempCurveShape) estimateAdjustmentC = 2;
+  else if (redCount >= 2) estimateAdjustmentC = 1;
+
+  return { score, flags, notes, redCount, estimateAdjustmentC };
+}
+
 async function fetchStation(station) {
   const meta = STATION_META[station];
   const isUS = US_STATIONS.has(station);
@@ -435,12 +575,28 @@ async function fetchStation(station) {
   }
   const observedHigh = DAILY_HIGHS[station] ? DAILY_HIGHS[station].high : null;
 
+  // ── Stability engine ────────────────────────────────────────────────────
+  const hourlyRows = await fetchHourly(station);
+  const stability  = computeStability(hourlyRows, isUS);
+  const sourceHighC = isUS ? observedHigh : toC(observedHigh);
+  const estimateHighC = sourceHighC !== null
+    ? parseFloat((sourceHighC + (isUS ? stability.estimateAdjustmentC * 1.8 : stability.estimateAdjustmentC)).toFixed(1))
+    : null;
+
   return {
     temp:      isUS ? temp         : toC(temp),
     high:      isUS ? observedHigh : toC(observedHigh),
     highSource: 'observed',
     cond, humidity, trend, sunrise, sunset,
     unit: isUS ? 'F' : 'C',
+    stability: {
+      score:      stability.score,       // 'green' | 'red' | 'unknown'
+      redCount:   stability.redCount,
+      flags:      stability.flags,
+      notes:      stability.notes,
+      sourceHigh: sourceHighC,
+      estimateHigh: estimateHighC,
+    },
   };
 }
 

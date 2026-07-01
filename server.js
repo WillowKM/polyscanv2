@@ -380,46 +380,48 @@ function parseSunTimes(html) {
 }
 
 // ── HOURLY DATA (for the stability engine) ──────────────────────────────────
-// Parses WU's hourly table page. WU renders this as a server-side table
-// (same page style as the reference screenshot: Time / Temp / Cloud Cover /
-// Dew Point / Humidity / Precip / Wind). We pull each row via a generic
-// regex sweep rather than relying on one exact markup shape, since hourly
-// page structure is more likely to shift than the current-conditions page.
-function parseHourlyRows(html) {
-  const rows = [];
-
-  const timeMatches     = [...html.matchAll(/data-testid="Ellipsis"[^>]*>([\d: ]+[APap][Mm])</g)].map(m => m[1].trim());
-  const tempMatches     = [...html.matchAll(/data-testid="TemperatureValue"[^>]*>(-?\d+)°?</g)].map(m => parseFloat(m[1]));
-  const dewMatches      = [...html.matchAll(/data-testid="DewPointValue"[^>]*>(-?\d+)°?</g)].map(m => parseFloat(m[1]));
-  const humidityMatches = [...html.matchAll(/data-testid="PercentageValue"[^>]*>(\d+)\s*%?</g)].map(m => parseFloat(m[1]));
-  const cloudMatches    = [...html.matchAll(/"cloudCover"\s*:\s*(\d+)/g)].map(m => parseFloat(m[1]));
-  const precipMatches   = [...html.matchAll(/data-testid="PrecipitationValue"[^>]*>(\d+)\s*%?</g)].map(m => parseFloat(m[1]));
-  const condMatches     = [...html.matchAll(/data-testid="wxPhrase"[^>]*>([^<]+)</g)].map(m => m[1].trim());
-  const windDirMatches  = [...html.matchAll(/data-testid="WindDirection"[^>]*>([A-Z]{1,3})</g)].map(m => m[1].trim());
-
-  const n = Math.max(tempMatches.length, dewMatches.length, cloudMatches.length);
-  for (let i = 0; i < n; i++) {
-    rows.push({
-      time:     timeMatches[i]     ?? null,
-      tempC:    tempMatches[i]     !== undefined ? tempMatches[i]     : null,
-      dewC:     dewMatches[i]      !== undefined ? dewMatches[i]      : null,
-      humidity: humidityMatches[i] !== undefined ? humidityMatches[i] : null,
-      cloud:    cloudMatches[i]    !== undefined ? cloudMatches[i]    : null,
-      precip:   precipMatches[i]   !== undefined ? precipMatches[i]   : null,
-      cond:     condMatches[i]     ?? '',
-      windDir:  windDirMatches[i]  ?? null,
-    });
-  }
-  return rows;
+// WU's hourly page is rendered client-side by React ("Please enable
+// JavaScript to continue" appears in the raw HTML) — there is no server-
+// rendered hourly table to scrape, so a regex-based approach can't work here.
+// Instead we use Open-Meteo's free, no-key hourly forecast API, keyed off
+// the lat/lon already stored per station in STATION_META. All values come
+// back in metric regardless of station — we convert to °F only at display
+// time for US cities, same as the rest of the app.
+function weatherCodeToCond(code) {
+  if (code === 0) return 'Fair';
+  if (code === 1 || code === 2 || code === 3) return 'Cloudy';
+  if (code === 45 || code === 48) return 'Fog';
+  if (code >= 51 && code <= 67) return 'Rain';
+  if (code >= 71 && code <= 77) return 'Snow';
+  if (code === 80 || code === 81 || code === 82) return 'Rain';
+  if (code === 85 || code === 86) return 'Snow';
+  if (code === 95 || code === 96 || code === 99) return 'T-Storm';
+  return '';
 }
 
 async function fetchHourly(station) {
+  const meta = STATION_META[station];
+  if (!meta) return [];
   try {
-    const url = `https://www.wunderground.com/hourly/${station}`;
-    const res = await fetch(url, { headers: WU_HEADERS, timeout: 12000 });
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${meta.lat}&longitude=${meta.lon}` +
+      `&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,cloudcover,precipitation_probability,winddirection_10m,weathercode` +
+      `&timezone=auto&forecast_days=1`;
+    const res = await fetch(url, { timeout: 10000 });
     if (!res.ok) return [];
-    const html = await res.text();
-    return parseHourlyRows(html);
+    const json = await res.json();
+    const h = json.hourly;
+    if (!h || !h.time) return [];
+
+    return h.time.map((t, i) => ({
+      time:     t,
+      tempC:    h.temperature_2m?.[i]        ?? null,
+      dewC:     h.dewpoint_2m?.[i]            ?? null,
+      humidity: h.relativehumidity_2m?.[i]    ?? null,
+      cloud:    h.cloudcover?.[i]             ?? null,
+      precip:   h.precipitation_probability?.[i] ?? null,
+      cond:     weatherCodeToCond(h.weathercode?.[i]),
+      windDeg:  h.winddirection_10m?.[i]      ?? null,
+    }));
   } catch(e) {
     return [];
   }
@@ -427,10 +429,11 @@ async function fetchHourly(station) {
 
 // ── STABILITY ENGINE ─────────────────────────────────────────────────────────
 // Five-signal check, built from the Beijing (volatile/overshoot) vs Incheon
-// (stable) case comparison. Returns a green/red badge plus a flag breakdown
-// so we can see WHY a city is flagged, and a suggested estimate adjustment
-// in °C to apply on top of the source forecast high.
-function computeStability(hourlyRows, isUS) {
+// (stable) case comparison. Input rows are always metric (°C) from
+// Open-Meteo. Returns a green/red badge plus a flag breakdown so we can see
+// WHY a city is flagged, and a suggested estimate adjustment in °C to apply
+// on top of the source forecast high.
+function computeStability(hourlyRows) {
   const flags = {
     dewPointDrift:   false,
     cloudVolatility: false,
@@ -442,17 +445,16 @@ function computeStability(hourlyRows, isUS) {
 
   const valid = hourlyRows.filter(r => r.dewC !== null || r.tempC !== null);
   if (!valid.length) {
-    return { score: 'unknown', flags, notes: ['No hourly data parsed'], redCount: 0, estimateAdjustmentC: 0 };
+    return { score: 'unknown', flags, notes: ['No hourly data available'], redCount: 0, estimateAdjustmentC: 0 };
   }
 
-  // 1. Dew point drift — max minus min across the day so far
+  // 1. Dew point drift — max minus min across today's hours
   const dews = valid.map(r => r.dewC).filter(v => v !== null);
   if (dews.length >= 2) {
     const drift = Math.max(...dews) - Math.min(...dews);
-    const thresholdC = isUS ? 3.6 : 2; // ~2°C, converted loosely for °F cities
-    if (drift >= thresholdC) {
+    if (drift >= 2) {
       flags.dewPointDrift = true;
-      notes.push(`Dew point swung ${drift.toFixed(1)}° — air mass likely changing`);
+      notes.push(`Dew point swings ${drift.toFixed(1)}°C across the day — air mass likely changing`);
     }
   }
 
@@ -468,42 +470,37 @@ function computeStability(hourlyRows, isUS) {
     }
   }
 
-  // 3. Storm recency — thunderstorm/heavy rain in recent hours followed by clearing
-  const stormRegex = /thunder|storm|heavy rain|downpour/i;
-  const clearRegex = /fair|clear|sunny/i;
-  const recent = valid.slice(0, 12); // most recent ~12 hourly rows available
-  const hadStorm    = recent.some(r => stormRegex.test(r.cond || ''));
-  const nowClearing = valid.slice(0, 3).some(r => clearRegex.test(r.cond || ''));
-  if (hadStorm && nowClearing) {
+  // 3. Storm recency — thunderstorm/heavy rain earlier in the day, clearing by now
+  const stormHours = valid.filter(r => r.cond === 'T-Storm' || r.cond === 'Rain');
+  const clearNow   = valid.filter(r => r.cond === 'Fair');
+  if (stormHours.length && clearNow.length && valid.indexOf(stormHours[stormHours.length - 1]) < valid.length - 1) {
     flags.stormRecency = true;
-    notes.push('Recent storm clearing to fair — overshoot risk');
+    notes.push('Storm/rain earlier today, clearing to fair — overshoot risk');
   }
 
-  // 4. Temp curve shape — still climbing steeply with no plateau near peak
-  const temps = valid.map(r => r.tempC).filter(v => v !== null);
-  if (temps.length >= 4) {
-    const lastFew = temps.slice(-4);
-    const slope = (lastFew[lastFew.length - 1] - lastFew[0]) / (lastFew.length - 1);
-    const slopeThreshold = isUS ? 1.8 : 1; // per-hour, loosely scaled for °F
-    if (slope >= slopeThreshold) {
+  // 4. Temp curve shape — still climbing steeply in the last few daytime hours, no plateau
+  const daytime = valid.filter(r => {
+    const hr = parseInt((r.time || '').split('T')[1]?.slice(0,2) || '-1', 10);
+    return hr >= 10 && hr <= 16;
+  });
+  const temps = daytime.map(r => r.tempC).filter(v => v !== null);
+  if (temps.length >= 3) {
+    const slope = (temps[temps.length - 1] - temps[0]) / (temps.length - 1);
+    if (slope >= 1) {
       flags.tempCurveShape = true;
-      notes.push('Temp still climbing steadily with no plateau — may run above forecast');
+      notes.push('Temp still climbing steadily through peak hours — may run above forecast');
     }
   }
 
-  // 5. Wind shift — abrupt direction change between the two most recent hours
-  const dirs = valid.map(r => r.windDir).filter(Boolean);
-  const compass = ['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
-  if (dirs.length >= 2) {
-    const idx = d => compass.indexOf(d);
-    const a = idx(dirs[0]), b = idx(dirs[1]);
-    if (a >= 0 && b >= 0) {
-      let diff = Math.abs(a - b);
-      diff = Math.min(diff, 16 - diff);
-      if (diff >= 6) { // roughly >135°
-        flags.windShift = true;
-        notes.push('Abrupt wind direction shift — air mass change likely');
-      }
+  // 5. Wind shift — abrupt direction change across the day (>90°)
+  const degs = valid.map(r => r.windDeg).filter(v => v !== null);
+  if (degs.length >= 2) {
+    const a = degs[0], b = degs[degs.length - 1];
+    let diff = Math.abs(a - b);
+    diff = Math.min(diff, 360 - diff);
+    if (diff >= 90) {
+      flags.windShift = true;
+      notes.push('Wind direction shifts sharply — air mass change likely');
     }
   }
 
@@ -575,12 +572,19 @@ async function fetchStation(station) {
   }
   const observedHigh = DAILY_HIGHS[station] ? DAILY_HIGHS[station].high : null;
 
-  // ── Stability engine ────────────────────────────────────────────────────
+  // ── Stability engine (Open-Meteo hourly, always metric) ─────────────────
+  // Raw scraped WU values are always °F under the hood (toC() converts for
+  // non-US display below) — so the stability engine, which needs °C to
+  // compare against Open-Meteo, must always run the conversion here too.
   const hourlyRows = await fetchHourly(station);
-  const stability  = computeStability(hourlyRows, isUS);
-  const sourceHighC = isUS ? observedHigh : toC(observedHigh);
+  const stability  = computeStability(hourlyRows);
+  const sourceHighC = toC(observedHigh);
   const estimateHighC = sourceHighC !== null
-    ? parseFloat((sourceHighC + (isUS ? stability.estimateAdjustmentC * 1.8 : stability.estimateAdjustmentC)).toFixed(1))
+    ? parseFloat((sourceHighC + stability.estimateAdjustmentC).toFixed(1))
+    : null;
+  // Mirror the estimate into the station's display unit for convenience
+  const estimateHighDisplay = estimateHighC !== null
+    ? (isUS ? parseFloat((estimateHighC * 9/5 + 32).toFixed(1)) : estimateHighC)
     : null;
 
   return {
@@ -594,8 +598,10 @@ async function fetchStation(station) {
       redCount:   stability.redCount,
       flags:      stability.flags,
       notes:      stability.notes,
-      sourceHigh: sourceHighC,
-      estimateHigh: estimateHighC,
+      sourceHighC:    sourceHighC,
+      estimateHighC:  estimateHighC,
+      sourceHigh:     isUS ? observedHigh       : sourceHighC,     // in station's display unit
+      estimateHigh:   estimateHighDisplay,                          // in station's display unit
     },
   };
 }

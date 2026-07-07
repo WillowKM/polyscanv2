@@ -365,8 +365,9 @@ function renderScanner(polyData, wxData) {
     const outcomes = (poly && poly.polyData && poly.polyData.outcomes) ? poly.polyData.outcomes : (poly && poly.outcomes) || [];
     const stability = wx && wx.stability ? wx.stability : null;
 
-    // Strategy 1 candidates: brackets where prob <= 10 (No price >= 90c)
-    const s1 = outcomes.filter(o => o.prob !== null && o.prob <= 10);
+    // Strategy 1 candidates: brackets where No price is 91c-97c (your sweet spot)
+    // No price = 100 - prob, so No 91c-97c means prob is between 3 and 9 inclusive
+    const s1 = outcomes.filter(o => o.prob !== null && o.prob >= 3 && o.prob <= 9);
     // Strategy 2 candidates: brackets where prob >= 90 (Yes price >= 90c) -- pairs with an S1 bracket existing
     const s2yes = outcomes.filter(o => o.prob !== null && o.prob >= 90);
     // Strategy 3: middle Yes candidates under 50c (prob between ~20-50) + tail brackets >=80c No (prob<=20)
@@ -416,7 +417,7 @@ function renderScanner(polyData, wxData) {
 
   document.getElementById('scannerWrap').innerHTML = `
     <table>
-      <thead><tr><th>City</th><th>Stability</th><th>High (src/est)</th><th>Strategy 1 (No 90c+)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
+      <thead><tr><th>City</th><th>Stability</th><th>High (src/est)</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
       <tbody>${trs}</tbody>
     </table>
     <div class="empty-note">Tap any price chip to prefill "Log Trade" with that city/strategy/bracket. Stability RED = 2+ of the 5 signals (dew point drift, cloud volatility, storm recency, temp curve shape, wind shift) are flagged — treat tail bets on these cities as higher risk of overshoot. Hover the RED pill for the specific reasons.</div>

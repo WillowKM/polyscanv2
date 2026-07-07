@@ -484,7 +484,7 @@ async function fetchHourly(station) {
   if (!meta) return [];
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${meta.lat}&longitude=${meta.lon}` +
-      `&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,cloudcover,precipitation_probability,winddirection_10m,weathercode` +
+      `&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,cloudcover,precipitation_probability,winddirection_10m,weathercode,surface_pressure` +
       `&timezone=auto&forecast_days=1`;
     const res = await fetch(url, { timeout: 10000 });
     if (!res.ok) return [];
@@ -501,6 +501,7 @@ async function fetchHourly(station) {
       precip:   h.precipitation_probability?.[i] ?? null,
       cond:     weatherCodeToCond(h.weathercode?.[i]),
       windDeg:  h.winddirection_10m?.[i]      ?? null,
+      pressure: h.surface_pressure?.[i]       ?? null,
     }));
   } catch(e) {
     return [];
@@ -513,6 +514,13 @@ async function fetchHourly(station) {
 // Open-Meteo. Returns a green/red badge plus a flag breakdown so we can see
 // WHY a city is flagged, and a suggested estimate adjustment in °C to apply
 // on top of the source forecast high.
+function median(arr) {
+  if (!arr.length) return null;
+  const s = [...arr].sort((a,b)=>a-b);
+  const mid = Math.floor(s.length/2);
+  return s.length % 2 ? s[mid] : parseFloat(((s[mid-1]+s[mid])/2).toFixed(1));
+}
+
 function computeStability(hourlyRows) {
   const flags = {
     dewPointDrift:   false,
@@ -520,31 +528,34 @@ function computeStability(hourlyRows) {
     stormRecency:    false,
     tempCurveShape:  false,
     windShift:       false,
+    pressureSwing:   false,
   };
   const notes = [];
 
   const valid = hourlyRows.filter(r => r.dewC !== null || r.tempC !== null);
   if (!valid.length) {
-    return { score: 'unknown', flags, notes: ['No hourly data available'], redCount: 0, estimateAdjustmentC: 0 };
+    return { score: 'unknown', flags, notes: ['No hourly data available'], redCount: 0, estimateAdjustmentC: 0, raw: null, patternDay: null };
   }
 
   // 1. Dew point drift — max minus min across today's hours
   const dews = valid.map(r => r.dewC).filter(v => v !== null);
+  let dewDrift = null;
   if (dews.length >= 2) {
-    const drift = Math.max(...dews) - Math.min(...dews);
-    if (drift >= 2) {
+    dewDrift = parseFloat((Math.max(...dews) - Math.min(...dews)).toFixed(1));
+    if (dewDrift >= 2) {
       flags.dewPointDrift = true;
-      notes.push(`Dew point swings ${drift.toFixed(1)}°C across the day — air mass likely changing`);
+      notes.push(`Dew point swings ${dewDrift.toFixed(1)}°C across the day — air mass likely changing`);
     }
   }
 
   // 2. Cloud cover volatility — range crosses both a clear band and an overcast band
   const clouds = valid.map(r => r.cloud).filter(v => v !== null);
+  let cloudRange = null;
   if (clouds.length >= 2) {
     const hasLow  = clouds.some(c => c <= 20);
     const hasHigh = clouds.some(c => c >= 70);
-    const range    = Math.max(...clouds) - Math.min(...clouds);
-    if (hasLow && hasHigh && range >= 50) {
+    cloudRange = Math.max(...clouds) - Math.min(...clouds);
+    if (hasLow && hasHigh && cloudRange >= 50) {
       flags.cloudVolatility = true;
       notes.push('Cloud cover swings between clear and overcast');
     }
@@ -564,9 +575,10 @@ function computeStability(hourlyRows) {
     return hr >= 10 && hr <= 16;
   });
   const temps = daytime.map(r => r.tempC).filter(v => v !== null);
+  let tempSlope = null;
   if (temps.length >= 3) {
-    const slope = (temps[temps.length - 1] - temps[0]) / (temps.length - 1);
-    if (slope >= 1) {
+    tempSlope = parseFloat(((temps[temps.length - 1] - temps[0]) / (temps.length - 1)).toFixed(2));
+    if (tempSlope >= 1) {
       flags.tempCurveShape = true;
       notes.push('Temp still climbing steadily through peak hours — may run above forecast');
     }
@@ -574,13 +586,29 @@ function computeStability(hourlyRows) {
 
   // 5. Wind shift — abrupt direction change across the day (>90°)
   const degs = valid.map(r => r.windDeg).filter(v => v !== null);
+  let windShiftDeg = null;
   if (degs.length >= 2) {
     const a = degs[0], b = degs[degs.length - 1];
     let diff = Math.abs(a - b);
     diff = Math.min(diff, 360 - diff);
+    windShiftDeg = parseFloat(diff.toFixed(0));
     if (diff >= 90) {
       flags.windShift = true;
       notes.push('Wind direction shifts sharply — air mass change likely');
+    }
+  }
+
+  // 6. Pressure swing — flat/steady pressure all day is one of the clearest
+  // "boring, predictable day" signals. Range >= 5 hPa across the day = unstable.
+  const pressures = valid.map(r => r.pressure).filter(v => v !== null);
+  let pressureRange = null, pressureTrend = 'flat';
+  if (pressures.length >= 2) {
+    pressureRange = parseFloat((Math.max(...pressures) - Math.min(...pressures)).toFixed(1));
+    const delta = pressures[pressures.length-1] - pressures[0];
+    pressureTrend = delta > 1 ? 'rising' : delta < -1 ? 'falling' : 'flat';
+    if (pressureRange >= 5) {
+      flags.pressureSwing = true;
+      notes.push(`Pressure swings ${pressureRange.toFixed(1)}hPa across the day — less stable pattern`);
     }
   }
 
@@ -593,7 +621,39 @@ function computeStability(hourlyRows) {
   if (flags.stormRecency && flags.tempCurveShape) estimateAdjustmentC = 2;
   else if (redCount >= 2) estimateAdjustmentC = 1;
 
-  return { score, flags, notes, redCount, estimateAdjustmentC };
+  // ── PATTERN DAY ─────────────────────────────────────────────────────────
+  // Separate from the red/green risk score above. This answers a different
+  // question: "is today's weather STORY simple and uniform (all cloudy, all
+  // sunny) or a mixed bag (sun/rain/storm in one afternoon)?" A city can be
+  // green on stability but still be a "mixed" weather story, and vice versa.
+  const condCounts = {};
+  valid.forEach(r => { if (r.cond) condCounts[r.cond] = (condCounts[r.cond] || 0) + 1; });
+  const condEntries = Object.entries(condCounts).sort((a,b) => b[1]-a[1]);
+  let patternDay = null;
+  if (condEntries.length) {
+    const [dominantCond, dominantCount] = condEntries[0];
+    const pctDominant = parseFloat(((dominantCount / valid.length) * 100).toFixed(0));
+    const CONDICONS = { Fair:'☀️', Cloudy:'☁️', Rain:'🌧️', 'T-Storm':'⛈️', Snow:'❄️', Fog:'🌫️' };
+    patternDay = {
+      dominantCond,
+      pctDominant,
+      isPatternDay: pctDominant >= 75,
+      label: `${CONDICONS[dominantCond] || ''} ${dominantCond} ${pctDominant}% of the day`,
+    };
+  }
+
+  return {
+    score, flags, notes, redCount, estimateAdjustmentC,
+    patternDay,
+    raw: {
+      dew:      { min: dews.length ? Math.min(...dews) : null,          max: dews.length ? Math.max(...dews) : null,          median: median(dews),      driftC: dewDrift },
+      cloud:    { min: clouds.length ? Math.min(...clouds) : null,      max: clouds.length ? Math.max(...clouds) : null,      median: median(clouds),    rangePct: cloudRange },
+      humidity: { min: valid.length ? Math.min(...valid.map(r=>r.humidity).filter(v=>v!==null)) : null, max: valid.length ? Math.max(...valid.map(r=>r.humidity).filter(v=>v!==null)) : null, median: median(valid.map(r=>r.humidity).filter(v=>v!==null)) },
+      wind:     { shiftDeg: windShiftDeg },
+      tempSlope: tempSlope,
+      pressure: { rangeHpa: pressureRange, trend: pressureTrend },
+    },
+  };
 }
 
 async function fetchStation(station) {
@@ -678,6 +738,8 @@ async function fetchStation(station) {
       redCount:   stability.redCount,
       flags:      stability.flags,
       notes:      stability.notes,
+      raw:        stability.raw,         // dew/cloud/humidity/wind/pressure min-median-max, for every city not just red ones
+      patternDay: stability.patternDay,  // dominant condition + % of day + isPatternDay flag
       sourceHighC:    sourceHighC,
       estimateHighC:  estimateHighC,
       sourceHigh:     isUS ? observedHigh       : sourceHighC,     // in station's display unit

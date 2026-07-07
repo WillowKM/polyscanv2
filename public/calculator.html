@@ -383,12 +383,17 @@ function renderScanner(polyData, wxData) {
     return aGreen - bGreen;
   });
 
-  const trs = rows.map(r => {
+  const trs = rows.map((r, idx) => {
     const rowClass = r.stability && r.stability.score === 'red' ? 'row-red' : '';
     const stabPill = !r.stability ? '<span class="pill grey">—</span>'
       : r.stability.score === 'green' ? '<span class="pill green">GREEN</span>'
       : r.stability.score === 'red' ? `<span class="pill red" title="${(r.stability.notes||[]).join(' | ')}">RED · ${r.stability.redCount}</span>`
       : '<span class="pill grey">?</span>';
+
+    const pd = r.stability && r.stability.patternDay;
+    const patternPill = !pd ? '<span class="pill grey">—</span>'
+      : pd.isPatternDay ? `<span class="pill green">⭐ ${pd.label}</span>`
+      : `<span class="pill grey">${pd.label} — mixed</span>`;
 
     const s1chips = r.s1.length ? r.s1.map(o =>
       `<span class="strat-chip s1" onclick='openTradeModal("${r.city.name}","1","NO","${o.bracket}",${100-o.prob})'>NO ${o.bracket} · ${100-o.prob}¢</span>`
@@ -405,22 +410,39 @@ function renderScanner(polyData, wxData) {
 
     const highDisplay = r.wx && r.wx.stability ? `src ${r.wx.stability.sourceHigh ?? '—'}° / est ${r.wx.stability.estimateHigh ?? '—'}°` : '—';
 
-    return `<tr class="${rowClass}">
+    const raw = r.stability && r.stability.raw;
+    const detailId = `detail-${idx}`;
+    const detailRow = raw ? `
+      <tr id="${detailId}" style="display:none;">
+        <td colspan="7" style="background:var(--bg3);">
+          <div style="display:flex;gap:20px;flex-wrap:wrap;padding:6px 4px;font-size:11.5px;">
+            <div><span class="muted">Dew point:</span> ${raw.dew.min}° / ${raw.dew.median}° / ${raw.dew.max}°C <span class="muted">(drift ${raw.dew.driftC}°)</span></div>
+            <div><span class="muted">Cloud cover:</span> ${raw.cloud.min}% / ${raw.cloud.median}% / ${raw.cloud.max}% <span class="muted">(range ${raw.cloud.rangePct}pp)</span></div>
+            <div><span class="muted">Humidity:</span> ${raw.humidity.min}% / ${raw.humidity.median}% / ${raw.humidity.max}%</div>
+            <div><span class="muted">Wind shift:</span> ${raw.wind.shiftDeg}°</div>
+            <div><span class="muted">Temp slope (peak hrs):</span> ${raw.tempSlope}°C/hr</div>
+            <div><span class="muted">Pressure:</span> ${raw.pressure.trend} <span class="muted">(range ${raw.pressure.rangeHpa}hPa)</span></div>
+          </div>
+        </td>
+      </tr>` : '';
+
+    return `<tr class="${rowClass}" style="cursor:pointer;" onclick="document.getElementById('${detailId}').style.display = document.getElementById('${detailId}').style.display==='none'?'table-row':'none'">
       <td class="city-cell">${r.city.name}<div class="local-time">${localTime(r.city.tz)} local</div></td>
       <td>${stabPill}</td>
+      <td>${patternPill}</td>
       <td class="mono">${highDisplay}</td>
       <td>${s1chips}</td>
       <td>${s2chips}</td>
       <td>${s3chips}</td>
-    </tr>`;
+    </tr>${detailRow}`;
   }).join('');
 
   document.getElementById('scannerWrap').innerHTML = `
     <table>
-      <thead><tr><th>City</th><th>Stability</th><th>High (src/est)</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
+      <thead><tr><th>City</th><th>Stability</th><th>Pattern Day</th><th>High (src/est)</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
       <tbody>${trs}</tbody>
     </table>
-    <div class="empty-note">Tap any price chip to prefill "Log Trade" with that city/strategy/bracket. Stability RED = 2+ of the 5 signals (dew point drift, cloud volatility, storm recency, temp curve shape, wind shift) are flagged — treat tail bets on these cities as higher risk of overshoot. Hover the RED pill for the specific reasons.</div>
+    <div class="empty-note">Click any row to expand the raw dew point / cloud / humidity / wind / pressure numbers behind its score. Tap a price chip to prefill "Log Trade". Stability RED = 2+ of 6 signals flagged (dew drift, cloud volatility, storm recency, temp curve, wind shift, pressure swing). Pattern Day ⭐ = one weather condition (sun/cloud/rain/etc) covers 75%+ of today's remaining hours — few surprises expected. These come from Open-Meteo's forecast, not WU directly — WU can still revise mid-day, so cross-check WU yourself before trusting a green/starred city fully.</div>
   `;
 }
 

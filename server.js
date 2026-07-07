@@ -484,7 +484,7 @@ async function fetchHourly(station) {
   if (!meta) return [];
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${meta.lat}&longitude=${meta.lon}` +
-      `&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,cloudcover,precipitation_probability,winddirection_10m,weathercode,surface_pressure` +
+      `&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,cloud_cover,precipitation_probability,wind_direction_10m,weather_code,surface_pressure` +
       `&timezone=auto&forecast_days=1`;
     const res = await fetch(url, { timeout: 10000 });
     if (!res.ok) return [];
@@ -495,12 +495,12 @@ async function fetchHourly(station) {
     return h.time.map((t, i) => ({
       time:     t,
       tempC:    h.temperature_2m?.[i]        ?? null,
-      dewC:     h.dewpoint_2m?.[i]            ?? null,
-      humidity: h.relativehumidity_2m?.[i]    ?? null,
-      cloud:    h.cloudcover?.[i]             ?? null,
+      dewC:     h.dew_point_2m?.[i]           ?? null,
+      humidity: h.relative_humidity_2m?.[i]   ?? null,
+      cloud:    h.cloud_cover?.[i]            ?? null,
       precip:   h.precipitation_probability?.[i] ?? null,
-      cond:     weatherCodeToCond(h.weathercode?.[i]),
-      windDeg:  h.winddirection_10m?.[i]      ?? null,
+      cond:     weatherCodeToCond(h.weather_code?.[i]),
+      windDeg:  h.wind_direction_10m?.[i]     ?? null,
       pressure: h.surface_pressure?.[i]       ?? null,
     }));
   } catch(e) {

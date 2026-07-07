@@ -383,7 +383,14 @@ function renderScanner(polyData, wxData) {
     return aGreen - bGreen;
   });
 
-  const trs = rows.map((r, idx) => {
+  // Only show cities the tool can actually assess. Cities with no stability
+  // signal (Open-Meteo fetch failed / no data) are hidden from the main list —
+  // you don't need to see cities you can't judge. Reasons are logged below
+  // the table so failures are visible instead of silently disappearing.
+  const withSignal = rows.filter(r => r.stability && (r.stability.score === 'green' || r.stability.score === 'red'));
+  const noSignal    = rows.filter(r => !withSignal.includes(r));
+
+  const buildRow = (r, idx) => {
     const rowClass = r.stability && r.stability.score === 'red' ? 'row-red' : '';
     const stabPill = !r.stability ? '<span class="pill grey">—</span>'
       : r.stability.score === 'green' ? '<span class="pill green">GREEN</span>'
@@ -435,14 +442,28 @@ function renderScanner(polyData, wxData) {
       <td>${s2chips}</td>
       <td>${s3chips}</td>
     </tr>${detailRow}`;
+  };
+
+  const trs = withSignal.map((r, idx) => buildRow(r, idx)).join('');
+
+  const noSignalList = noSignal.map(r => {
+    const reason = (r.stability && r.stability.notes && r.stability.notes[0]) || 'no data';
+    return `<div>${r.city.name}: <span class="muted">${reason}</span></div>`;
   }).join('');
+
+  const diagnosticBlock = noSignal.length ? `
+    <div class="panel" style="margin-top:10px;background:var(--red-bg);border-color:var(--red-border);">
+      <h2 style="color:var(--red);">⚠ ${noSignal.length} city${noSignal.length>1?'ies':''} hidden — no stability signal</h2>
+      <div style="font-size:11.5px;line-height:1.8;">${noSignalList}</div>
+    </div>` : '';
 
   document.getElementById('scannerWrap').innerHTML = `
     <table>
       <thead><tr><th>City</th><th>Stability</th><th>Pattern Day</th><th>High (src/est)</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
-      <tbody>${trs}</tbody>
+      <tbody>${trs || '<tr><td colspan="7" class="empty-note">No cities currently have a usable stability signal — see the error panel below.</td></tr>'}</tbody>
     </table>
-    <div class="empty-note">Click any row to expand the raw dew point / cloud / humidity / wind / pressure numbers behind its score. Tap a price chip to prefill "Log Trade". Stability RED = 2+ of 6 signals flagged (dew drift, cloud volatility, storm recency, temp curve, wind shift, pressure swing). Pattern Day ⭐ = one weather condition (sun/cloud/rain/etc) covers 75%+ of today's remaining hours — few surprises expected. These come from Open-Meteo's forecast, not WU directly — WU can still revise mid-day, so cross-check WU yourself before trusting a green/starred city fully.</div>
+    <div class="empty-note">Showing ${withSignal.length} of ${rows.length} cities — only cities with a real stability signal are listed. Click any row to expand the raw dew point / cloud / humidity / wind / pressure numbers behind its score. Tap a price chip to prefill "Log Trade". These come from Open-Meteo's forecast, not WU directly — WU can still revise mid-day, so cross-check WU yourself before trusting a green/starred city fully.</div>
+    ${diagnosticBlock}
   `;
 }
 

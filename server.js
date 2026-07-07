@@ -35,6 +35,7 @@ if (!fs.existsSync(DATA_DIR)) {
 const MARKETS_FILE     = path.join(DATA_DIR, 'markets.json');
 const RECORD_FILE      = path.join(DATA_DIR, 'record.json');      // permanent trade W/L tally — never auto-cleaned, survives deploys/updates
 const PREDICTIONS_FILE = path.join(DATA_DIR, 'predictions.json'); // PolyScan's own estimate accuracy — separate from trade record
+const CALC_FILE         = path.join(DATA_DIR, 'calc.json');       // Calculator: settings + daily trade log for the target tracker
 
 console.log(`[storage] Using DATA_DIR = ${DATA_DIR}${process.env.DATA_DIR ? ' (persistent disk)' : ' (⚠️ EPHEMERAL — set DATA_DIR env var to a mounted disk path to persist across restarts)'}`);
 
@@ -157,6 +158,85 @@ function cleanOldBets() {
   data.bets = data.bets.filter(b => b.date === today);
   if (data.bets.length !== before) saveMarkets(data);
   return data;
+}
+
+// ── calc.json — Calculator: settings + daily trade log ─────────────────────
+// Separate from markets.json (which is the TV scanner's single-bet-per-city
+// tracker). The calculator supports multiple legs per city per day (needed
+// for Strategy 3's barbell — several Yes + several No legs on one city), so
+// each entry is its own trade row with its own id, not one row per city.
+//
+// "Trading day" = SAST calendar date (matches "first trade after 00:01").
+// A trade belongs to today if its SAST date-string matches todaySAST().
+function todaySAST() {
+  const now = new Date();
+  // SAST = UTC+2, no DST
+  const sast = new Date(now.getTime() + 2 * 60 * 60 * 1000);
+  return `${sast.getUTCFullYear()}-${String(sast.getUTCMonth()+1).padStart(2,'0')}-${String(sast.getUTCDate()).padStart(2,'0')}`;
+}
+
+function loadCalc() {
+  try {
+    const raw = fs.readFileSync(CALC_FILE, 'utf8');
+    const data = JSON.parse(raw);
+    if (!data.settings) data.settings = {};
+    if (!Array.isArray(data.trades)) data.trades = [];
+    return data;
+  } catch(e) {
+    return { settings: { portfolio: 0, exposureCap: 0, targetPct: 6 }, trades: [] };
+  }
+}
+
+function saveCalc(data) {
+  fs.writeFileSync(CALC_FILE, JSON.stringify(data, null, 2));
+}
+
+// Profit math for a single leg. entryPriceCents is the price PAID per
+// share (1-99). stake is the $ wagered on this leg.
+//   shares bought   = stake / (entryPriceCents/100)
+//   WIN payout      = shares * $1
+//   CASHOUT payout  = shares * (cashoutPriceCents/100)
+//   LOSS payout     = 0
+function computeProfit(trade) {
+  const shares = trade.stake / (trade.entryPriceCents / 100);
+  if (trade.status === 'WIN')     return parseFloat((shares * 1 - trade.stake).toFixed(4));
+  if (trade.status === 'LOSS')    return parseFloat((-trade.stake).toFixed(4));
+  if (trade.status === 'CASHOUT') return parseFloat((shares * (trade.cashoutPriceCents/100) - trade.stake).toFixed(4));
+  return 0; // still open
+}
+
+function todaysTrades(calc) {
+  const today = todaySAST();
+  return calc.trades.filter(t => t.sastDate === today);
+}
+
+function calcSummary(calc) {
+  const today = todaysTrades(calc);
+  const settled = today.filter(t => t.status !== 'open');
+  const open     = today.filter(t => t.status === 'open');
+
+  const profitToday   = settled.reduce((sum, t) => sum + computeProfit(t), 0);
+  const exposureUsed  = open.reduce((sum, t) => sum + t.stake, 0);
+  const portfolio     = calc.settings.portfolio    || 0;
+  const exposureCap   = calc.settings.exposureCap  || 0;
+  const targetPct     = calc.settings.targetPct    || 6;
+  const targetDollars = parseFloat((portfolio * (targetPct/100)).toFixed(2));
+  const sessionTarget = parseFloat((targetDollars / 3).toFixed(2));
+
+  return {
+    sastDate:       today.length ? today[0].sastDate : todaySAST(),
+    targetDollars,
+    sessionTarget,
+    profitToday:    parseFloat(profitToday.toFixed(2)),
+    pctOfTarget:    targetDollars > 0 ? parseFloat(((profitToday/targetDollars)*100).toFixed(1)) : 0,
+    targetMet:      profitToday >= targetDollars && targetDollars > 0,
+    exposureUsed:   parseFloat(exposureUsed.toFixed(2)),
+    exposureFree:   parseFloat((exposureCap - exposureUsed).toFixed(2)),
+    exposureCap,
+    portfolio,
+    tradesOpenCount:    open.length,
+    tradesSettledCount: settled.length,
+  };
 }
 
 // ── record.json — permanent win/loss tally ─────────────────────────────────
@@ -727,6 +807,105 @@ app.post('/poly/batch', async (req, res) => {
 // Permanent win/loss record — never auto-cleaned, survives daily rollover and deploys
 app.get('/record', (req, res) => {
   res.json(loadRecord());
+});
+
+// ── CALCULATOR ROUTES ────────────────────────────────────────────────────────
+
+// Get settings + today's summary + today's trades
+app.get('/calc/state', (req, res) => {
+  const calc = loadCalc();
+  res.json({
+    settings: calc.settings,
+    summary:  calcSummary(calc),
+    trades:   todaysTrades(calc),
+  });
+});
+
+// Update settings (portfolio, exposureCap, targetPct)
+app.post('/calc/settings', (req, res) => {
+  const { portfolio, exposureCap, targetPct } = req.body;
+  const calc = loadCalc();
+  if (portfolio    !== undefined) calc.settings.portfolio   = parseFloat(portfolio);
+  if (exposureCap  !== undefined) calc.settings.exposureCap = parseFloat(exposureCap);
+  if (targetPct    !== undefined) calc.settings.targetPct   = parseFloat(targetPct);
+  saveCalc(calc);
+  res.json({ ok: true, settings: calc.settings, summary: calcSummary(calc) });
+});
+
+// Log a new trade leg
+// Body: { city, strategy ('1'|'2'|'3'), side ('YES'|'NO'), bracketLabel, stake, entryPriceCents }
+app.post('/calc/trades', (req, res) => {
+  const { city, strategy, side, bracketLabel, stake, entryPriceCents } = req.body;
+  if (!city || !strategy || !side || !stake || !entryPriceCents) {
+    return res.status(400).json({ error: 'city, strategy, side, stake, entryPriceCents required' });
+  }
+  const calc = loadCalc();
+  const trade = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+    city, strategy, side, bracketLabel: bracketLabel || '',
+    stake: parseFloat(stake),
+    entryPriceCents: parseFloat(entryPriceCents),
+    status: 'open', // open | WIN | LOSS | CASHOUT
+    cashoutPriceCents: null,
+    sastDate: todaySAST(),
+    openedAt: new Date().toISOString(),
+    settledAt: null,
+  };
+  calc.trades.unshift(trade);
+  saveCalc(calc);
+  res.json({ ok: true, trade, summary: calcSummary(calc) });
+});
+
+// Settle a trade: WIN, LOSS, or CASHOUT (needs cashoutPriceCents)
+app.post('/calc/trades/:id/settle', (req, res) => {
+  const { outcome, cashoutPriceCents } = req.body;
+  if (!['WIN','LOSS','CASHOUT'].includes(outcome)) return res.status(400).json({ error: 'outcome must be WIN, LOSS, or CASHOUT' });
+  if (outcome === 'CASHOUT' && !cashoutPriceCents) return res.status(400).json({ error: 'cashoutPriceCents required for CASHOUT' });
+
+  const calc = loadCalc();
+  const trade = calc.trades.find(t => t.id === req.params.id);
+  if (!trade) return res.status(404).json({ error: 'trade not found' });
+
+  trade.status = outcome;
+  if (outcome === 'CASHOUT') trade.cashoutPriceCents = parseFloat(cashoutPriceCents);
+  trade.settledAt = new Date().toISOString();
+  trade.profit = computeProfit(trade);
+  saveCalc(calc);
+  res.json({ ok: true, trade, summary: calcSummary(calc) });
+});
+
+// Delete a trade (mistakes / duplicate entry)
+app.delete('/calc/trades/:id', (req, res) => {
+  const calc = loadCalc();
+  calc.trades = calc.trades.filter(t => t.id !== req.params.id);
+  saveCalc(calc);
+  res.json({ ok: true, summary: calcSummary(calc) });
+});
+
+// Batch weather + stability for the opportunity scanner (reuses the same
+// cache as /weather/:station — this just loops it for many stations at once
+// instead of the front-end firing 26 separate requests).
+app.post('/weather/batch', async (req, res) => {
+  const { stations } = req.body;
+  if (!stations || !Array.isArray(stations)) return res.status(400).json({ error: 'stations array required' });
+
+  const results = await Promise.allSettled(stations.map(async raw => {
+    const station = raw.toUpperCase();
+    if (CACHE[station] && (Date.now() - CACHE[station].ts) < CACHE_TTL) {
+      return { station, data: CACHE[station].data, cached: true };
+    }
+    const data = await fetchStation(station);
+    CACHE[station] = { data, ts: Date.now() };
+    return { station, data, cached: false };
+  }));
+
+  const out = {};
+  results.forEach((r, i) => {
+    const station = stations[i].toUpperCase();
+    if (r.status === 'fulfilled') out[station] = r.value.data;
+    else out[station] = { error: r.reason?.message || 'failed' };
+  });
+  res.json(out);
 });
 
 app.get('/health', (req, res) => {

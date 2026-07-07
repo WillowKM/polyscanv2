@@ -481,18 +481,26 @@ function weatherCodeToCond(code) {
 
 async function fetchHourly(station) {
   const meta = STATION_META[station];
-  if (!meta) return [];
+  if (!meta) return { rows: [], error: 'No station metadata' };
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${meta.lat}&longitude=${meta.lon}` +
       `&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,cloud_cover,precipitation_probability,wind_direction_10m,weather_code,surface_pressure` +
       `&timezone=auto&forecast_days=1`;
-    const res = await fetch(url, { timeout: 10000 });
-    if (!res.ok) return [];
+    const res = await fetch(url);
+    if (!res.ok) {
+      let reason = `HTTP ${res.status}`;
+      try { const errJson = await res.json(); if (errJson.reason) reason = errJson.reason; } catch(e2) {}
+      console.error(`[Open-Meteo] ${station} failed: ${reason}`);
+      return { rows: [], error: reason };
+    }
     const json = await res.json();
     const h = json.hourly;
-    if (!h || !h.time) return [];
+    if (!h || !h.time) {
+      console.error(`[Open-Meteo] ${station} returned no hourly data`);
+      return { rows: [], error: 'No hourly data in response' };
+    }
 
-    return h.time.map((t, i) => ({
+    const rows = h.time.map((t, i) => ({
       time:     t,
       tempC:    h.temperature_2m?.[i]        ?? null,
       dewC:     h.dew_point_2m?.[i]           ?? null,
@@ -503,8 +511,10 @@ async function fetchHourly(station) {
       windDeg:  h.wind_direction_10m?.[i]     ?? null,
       pressure: h.surface_pressure?.[i]       ?? null,
     }));
+    return { rows, error: null };
   } catch(e) {
-    return [];
+    console.error(`[Open-Meteo] ${station} threw: ${e.message}`);
+    return { rows: [], error: e.message };
   }
 }
 
@@ -521,7 +531,7 @@ function median(arr) {
   return s.length % 2 ? s[mid] : parseFloat(((s[mid-1]+s[mid])/2).toFixed(1));
 }
 
-function computeStability(hourlyRows) {
+function computeStability(hourlyRows, fetchError) {
   const flags = {
     dewPointDrift:   false,
     cloudVolatility: false,
@@ -534,7 +544,11 @@ function computeStability(hourlyRows) {
 
   const valid = hourlyRows.filter(r => r.dewC !== null || r.tempC !== null);
   if (!valid.length) {
-    return { score: 'unknown', flags, notes: ['No hourly data available'], redCount: 0, estimateAdjustmentC: 0, raw: null, patternDay: null };
+    return {
+      score: 'unknown', flags,
+      notes: [fetchError ? `Open-Meteo fetch failed: ${fetchError}` : 'No hourly data available'],
+      redCount: 0, estimateAdjustmentC: 0, raw: null, patternDay: null,
+    };
   }
 
   // 1. Dew point drift — max minus min across today's hours
@@ -716,8 +730,8 @@ async function fetchStation(station) {
   // Raw scraped WU values are always °F under the hood (toC() converts for
   // non-US display below) — so the stability engine, which needs °C to
   // compare against Open-Meteo, must always run the conversion here too.
-  const hourlyRows = await fetchHourly(station);
-  const stability  = computeStability(hourlyRows);
+  const { rows: hourlyRows, error: hourlyError } = await fetchHourly(station);
+  const stability  = computeStability(hourlyRows, hourlyError);
   const sourceHighC = toC(observedHigh);
   const estimateHighC = sourceHighC !== null
     ? parseFloat((sourceHighC + stability.estimateAdjustmentC).toFixed(1))

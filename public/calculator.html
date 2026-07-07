@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PolyScan Calculator by Willow</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Orbitron:wght@600;700&display=swap');
+
+:root {
+  --bg:     #05070B;
+  --bg2:    #0C1018;
+  --bg3:    #121824;
+  --border: rgba(255,255,255,0.08);
+  --text:   #E8EDF5;
+  --muted:  #5C6E88;
+  --green:  #00E676;
+  --green-bg:      rgba(0,230,118,0.05);
+  --green-border:  rgba(0,230,118,0.35);
+  --orange: #FF9F0A;
+  --orange-bg:     rgba(255,159,10,0.05);
+  --orange-border: rgba(255,159,10,0.35);
+  --red:    #FF3B5C;
+  --red-bg:        rgba(255,59,92,0.04);
+  --red-border:    rgba(255,59,92,0.30);
+  --accent: #3D8EFF;
+  --gold:   #FFD60A;
+  --purple: #B48CFF;
+}
+* { box-sizing:border-box; margin:0; padding:0; }
+html,body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; }
+body { padding:16px; max-width:1400px; margin:0 auto; }
+
+.hdr { display:flex; align-items:center; gap:14px; padding:10px 16px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; margin-bottom:14px; flex-wrap:wrap; }
+.logo { font-family:'Orbitron',monospace; font-size:14px; font-weight:700; letter-spacing:1.5px; color:var(--accent); }
+.logo .g { color:var(--green); }
+.logo .sub { font-size:10px; color:var(--muted); letter-spacing:1px; margin-left:6px; }
+.back-link { margin-left:auto; color:var(--muted); text-decoration:none; font-size:12.5px; padding:6px 10px; border:1px solid var(--border); border-radius:6px; }
+.back-link:hover { color:var(--text); border-color:var(--accent); }
+
+.panel { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px; margin-bottom:14px; }
+.panel h2 { font-size:13px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:12px; font-weight:700; }
+.panel h2 .note { text-transform:none; letter-spacing:0; font-weight:400; color:var(--muted); font-size:11.5px; }
+
+.grid-inputs { display:flex; gap:12px; flex-wrap:wrap; align-items:flex-end; margin-bottom:14px; }
+.field { display:flex; flex-direction:column; gap:4px; }
+.field label { font-size:11px; color:var(--muted); }
+.field input { background:var(--bg3); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:8px 10px; font-size:14px; width:130px; font-variant-numeric:tabular-nums; }
+.btn { background:var(--accent); color:#fff; border:none; border-radius:6px; padding:9px 16px; font-size:13px; font-weight:600; cursor:pointer; }
+.btn:hover { opacity:0.9; }
+.btn.secondary { background:var(--bg3); border:1px solid var(--border); color:var(--text); }
+.btn.win { background:var(--green); color:#04140C; }
+.btn.loss { background:var(--red); color:#fff; }
+.btn.cash { background:var(--orange); color:#291800; }
+.btn.small { padding:5px 10px; font-size:11.5px; }
+
+.stat-row { display:flex; gap:10px; flex-wrap:wrap; }
+.stat { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:12px 16px; min-width:130px; flex:1; }
+.stat .lbl { font-size:10.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
+.stat .val { font-size:20px; font-weight:700; font-variant-numeric:tabular-nums; }
+.stat.hi .val { color:var(--green); }
+.stat.lo .val { color:var(--red); }
+.stat.target-met { border-color:var(--green-border); background:var(--green-bg); }
+
+table { width:100%; border-collapse:collapse; font-size:12.5px; }
+th { text-align:left; color:var(--muted); font-weight:600; font-size:10.5px; text-transform:uppercase; letter-spacing:0.5px; padding:8px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+td { padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:middle; }
+tr:hover td { background:rgba(255,255,255,0.02); }
+.pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:700; }
+.pill.green { background:var(--green-bg); border:1px solid var(--green-border); color:var(--green); }
+.pill.red   { background:var(--red-bg);   border:1px solid var(--red-border);   color:var(--red); }
+.pill.grey  { background:var(--bg3); border:1px solid var(--border); color:var(--muted); }
+.muted { color:var(--muted); }
+.mono { font-variant-numeric:tabular-nums; }
+.city-cell { font-weight:600; }
+.local-time { font-size:11px; color:var(--muted); }
+.strat-chip { display:inline-block; padding:3px 7px; border-radius:5px; font-size:11px; margin:2px 3px 2px 0; cursor:pointer; border:1px solid var(--border); background:var(--bg3); }
+.strat-chip:hover { border-color:var(--accent); }
+.strat-chip.s1 { border-color:var(--red-border); color:var(--red); }
+.strat-chip.s2 { border-color:var(--orange-border); color:var(--orange); }
+.strat-chip.s3 { border-color:var(--purple); color:var(--purple); }
+.row-red td { opacity:0.55; }
+.empty-note { color:var(--muted); font-size:12.5px; padding:14px; text-align:center; }
+
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:100; }
+.modal-overlay.open { display:flex; }
+.modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:20px; width:360px; max-width:90vw; }
+.modal h3 { font-size:14px; margin-bottom:14px; }
+.modal .field { width:100%; margin-bottom:10px; }
+.modal .field input, .modal .field select { width:100%; }
+.modal-actions { display:flex; gap:8px; margin-top:14px; justify-content:flex-end; }
+
+#refreshNote { font-size:11px; color:var(--muted); margin-left:8px; }
+.section-loading { color:var(--muted); font-size:12.5px; padding:20px; text-align:center; }
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="logo"><span class="g">POLY</span>SCAN <span class="sub">CALCULATOR · by Willow</span></div>
+  <a class="back-link" href="/">← Back to Scanner</a>
+</div>
+
+<!-- DAILY TARGET -->
+<div class="panel">
+  <h2>Daily Target <span class="note">— resets each SAST calendar day, from your first logged trade</span></h2>
+  <div class="grid-inputs">
+    <div class="field"><label>Total portfolio ($)</label><input id="inPortfolio" type="number" step="0.01"></div>
+    <div class="field"><label>Exposure cap ($)</label><input id="inExposure" type="number" step="0.01"></div>
+    <div class="field"><label>Daily target (%)</label><input id="inTargetPct" type="number" step="0.1"></div>
+    <button class="btn" onclick="saveSettings()">Save</button>
+  </div>
+  <div class="stat-row" id="statRow"></div>
+</div>
+
+<!-- OPPORTUNITY SCANNER -->
+<div class="panel">
+  <h2>Opportunity Scanner <span class="note">— live Polymarket prices + your existing 5-signal stability engine. No historical win-rate exists yet to compute a calibrated true-probability, so this ranks by stability signal + price extremity, not a guaranteed edge number — use judgment on top of it.</span> <span id="refreshNote"></span></h2>
+  <button class="btn secondary small" onclick="loadScanner()" style="margin-bottom:10px;">Refresh now</button>
+  <div id="scannerWrap"><div class="section-loading">Loading live odds + stability data…</div></div>
+</div>
+
+<!-- TRADE LOG -->
+<div class="panel">
+  <h2>Trade Log <span class="note">— today's SAST trading day</span></h2>
+  <div id="tradeLogWrap"></div>
+</div>
+
+<!-- LOG TRADE MODAL -->
+<div class="modal-overlay" id="tradeModalOverlay" onclick="if(event.target===this) closeTradeModal()">
+  <div class="modal">
+    <h3 id="tradeModalTitle">Log a trade</h3>
+    <div class="field"><label>City</label>
+      <select id="tmCity"></select>
+    </div>
+    <div class="field"><label>Strategy</label>
+      <select id="tmStrategy">
+        <option value="1">Strategy 1 — Tail No 90c+</option>
+        <option value="2">Strategy 2 — Both Yes+No 90c+ near close</option>
+        <option value="3">Strategy 3 — Barbell</option>
+      </select>
+    </div>
+    <div class="field"><label>Side</label>
+      <select id="tmSide"><option value="NO">No</option><option value="YES">Yes</option></select>
+    </div>
+    <div class="field"><label>Bracket (e.g. "37c" or "88-89f")</label><input id="tmBracket" type="text"></div>
+    <div class="field"><label>Stake ($)</label><input id="tmStake" type="number" step="0.01" value="1"></div>
+    <div class="field"><label>Entry price (cents per share)</label><input id="tmEntry" type="number" step="0.1"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeTradeModal()">Cancel</button>
+      <button class="btn" onclick="submitTrade()">Add Trade</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const CITIES = [
+  { name:'Wellington',    station:'NZWN', tz:'Pacific/Auckland',    country:'NZ' },
+  { name:'Tokyo',         station:'RJTT', tz:'Asia/Tokyo',          country:'JP' },
+  { name:'Seoul',         station:'RKSI', tz:'Asia/Seoul',          country:'KR' },
+  { name:'Shanghai',      station:'ZSPD', tz:'Asia/Shanghai',       country:'CN' },
+  { name:'Singapore',     station:'WSSS', tz:'Asia/Singapore',      country:'SG' },
+  { name:'Kuala Lumpur',  station:'WMKK', tz:'Asia/Kuala_Lumpur',  country:'MY' },
+  { name:'Chengdu',       station:'ZUUU', tz:'Asia/Shanghai',       country:'CN' },
+  { name:'Beijing',       station:'ZBAA', tz:'Asia/Shanghai',       country:'CN' },
+  { name:'Lucknow',       station:'VILK', tz:'Asia/Kolkata',        country:'IN' },
+  { name:'Karachi',       station:'OPKC', tz:'Asia/Karachi',        country:'PK' },
+  { name:'Jeddah',        station:'OEJN', tz:'Asia/Riyadh',         country:'SA' },
+  { name:'Tel Aviv',      station:'LLBG', tz:'Asia/Jerusalem',      country:'IL' },
+  { name:'Istanbul',      station:'LTFM', tz:'Europe/Istanbul',     country:'TR' },
+  { name:'Warsaw',        station:'EPWA', tz:'Europe/Warsaw',       country:'PL' },
+  { name:'Paris',         station:'LFPB', tz:'Europe/Paris',        country:'FR' },
+  { name:'London',        station:'EGLC', tz:'Europe/London',       country:'GB' },
+  { name:'Madrid',        station:'LEMD', tz:'Europe/Madrid',       country:'ES' },
+  { name:'Cape Town',     station:'FACT', tz:'Africa/Johannesburg', country:'ZA' },
+  { name:'Atlanta',       station:'KATL', tz:'America/New_York',    country:'US' },
+  { name:'New York',      station:'KLGA', tz:'America/New_York',    country:'US' },
+  { name:'Miami',         station:'KMIA', tz:'America/New_York',    country:'US' },
+  { name:'Toronto',       station:'CYYZ', tz:'America/Toronto',     country:'CA' },
+  { name:'Chicago',       station:'KORD', tz:'America/Chicago',     country:'US' },
+  { name:'Houston',       station:'KHOU', tz:'America/Chicago',     country:'US' },
+  { name:'Denver',        station:'KBKF', tz:'America/Denver',      country:'US' },
+  { name:'Seattle',       station:'KSEA', tz:'America/Los_Angeles', country:'US' },
+  { name:'San Francisco', station:'KSFO', tz:'America/Los_Angeles', country:'US' },
+];
+
+let SUMMARY = null;
+
+function localTime(tz) {
+  try { return new Date().toLocaleTimeString('en-US', { timeZone: tz, hour:'numeric', minute:'2-digit' }); }
+  catch(e) { return '--'; }
+}
+
+// ── DAILY TARGET ─────────────────────────────────────────────────────────
+async function loadCalcState() {
+  const res = await fetch('/calc/state');
+  const data = await res.json();
+  SUMMARY = data.summary;
+  document.getElementById('inPortfolio').value  = data.settings.portfolio   ?? '';
+  document.getElementById('inExposure').value   = data.settings.exposureCap ?? '';
+  document.getElementById('inTargetPct').value  = data.settings.targetPct   ?? 6;
+  renderStats(data.summary);
+  renderTradeLog(data.trades);
+}
+
+function renderStats(s) {
+  const wrap = document.getElementById('statRow');
+  wrap.innerHTML = `
+    <div class="stat"><div class="lbl">Daily target</div><div class="val">$${s.targetDollars.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Session target (÷3)</div><div class="val">$${s.sessionTarget.toFixed(2)}</div></div>
+    <div class="stat ${s.profitToday>=0?'hi':'lo'} ${s.targetMet?'target-met':''}"><div class="lbl">Profit today</div><div class="val">$${s.profitToday.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">% of target</div><div class="val">${s.pctOfTarget.toFixed(0)}%${s.targetMet?' ✅':''}</div></div>
+    <div class="stat"><div class="lbl">Exposure used</div><div class="val">$${s.exposureUsed.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Exposure free</div><div class="val">$${s.exposureFree.toFixed(2)}</div></div>
+  `;
+}
+
+async function saveSettings() {
+  const portfolio   = parseFloat(document.getElementById('inPortfolio').value) || 0;
+  const exposureCap = parseFloat(document.getElementById('inExposure').value) || 0;
+  const targetPct   = parseFloat(document.getElementById('inTargetPct').value) || 6;
+  const res = await fetch('/calc/settings', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ portfolio, exposureCap, targetPct })
+  });
+  const data = await res.json();
+  SUMMARY = data.summary;
+  renderStats(data.summary);
+}
+
+// ── TRADE LOG ────────────────────────────────────────────────────────────
+function renderTradeLog(trades) {
+  const wrap = document.getElementById('tradeLogWrap');
+  if (!trades.length) {
+    wrap.innerHTML = '<div class="empty-note">No trades logged yet today. Use "Log Trade" from a scanner row, or add one manually below.</div>' +
+      '<button class="btn secondary small" onclick="openTradeModal()">+ Log Trade Manually</button>';
+    return;
+  }
+  const rows = trades.map(t => {
+    const statusPill = t.status === 'open' ? '<span class="pill grey">OPEN</span>' :
+      t.status === 'WIN' ? '<span class="pill green">WIN</span>' :
+      t.status === 'LOSS' ? '<span class="pill red">LOSS</span>' :
+      '<span class="pill grey">CASHOUT</span>';
+    const profit = t.status === 'open' ? '—' : `$${computeProfitClient(t).toFixed(2)}`;
+    const actions = t.status === 'open' ? `
+      <button class="btn win small" onclick="settleTrade('${t.id}','WIN')">Won</button>
+      <button class="btn loss small" onclick="settleTrade('${t.id}','LOSS')">Lost</button>
+      <button class="btn cash small" onclick="cashOutPrompt('${t.id}')">Cash Out</button>
+      <button class="btn secondary small" onclick="deleteTrade('${t.id}')">✕</button>
+    ` : `<button class="btn secondary small" onclick="deleteTrade('${t.id}')">Remove</button>`;
+    return `<tr>
+      <td class="city-cell">${t.city}</td>
+      <td><span class="pill grey">S${t.strategy}</span></td>
+      <td>${t.side}</td>
+      <td class="mono">${t.bracketLabel||'—'}</td>
+      <td class="mono">$${t.stake.toFixed(2)}</td>
+      <td class="mono">${t.entryPriceCents}¢</td>
+      <td>${statusPill}</td>
+      <td class="mono">${profit}</td>
+      <td>${actions}</td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `
+    <table>
+      <thead><tr><th>City</th><th>Strat</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry</th><th>Status</th><th>Profit</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    <button class="btn secondary small" onclick="openTradeModal()" style="margin-top:10px;">+ Log Trade Manually</button>
+  `;
+}
+
+function computeProfitClient(t) {
+  if (t.profit !== undefined && t.profit !== null) return t.profit;
+  const shares = t.stake / (t.entryPriceCents/100);
+  if (t.status==='WIN') return shares*1 - t.stake;
+  if (t.status==='LOSS') return -t.stake;
+  if (t.status==='CASHOUT') return shares*(t.cashoutPriceCents/100) - t.stake;
+  return 0;
+}
+
+async function settleTrade(id, outcome) {
+  const res = await fetch(`/calc/trades/${id}/settle`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ outcome })
+  });
+  const data = await res.json();
+  renderStats(data.summary);
+  loadCalcState();
+}
+
+function cashOutPrompt(id) {
+  const price = prompt('Cash-out price right now (cents per share)?');
+  if (!price) return;
+  fetch(`/calc/trades/${id}/settle`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ outcome:'CASHOUT', cashoutPriceCents: parseFloat(price) })
+  }).then(r=>r.json()).then(data => { renderStats(data.summary); loadCalcState(); });
+}
+
+async function deleteTrade(id) {
+  const res = await fetch(`/calc/trades/${id}`, { method:'DELETE' });
+  const data = await res.json();
+  renderStats(data.summary);
+  loadCalcState();
+}
+
+// ── TRADE MODAL ──────────────────────────────────────────────────────────
+function populateCityDropdown() {
+  const sel = document.getElementById('tmCity');
+  sel.innerHTML = CITIES.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+}
+function openTradeModal(prefillCity, prefillStrategy, prefillSide, prefillBracket, prefillEntry) {
+  populateCityDropdown();
+  if (prefillCity) document.getElementById('tmCity').value = prefillCity;
+  if (prefillStrategy) document.getElementById('tmStrategy').value = prefillStrategy;
+  if (prefillSide) document.getElementById('tmSide').value = prefillSide;
+  if (prefillBracket) document.getElementById('tmBracket').value = prefillBracket;
+  if (prefillEntry) document.getElementById('tmEntry').value = prefillEntry;
+  document.getElementById('tradeModalOverlay').classList.add('open');
+}
+function closeTradeModal() { document.getElementById('tradeModalOverlay').classList.remove('open'); }
+
+async function submitTrade() {
+  const body = {
+    city:  document.getElementById('tmCity').value,
+    strategy: document.getElementById('tmStrategy').value,
+    side: document.getElementById('tmSide').value,
+    bracketLabel: document.getElementById('tmBracket').value,
+    stake: parseFloat(document.getElementById('tmStake').value) || 1,
+    entryPriceCents: parseFloat(document.getElementById('tmEntry').value),
+  };
+  if (!body.entryPriceCents) { alert('Enter an entry price'); return; }
+  const res = await fetch('/calc/trades', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  const data = await res.json();
+  closeTradeModal();
+  renderStats(data.summary);
+  loadCalcState();
+}
+
+// ── OPPORTUNITY SCANNER ──────────────────────────────────────────────────
+async function loadScanner() {
+  document.getElementById('scannerWrap').innerHTML = '<div class="section-loading">Loading live odds + stability data…</div>';
+  const cityNames = CITIES.map(c => c.name);
+  const stations  = CITIES.map(c => c.station);
+
+  const [polyRes, wxRes] = await Promise.all([
+    fetch('/poly/batch', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ cities: cityNames }) }),
+    fetch('/weather/batch', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ stations }) }),
+  ]);
+  const polyData = await polyRes.json();
+  const wxData   = await wxRes.json();
+
+  renderScanner(polyData, wxData);
+  document.getElementById('refreshNote').textContent = 'Last updated ' + new Date().toLocaleTimeString();
+}
+
+function renderScanner(polyData, wxData) {
+  // Build rows, green-stability cities first, then red/unknown
+  const rows = CITIES.map(c => {
+    const poly = polyData[c.name];
+    const wx   = wxData[c.station];
+    const outcomes = (poly && poly.polyData && poly.polyData.outcomes) ? poly.polyData.outcomes : (poly && poly.outcomes) || [];
+    const stability = wx && wx.stability ? wx.stability : null;
+
+    // Strategy 1 candidates: brackets where prob <= 10 (No price >= 90c)
+    const s1 = outcomes.filter(o => o.prob !== null && o.prob <= 10);
+    // Strategy 2 candidates: brackets where prob >= 90 (Yes price >= 90c) -- pairs with an S1 bracket existing
+    const s2yes = outcomes.filter(o => o.prob !== null && o.prob >= 90);
+    // Strategy 3: middle Yes candidates under 50c (prob between ~20-50) + tail brackets >=80c No (prob<=20)
+    const s3mid  = outcomes.filter(o => o.prob !== null && o.prob >= 20 && o.prob <= 50).sort((a,b)=>b.prob-a.prob).slice(0,2);
+    const s3tail = outcomes.filter(o => o.prob !== null && o.prob <= 20);
+
+    return { city: c, poly, wx, stability, s1, s2yes, s3mid, s3tail };
+  });
+
+  rows.sort((a,b) => {
+    const aGreen = a.stability && a.stability.score === 'green' ? 0 : 1;
+    const bGreen = b.stability && b.stability.score === 'green' ? 0 : 1;
+    return aGreen - bGreen;
+  });
+
+  const trs = rows.map(r => {
+    const rowClass = r.stability && r.stability.score === 'red' ? 'row-red' : '';
+    const stabPill = !r.stability ? '<span class="pill grey">—</span>'
+      : r.stability.score === 'green' ? '<span class="pill green">GREEN</span>'
+      : r.stability.score === 'red' ? `<span class="pill red" title="${(r.stability.notes||[]).join(' | ')}">RED · ${r.stability.redCount}</span>`
+      : '<span class="pill grey">?</span>';
+
+    const s1chips = r.s1.length ? r.s1.map(o =>
+      `<span class="strat-chip s1" onclick='openTradeModal("${r.city.name}","1","NO","${o.bracket}",${100-o.prob})'>NO ${o.bracket} · ${100-o.prob}¢</span>`
+    ).join('') : '<span class="muted">none</span>';
+
+    const s2chips = (r.s1.length && r.s2yes.length) ? r.s2yes.map(o =>
+      `<span class="strat-chip s2" onclick='openTradeModal("${r.city.name}","2","YES","${o.bracket}",${o.prob})'>YES ${o.bracket} · ${o.prob}¢</span>`
+    ).join('') : '<span class="muted">none</span>';
+
+    const s3chips = (r.s3mid.length>=2 && r.s3tail.length>=2) ?
+      r.s3mid.map(o => `<span class="strat-chip s3" onclick='openTradeModal("${r.city.name}","3","YES","${o.bracket}",${o.prob})'>YES ${o.bracket}·${o.prob}¢</span>`).join('') +
+      ' + ' + r.s3tail.length + ' tail No legs available'
+      : '<span class="muted">not enough brackets</span>';
+
+    const highDisplay = r.wx && r.wx.stability ? `src ${r.wx.stability.sourceHigh ?? '—'}° / est ${r.wx.stability.estimateHigh ?? '—'}°` : '—';
+
+    return `<tr class="${rowClass}">
+      <td class="city-cell">${r.city.name}<div class="local-time">${localTime(r.city.tz)} local</div></td>
+      <td>${stabPill}</td>
+      <td class="mono">${highDisplay}</td>
+      <td>${s1chips}</td>
+      <td>${s2chips}</td>
+      <td>${s3chips}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('scannerWrap').innerHTML = `
+    <table>
+      <thead><tr><th>City</th><th>Stability</th><th>High (src/est)</th><th>Strategy 1 (No 90c+)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
+      <tbody>${trs}</tbody>
+    </table>
+    <div class="empty-note">Tap any price chip to prefill "Log Trade" with that city/strategy/bracket. Stability RED = 2+ of the 5 signals (dew point drift, cloud volatility, storm recency, temp curve shape, wind shift) are flagged — treat tail bets on these cities as higher risk of overshoot. Hover the RED pill for the specific reasons.</div>
+  `;
+}
+
+// ── INIT ─────────────────────────────────────────────────────────────────
+loadCalcState();
+loadScanner();
+setInterval(loadCalcState, 30000);
+setInterval(loadScanner, 3*60*1000);
+</script>
+</body>
+</html>

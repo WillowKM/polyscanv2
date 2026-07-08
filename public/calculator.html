@@ -387,15 +387,18 @@ function renderScanner(polyData, wxData) {
   // signal (Open-Meteo fetch failed / no data) are hidden from the main list —
   // you don't need to see cities you can't judge. Reasons are logged below
   // the table so failures are visible instead of silently disappearing.
-  const withSignal = rows.filter(r => r.stability && (r.stability.score === 'green' || r.stability.score === 'red'));
-  const noSignal    = rows.filter(r => !withSignal.includes(r));
+  // Stability data is currently unreliable (Open-Meteo shared-IP rate limit).
+  // Don't block trading on it — show every city's live prices regardless,
+  // and just mark stability/pattern day as unavailable where it's missing.
+  const withSignal = rows; // show all cities
+  const noSignal    = rows.filter(r => !(r.stability && (r.stability.score === 'green' || r.stability.score === 'red')));
 
   const buildRow = (r, idx) => {
     const rowClass = r.stability && r.stability.score === 'red' ? 'row-red' : '';
     const stabPill = !r.stability ? '<span class="pill grey">—</span>'
       : r.stability.score === 'green' ? '<span class="pill green">GREEN</span>'
       : r.stability.score === 'red' ? `<span class="pill red" title="${(r.stability.notes||[]).join(' | ')}">RED · ${r.stability.redCount}</span>`
-      : '<span class="pill grey">?</span>';
+      : `<span class="pill grey" title="${(r.stability.notes||[]).join(' | ')}">N/A</span>`;
 
     const pd = r.stability && r.stability.patternDay;
     const patternPill = !pd ? '<span class="pill grey">—</span>'
@@ -455,16 +458,16 @@ function renderScanner(polyData, wxData) {
 
   const diagnosticBlock = noSignal.length ? `
     <div class="panel" style="margin-top:10px;background:var(--red-bg);border-color:var(--red-border);">
-      <h2 style="color:var(--red);">⚠ ${noSignal.length} city${noSignal.length>1?'ies':''} hidden — no stability signal</h2>
+      <h2 style="color:var(--red);">⚠ ${noSignal.length} city${noSignal.length>1?'ies':''} with no stability signal right now — prices below are still live and tradeable</h2>
       <div style="font-size:11.5px;line-height:1.8;">${noSignalList}</div>
     </div>` : '';
 
   document.getElementById('scannerWrap').innerHTML = `
     <table>
       <thead><tr><th>City</th><th>Stability</th><th>Pattern Day</th><th>Forecasted High</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
-      <tbody>${trs || '<tr><td colspan="7" class="empty-note">No cities currently have a usable stability signal — see the error panel below.</td></tr>'}</tbody>
+      <tbody>${trs || '<tr><td colspan="7" class="empty-note">No live price data yet — try Refresh.</td></tr>'}</tbody>
     </table>
-    <div class="empty-note">Showing ${withSignal.length} of ${rows.length} cities — only cities with a real stability signal are listed. Click any row to expand the raw dew point / cloud / humidity / wind / pressure numbers behind its score. Tap a price chip to prefill "Log Trade". These come from Open-Meteo's forecast, not WU directly — WU can still revise mid-day, so cross-check WU yourself before trusting a green/starred city fully.</div>
+    <div class="empty-note">Live Polymarket prices for all ${rows.length} cities, always shown, regardless of stability data availability. Click any row to expand the raw dew point / cloud / humidity / wind / pressure numbers where available. Tap a price chip to prefill "Log Trade". Stability/Pattern Day come from Open-Meteo's forecast — when marked N/A, that source is temporarily unavailable, but you can still trade on price alone and cross-check WU yourself.</div>
     ${diagnosticBlock}
   `;
 }

@@ -13,7 +13,7 @@ const CACHE = {};
 const POLY_CACHE = {};
 const PREV_TEMPS = {};
 const DAILY_HIGHS = {}; // tracks highest observed temp per station per day — resets on server restart
-const CACHE_TTL     = 10 * 60 * 1000;
+const CACHE_TTL     = 30 * 60 * 1000; // 30 min — was 10. Reduces Open-Meteo call volume; forecasts don't swing enough in 30 min to matter for the stability signal.
 const POLY_CACHE_TTL = 3 * 60 * 1000; // refresh Polymarket odds every 3 min
 
 // ── PERSISTENT STORAGE ───────────────────────────────────────────────────────
@@ -479,9 +479,29 @@ function weatherCodeToCond(code) {
   return '';
 }
 
+// ── Open-Meteo circuit breaker ──────────────────────────────────────────────
+// Open-Meteo's free tier is rate-limited PER IP, not per app. On shared
+// hosting (Render/Vercel free tiers) that IP is shared across many unrelated
+// apps, so the daily quota can be exhausted by traffic that has nothing to
+// do with PolyScan. Once we see "Daily API request limit exceeded", further
+// calls just waste the shared quota and slow down every page load for
+// nothing — so we stop trying until the next UTC day and fail instantly.
+let openMeteoBlockedUntil = 0;
+function msUntilNextUTCMidnight() {
+  const now = new Date();
+  const next = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
+  return next.getTime() - now.getTime();
+}
+
 async function fetchHourly(station) {
   const meta = STATION_META[station];
   if (!meta) return { rows: [], error: 'No station metadata' };
+
+  if (Date.now() < openMeteoBlockedUntil) {
+    const mins = Math.ceil((openMeteoBlockedUntil - Date.now()) / 60000);
+    return { rows: [], error: `Open-Meteo daily limit exceeded (shared IP on Render's free tier — not specific to this app). Retrying in ~${mins}min.` };
+  }
+
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${meta.lat}&longitude=${meta.lon}` +
       `&hourly=temperature_2m,relative_humidity_2m,dew_point_2m,cloud_cover,precipitation_probability,wind_direction_10m,weather_code,surface_pressure` +
@@ -491,6 +511,10 @@ async function fetchHourly(station) {
       let reason = `HTTP ${res.status}`;
       try { const errJson = await res.json(); if (errJson.reason) reason = errJson.reason; } catch(e2) {}
       console.error(`[Open-Meteo] ${station} failed: ${reason}`);
+      if (/daily.*limit/i.test(reason)) {
+        openMeteoBlockedUntil = Date.now() + msUntilNextUTCMidnight();
+        console.error(`[Open-Meteo] Daily limit hit — pausing all calls until ${new Date(openMeteoBlockedUntil).toISOString()}`);
+      }
       return { rows: [], error: reason };
     }
     const json = await res.json();

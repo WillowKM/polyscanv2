@@ -415,7 +415,9 @@ function renderScanner(polyData, wxData) {
       ' + ' + r.s3tail.length + ' tail No legs available'
       : '<span class="muted">not enough brackets</span>';
 
-    const highDisplay = r.wx && r.wx.stability ? `src ${r.wx.stability.sourceHigh ?? '—'}° / est ${r.wx.stability.estimateHigh ?? '—'}°` : '—';
+    const highDisplay = r.wx && r.wx.stability
+      ? `<div><b>Forecast: ${r.wx.stability.forecastHigh ?? '—'}°</b></div><div class="muted" style="font-size:10.5px;">obs so far ${r.wx.stability.sourceHigh ?? '—'}° · est ${r.wx.stability.estimateHigh ?? '—'}°</div>`
+      : '—';
 
     const raw = r.stability && r.stability.raw;
     const detailId = `detail-${idx}`;
@@ -459,7 +461,7 @@ function renderScanner(polyData, wxData) {
 
   document.getElementById('scannerWrap').innerHTML = `
     <table>
-      <thead><tr><th>City</th><th>Stability</th><th>Pattern Day</th><th>High (src/est)</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
+      <thead><tr><th>City</th><th>Stability</th><th>Pattern Day</th><th>Forecasted High</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
       <tbody>${trs || '<tr><td colspan="7" class="empty-note">No cities currently have a usable stability signal — see the error panel below.</td></tr>'}</tbody>
     </table>
     <div class="empty-note">Showing ${withSignal.length} of ${rows.length} cities — only cities with a real stability signal are listed. Click any row to expand the raw dew point / cloud / humidity / wind / pressure numbers behind its score. Tap a price chip to prefill "Log Trade". These come from Open-Meteo's forecast, not WU directly — WU can still revise mid-day, so cross-check WU yourself before trusting a green/starred city fully.</div>

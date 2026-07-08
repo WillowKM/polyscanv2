@@ -471,7 +471,7 @@ function renderScanner(polyData, wxData) {
 loadCalcState();
 loadScanner();
 setInterval(loadCalcState, 30000);
-setInterval(loadScanner, 3*60*1000);
+setInterval(loadScanner, 20*60*1000); // was 3 min — cut to reduce load on the shared Open-Meteo quota
 </script>
 </body>
 </html>

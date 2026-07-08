@@ -571,7 +571,7 @@ function computeStability(hourlyRows, fetchError) {
     return {
       score: 'unknown', flags,
       notes: [fetchError ? `Open-Meteo fetch failed: ${fetchError}` : 'No hourly data available'],
-      redCount: 0, estimateAdjustmentC: 0, raw: null, patternDay: null,
+      redCount: 0, estimateAdjustmentC: 0, forecastHighC: null, raw: null, patternDay: null,
     };
   }
 
@@ -659,6 +659,14 @@ function computeStability(hourlyRows, fetchError) {
   if (flags.stormRecency && flags.tempCurveShape) estimateAdjustmentC = 2;
   else if (redCount >= 2) estimateAdjustmentC = 1;
 
+  // ── FORECAST HIGH ───────────────────────────────────────────────────────
+  // The actual forecasted maximum temperature for the whole day, from the
+  // hourly model — this is what should be compared against a Yes bracket's
+  // temperature range, NOT the "observed high so far" (which only reflects
+  // hours that have already happened).
+  const allTemps = valid.map(r => r.tempC).filter(v => v !== null);
+  const forecastHighC = allTemps.length ? parseFloat(Math.max(...allTemps).toFixed(1)) : null;
+
   // ── PATTERN DAY ─────────────────────────────────────────────────────────
   // Separate from the red/green risk score above. This answers a different
   // question: "is today's weather STORY simple and uniform (all cloudy, all
@@ -681,7 +689,7 @@ function computeStability(hourlyRows, fetchError) {
   }
 
   return {
-    score, flags, notes, redCount, estimateAdjustmentC,
+    score, flags, notes, redCount, estimateAdjustmentC, forecastHighC,
     patternDay,
     raw: {
       dew:      { min: dews.length ? Math.min(...dews) : null,          max: dews.length ? Math.max(...dews) : null,          median: median(dews),      driftC: dewDrift },
@@ -756,11 +764,15 @@ async function fetchStation(station) {
   // compare against Open-Meteo, must always run the conversion here too.
   const { rows: hourlyRows, error: hourlyError } = await fetchHourly(station);
   const stability  = computeStability(hourlyRows, hourlyError);
-  const sourceHighC = toC(observedHigh);
-  const estimateHighC = sourceHighC !== null
-    ? parseFloat((sourceHighC + stability.estimateAdjustmentC).toFixed(1))
+  const sourceHighC = toC(observedHigh); // observed so far today — NOT a forecast
+  const forecastHighC = stability.forecastHighC; // actual forecasted max for the whole day (already °C)
+  const estimateHighC = forecastHighC !== null
+    ? parseFloat((forecastHighC + stability.estimateAdjustmentC).toFixed(1))
     : null;
-  // Mirror the estimate into the station's display unit for convenience
+  // Mirror into the station's display unit for convenience
+  const forecastHighDisplay = forecastHighC !== null
+    ? (isUS ? parseFloat((forecastHighC * 9/5 + 32).toFixed(1)) : forecastHighC)
+    : null;
   const estimateHighDisplay = estimateHighC !== null
     ? (isUS ? parseFloat((estimateHighC * 9/5 + 32).toFixed(1)) : estimateHighC)
     : null;
@@ -779,9 +791,11 @@ async function fetchStation(station) {
       raw:        stability.raw,         // dew/cloud/humidity/wind/pressure min-median-max, for every city not just red ones
       patternDay: stability.patternDay,  // dominant condition + % of day + isPatternDay flag
       sourceHighC:    sourceHighC,
+      forecastHighC:  forecastHighC,
       estimateHighC:  estimateHighC,
-      sourceHigh:     isUS ? observedHigh       : sourceHighC,     // in station's display unit
-      estimateHigh:   estimateHighDisplay,                          // in station's display unit
+      sourceHigh:     isUS ? observedHigh       : sourceHighC,     // observed so far, in station's display unit
+      forecastHigh:   forecastHighDisplay,                          // forecasted max for the whole day — compare this against Yes bracket ranges
+      estimateHigh:   estimateHighDisplay,                          // forecast high, adjusted by stability signals
     },
   };
 }

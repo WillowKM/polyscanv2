@@ -308,6 +308,7 @@ function calcSummary(calc) {
   const targetPct     = calc.settings.targetPct    || 6;
   const targetDollars = parseFloat((portfolio * (targetPct/100)).toFixed(2));
   const sessionTarget = parseFloat((targetDollars / 3).toFixed(2));
+  const sessionExposureCap = parseFloat((exposureCap / 3).toFixed(2));
 
   // Per-session breakdown. Session is chosen manually per trade (not by
   // clock time) — unassigned trades don't count toward any session's total.
@@ -317,6 +318,7 @@ function calcSummary(calc) {
     const sSettled = sTrades.filter(t => t.status !== 'open');
     const sOpen    = sTrades.filter(t => t.status === 'open');
     const sProfit  = sSettled.reduce((sum, t) => sum + computeProfit(t), 0);
+    const sExposureUsed = sOpen.reduce((sum, t) => sum + t.stake, 0);
     sessions[s] = {
       target:       sessionTarget,
       targetPctOfPortfolio: portfolio > 0 ? parseFloat(((sessionTarget/portfolio)*100).toFixed(2)) : 0,
@@ -327,6 +329,9 @@ function calcSummary(calc) {
       tradesCount:  sTrades.length,
       tradesOpen:   sOpen.length,
       tradesSettled: sSettled.length,
+      exposureCap:  sessionExposureCap,
+      exposureUsed: parseFloat(sExposureUsed.toFixed(2)),
+      exposureFree: parseFloat(Math.max(0, sessionExposureCap - sExposureUsed).toFixed(2)),
     };
   });
 

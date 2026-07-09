@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783626274990-5fn6s",
+      "city": "seattle",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "74-75",
+      "stake": 5.9,
+      "entryPriceCents": 35,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-09",
+      "openedAt": "2026-07-09T19:44:34.990Z",
+      "settledAt": null
+    },
+    {
       "id": "1783626273535-6yivv",
       "city": "seattle",
       "strategy": "3",

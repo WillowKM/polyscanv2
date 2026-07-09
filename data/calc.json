@@ -21,21 +21,6 @@
       "settledAt": null
     },
     {
-      "id": "1783624088618-elow4",
-      "city": "san francisco",
-      "strategy": "3",
-      "side": "YES",
-      "bracketLabel": "68-69",
-      "stake": 6.06,
-      "entryPriceCents": 39,
-      "session": null,
-      "status": "open",
-      "cashoutPriceCents": null,
-      "sastDate": "2026-07-09",
-      "openedAt": "2026-07-09T19:08:08.618Z",
-      "settledAt": null
-    },
-    {
       "id": "1783624087458-ewv24",
       "city": "san francisco",
       "strategy": "3",

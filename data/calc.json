@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783626029538-pyof8",
+      "city": "atlanta",
+      "strategy": "3",
+      "side": "NO",
+      "bracketLabel": "96-97",
+      "stake": 1,
+      "entryPriceCents": 96,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-09",
+      "openedAt": "2026-07-09T19:40:29.538Z",
+      "settledAt": null
+    },
+    {
       "id": "1783626028032-2bidq",
       "city": "atlanta",
       "strategy": "3",

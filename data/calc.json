@@ -4,21 +4,5 @@
     "exposureCap": 46,
     "targetPct": 6.5
   },
-  "trades": [
-    {
-      "id": "1783622047284-wlips",
-      "city": "San Francisco",
-      "strategy": "1",
-      "side": "NO",
-      "bracketLabel": "70-71°F",
-      "stake": 1,
-      "entryPriceCents": 95,
-      "session": null,
-      "status": "open",
-      "cashoutPriceCents": null,
-      "sastDate": "2026-07-09",
-      "openedAt": "2026-07-09T18:34:07.284Z",
-      "settledAt": null
-    }
-  ]
+  "trades": []
 }

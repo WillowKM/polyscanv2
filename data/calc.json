@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783624089733-pbmrm",
+      "city": "san francisco",
+      "strategy": "3",
+      "side": "NO",
+      "bracketLabel": "70-71",
+      "stake": 1,
+      "entryPriceCents": 95,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-09",
+      "openedAt": "2026-07-09T19:08:09.733Z",
+      "settledAt": null
+    },
+    {
       "id": "1783624088618-elow4",
       "city": "san francisco",
       "strategy": "3",

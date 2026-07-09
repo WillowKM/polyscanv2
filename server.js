@@ -309,6 +309,27 @@ function calcSummary(calc) {
   const targetDollars = parseFloat((portfolio * (targetPct/100)).toFixed(2));
   const sessionTarget = parseFloat((targetDollars / 3).toFixed(2));
 
+  // Per-session breakdown. Session is chosen manually per trade (not by
+  // clock time) — unassigned trades don't count toward any session's total.
+  const sessions = {};
+  ['asian', 'eu', 'us'].forEach(s => {
+    const sTrades  = today.filter(t => t.session === s);
+    const sSettled = sTrades.filter(t => t.status !== 'open');
+    const sOpen    = sTrades.filter(t => t.status === 'open');
+    const sProfit  = sSettled.reduce((sum, t) => sum + computeProfit(t), 0);
+    sessions[s] = {
+      target:       sessionTarget,
+      targetPctOfPortfolio: portfolio > 0 ? parseFloat(((sessionTarget/portfolio)*100).toFixed(2)) : 0,
+      profit:       parseFloat(sProfit.toFixed(2)),
+      remaining:    parseFloat(Math.max(0, sessionTarget - sProfit).toFixed(2)),
+      pctOfTarget:  sessionTarget > 0 ? parseFloat(((sProfit/sessionTarget)*100).toFixed(1)) : 0,
+      targetMet:    sProfit >= sessionTarget && sessionTarget > 0,
+      tradesCount:  sTrades.length,
+      tradesOpen:   sOpen.length,
+      tradesSettled: sSettled.length,
+    };
+  });
+
   return {
     sastDate:       today.length ? today[0].sastDate : todaySAST(),
     targetDollars,
@@ -322,6 +343,7 @@ function calcSummary(calc) {
     portfolio,
     tradesOpenCount:    open.length,
     tradesSettledCount: settled.length,
+    sessions,
   };
 }
 
@@ -1121,75 +1143,121 @@ function autoSettleOpenTrades(calc) {
 }
 
 // Get settings + today's summary + today's trades
-app.get('/calc/state', (req, res) => {
-  const calc = loadCalc();
-  if (autoSettleOpenTrades(calc)) saveCalc(calc);
-  res.json({
-    settings: calc.settings,
-    summary:  calcSummary(calc),
-    trades:   todaysTrades(calc),
-  });
+app.get('/calc/state', async (req, res) => {
+  try {
+    const calc = await loadCalc();
+    if (autoSettleOpenTrades(calc)) await saveCalc(calc);
+    res.json({
+      settings: calc.settings,
+      summary:  calcSummary(calc),
+      trades:   todaysTrades(calc),
+    });
+  } catch(e) {
+    console.error('[calc/state] error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Update settings (portfolio, exposureCap, targetPct)
-app.post('/calc/settings', (req, res) => {
-  const { portfolio, exposureCap, targetPct } = req.body;
-  const calc = loadCalc();
-  if (portfolio    !== undefined) calc.settings.portfolio   = parseFloat(portfolio);
-  if (exposureCap  !== undefined) calc.settings.exposureCap = parseFloat(exposureCap);
-  if (targetPct    !== undefined) calc.settings.targetPct   = parseFloat(targetPct);
-  saveCalc(calc);
-  res.json({ ok: true, settings: calc.settings, summary: calcSummary(calc) });
+app.post('/calc/settings', async (req, res) => {
+  try {
+    const { portfolio, exposureCap, targetPct } = req.body;
+    const calc = await loadCalc();
+    if (portfolio    !== undefined) calc.settings.portfolio   = parseFloat(portfolio);
+    if (exposureCap  !== undefined) calc.settings.exposureCap = parseFloat(exposureCap);
+    if (targetPct    !== undefined) calc.settings.targetPct   = parseFloat(targetPct);
+    await saveCalc(calc);
+    res.json({ ok: true, settings: calc.settings, summary: calcSummary(calc) });
+  } catch(e) {
+    console.error('[calc/settings] error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Log a new trade leg
-// Body: { city, strategy ('1'|'2'|'3'), side ('YES'|'NO'), bracketLabel, stake, entryPriceCents }
-app.post('/calc/trades', (req, res) => {
-  const { city, strategy, side, bracketLabel, stake, entryPriceCents } = req.body;
-  if (!city || !strategy || !side || !stake || !entryPriceCents) {
-    return res.status(400).json({ error: 'city, strategy, side, stake, entryPriceCents required' });
+// Body: { city, strategy ('1'|'2'|'3'), side ('YES'|'NO'), bracketLabel, stake, entryPriceCents, session ('asian'|'eu'|'us') }
+app.post('/calc/trades', async (req, res) => {
+  try {
+    const { city, strategy, side, bracketLabel, stake, entryPriceCents, session } = req.body;
+    if (!city || !strategy || !side || !stake || !entryPriceCents) {
+      return res.status(400).json({ error: 'city, strategy, side, stake, entryPriceCents required' });
+    }
+    if (session && !['asian','eu','us'].includes(session)) {
+      return res.status(400).json({ error: 'session must be asian, eu, or us' });
+    }
+    const calc = await loadCalc();
+    const trade = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+      city, strategy, side, bracketLabel: bracketLabel || '',
+      stake: parseFloat(stake),
+      entryPriceCents: parseFloat(entryPriceCents),
+      session: session || null, // 'asian' | 'eu' | 'us' | null (unassigned)
+      status: 'open', // open | WIN | LOSS | CASHOUT
+      cashoutPriceCents: null,
+      sastDate: todaySAST(),
+      openedAt: new Date().toISOString(),
+      settledAt: null,
+    };
+    calc.trades.unshift(trade);
+    await saveCalc(calc);
+    res.json({ ok: true, trade, summary: calcSummary(calc) });
+  } catch(e) {
+    console.error('[calc/trades POST] error:', e.message);
+    res.status(500).json({ error: e.message });
   }
-  const calc = loadCalc();
-  const trade = {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
-    city, strategy, side, bracketLabel: bracketLabel || '',
-    stake: parseFloat(stake),
-    entryPriceCents: parseFloat(entryPriceCents),
-    status: 'open', // open | WIN | LOSS | CASHOUT
-    cashoutPriceCents: null,
-    sastDate: todaySAST(),
-    openedAt: new Date().toISOString(),
-    settledAt: null,
-  };
-  calc.trades.unshift(trade);
-  saveCalc(calc);
-  res.json({ ok: true, trade, summary: calcSummary(calc) });
 });
 
 // Settle a trade: WIN, LOSS, or CASHOUT (needs cashoutPriceCents)
-app.post('/calc/trades/:id/settle', (req, res) => {
-  const { outcome, cashoutPriceCents } = req.body;
-  if (!['WIN','LOSS','CASHOUT'].includes(outcome)) return res.status(400).json({ error: 'outcome must be WIN, LOSS, or CASHOUT' });
-  if (outcome === 'CASHOUT' && !cashoutPriceCents) return res.status(400).json({ error: 'cashoutPriceCents required for CASHOUT' });
+app.post('/calc/trades/:id/settle', async (req, res) => {
+  try {
+    const { outcome, cashoutPriceCents } = req.body;
+    if (!['WIN','LOSS','CASHOUT'].includes(outcome)) return res.status(400).json({ error: 'outcome must be WIN, LOSS, or CASHOUT' });
+    if (outcome === 'CASHOUT' && !cashoutPriceCents) return res.status(400).json({ error: 'cashoutPriceCents required for CASHOUT' });
 
-  const calc = loadCalc();
-  const trade = calc.trades.find(t => t.id === req.params.id);
-  if (!trade) return res.status(404).json({ error: 'trade not found' });
+    const calc = await loadCalc();
+    const trade = calc.trades.find(t => t.id === req.params.id);
+    if (!trade) return res.status(404).json({ error: 'trade not found' });
 
-  trade.status = outcome;
-  if (outcome === 'CASHOUT') trade.cashoutPriceCents = parseFloat(cashoutPriceCents);
-  trade.settledAt = new Date().toISOString();
-  trade.profit = computeProfit(trade);
-  saveCalc(calc);
-  res.json({ ok: true, trade, summary: calcSummary(calc) });
+    trade.status = outcome;
+    if (outcome === 'CASHOUT') trade.cashoutPriceCents = parseFloat(cashoutPriceCents);
+    trade.settledAt = new Date().toISOString();
+    trade.profit = computeProfit(trade);
+    await saveCalc(calc);
+    res.json({ ok: true, trade, summary: calcSummary(calc) });
+  } catch(e) {
+    console.error('[calc/trades settle] error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Reassign a trade's session after the fact (in case it was logged unassigned or wrong)
+app.post('/calc/trades/:id/session', async (req, res) => {
+  try {
+    const { session } = req.body;
+    if (!['asian','eu','us'].includes(session)) return res.status(400).json({ error: 'session must be asian, eu, or us' });
+    const calc = await loadCalc();
+    const trade = calc.trades.find(t => t.id === req.params.id);
+    if (!trade) return res.status(404).json({ error: 'trade not found' });
+    trade.session = session;
+    await saveCalc(calc);
+    res.json({ ok: true, trade, summary: calcSummary(calc) });
+  } catch(e) {
+    console.error('[calc/trades session] error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Delete a trade (mistakes / duplicate entry)
-app.delete('/calc/trades/:id', (req, res) => {
-  const calc = loadCalc();
-  calc.trades = calc.trades.filter(t => t.id !== req.params.id);
-  saveCalc(calc);
-  res.json({ ok: true, summary: calcSummary(calc) });
+app.delete('/calc/trades/:id', async (req, res) => {
+  try {
+    const calc = await loadCalc();
+    calc.trades = calc.trades.filter(t => t.id !== req.params.id);
+    await saveCalc(calc);
+    res.json({ ok: true, summary: calcSummary(calc) });
+  } catch(e) {
+    console.error('[calc/trades DELETE] error:', e.message);
+    res.status(500).json({ error: e.message });
+  }
 });
 
 // Batch weather + stability for the opportunity scanner (reuses the same

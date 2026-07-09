@@ -4,21 +4,5 @@
     "exposureCap": 30,
     "targetPct": 6.5
   },
-  "trades": [
-    {
-      "id": "1783627376713-90hxn",
-      "city": "seattle",
-      "strategy": "3",
-      "side": "YES",
-      "bracketLabel": "76-77",
-      "stake": 3.87,
-      "entryPriceCents": 36,
-      "session": null,
-      "status": "open",
-      "cashoutPriceCents": null,
-      "sastDate": "2026-07-09",
-      "openedAt": "2026-07-09T20:02:56.713Z",
-      "settledAt": null
-    }
-  ]
+  "trades": []
 }

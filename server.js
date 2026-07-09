@@ -175,20 +175,106 @@ function todaySAST() {
   return `${sast.getUTCFullYear()}-${String(sast.getUTCMonth()+1).padStart(2,'0')}-${String(sast.getUTCDate()).padStart(2,'0')}`;
 }
 
-function loadCalc() {
+// ── GitHub-backed persistence ────────────────────────────────────────────────
+// Render's free tier wipes the local filesystem on every restart/redeploy.
+// If GITHUB_TOKEN is set (a Personal Access Token with 'repo' scope), calc.json
+// is read from and written to this repo via GitHub's Contents API instead —
+// giving real persistence for free, using storage you already have. Falls
+// back to local disk automatically if no token is configured, so nothing
+// breaks before that env var is added.
+const GITHUB_TOKEN     = process.env.GITHUB_TOKEN || null;
+const GITHUB_REPO      = process.env.GITHUB_REPO || 'WillowKM/polyscanv2';
+const GITHUB_DATA_PATH = process.env.GITHUB_DATA_PATH || 'data/calc.json';
+
+let CALC_CACHE = null; // in-memory hot cache for this process's lifetime
+let CALC_SHA   = null; // GitHub blob sha, required to update an existing file
+
+async function githubGetFile() {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
+  const res = await fetch(url, {
+    headers: {
+      'Authorization': `token ${GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github+json',
+      'User-Agent': 'PolyScan24-7',
+    },
+  });
+  if (res.status === 404) return null; // file doesn't exist yet — first run
+  if (!res.ok) throw new Error(`GitHub GET failed: HTTP ${res.status}`);
+  const json = await res.json();
+  CALC_SHA = json.sha;
+  const content = Buffer.from(json.content, 'base64').toString('utf8');
+  return JSON.parse(content);
+}
+
+async function githubPutFile(data) {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH}`;
+  const body = {
+    message: `Update calc data — ${new Date().toISOString()}`,
+    content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
+    ...(CALC_SHA ? { sha: CALC_SHA } : {}),
+  };
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `token ${GITHUB_TOKEN}`,
+      'Accept': 'application/vnd.github+json',
+      'Content-Type': 'application/json',
+      'User-Agent': 'PolyScan24-7',
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`GitHub PUT failed: HTTP ${res.status} ${errText}`);
+  }
+  const json = await res.json();
+  CALC_SHA = json.content?.sha || CALC_SHA;
+}
+
+async function loadCalc() {
+  if (CALC_CACHE) return CALC_CACHE; // already loaded this process's lifetime
+
+  if (GITHUB_TOKEN) {
+    try {
+      const data = await githubGetFile();
+      if (data) {
+        if (!Array.isArray(data.trades)) data.trades = [];
+        if (!data.settings) data.settings = {};
+        CALC_CACHE = data;
+        return CALC_CACHE;
+      }
+      // No file yet on GitHub — fall through to defaults, will be created on first save
+    } catch(e) {
+      console.error('[GitHub storage] load failed, falling back to local disk:', e.message);
+    }
+  }
+
+  // Local disk fallback (or first-ever run before any GitHub file exists)
   try {
     const raw = fs.readFileSync(CALC_FILE, 'utf8');
     const data = JSON.parse(raw);
     if (!data.settings) data.settings = {};
     if (!Array.isArray(data.trades)) data.trades = [];
-    return data;
+    CALC_CACHE = data;
   } catch(e) {
-    return { settings: { portfolio: 0, exposureCap: 0, targetPct: 6 }, trades: [] };
+    CALC_CACHE = { settings: { portfolio: 0, exposureCap: 0, targetPct: 6 }, trades: [] };
   }
+  return CALC_CACHE;
 }
 
-function saveCalc(data) {
-  fs.writeFileSync(CALC_FILE, JSON.stringify(data, null, 2));
+async function saveCalc(data) {
+  CALC_CACHE = data;
+  // Always write local disk too — fast, and a safety net for this process's lifetime
+  try { fs.writeFileSync(CALC_FILE, JSON.stringify(data, null, 2)); } catch(e) {
+    console.error('[Local storage] write failed:', e.message);
+  }
+  if (GITHUB_TOKEN) {
+    try {
+      await githubPutFile(data);
+    } catch(e) {
+      console.error('[GitHub storage] save failed (data is still safe locally for now):', e.message);
+    }
+  }
 }
 
 // Profit math for a single leg. entryPriceCents is the price PAID per
@@ -479,6 +565,16 @@ function weatherCodeToCond(code) {
   return '';
 }
 
+// MET Norway doesn't always populate dew_point_temperature depending on
+// product/location — derive it as a fallback from temperature + relative
+// humidity using the Magnus-Tetens approximation.
+function computeDewPoint(tempC, rh) {
+  if (tempC === null || tempC === undefined || rh === null || rh === undefined || rh <= 0) return null;
+  const a = 17.27, b = 237.7;
+  const alpha = Math.log(rh / 100) + (a * tempC) / (b + tempC);
+  return parseFloat(((b * alpha) / (a - alpha)).toFixed(1));
+}
+
 // ── Open-Meteo circuit breaker ──────────────────────────────────────────────
 // Open-Meteo's free tier is rate-limited PER IP, not per app. On shared
 // hosting (Render/Vercel free tiers) that IP is shared across many unrelated
@@ -497,9 +593,15 @@ async function fetchHourly(station) {
   const meta = STATION_META[station];
   if (!meta) return { rows: [], error: 'No station metadata' };
 
+  // MET Norway first — no daily quota, no shared-IP exhaustion risk.
+  const metNoResult = await fetchHourlyMetNo(station, meta);
+  if (metNoResult.rows.length) return metNoResult;
+
+  console.error(`[MET Norway] ${station} failed (${metNoResult.error}) — falling back to Open-Meteo`);
+
   if (Date.now() < openMeteoBlockedUntil) {
     const mins = Math.ceil((openMeteoBlockedUntil - Date.now()) / 60000);
-    return { rows: [], error: `Open-Meteo daily limit exceeded (shared IP on Render's free tier — not specific to this app). Retrying in ~${mins}min.` };
+    return { rows: [], error: `MET Norway failed (${metNoResult.error}); Open-Meteo also unavailable (daily limit, retry in ~${mins}min)` };
   }
 
   try {
@@ -515,13 +617,12 @@ async function fetchHourly(station) {
         openMeteoBlockedUntil = Date.now() + msUntilNextUTCMidnight();
         console.error(`[Open-Meteo] Daily limit hit — pausing all calls until ${new Date(openMeteoBlockedUntil).toISOString()}`);
       }
-      return { rows: [], error: reason };
+      return { rows: [], error: `MET Norway failed (${metNoResult.error}); Open-Meteo also failed (${reason})` };
     }
     const json = await res.json();
     const h = json.hourly;
     if (!h || !h.time) {
-      console.error(`[Open-Meteo] ${station} returned no hourly data`);
-      return { rows: [], error: 'No hourly data in response' };
+      return { rows: [], error: `MET Norway failed (${metNoResult.error}); Open-Meteo returned no data` };
     }
 
     const rows = h.time.map((t, i) => ({
@@ -535,11 +636,72 @@ async function fetchHourly(station) {
       windDeg:  h.wind_direction_10m?.[i]     ?? null,
       pressure: h.surface_pressure?.[i]       ?? null,
     }));
-    return { rows, error: null };
+    return { rows, error: null, source: 'open-meteo' };
   } catch(e) {
     console.error(`[Open-Meteo] ${station} threw: ${e.message}`);
-    return { rows: [], error: e.message };
+    return { rows: [], error: `MET Norway failed (${metNoResult.error}); Open-Meteo also failed (${e.message})` };
   }
+}
+
+// MET Norway (api.met.no) — free, no API key, no daily cap, used in production
+// by weather apps worldwide. Requires a descriptive User-Agent (their policy,
+// not a technical restriction). Gridded like Open-Meteo, not station-specific,
+// but serves as a resilient fallback so stability/Pattern Day never fully
+// cut off just because Open-Meteo's shared-IP quota is exhausted.
+async function fetchHourlyMetNo(station, meta, openMeteoError) {
+  try {
+    const url = `https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${meta.lat}&lon=${meta.lon}`;
+    const res = await fetch(url, { headers: { 'User-Agent': 'PolyScan24-7/1.0 github.com/WillowKM/polyscanv2' } });
+    if (!res.ok) {
+      const reason = `MET Norway HTTP ${res.status}`;
+      console.error(`[MET Norway] ${station} failed: ${reason}`);
+      return { rows: [], error: openMeteoError ? `${openMeteoError}; fallback also failed (${reason})` : reason };
+    }
+    const json = await res.json();
+    const series = json?.properties?.timeseries;
+    if (!series || !series.length) {
+      return { rows: [], error: 'MET Norway returned no timeseries data' };
+    }
+    // Only keep today's entries (compact endpoint returns several days)
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const rows = series
+      .filter(entry => entry.time.startsWith(todayStr))
+      .map(entry => {
+        const details = entry.data?.instant?.details || {};
+        const next1h = entry.data?.next_1_hours?.summary?.symbol_code || '';
+        const tempC = details.air_temperature ?? null;
+        const humidity = details.relative_humidity ?? null;
+        // /complete usually includes dew_point_temperature directly; fall back
+        // to computing it from temp+humidity if this location doesn't have it.
+        const dewC = details.dew_point_temperature ?? computeDewPoint(tempC, humidity);
+        return {
+          time:     entry.time,
+          tempC:    tempC,
+          dewC:     dewC,
+          humidity: humidity,
+          cloud:    details.cloud_area_fraction ?? null,
+          precip:   entry.data?.next_1_hours?.details?.precipitation_amount ?? null,
+          cond:     metNoSymbolToCond(next1h),
+          windDeg:  details.wind_from_direction ?? null,
+          pressure: details.air_pressure_at_sea_level ?? null,
+        };
+      });
+    return { rows, error: null, source: 'met-norway' };
+  } catch(e) {
+    console.error(`[MET Norway] ${station} threw: ${e.message}`);
+    return { rows: [], error: openMeteoError ? `${openMeteoError}; fallback also failed (${e.message})` : e.message };
+  }
+}
+
+function metNoSymbolToCond(symbolCode) {
+  if (!symbolCode) return null;
+  if (/thunder/.test(symbolCode)) return 'T-Storm';
+  if (/rain|sleet|showers/.test(symbolCode)) return 'Rain';
+  if (/snow/.test(symbolCode)) return 'Snow';
+  if (/fog/.test(symbolCode)) return 'Fog';
+  if (/cloudy/.test(symbolCode)) return 'Cloudy';
+  if (/fair|clearsky|partlycloudy/.test(symbolCode)) return 'Fair';
+  return null;
 }
 
 // ── STABILITY ENGINE ─────────────────────────────────────────────────────────
@@ -555,7 +717,7 @@ function median(arr) {
   return s.length % 2 ? s[mid] : parseFloat(((s[mid-1]+s[mid])/2).toFixed(1));
 }
 
-function computeStability(hourlyRows, fetchError) {
+function computeStability(hourlyRows, fetchError, source) {
   const flags = {
     dewPointDrift:   false,
     cloudVolatility: false,
@@ -689,7 +851,7 @@ function computeStability(hourlyRows, fetchError) {
   }
 
   return {
-    score, flags, notes, redCount, estimateAdjustmentC, forecastHighC,
+    score, flags, notes, redCount, estimateAdjustmentC, forecastHighC, source: source || 'open-meteo',
     patternDay,
     raw: {
       dew:      { min: dews.length ? Math.min(...dews) : null,          max: dews.length ? Math.max(...dews) : null,          median: median(dews),      driftC: dewDrift },
@@ -762,8 +924,8 @@ async function fetchStation(station) {
   // Raw scraped WU values are always °F under the hood (toC() converts for
   // non-US display below) — so the stability engine, which needs °C to
   // compare against Open-Meteo, must always run the conversion here too.
-  const { rows: hourlyRows, error: hourlyError } = await fetchHourly(station);
-  const stability  = computeStability(hourlyRows, hourlyError);
+  const { rows: hourlyRows, error: hourlyError, source: hourlySource } = await fetchHourly(station);
+  const stability  = computeStability(hourlyRows, hourlyError, hourlySource);
   const sourceHighC = toC(observedHigh); // observed so far today — NOT a forecast
   const forecastHighC = stability.forecastHighC; // actual forecasted max for the whole day (already °C)
   const estimateHighC = forecastHighC !== null
@@ -925,9 +1087,43 @@ app.get('/record', (req, res) => {
 
 // ── CALCULATOR ROUTES ────────────────────────────────────────────────────────
 
+// Auto-resolve open trades once their bracket's live price hits an extreme.
+// Polymarket brackets settle to ~99-100c (won) or ~0-1c (lost) as the day's
+// actual high becomes certain — the API rounds to whole cents, so we treat
+// >=99c as resolved-yes and <=1c as resolved-no. Matching is by exact
+// bracket label, which is reliable for trades logged via the scanner chips
+// (label comes straight from Polymarket's own data) but may miss free-typed
+// manual entries if the label doesn't match exactly — those still settle
+// fine manually via the Won/Lost buttons.
+function autoSettleOpenTrades(calc) {
+  let changed = false;
+  const today = todaysTrades(calc);
+  for (const trade of today) {
+    if (trade.status !== 'open') continue;
+    const cached = POLY_CACHE[trade.city];
+    const outcomes = cached?.data?.outcomes;
+    if (!outcomes) continue;
+    const match = outcomes.find(o => o.bracket === trade.bracketLabel);
+    if (!match || match.prob === null) continue;
+
+    let resolvedOutcome = null;
+    if (match.prob >= 99)      resolvedOutcome = trade.side === 'YES' ? 'WIN' : 'LOSS';
+    else if (match.prob <= 1)  resolvedOutcome = trade.side === 'YES' ? 'LOSS' : 'WIN';
+    if (!resolvedOutcome) continue;
+
+    trade.status = resolvedOutcome;
+    trade.settledAt = new Date().toISOString();
+    trade.profit = computeProfit(trade);
+    trade.autoResolved = true;
+    changed = true;
+  }
+  return changed;
+}
+
 // Get settings + today's summary + today's trades
 app.get('/calc/state', (req, res) => {
   const calc = loadCalc();
+  if (autoSettleOpenTrades(calc)) saveCalc(calc);
   res.json({
     settings: calc.settings,
     summary:  calcSummary(calc),

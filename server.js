@@ -7,6 +7,11 @@ const fs = require('fs');
 const app = express();
 app.use(cors());
 app.use(express.json());
+// Calculator is now the homepage. The old TV-rotation scanner still exists
+// at /index.html if ever needed, but isn't the default landing page anymore.
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'calculator.html'));
+});
 app.use(express.static(path.join(__dirname, 'public')));
 
 const CACHE = {};

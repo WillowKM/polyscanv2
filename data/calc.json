@@ -64,21 +64,6 @@
       "sastDate": "2026-07-09",
       "openedAt": "2026-07-09T19:08:07.458Z",
       "settledAt": null
-    },
-    {
-      "id": "1783624086345-gk0wm",
-      "city": "san francisco",
-      "strategy": "3",
-      "side": "YES",
-      "bracketLabel": "68-69",
-      "stake": 6.06,
-      "entryPriceCents": 39,
-      "session": null,
-      "status": "open",
-      "cashoutPriceCents": null,
-      "sastDate": "2026-07-09",
-      "openedAt": "2026-07-09T19:08:06.345Z",
-      "settledAt": null
     }
   ]
 }

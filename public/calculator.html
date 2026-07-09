@@ -256,6 +256,7 @@ function renderSessions(s) {
         <div class="lbl">${SESSION_LABELS[key]} session ${guideNote}</div>
         <div class="val" style="font-size:17px;">$${sess.profit.toFixed(2)} <span class="muted" style="font-size:12px;">/ $${sess.target.toFixed(2)}</span></div>
         <div style="font-size:11px;color:var(--muted);margin-top:3px;">Remaining: $${sess.remaining.toFixed(2)} (${sess.targetPctOfPortfolio}% of portfolio target)${sess.targetMet?' — met ✅':''}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px;">Exposure: $${sess.exposureUsed.toFixed(2)} used / $${sess.exposureCap.toFixed(2)} cap · $${sess.exposureFree.toFixed(2)} free</div>
       </div>`;
   }).join('');
   wrap.innerHTML = `<div class="stat-row">${cards}</div>`;
@@ -365,7 +366,8 @@ function solveForSessionGap() {
   const sessionKey = document.getElementById('tsSession').value;
   if (!sessionKey) { alert('Pick a session first (Asian/EU/US).'); return; }
   if (!SUMMARY || !SUMMARY.sessions) { alert('Session data not loaded yet — try again in a moment.'); return; }
-  const remaining = SUMMARY.sessions[sessionKey].remaining;
+  const sess = SUMMARY.sessions[sessionKey];
+  const remaining = sess.remaining;
   if (remaining <= 0) {
     document.getElementById('tsGapNote').innerHTML = `<span style="color:var(--green);">This session's target is already met — any additional profit is a bonus, not required.</span>`;
     return;
@@ -398,10 +400,27 @@ function solveForSessionGap() {
   const yesBudgetNeeded = (remaining - tailsProfitSum) * sumF / (1 - sumF);
   const totalBudgetNeeded = Math.max(0, yesBudgetNeeded) + tailCost;
 
+  // Check against THIS session's own exposure sub-cap (exposure cap ÷ 3),
+  // not just the overall daily cap — a guaranteed-profit budget is useless
+  // if the session doesn't actually have that much room left to allocate.
+  if (totalBudgetNeeded > sess.exposureFree) {
+    document.getElementById('tsBudget').value = sess.exposureFree.toFixed(2);
+    computeStructurer();
+    const achievableProfit = tsLastResult ? tsLastResult.guaranteedProfit : null;
+    document.getElementById('tsGapNote').innerHTML =
+      `<span style="color:var(--red);">${SESSION_LABELS[sessionKey]} needs $${remaining.toFixed(2)} more, but that would need $${totalBudgetNeeded.toFixed(2)} ` +
+      `— this session only has <b>$${sess.exposureFree.toFixed(2)}</b> of exposure left (its ${'$'+sess.exposureCap.toFixed(2)} cap ÷ this session, minus what's already open). ` +
+      `Budget capped at $${sess.exposureFree.toFixed(2)} instead` +
+      (achievableProfit !== null ? ` — best guaranteed profit at that size is <b>$${achievableProfit.toFixed(2)}</b>, ${achievableProfit < remaining ? `short of the $${remaining.toFixed(2)} gap.` : 'still enough to close the gap.'}` : '.') +
+      ` Consider fewer/cheaper legs, or make up the rest with another trade this session.`;
+    return;
+  }
+
   document.getElementById('tsBudget').value = totalBudgetNeeded.toFixed(2);
+  computeStructurer();
   document.getElementById('tsGapNote').innerHTML =
     `${SESSION_LABELS[sessionKey]} session needs $${remaining.toFixed(2)} more to hit target. ` +
-    `Budget set to <b>$${totalBudgetNeeded.toFixed(2)}</b> to guarantee that, at these prices. Hit Calculate to confirm the split.`;
+    `Budget set to <b>$${totalBudgetNeeded.toFixed(2)}</b> (within this session's $${sess.exposureFree.toFixed(2)} remaining exposure) — split calculated below.`;
 }
 
 function addStructurerLeg() {

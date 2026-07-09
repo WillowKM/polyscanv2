@@ -4,5 +4,21 @@
     "exposureCap": 46,
     "targetPct": 6.5
   },
-  "trades": []
+  "trades": [
+    {
+      "id": "1783626028032-2bidq",
+      "city": "atlanta",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "94-95",
+      "stake": 14.33,
+      "entryPriceCents": 94,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-09",
+      "openedAt": "2026-07-09T19:40:28.032Z",
+      "settledAt": null
+    }
+  ]
 }

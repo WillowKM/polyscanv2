@@ -112,6 +112,33 @@ tr:hover td { background:rgba(255,255,255,0.02); }
   </div>
   <div class="stat-row" id="statRow"></div>
   <div id="sessionRow" style="margin-top:12px;"></div>
+
+  <!-- TRADE STRUCTURER — right under session cards, not at the bottom -->
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+    <h2>Trade Structurer <span class="note">— proportional-stake spread calculator: guarantees the same profit no matter which leg hits</span></h2>
+    <div class="grid-inputs">
+      <div class="field"><label>City</label><input id="tsCity" type="text" placeholder="e.g. Karachi"></div>
+      <div class="field"><label>Session</label>
+        <select id="tsSession" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:130px;">
+          <option value="">— unassigned —</option>
+          <option value="asian">🌏 Asian</option>
+          <option value="eu">🇪🇺 EU</option>
+          <option value="us">🇺🇸 US</option>
+        </select>
+      </div>
+      <div class="field"><label>Total budget ($)</label><input id="tsBudget" type="number" step="0.01" value="10"></div>
+      <button class="btn secondary" onclick="solveForSessionGap()">Solve for session's remaining gap</button>
+    </div>
+    <div id="tsGapNote" class="muted" style="font-size:11.5px;margin-bottom:10px;"></div>
+
+    <div id="tsLegs"></div>
+    <button class="btn secondary small" onclick="addStructurerLeg()">+ Add Yes bracket</button>
+    <button class="btn secondary small" onclick="addStructurerTail()">+ Add cheap tail (No)</button>
+    <div style="margin-top:12px;">
+      <button class="btn" onclick="computeStructurer()">Calculate</button>
+    </div>
+    <div id="tsResult" style="margin-top:14px;"></div>
+  </div>
 </div>
 
 <!-- OPPORTUNITY SCANNER -->
@@ -125,33 +152,6 @@ tr:hover td { background:rgba(255,255,255,0.02); }
 <div class="panel">
   <h2>Trade Log <span class="note">— today's SAST trading day</span></h2>
   <div id="tradeLogWrap"></div>
-</div>
-
-<!-- TRADE STRUCTURER -->
-<div class="panel">
-  <h2>Trade Structurer <span class="note">— proportional-stake spread calculator: guarantees the same profit no matter which leg hits</span></h2>
-  <div class="grid-inputs">
-    <div class="field"><label>City</label><input id="tsCity" type="text" placeholder="e.g. Karachi"></div>
-    <div class="field"><label>Session</label>
-      <select id="tsSession" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:130px;">
-        <option value="">— unassigned —</option>
-        <option value="asian">🌏 Asian</option>
-        <option value="eu">🇪🇺 EU</option>
-        <option value="us">🇺🇸 US</option>
-      </select>
-    </div>
-    <div class="field"><label>Total budget ($)</label><input id="tsBudget" type="number" step="0.01" value="10"></div>
-    <button class="btn secondary" onclick="solveForSessionGap()">Solve for session's remaining gap</button>
-  </div>
-  <div id="tsGapNote" class="muted" style="font-size:11.5px;margin-bottom:10px;"></div>
-
-  <div id="tsLegs"></div>
-  <button class="btn secondary small" onclick="addStructurerLeg()">+ Add Yes bracket</button>
-  <button class="btn secondary small" onclick="addStructurerTail()">+ Add cheap tail (No)</button>
-  <div style="margin-top:12px;">
-    <button class="btn" onclick="computeStructurer()">Calculate</button>
-  </div>
-  <div id="tsResult" style="margin-top:14px;"></div>
 </div>
 
 <!-- LOG TRADE MODAL -->
@@ -494,6 +494,10 @@ function computeStructurer() {
 
   const guaranteedProfit = sumF < 1
     ? parseFloat((yesBudget * (1 - sumF) / sumF + tailsProfitSum).toFixed(2))
+    : null;
+
+  const portfolioPct = (guaranteedProfit !== null && SUMMARY && SUMMARY.portfolio)
+    ? parseFloat(((guaranteedProfit / SUMMARY.portfolio) * 100).toFixed(2))
     : null;
 
   tsLastResult = { city, legsWithStake, tailsProfitEach, budget, guaranteedProfit, sumF };

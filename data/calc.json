@@ -19,21 +19,6 @@
       "sastDate": "2026-07-09",
       "openedAt": "2026-07-09T19:09:21.212Z",
       "settledAt": null
-    },
-    {
-      "id": "1783624159877-fbgkb",
-      "city": "san francisco",
-      "strategy": "3",
-      "side": "YES",
-      "bracketLabel": "68-69",
-      "stake": 6.06,
-      "entryPriceCents": 39,
-      "session": null,
-      "status": "open",
-      "cashoutPriceCents": null,
-      "sastDate": "2026-07-09",
-      "openedAt": "2026-07-09T19:09:19.878Z",
-      "settledAt": null
     }
   ]
 }

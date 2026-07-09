@@ -4,5 +4,21 @@
     "exposureCap": 46,
     "targetPct": 6.5
   },
-  "trades": []
+  "trades": [
+    {
+      "id": "1783624085028-bqeic",
+      "city": "san francisco",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "66-67",
+      "stake": 6.37,
+      "entryPriceCents": 41,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-09",
+      "openedAt": "2026-07-09T19:08:05.028Z",
+      "settledAt": null
+    }
+  ]
 }

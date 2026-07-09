@@ -126,6 +126,23 @@ tr:hover td { background:rgba(255,255,255,0.02); }
   <div id="tradeLogWrap"></div>
 </div>
 
+<!-- TRADE STRUCTURER -->
+<div class="panel">
+  <h2>Trade Structurer <span class="note">— proportional-stake spread calculator: guarantees the same profit no matter which leg hits</span></h2>
+  <div class="grid-inputs">
+    <div class="field"><label>City</label><input id="tsCity" type="text" placeholder="e.g. Karachi"></div>
+    <div class="field"><label>Total budget ($)</label><input id="tsBudget" type="number" step="0.01" value="10"></div>
+  </div>
+
+  <div id="tsLegs"></div>
+  <button class="btn secondary small" onclick="addStructurerLeg()">+ Add Yes bracket</button>
+  <button class="btn secondary small" onclick="addStructurerTail()">+ Add cheap tail (No)</button>
+  <div style="margin-top:12px;">
+    <button class="btn" onclick="computeStructurer()">Calculate</button>
+  </div>
+  <div id="tsResult" style="margin-top:14px;"></div>
+</div>
+
 <!-- LOG TRADE MODAL -->
 <div class="modal-overlay" id="tradeModalOverlay" onclick="if(event.target===this) closeTradeModal()">
   <div class="modal">
@@ -237,9 +254,10 @@ function renderTradeLog(trades) {
     return;
   }
   const rows = trades.map(t => {
+    const autoTag = t.autoResolved ? ' <span class="muted" style="font-size:9.5px;" title="Auto-settled when the bracket price hit 0/100c">AUTO</span>' : '';
     const statusPill = t.status === 'open' ? '<span class="pill grey">OPEN</span>' :
-      t.status === 'WIN' ? '<span class="pill green">WIN</span>' :
-      t.status === 'LOSS' ? '<span class="pill red">LOSS</span>' :
+      t.status === 'WIN' ? `<span class="pill green">WIN</span>${autoTag}` :
+      t.status === 'LOSS' ? `<span class="pill red">LOSS</span>${autoTag}` :
       '<span class="pill grey">CASHOUT</span>';
     const profit = t.status === 'open' ? '—' : `$${computeProfitClient(t).toFixed(2)}`;
     const actions = t.status === 'open' ? `
@@ -303,6 +321,132 @@ async function deleteTrade(id) {
   renderStats(data.summary);
   loadCalcState();
 }
+
+// ── TRADE STRUCTURER ─────────────────────────────────────────────────────
+// Proportional-stake spread calculator. For a set of mutually-exclusive Yes
+// brackets, staking each leg proportional to its own price (stake_i = budget
+// * price_i / sum(prices)) guarantees the SAME profit no matter which leg
+// hits — because higher-priced (more likely) brackets get more stake, cheap
+// (less likely) brackets get less, exactly balancing out the payout math.
+// Tail No legs are added separately at flat stakes — they're cheap insurance
+// on the outcomes NOT covered by the Yes legs, not part of the balance math.
+let tsLegCount = 0;
+function addStructurerLeg() {
+  tsLegCount++;
+  const id = `tsleg-${tsLegCount}`;
+  const div = document.createElement('div');
+  div.id = id;
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:6px;';
+  div.innerHTML = `
+    <span class="pill grey" style="min-width:38px;text-align:center;">YES</span>
+    <input type="text" placeholder="Bracket (e.g. 33°C)" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 9px;font-size:13px;width:140px;" class="ts-bracket">
+    <input type="number" step="0.1" placeholder="Price (¢)" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 9px;font-size:13px;width:100px;" class="ts-price">
+    <button class="btn secondary small" onclick="document.getElementById('${id}').remove()">✕</button>
+  `;
+  document.getElementById('tsLegs').appendChild(div);
+}
+function addStructurerTail() {
+  tsLegCount++;
+  const id = `tsleg-${tsLegCount}`;
+  const div = document.createElement('div');
+  div.id = id;
+  div.dataset.tail = 'true';
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:6px;';
+  div.innerHTML = `
+    <span class="pill grey" style="min-width:38px;text-align:center;color:var(--red);">NO</span>
+    <input type="text" placeholder="Bracket (e.g. 31°C)" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 9px;font-size:13px;width:140px;" class="ts-bracket">
+    <input type="number" step="0.1" placeholder="Price (¢)" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 9px;font-size:13px;width:100px;" class="ts-price">
+    <span class="muted" style="font-size:11px;">$1 flat stake</span>
+    <button class="btn secondary small" onclick="document.getElementById('${id}').remove()">✕</button>
+  `;
+  document.getElementById('tsLegs').appendChild(div);
+}
+
+let tsLastResult = null;
+
+function computeStructurer() {
+  const budget = parseFloat(document.getElementById('tsBudget').value) || 0;
+  const city = document.getElementById('tsCity').value || '(city)';
+  const legDivs = Array.from(document.getElementById('tsLegs').children);
+
+  const yesLegs = [];
+  const tailLegs = [];
+  legDivs.forEach(div => {
+    const bracket = div.querySelector('.ts-bracket').value.trim();
+    const price = parseFloat(div.querySelector('.ts-price').value);
+    if (!bracket || !price) return;
+    if (div.dataset.tail === 'true') tailLegs.push({ bracket, price });
+    else yesLegs.push({ bracket, price });
+  });
+
+  if (!yesLegs.length) {
+    document.getElementById('tsResult').innerHTML = '<div class="empty-note">Add at least one Yes bracket first.</div>';
+    return;
+  }
+
+  const tailCost = tailLegs.length * 1; // $1 flat per tail
+  const yesBudget = budget - tailCost;
+  if (yesBudget <= 0) {
+    document.getElementById('tsResult').innerHTML = '<div class="empty-note" style="color:var(--red);">Budget too small to cover the tail legs plus any Yes stake.</div>';
+    return;
+  }
+
+  const sumF = yesLegs.reduce((s, l) => s + l.price/100, 0);
+  const legsWithStake = yesLegs.map(l => ({
+    ...l,
+    stake: parseFloat((yesBudget * (l.price/100) / sumF).toFixed(2)),
+  }));
+
+  const tailsProfitEach = tailLegs.map(t => ({ ...t, stake: 1, profit: parseFloat((1*(100/t.price - 1)).toFixed(3)) }));
+  const tailsProfitSum = tailsProfitEach.reduce((s,t) => s + t.profit, 0);
+
+  const guaranteedProfit = sumF < 1
+    ? parseFloat((yesBudget * (1 - sumF) / sumF + tailsProfitSum).toFixed(2))
+    : null;
+
+  tsLastResult = { city, legsWithStake, tailsProfitEach, budget, guaranteedProfit, sumF };
+
+  let html = '';
+  if (sumF >= 1) {
+    html += `<div class="empty-note" style="color:var(--red);">These Yes prices sum to ${(sumF*100).toFixed(0)}% or more — there's no guaranteed-profit structure here at these prices. The market isn't offering an edge across this exact bracket set.</div>`;
+  } else {
+    html += `<table><thead><tr><th>Side</th><th>Bracket</th><th>Price</th><th>Stake</th><th>Profit if this leg hits</th></tr></thead><tbody>`;
+    legsWithStake.forEach(l => {
+      const profit = parseFloat((l.stake * (100/l.price - 1)).toFixed(2));
+      html += `<tr><td><span class="pill green">YES</span></td><td>${l.bracket}</td><td class="mono">${l.price}¢</td><td class="mono">$${l.stake.toFixed(2)}</td><td class="mono">+$${profit.toFixed(2)}</td></tr>`;
+    });
+    tailsProfitEach.forEach(t => {
+      html += `<tr><td><span class="pill red">NO</span></td><td>${t.bracket}</td><td class="mono">${t.price}¢</td><td class="mono">$${t.stake.toFixed(2)}</td><td class="mono">+$${t.profit.toFixed(2)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    html += `<div class="stat-row" style="margin-top:10px;">
+      <div class="stat hi"><div class="lbl">Guaranteed profit (any Yes leg hits)</div><div class="val">$${guaranteedProfit.toFixed(2)}</div></div>
+      <div class="stat"><div class="lbl">Total stake</div><div class="val">$${(yesBudget+tailCost).toFixed(2)}</div></div>
+      <div class="stat lo"><div class="lbl">If it misses all legs</div><div class="val">-$${(yesBudget+tailCost - tailsProfitSum).toFixed(2)}</div></div>
+    </div>`;
+    html += `<div class="empty-note">"Guaranteed" means identical profit across whichever Yes bracket hits — it does NOT cover outcomes outside your Yes legs and un-tailed brackets. Add more tails to shrink that remaining gap.</div>`;
+    html += `<button class="btn" style="margin-top:8px;" onclick="sendStructurerToLog()">Send all legs to Trade Log</button>`;
+  }
+  document.getElementById('tsResult').innerHTML = html;
+}
+
+async function sendStructurerToLog() {
+  if (!tsLastResult) return;
+  const { city, legsWithStake, tailsProfitEach } = tsLastResult;
+  const allLegs = [
+    ...legsWithStake.map(l => ({ city, strategy: '3', side: 'YES', bracketLabel: l.bracket, stake: l.stake, entryPriceCents: l.price })),
+    ...tailsProfitEach.map(t => ({ city, strategy: '3', side: 'NO', bracketLabel: t.bracket, stake: t.stake, entryPriceCents: t.price })),
+  ];
+  for (const leg of allLegs) {
+    await fetch('/calc/trades', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(leg) });
+  }
+  document.getElementById('tsResult').innerHTML += '<div class="empty-note" style="color:var(--green);">✓ All legs logged to Trade Log below.</div>';
+  loadCalcState();
+}
+
+// Seed one Yes row and one tail row by default so the panel isn't empty on load
+addStructurerLeg();
+addStructurerLeg();
 
 // ── TRADE MODAL ──────────────────────────────────────────────────────────
 function populateCityDropdown() {

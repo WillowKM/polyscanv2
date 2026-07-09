@@ -92,13 +92,44 @@ tr:hover td { background:rgba(255,255,255,0.02); }
 
 #refreshNote { font-size:11px; color:var(--muted); margin-left:8px; }
 .section-loading { color:var(--muted); font-size:12.5px; padding:20px; text-align:center; }
+
+/* ── TICKER STRIP (moved from main scanner) ──────────────────────── */
+.ticker-bar { display:flex; align-items:center; height:34px; flex-shrink:0; background:var(--bg2); border:1px solid var(--border); border-bottom:1px solid rgba(255,214,10,0.2); position:relative; overflow:hidden; border-radius:8px; margin-bottom:14px; }
+.ticker-label { font-family:'Orbitron',monospace; font-size:8.5px; font-weight:700; letter-spacing:1.5px; color:var(--gold); text-transform:uppercase; white-space:nowrap; flex-shrink:0; padding:0 12px; border-right:1px solid var(--border); height:100%; display:flex; align-items:center; gap:6px; background:rgba(255,214,10,0.04); }
+.ticker-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); animation:tzp 1.5s ease-in-out infinite; }
+@keyframes tzp { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+.ticker-wrap { flex:1; overflow:hidden; height:100%; display:flex; align-items:center; position:relative; }
+.ticker-wrap::before, .ticker-wrap::after { content:''; position:absolute; top:0; bottom:0; width:28px; z-index:2; pointer-events:none; }
+.ticker-wrap::before { left:0; background:linear-gradient(to right, var(--bg2), transparent); }
+.ticker-wrap::after { right:0; background:linear-gradient(to left, var(--bg2), transparent); }
+.ticker-track { display:flex; white-space:nowrap; animation: ticker-scroll 50s linear infinite; will-change: transform; }
+.ticker-track:hover { animation-play-state: paused; cursor:default; }
+@keyframes ticker-scroll { from{transform:translateX(0);} to{transform:translateX(-50%);} }
+.tick-item { display:inline-flex; align-items:center; gap:7px; padding:0 14px; border-right:1px solid var(--border); font-size:10.5px; height:34px; }
+.tick-city { color:var(--muted); font-size:9.5px; letter-spacing:.3px; }
+.tick-prob { font-size:11px; font-weight:700; font-variant-numeric:tabular-nums; }
+.tick-prob.high { color:var(--green); }
+.tick-prob.mid  { color:var(--orange); }
+.tick-prob.low  { color:var(--red); }
+
+/* ── FOOTER (moved from main scanner, simplified for calculator) ──── */
+.ftr { display:flex; justify-content:space-between; align-items:center; padding:10px 16px; background:var(--bg2); border:1px solid var(--border); border-radius:8px; margin-top:14px; font-size:11px; color:var(--muted); flex-wrap:wrap; gap:8px; }
+.ftr-stat { display:flex; align-items:center; gap:5px; }
+.live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:tzp 1.5s ease-in-out infinite; }
 </style>
 </head>
 <body>
 
 <div class="hdr">
   <div class="logo"><span class="g">POLY</span>SCAN <span class="sub">CALCULATOR · by Willow</span></div>
-  <a class="back-link" href="/">← Back to Scanner</a>
+</div>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-label"><div class="ticker-dot"></div>LIVE MARKETS</div>
+  <div class="ticker-wrap">
+    <div class="ticker-track" id="tickerTrack"><div class="tick-item muted">Loading live prices…</div></div>
+  </div>
 </div>
 
 <!-- DAILY TARGET -->
@@ -152,6 +183,15 @@ tr:hover td { background:rgba(255,255,255,0.02); }
 <div class="panel">
   <h2>Trade Log <span class="note">— today's SAST trading day</span></h2>
   <div id="tradeLogWrap"></div>
+</div>
+
+<!-- FOOTER -->
+<div class="ftr">
+  <div class="ftr-left"><strong>PolyScan 24/7 by Willow</strong> · 27 cities · Wunderground + MET Norway · Polymarket live odds</div>
+  <div class="ftr-right" style="display:flex;gap:14px;align-items:center;">
+    <div class="ftr-stat"><div class="live-dot"></div>Live</div>
+    <div class="ftr-stat" id="footerUpdated">—</div>
+  </div>
 </div>
 
 <!-- LOG TRADE MODAL -->
@@ -594,7 +634,30 @@ async function loadScanner() {
   const wxData   = await wxRes.json();
 
   renderScanner(polyData, wxData);
+  updateTicker(polyData);
   document.getElementById('refreshNote').textContent = 'Last updated ' + new Date().toLocaleTimeString();
+  const footerEl = document.getElementById('footerUpdated');
+  if (footerEl) footerEl.textContent = 'Updated ' + new Date().toLocaleTimeString();
+}
+
+// ── TICKER (rebuilt for the calculator's own live price data) ─────────────
+function updateTicker(polyData) {
+  const track = document.getElementById('tickerTrack');
+  if (!track) return;
+  const items = [];
+  CITIES.forEach(c => {
+    const poly = polyData[c.name];
+    const outcomes = (poly && poly.polyData && poly.polyData.outcomes) ? poly.polyData.outcomes : [];
+    if (!outcomes.length) return;
+    // Show whichever bracket the market currently thinks is most likely
+    const top = outcomes.reduce((best, o) => (o.prob !== null && (!best || o.prob > best.prob)) ? o : best, null);
+    if (!top) return;
+    const cls = top.prob >= 60 ? 'high' : top.prob >= 30 ? 'mid' : 'low';
+    items.push(`<div class="tick-item"><span class="tick-city">${c.name}</span><span>${top.bracket}</span><span class="tick-prob ${cls}">${top.prob}%</span></div>`);
+  });
+  if (!items.length) { track.innerHTML = '<div class="tick-item muted">No live price data yet</div>'; return; }
+  // Duplicate the list so the scroll loop is seamless
+  track.innerHTML = items.join('') + items.join('');
 }
 
 function renderScanner(polyData, wxData) {

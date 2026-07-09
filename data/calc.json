@@ -4,21 +4,5 @@
     "exposureCap": 46,
     "targetPct": 6.5
   },
-  "trades": [
-    {
-      "id": "1783624161212-v1acd",
-      "city": "san francisco",
-      "strategy": "3",
-      "side": "NO",
-      "bracketLabel": "70-71",
-      "stake": 1,
-      "entryPriceCents": 95,
-      "session": null,
-      "status": "open",
-      "cashoutPriceCents": null,
-      "sastDate": "2026-07-09",
-      "openedAt": "2026-07-09T19:09:21.212Z",
-      "settledAt": null
-    }
-  ]
+  "trades": []
 }

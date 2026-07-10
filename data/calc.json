@@ -4,5 +4,21 @@
     "exposureCap": 46,
     "targetPct": 7
   },
-  "trades": []
+  "trades": [
+    {
+      "id": "1783660507485-z9l66",
+      "city": "Karachi",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "33",
+      "stake": 7.05,
+      "entryPriceCents": 41.7,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T05:15:07.485Z",
+      "settledAt": null
+    }
+  ]
 }

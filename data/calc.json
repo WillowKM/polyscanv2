@@ -14,11 +14,13 @@
       "stake": 1,
       "entryPriceCents": 89,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-10",
       "openedAt": "2026-07-10T11:27:29.902Z",
-      "settledAt": null
+      "settledAt": "2026-07-10T12:52:57.306Z",
+      "profit": 0.1236,
+      "autoResolved": true
     },
     {
       "id": "1783678489811-a1b4n",

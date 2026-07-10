@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783682849902-7fy81",
+      "city": "Tel Aviv",
+      "strategy": "1",
+      "side": "NO",
+      "bracketLabel": "32°C",
+      "stake": 1,
+      "entryPriceCents": 89,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T11:27:29.902Z",
+      "settledAt": null
+    },
+    {
       "id": "1783678489811-a1b4n",
       "city": "london",
       "strategy": "3",

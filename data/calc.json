@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783667806753-sjf51",
+      "city": "buenos ",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "13",
+      "stake": 6.79,
+      "entryPriceCents": 36,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T07:16:46.753Z",
+      "settledAt": null
+    },
+    {
       "id": "1783660508673-ibt0y",
       "city": "Karachi",
       "strategy": "3",

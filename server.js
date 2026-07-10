@@ -44,7 +44,7 @@ const CALC_FILE         = path.join(DATA_DIR, 'calc.json');       // Calculator:
 
 console.log(`[storage] Using DATA_DIR = ${DATA_DIR}${process.env.DATA_DIR ? ' (persistent disk)' : ' (⚠️ EPHEMERAL — set DATA_DIR env var to a mounted disk path to persist across restarts)'}`);
 
-const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ']);
+const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ','KDFW','KAUS','KLAX']);
 
 // lat/lon added for Open-Meteo daily-high lookups — coordinates match
 // each station's physical airport location so the high lines up with
@@ -77,6 +77,29 @@ const STATION_META = {
   KHOU: { cc:'us', city:'houston',        lat:29.6454,  lon:-95.2789  },
   KORD: { cc:'us', city:'chicago',        lat:41.9742,  lon:-87.9073  },
   CYYZ: { cc:'ca', city:'toronto',        lat:43.6777,  lon:-79.6248  },
+  VHHH: { cc:'hk', city:'hong-kong',      lat:22.3080,  lon:113.9185  },
+  KDFW: { cc:'us', city:'dallas',         lat:32.8998,  lon:-97.0403  },
+  RCTP: { cc:'tw', city:'taipei',         lat:25.0797,  lon:121.2342  },
+  EDDM: { cc:'de', city:'munich',         lat:48.3538,  lon:11.7861   },
+  EFHK: { cc:'fi', city:'helsinki',       lat:60.3172,  lon:24.9633   },
+  SABE: { cc:'ar', city:'buenos-aires',   lat:-34.5592, lon:-58.4156  },
+  ZGSZ: { cc:'cn', city:'shenzhen',       lat:22.6393,  lon:113.8107  },
+  ZUCK: { cc:'cn', city:'chongqing',      lat:29.7192,  lon:106.6417  },
+  LIML: { cc:'it', city:'milan',          lat:45.4451,  lon:9.2767    },
+  LTAC: { cc:'tr', city:'ankara',         lat:40.1281,  lon:32.9951   },
+  UUEE: { cc:'ru', city:'moscow',         lat:55.9726,  lon:37.4146   },
+  RKPK: { cc:'kr', city:'busan',          lat:35.1795,  lon:128.9382  },
+  KAUS: { cc:'us', city:'austin',         lat:30.1975,  lon:-97.6664  },
+  KLAX: { cc:'us', city:'los-angeles',    lat:33.9425,  lon:-118.4081 },
+  SBGR: { cc:'br', city:'sao-paulo',      lat:-23.4356, lon:-46.4731  },
+  ZHHH: { cc:'cn', city:'wuhan',          lat:30.7838,  lon:114.2081  },
+  WIII: { cc:'id', city:'jakarta',        lat:-6.1256,  lon:106.6559  },
+  MMMX: { cc:'mx', city:'mexico-city',    lat:19.4363,  lon:-99.0721  },
+  DNMM: { cc:'ng', city:'lagos',          lat:6.5774,   lon:3.3212    },
+  EHAM: { cc:'nl', city:'amsterdam',      lat:52.3105,  lon:4.7683    },
+  MPTO: { cc:'pa', city:'panama-city',    lat:9.0714,   lon:-79.3835  },
+  ZGGG: { cc:'cn', city:'guangzhou',      lat:23.3924,  lon:113.2988  },
+  RPLL: { cc:'ph', city:'manila',         lat:14.5086,  lon:121.0198  },
 };
 
 // ── City name → URL slug mapping ───────────────────────────────────────────
@@ -109,6 +132,29 @@ const CITY_SLUGS = {
   'Denver':        'denver',
   'Seattle':       'seattle',
   'San Francisco': 'san-francisco',
+  'Hong Kong':     'hong-kong',
+  'Dallas':        'dallas',
+  'Taipei':        'taipei',
+  'Munich':        'munich',
+  'Helsinki':      'helsinki',
+  'Buenos Aires':  'buenos-aires',
+  'Shenzhen':      'shenzhen',
+  'Chongqing':     'chongqing',
+  'Milan':         'milan',
+  'Ankara':        'ankara',
+  'Moscow':        'moscow',
+  'Busan':         'busan',
+  'Austin':        'austin',
+  'Los Angeles':   'los-angeles',
+  'Sao Paulo':     'sao-paulo',
+  'Wuhan':         'wuhan',
+  'Jakarta':       'jakarta',
+  'Mexico City':   'mexico-city',
+  'Lagos':         'lagos',
+  'Amsterdam':     'amsterdam',
+  'Panama City':   'panama-city',
+  'Guangzhou':     'guangzhou',
+  'Manila':        'manila',
 };
 
 // ── Date helpers ────────────────────────────────────────────────────────────

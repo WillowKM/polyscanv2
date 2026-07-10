@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783678489811-a1b4n",
+      "city": "london",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "29",
+      "stake": 4.59,
+      "entryPriceCents": 38,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T10:14:49.811Z",
+      "settledAt": null
+    },
+    {
       "id": "1783678488502-anney",
       "city": "london",
       "strategy": "3",

@@ -89,11 +89,12 @@
       "stake": 8.28,
       "entryPriceCents": 49,
       "session": null,
-      "status": "open",
+      "status": "LOSS",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-10",
       "openedAt": "2026-07-10T05:15:08.673Z",
-      "settledAt": null
+      "settledAt": "2026-07-10T10:40:44.796Z",
+      "profit": -8.28
     },
     {
       "id": "1783660507485-z9l66",

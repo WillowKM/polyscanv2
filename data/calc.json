@@ -104,11 +104,12 @@
       "stake": 7.05,
       "entryPriceCents": 41.7,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-10",
       "openedAt": "2026-07-10T05:15:07.485Z",
-      "settledAt": null
+      "settledAt": "2026-07-10T10:40:27.878Z",
+      "profit": 9.8565
     }
   ]
 }

@@ -14,11 +14,13 @@
       "stake": 5,
       "entryPriceCents": 96,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-10",
       "openedAt": "2026-07-10T18:27:17.254Z",
-      "settledAt": null
+      "settledAt": "2026-07-10T18:32:42.244Z",
+      "profit": 0.2083,
+      "autoResolved": true
     },
     {
       "id": "1783707943551-tzawv",

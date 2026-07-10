@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783708016141-6u7m6",
+      "city": "Wellington",
+      "strategy": "2",
+      "side": "NO",
+      "bracketLabel": "30°C",
+      "stake": 5,
+      "entryPriceCents": 96,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T18:26:56.141Z",
+      "settledAt": null
+    },
+    {
       "id": "1783707943551-tzawv",
       "city": "Munich",
       "strategy": "2",

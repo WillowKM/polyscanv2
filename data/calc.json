@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783701927099-a8fg2",
+      "city": "Panama",
+      "strategy": "3",
+      "side": "NO",
+      "bracketLabel": "32",
+      "stake": 1,
+      "entryPriceCents": 76.9,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T16:45:27.099Z",
+      "settledAt": null
+    },
+    {
       "id": "1783701925983-8sdpn",
       "city": "Panama",
       "strategy": "3",

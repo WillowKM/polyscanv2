@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783697555448-bisl1",
+      "city": "Milan",
+      "strategy": "2",
+      "side": "YES",
+      "bracketLabel": "34°C",
+      "stake": 10,
+      "entryPriceCents": 95,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T15:32:35.448Z",
+      "settledAt": null
+    },
+    {
       "id": "1783697512942-28s4e",
       "city": "Milan",
       "strategy": "1",

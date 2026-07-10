@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783707943551-tzawv",
+      "city": "Munich",
+      "strategy": "2",
+      "side": "YES",
+      "bracketLabel": "29°C",
+      "stake": 5,
+      "entryPriceCents": 92,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T18:25:43.551Z",
+      "settledAt": null
+    },
+    {
       "id": "1783701927099-a8fg2",
       "city": "Panama",
       "strategy": "3",

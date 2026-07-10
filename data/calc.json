@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783701396731-exqwt",
+      "city": "Paris",
+      "strategy": "2",
+      "side": "YES",
+      "bracketLabel": "35",
+      "stake": 10,
+      "entryPriceCents": 97.5,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T16:36:36.731Z",
+      "settledAt": null
+    },
+    {
       "id": "1783697555448-bisl1",
       "city": "Milan",
       "strategy": "2",

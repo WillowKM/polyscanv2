@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783701424289-te869",
+      "city": "Paris",
+      "strategy": "2",
+      "side": "NO",
+      "bracketLabel": "36",
+      "stake": 10,
+      "entryPriceCents": 96,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T16:37:04.289Z",
+      "settledAt": null
+    },
+    {
       "id": "1783701396731-exqwt",
       "city": "Paris",
       "strategy": "2",

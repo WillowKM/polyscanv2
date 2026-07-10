@@ -14,11 +14,13 @@
       "stake": 10,
       "entryPriceCents": 95,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-10",
       "openedAt": "2026-07-10T15:32:35.448Z",
-      "settledAt": null
+      "settledAt": "2026-07-10T16:28:39.501Z",
+      "profit": 0.5263,
+      "autoResolved": true
     },
     {
       "id": "1783697512942-28s4e",
@@ -29,11 +31,13 @@
       "stake": 10,
       "entryPriceCents": 97.9,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-10",
       "openedAt": "2026-07-10T15:31:52.942Z",
-      "settledAt": null
+      "settledAt": "2026-07-10T16:28:39.501Z",
+      "profit": 0.2145,
+      "autoResolved": true
     },
     {
       "id": "1783682849902-7fy81",

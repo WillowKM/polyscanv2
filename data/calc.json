@@ -6,21 +6,6 @@
   },
   "trades": [
     {
-      "id": "1783707988762-4m4f7",
-      "city": "Munich",
-      "strategy": "2",
-      "side": "NO",
-      "bracketLabel": "29°C",
-      "stake": 5,
-      "entryPriceCents": 96,
-      "session": null,
-      "status": "open",
-      "cashoutPriceCents": null,
-      "sastDate": "2026-07-10",
-      "openedAt": "2026-07-10T18:26:28.762Z",
-      "settledAt": null
-    },
-    {
       "id": "1783707943551-tzawv",
       "city": "Munich",
       "strategy": "2",

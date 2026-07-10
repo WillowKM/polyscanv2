@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783667809044-qs8m0",
+      "city": "buenos ",
+      "strategy": "3",
+      "side": "NO",
+      "bracketLabel": "15",
+      "stake": 1,
+      "entryPriceCents": 84,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-10",
+      "openedAt": "2026-07-10T07:16:49.044Z",
+      "settledAt": null
+    },
+    {
       "id": "1783667807892-t1duh",
       "city": "buenos ",
       "strategy": "3",

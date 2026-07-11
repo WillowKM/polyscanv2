@@ -148,7 +148,10 @@ tr:hover td { background:rgba(255,255,255,0.02); }
   <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
     <h2>Trade Structurer <span class="note">— proportional-stake spread calculator: guarantees the same profit no matter which leg hits</span></h2>
     <div class="grid-inputs">
-      <div class="field"><label>City</label><input id="tsCity" type="text" placeholder="e.g. Karachi"></div>
+      <div class="field"><label>City</label>
+        <input id="tsCity" type="text" list="tsCityList" placeholder="Type to search…" oninput="onStructurerCityPicked(this.value)" autocomplete="off">
+        <datalist id="tsCityList"></datalist>
+      </div>
       <div class="field"><label>Session</label>
         <select id="tsSession" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:130px;">
           <option value="">— unassigned —</option>
@@ -277,6 +280,8 @@ const CITIES = [
 ];
 
 let SUMMARY = null;
+let LAST_POLY_DATA = null;
+let OPEN_TRADE_CITIES = new Set();
 
 function localTime(tz) {
   try { return new Date().toLocaleTimeString('en-US', { timeZone: tz, hour:'numeric', minute:'2-digit' }); }
@@ -294,6 +299,11 @@ async function loadCalcState() {
   renderStats(data.summary);
   renderSessions(data.summary);
   renderTradeLog(data.trades);
+
+  const newOpenCities = new Set(data.trades.filter(t => t.status === 'open').map(t => t.city));
+  const changed = newOpenCities.size !== OPEN_TRADE_CITIES.size || [...newOpenCities].some(c => !OPEN_TRADE_CITIES.has(c));
+  OPEN_TRADE_CITIES = newOpenCities;
+  if (changed && LAST_POLY_DATA) loadScanner(); // re-render so active trades move to the top immediately
 }
 
 function renderStats(s) {
@@ -679,6 +689,7 @@ async function loadScanner() {
   ]);
   const polyData = await polyRes.json();
   const wxData   = await wxRes.json();
+  LAST_POLY_DATA = polyData;
 
   renderScanner(polyData, wxData);
   updateTicker(polyData);
@@ -728,6 +739,9 @@ function renderScanner(polyData, wxData) {
   });
 
   rows.sort((a,b) => {
+    const aActive = OPEN_TRADE_CITIES.has(a.city.name) ? 0 : 1;
+    const bActive = OPEN_TRADE_CITIES.has(b.city.name) ? 0 : 1;
+    if (aActive !== bActive) return aActive - bActive;
     const aGreen = a.stability && a.stability.score === 'green' ? 0 : 1;
     const bGreen = b.stability && b.stability.score === 'green' ? 0 : 1;
     return aGreen - bGreen;
@@ -811,7 +825,7 @@ function renderScanner(polyData, wxData) {
       </tr>` : '';
 
     return `<tr class="${rowClass}" style="cursor:pointer;" onclick="document.getElementById('${detailId}').style.display = document.getElementById('${detailId}').style.display==='none'?'table-row':'none'">
-      <td class="city-cell">${r.city.name}<div class="local-time">${localTime(r.city.tz)} local</div></td>
+      <td class="city-cell">${r.city.name}${OPEN_TRADE_CITIES.has(r.city.name) ? ' <span class="pill green" style="font-size:9px;">● ACTIVE TRADE</span>' : ''}<div class="local-time">${localTime(r.city.tz)} local</div></td>
       <td>${stabPill}</td>
       <td>${patternPill}</td>
       <td class="mono">${highDisplay}</td>
@@ -844,11 +858,55 @@ function renderScanner(polyData, wxData) {
   `;
 }
 
+// ── STRUCTURER: city autocomplete + auto-populate from live scanner data ──
+function populateCityDatalist() {
+  const dl = document.getElementById('tsCityList');
+  if (dl) dl.innerHTML = CITIES.map(c => `<option value="${c.name}">`).join('');
+}
+
+function onStructurerCityPicked(value) {
+  const city = CITIES.find(c => c.name.toLowerCase() === value.trim().toLowerCase());
+  if (!city || !LAST_POLY_DATA) return; // not a full match yet, or data not loaded — just let them keep typing
+  const poly = LAST_POLY_DATA[city.name];
+  const outcomes = (poly && poly.polyData && poly.polyData.outcomes) ? poly.polyData.outcomes : [];
+  if (!outcomes.length) {
+    document.getElementById('tsGapNote').innerHTML = `<span class="muted">No live price data for ${city.name} yet — try Refresh on the scanner first.</span>`;
+    return;
+  }
+
+  // Same candidate logic as the scanner: mid brackets (20-50% = Yes legs),
+  // tail brackets (<=20% = cheap No insurance)
+  const s3mid  = outcomes.filter(o => o.prob !== null && o.prob >= 20 && o.prob <= 50).sort((a,b)=>b.prob-a.prob).slice(0,2);
+  const s3tail = outcomes.filter(o => o.prob !== null && o.prob <= 20).sort((a,b)=>b.prob-a.prob).slice(0,4);
+  const s1     = outcomes.filter(o => o.prob !== null && o.prob >= 3 && o.prob <= 9);
+
+  document.getElementById('tsLegs').innerHTML = '';
+  if (s3mid.length >= 2) {
+    s3mid.forEach(o => { addStructurerLeg(); fillLastLeg(o.bracket, o.prob); });
+    s3tail.forEach(o => { addStructurerTail(); fillLastLeg(o.bracket, 100 - o.prob); });
+    document.getElementById('tsGapNote').innerHTML = `<span class="muted">Auto-filled ${city.name}'s live mid brackets (Yes) + tail brackets (No). Adjust prices/stakes as needed, then Calculate or Solve for gap.</span>`;
+  } else if (s1.length) {
+    s1.forEach(o => { addStructurerLeg(); fillLastLeg(o.bracket, o.prob); });
+    document.getElementById('tsGapNote').innerHTML = `<span class="muted">${city.name} doesn't have a clean 2-mid-bracket spread right now — filled with its available Strategy 1 candidates instead. Adjust as needed.</span>`;
+  } else {
+    document.getElementById('tsGapNote').innerHTML = `<span class="muted">${city.name} doesn't have clear mid/tail brackets right now — add legs manually.</span>`;
+  }
+}
+
+function fillLastLeg(bracket, priceCents) {
+  const legs = document.getElementById('tsLegs').children;
+  const last = legs[legs.length - 1];
+  if (!last) return;
+  last.querySelector('.ts-bracket').value = bracket;
+  last.querySelector('.ts-price').value = priceCents;
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────────
+populateCityDatalist();
 loadCalcState();
 loadScanner();
 setInterval(loadCalcState, 30000);
-setInterval(loadScanner, 20*60*1000); // was 3 min — cut to reduce load on the shared Open-Meteo quota
+setInterval(loadScanner, 5*60*1000); // Polymarket prices aren't rate-limited like weather — weather itself stays server-cached for 30min regardless of how often this fires, so this is safe to run more often for fresher prices/auto-resolve/gap tracking
 </script>
 </body>
 </html>

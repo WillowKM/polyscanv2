@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783770980525-2bp8j",
+      "city": "Amsterdam",
+      "strategy": "3",
+      "side": "NO",
+      "bracketLabel": "25°C",
+      "stake": 5,
+      "entryPriceCents": 84,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-11",
+      "openedAt": "2026-07-11T11:56:20.525Z",
+      "settledAt": null
+    },
+    {
       "id": "1783770979539-oh94l",
       "city": "Amsterdam",
       "strategy": "3",

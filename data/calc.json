@@ -46,11 +46,13 @@
       "stake": 5.44,
       "entryPriceCents": 41,
       "session": null,
-      "status": "open",
+      "status": "LOSS",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-11",
       "openedAt": "2026-07-11T11:56:19.539Z",
-      "settledAt": null
+      "settledAt": "2026-07-11T16:47:20.046Z",
+      "profit": -5.44,
+      "autoResolved": true
     },
     {
       "id": "1783770978502-nlguq",

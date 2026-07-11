@@ -6,21 +6,6 @@
   },
   "trades": [
     {
-      "id": "1783740931333-cewyg",
-      "city": "(city)",
-      "strategy": "3",
-      "side": "NO",
-      "bracketLabel": "36",
-      "stake": 1,
-      "entryPriceCents": 88,
-      "session": null,
-      "status": "open",
-      "cashoutPriceCents": null,
-      "sastDate": "2026-07-11",
-      "openedAt": "2026-07-11T03:35:31.333Z",
-      "settledAt": null
-    },
-    {
       "id": "1783740930304-zj35b",
       "city": "(city)",
       "strategy": "3",

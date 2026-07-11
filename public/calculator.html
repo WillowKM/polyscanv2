@@ -175,6 +175,7 @@ tr:hover td { background:rgba(255,255,255,0.02); }
 <!-- OPPORTUNITY SCANNER -->
 <div class="panel">
   <h2>Opportunity Scanner <span class="note">— live Polymarket prices + your existing 5-signal stability engine. No historical win-rate exists yet to compute a calibrated true-probability, so this ranks by stability signal + price extremity, not a guaranteed edge number — use judgment on top of it.</span> <span id="refreshNote"></span></h2>
+  <div id="gapReminder" style="font-size:11.5px;margin-bottom:8px;"></div>
   <button class="btn secondary small" onclick="loadScanner()" style="margin-bottom:10px;">Refresh now</button>
   <div id="scannerWrap"><div class="section-loading">Loading live odds + stability data…</div></div>
 </div>
@@ -308,9 +309,22 @@ function renderStats(s) {
 }
 
 const SESSION_LABELS = { asian: '🌏 Asian', eu: '🇪🇺 EU', us: '🇺🇸 US' };
+function updateGapReminder(sessions) {
+  const el = document.getElementById('gapReminder');
+  if (!el) return;
+  const parts = ['asian','eu','us'].map(key => {
+    const s = sessions[key];
+    if (s.targetMet) return `${SESSION_LABELS[key]}: <span style="color:var(--green);">met ✅</span>`;
+    return `${SESSION_LABELS[key]}: <b>${s.remaining.toFixed(2)}</b> needed (≈${(s.remaining/(SUMMARY.portfolio||1)*100).toFixed(2)}% more) — $${s.exposureFree.toFixed(2)} exposure free`;
+  });
+  el.innerHTML = `<span class="muted">Remaining gaps — </span>` + parts.join(' <span class="muted">·</span> ') +
+    `<span class="muted"> — the % shown on each price chip below is per $1 staked; stack chips to close whichever session you're trading.</span>`;
+}
+
 function renderSessions(s) {
   const wrap = document.getElementById('sessionRow');
   if (!s.sessions) { wrap.innerHTML = ''; return; }
+  updateGapReminder(s.sessions);
   const cards = ['asian','eu','us'].map(key => {
     const sess = s.sessions[key];
     const guideNote = sess.tradesCount >= 3 ? '<span style="color:var(--orange);">·  3+ trades (soft guide, not a hard cap)</span>' : `<span class="muted">· ${sess.tradesCount}/3 trades</span>`;
@@ -442,8 +456,13 @@ function solveForSessionGap() {
     const bracket = div.querySelector('.ts-bracket').value.trim();
     const price = parseFloat(div.querySelector('.ts-price').value);
     if (!bracket || !price) return;
-    if (div.dataset.tail === 'true') tailLegs.push({ bracket, price });
-    else yesLegs.push({ bracket, price });
+    if (div.dataset.tail === 'true') {
+      const stakeInput = div.querySelector('.ts-tail-stake');
+      const stake = stakeInput ? (parseFloat(stakeInput.value) || 1) : 1;
+      tailLegs.push({ bracket, price, stake });
+    } else {
+      yesLegs.push({ bracket, price });
+    }
   });
 
   if (!yesLegs.length) {
@@ -456,8 +475,8 @@ function solveForSessionGap() {
     document.getElementById('tsGapNote').innerHTML = `<span style="color:var(--red);">These Yes prices sum to ${(sumF*100).toFixed(0)}%+ — no guaranteed-profit structure exists at these prices, so no budget can solve for a guaranteed gap here.</span>`;
     return;
   }
-  const tailCost = tailLegs.length * 1;
-  const tailsProfitSum = tailLegs.reduce((s,t) => s + (100/t.price - 1), 0);
+  const tailCost = tailLegs.reduce((s, t) => s + t.stake, 0);
+  const tailsProfitSum = tailLegs.reduce((s,t) => s + t.stake*(100/t.price - 1), 0);
 
   // guaranteedProfit = yesBudget*(1-sumF)/sumF + tailsProfitSum  →  solve for yesBudget
   const yesBudgetNeeded = (remaining - tailsProfitSum) * sumF / (1 - sumF);
@@ -511,7 +530,7 @@ function addStructurerTail() {
     <span class="pill grey" style="min-width:38px;text-align:center;color:var(--red);">NO</span>
     <input type="text" placeholder="Bracket (e.g. 31°C)" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 9px;font-size:13px;width:140px;" class="ts-bracket">
     <input type="number" step="0.1" placeholder="Price (¢)" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 9px;font-size:13px;width:100px;" class="ts-price">
-    <span class="muted" style="font-size:11px;">$1 flat stake</span>
+    <input type="number" step="0.01" value="1" placeholder="Stake ($)" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 9px;font-size:13px;width:90px;" class="ts-tail-stake" title="Tail stake — $1 is just a default, edit as needed">
     <button class="btn secondary small" onclick="document.getElementById('${id}').remove()">✕</button>
   `;
   document.getElementById('tsLegs').appendChild(div);
@@ -530,8 +549,13 @@ function computeStructurer() {
     const bracket = div.querySelector('.ts-bracket').value.trim();
     const price = parseFloat(div.querySelector('.ts-price').value);
     if (!bracket || !price) return;
-    if (div.dataset.tail === 'true') tailLegs.push({ bracket, price });
-    else yesLegs.push({ bracket, price });
+    if (div.dataset.tail === 'true') {
+      const stakeInput = div.querySelector('.ts-tail-stake');
+      const stake = stakeInput ? (parseFloat(stakeInput.value) || 1) : 1;
+      tailLegs.push({ bracket, price, stake });
+    } else {
+      yesLegs.push({ bracket, price });
+    }
   });
 
   if (!yesLegs.length) {
@@ -539,7 +563,7 @@ function computeStructurer() {
     return;
   }
 
-  const tailCost = tailLegs.length * 1; // $1 flat per tail
+  const tailCost = tailLegs.reduce((s, t) => s + t.stake, 0);
   const yesBudget = budget - tailCost;
   if (yesBudget <= 0) {
     document.getElementById('tsResult').innerHTML = '<div class="empty-note" style="color:var(--red);">Budget too small to cover the tail legs plus any Yes stake.</div>';
@@ -552,7 +576,7 @@ function computeStructurer() {
     stake: parseFloat((yesBudget * (l.price/100) / sumF).toFixed(2)),
   }));
 
-  const tailsProfitEach = tailLegs.map(t => ({ ...t, stake: 1, profit: parseFloat((1*(100/t.price - 1)).toFixed(3)) }));
+  const tailsProfitEach = tailLegs.map(t => ({ ...t, profit: parseFloat((t.stake*(100/t.price - 1)).toFixed(3)) }));
   const tailsProfitSum = tailsProfitEach.reduce((s,t) => s + t.profit, 0);
 
   const guaranteedProfit = sumF < 1
@@ -731,16 +755,21 @@ function renderScanner(polyData, wxData) {
       : pd.isPatternDay ? `<span class="pill green">⭐ ${pd.label}</span>`
       : `<span class="pill grey">${pd.label} — mixed</span>`;
 
+    const portfolio = SUMMARY && SUMMARY.portfolio ? SUMMARY.portfolio : 0;
+    const pctAt1Dollar = (priceCents) => portfolio > 0
+      ? ` <span class="muted" style="font-size:9.5px;">(${((100/priceCents - 1) / portfolio * 100).toFixed(2)}%)</span>`
+      : '';
+
     const s1chips = r.s1.length ? r.s1.map(o =>
-      `<span class="strat-chip s1" onclick='openTradeModal("${r.city.name}","1","NO","${o.bracket}",${100-o.prob})'>NO ${o.bracket} · ${100-o.prob}¢</span>`
+      `<span class="strat-chip s1" onclick='openTradeModal("${r.city.name}","1","NO","${o.bracket}",${100-o.prob})'>NO ${o.bracket} · ${100-o.prob}¢${pctAt1Dollar(100-o.prob)}</span>`
     ).join('') : '<span class="muted">none</span>';
 
     const s2chips = (r.s1.length && r.s2yes.length) ? r.s2yes.map(o =>
-      `<span class="strat-chip s2" onclick='openTradeModal("${r.city.name}","2","YES","${o.bracket}",${o.prob})'>YES ${o.bracket} · ${o.prob}¢</span>`
+      `<span class="strat-chip s2" onclick='openTradeModal("${r.city.name}","2","YES","${o.bracket}",${o.prob})'>YES ${o.bracket} · ${o.prob}¢${pctAt1Dollar(o.prob)}</span>`
     ).join('') : '<span class="muted">none</span>';
 
     const s3chips = (r.s3mid.length>=2 && r.s3tail.length>=2) ?
-      r.s3mid.map(o => `<span class="strat-chip s3" onclick='openTradeModal("${r.city.name}","3","YES","${o.bracket}",${o.prob})'>YES ${o.bracket}·${o.prob}¢</span>`).join('') +
+      r.s3mid.map(o => `<span class="strat-chip s3" onclick='openTradeModal("${r.city.name}","3","YES","${o.bracket}",${o.prob})'>YES ${o.bracket}·${o.prob}¢${pctAt1Dollar(o.prob)}</span>`).join('') +
       ' + ' + r.s3tail.length + ' tail No legs available'
       : '<span class="muted">not enough brackets</span>';
 

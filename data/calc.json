@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783740930304-zj35b",
+      "city": "(city)",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "35",
+      "stake": 6.31,
+      "entryPriceCents": 33,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-11",
+      "openedAt": "2026-07-11T03:35:30.304Z",
+      "settledAt": null
+    },
+    {
       "id": "1783740929281-nirp5",
       "city": "(city)",
       "strategy": "3",

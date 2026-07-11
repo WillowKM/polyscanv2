@@ -1043,8 +1043,13 @@ async function fetchStation(station) {
   // display unit (imperial JSON for US stations, same convention as
   // observedHigh above) — no conversion needed for display, but we also
   // compute its °C equivalent so it's directly comparable to forecastHighC.
-  const wuForecastHighC = wuForecastHighRaw !== null
-    ? (isUS ? toC(wuForecastHighRaw) : wuForecastHighRaw)
+  // WU's forecast page returns Fahrenheit for EVERY city, not just US ones
+  // (their site defaults to imperial units regardless of location) — so this
+  // always needs converting to °C for the disagreement comparison, and is
+  // only shown in raw Fahrenheit for US stations in the display value.
+  const wuForecastHighC = wuForecastHighRaw !== null ? toC(wuForecastHighRaw) : null;
+  const wuForecastHighDisplay = wuForecastHighRaw !== null
+    ? (isUS ? wuForecastHighRaw : wuForecastHighC)
     : null;
   // Two genuinely independent sources (WU's own forecaster vs the MET
   // Norway/Open-Meteo model) disagreeing by 1.5°C+ is itself a useful signal
@@ -1072,7 +1077,7 @@ async function fetchStation(station) {
       sourceHigh:     isUS ? observedHigh       : sourceHighC,     // observed so far, in station's display unit
       forecastHigh:   forecastHighDisplay,                          // forecasted max for the whole day (MET Norway/Open-Meteo model) — compare this against Yes bracket ranges
       estimateHigh:   estimateHighDisplay,                          // forecast high, adjusted by stability signals
-      wuForecastHigh: wuForecastHighRaw,                            // WU's OWN forecasted high, scraped directly — the literal resolution source's own number
+      wuForecastHigh: wuForecastHighDisplay,                        // WU's OWN forecasted high, scraped directly — shown in the station's correct display unit
       sourceDisagreementC: sourceDisagreementC,                     // |WU forecast - model forecast|, in °C — flag when this is large
     },
   };
@@ -1223,8 +1228,8 @@ function autoSettleOpenTrades(calc) {
     if (!match || match.prob === null) continue;
 
     let resolvedOutcome = null;
-    if (match.prob >= 99)      resolvedOutcome = trade.side === 'YES' ? 'WIN' : 'LOSS';
-    else if (match.prob <= 1)  resolvedOutcome = trade.side === 'YES' ? 'LOSS' : 'WIN';
+    if (match.prob >= 99.1)      resolvedOutcome = trade.side === 'YES' ? 'WIN' : 'LOSS';
+    else if (match.prob <= 0.9)  resolvedOutcome = trade.side === 'YES' ? 'LOSS' : 'WIN';
     if (!resolvedOutcome) continue;
 
     trade.status = resolvedOutcome;

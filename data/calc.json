@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783744328562-qcth0",
+      "city": "munich",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "28",
+      "stake": 5.64,
+      "entryPriceCents": 37,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-11",
+      "openedAt": "2026-07-11T04:32:08.563Z",
+      "settledAt": null
+    },
+    {
       "id": "1783740985909-ntaw7",
       "city": "Shenzhen",
       "strategy": "3",

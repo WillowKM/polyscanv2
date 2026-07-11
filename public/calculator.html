@@ -749,7 +749,23 @@ function renderScanner(polyData, wxData) {
       : '—';
 
     const raw = r.stability && r.stability.raw;
+    const stab = r.stability;
     const detailId = `detail-${idx}`;
+    const disagree = stab && stab.sourceDisagreementC;
+    const disagreeFlag = disagree !== null && disagree !== undefined
+      ? (disagree >= 1.5
+          ? `<span class="pill red">⚠ Sources disagree by ${disagree}°</span>`
+          : `<span class="pill green">Sources agree (Δ${disagree}°)</span>`)
+      : '<span class="pill grey">WU forecast unavailable</span>';
+    const sourceCompareRow = stab ? `
+      <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
+        <div class="muted" style="font-size:10.5px;margin-bottom:4px;">SOURCE COMPARISON — independent forecasts for today's high</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;font-size:11.5px;">
+          <div><span class="muted">WU's own forecast:</span> <b>${stab.wuForecastHigh ?? '—'}°</b></div>
+          <div><span class="muted">MET Norway/Open-Meteo model:</span> <b>${stab.forecastHigh ?? '—'}°</b></div>
+          ${disagreeFlag}
+        </div>
+      </div>` : '';
     const detailRow = raw ? `
       <tr id="${detailId}" style="display:none;">
         <td colspan="7" style="background:var(--bg3);">
@@ -761,6 +777,7 @@ function renderScanner(polyData, wxData) {
             <div><span class="muted">Temp slope (peak hrs):</span> ${raw.tempSlope}°C/hr</div>
             <div><span class="muted">Pressure:</span> ${raw.pressure.trend} <span class="muted">(range ${raw.pressure.rangeHpa}hPa)</span></div>
           </div>
+          ${sourceCompareRow}
         </td>
       </tr>` : '';
 

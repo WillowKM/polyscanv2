@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783744329522-8fn49",
+      "city": "munich",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "29",
+      "stake": 5.95,
+      "entryPriceCents": 39,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-11",
+      "openedAt": "2026-07-11T04:32:09.522Z",
+      "settledAt": null
+    },
+    {
       "id": "1783744328562-qcth0",
       "city": "munich",
       "strategy": "3",

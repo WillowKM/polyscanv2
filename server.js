@@ -594,6 +594,26 @@ function parseHumidity(html) {
   return m ? parseInt(m[1]) : null;
 }
 
+// WU's own forecasted high for today, straight off their forecast page — the
+// literal number Polymarket's resolution source would show, not a third-party
+// model's guess at it. Like the other parsers, prefer the embedded "imperial"
+// JSON value (WU's underlying API is always Fahrenheit there regardless of
+// display locale) so toC() below can be applied unconditionally, consistent
+// with how observedHigh is handled.
+function parseWUForecastHigh(html) {
+  const patterns = [
+    /"calendarDayTemperatureMax"\s*:\s*\[\s*([-\d.]+)/,
+    /"temperatureMax"\s*:\s*\[\s*([-\d.]+)/,
+    /"temperatureMax"\s*:\s*([-\d.]+)/,
+    /data-testid="TemperatureValue"[^>]*>\s*([-\d.]+)\s*</, // first temp block on forecast page is usually today's high
+  ];
+  for (const p of patterns) {
+    const m = html.match(p);
+    if (m) return parseFloat(m[1]);
+  }
+  return null;
+}
+
 function parseSunTimes(html) {
   try {
     const risePatterns = [
@@ -958,7 +978,7 @@ async function fetchStation(station) {
     fetch(forecastUrl, { headers: WU_HEADERS, timeout: 12000 }),
   ]);
 
-  let temp = null, cond = '', humidity = null, sunrise = null, sunset = null;
+  let temp = null, cond = '', humidity = null, sunrise = null, sunset = null, wuForecastHighRaw = null;
 
   if (currentRes.status === 'fulfilled' && currentRes.value.ok) {
     const html = await currentRes.value.text();
@@ -969,12 +989,15 @@ async function fetchStation(station) {
     sunrise = sun.sunrise; sunset = sun.sunset;
   }
 
-  // Sunrise/sunset fallback from forecast page
-  if ((!sunrise || !sunset) && forecastRes.status === 'fulfilled' && forecastRes.value.ok) {
+  // Sunrise/sunset fallback + WU's own forecasted high from the forecast page
+  if (forecastRes.status === 'fulfilled' && forecastRes.value.ok) {
     const html = await forecastRes.value.text();
-    const sun = parseSunTimes(html);
-    if (!sunrise) sunrise = sun.sunrise;
-    if (!sunset)  sunset  = sun.sunset;
+    if (!sunrise || !sunset) {
+      const sun = parseSunTimes(html);
+      if (!sunrise) sunrise = sun.sunrise;
+      if (!sunset)  sunset  = sun.sunset;
+    }
+    wuForecastHighRaw = parseWUForecastHigh(html);
   }
 
   // ── Trend ─────────────────────────────────────────────────────────────────
@@ -1016,6 +1039,19 @@ async function fetchStation(station) {
   const estimateHighDisplay = estimateHighC !== null
     ? (isUS ? parseFloat((estimateHighC * 9/5 + 32).toFixed(1)) : estimateHighC)
     : null;
+  // WU's own forecasted high is scraped already in the station's native
+  // display unit (imperial JSON for US stations, same convention as
+  // observedHigh above) — no conversion needed for display, but we also
+  // compute its °C equivalent so it's directly comparable to forecastHighC.
+  const wuForecastHighC = wuForecastHighRaw !== null
+    ? (isUS ? toC(wuForecastHighRaw) : wuForecastHighRaw)
+    : null;
+  // Two genuinely independent sources (WU's own forecaster vs the MET
+  // Norway/Open-Meteo model) disagreeing by 1.5°C+ is itself a useful signal
+  // — worth flagging rather than silently picking one.
+  const sourceDisagreementC = (wuForecastHighC !== null && forecastHighC !== null)
+    ? parseFloat(Math.abs(wuForecastHighC - forecastHighC).toFixed(1))
+    : null;
 
   return {
     temp:      isUS ? temp         : toC(temp),
@@ -1034,8 +1070,10 @@ async function fetchStation(station) {
       forecastHighC:  forecastHighC,
       estimateHighC:  estimateHighC,
       sourceHigh:     isUS ? observedHigh       : sourceHighC,     // observed so far, in station's display unit
-      forecastHigh:   forecastHighDisplay,                          // forecasted max for the whole day — compare this against Yes bracket ranges
+      forecastHigh:   forecastHighDisplay,                          // forecasted max for the whole day (MET Norway/Open-Meteo model) — compare this against Yes bracket ranges
       estimateHigh:   estimateHighDisplay,                          // forecast high, adjusted by stability signals
+      wuForecastHigh: wuForecastHighRaw,                            // WU's OWN forecasted high, scraped directly — the literal resolution source's own number
+      sourceDisagreementC: sourceDisagreementC,                     // |WU forecast - model forecast|, in °C — flag when this is large
     },
   };
 }

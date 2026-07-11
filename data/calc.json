@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783740929281-nirp5",
+      "city": "(city)",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "34",
+      "stake": 9.36,
+      "entryPriceCents": 49,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-11",
+      "openedAt": "2026-07-11T03:35:29.281Z",
+      "settledAt": null
+    },
+    {
       "id": "1783708037253-tysvp",
       "city": "Munich",
       "strategy": "2",

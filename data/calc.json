@@ -97,11 +97,12 @@
       "stake": 5.64,
       "entryPriceCents": 37,
       "session": null,
-      "status": "open",
+      "status": "LOSS",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-11",
       "openedAt": "2026-07-11T04:36:30.403Z",
-      "settledAt": null
+      "settledAt": "2026-07-11T19:00:28.022Z",
+      "profit": -5.64
     },
     {
       "id": "1783740985909-ntaw7",

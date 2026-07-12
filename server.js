@@ -102,6 +102,33 @@ const STATION_META = {
   RPLL: { cc:'ph', city:'manila',         lat:14.5086,  lon:121.0198  },
 };
 
+// ── Source reliability tiers (from the 50-city audit) ──────────────────────
+// 'excellent' = official national agency, live obs + forecast, no third-party
+//               model needed. 'good'/'weak'/'poor' = no reliable official
+//               direct access; falls back to MET Norway/Open-Meteo models —
+//               these get flagged in the UI so lower-confidence cities are
+//               never presented as equal to verified ones.
+const SOURCE_QUALITY = {
+  // Excellent — official agency, fully wired (keyless, verified working)
+  KATL:'excellent', KLGA:'excellent', KSEA:'excellent', KSFO:'excellent', KMIA:'excellent',
+  KBKF:'excellent', KHOU:'excellent', KORD:'excellent', KDFW:'excellent', KAUS:'excellent', KLAX:'excellent',
+  VHHH:'excellent', WSSS:'excellent',
+  // Excellent — official agency exists, but needs an API key/registration
+  // we haven't set up yet, so these still run on the model fallback for now
+  RCTP:'excellent', EHAM:'excellent', EDDM:'excellent', EFHK:'excellent', EPWA:'excellent',
+  // Good
+  RKPK:'good', RKSI:'good', EGLC:'good', LEMD:'good', CYYZ:'good', SBGR:'good', WIII:'good',
+  // Weak
+  LLBG:'weak', LFPB:'weak', LIML:'weak', SABE:'weak', MMMX:'weak', NZWN:'weak', RJTT:'weak',
+  // Poor — everything else (China stations, IN/PK/SA/TR/ZA/NG/RU/MY/PH/PA)
+  ZSPD:'poor', ZBAA:'poor', ZUUU:'poor', ZGSZ:'poor', ZUCK:'poor', ZHHH:'poor', ZGGG:'poor',
+  VILK:'poor', OPKC:'poor', OEJN:'poor', LTFM:'poor', LTAC:'poor', FACT:'poor', DNMM:'poor',
+  UUEE:'poor', WMKK:'poor', RPLL:'poor', MPTO:'poor',
+};
+// Stations with a genuinely wired official-source fetch (not just "rated
+// excellent on paper") — used to decide whether to call fetchOfficialForecast
+const OFFICIAL_SOURCE_WIRED = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','KDFW','KAUS','KLAX','VHHH','WSSS']);
+
 // ── City name → URL slug mapping ───────────────────────────────────────────
 // Matches exactly how Polymarket constructs their event slugs
 const CITY_SLUGS = {
@@ -746,6 +773,72 @@ async function fetchHourly(station) {
 // not a technical restriction). Gridded like Open-Meteo, not station-specific,
 // but serves as a resilient fallback so stability/Pattern Day never fully
 // cut off just because Open-Meteo's shared-IP quota is exhausted.
+// ── OFFICIAL SOURCE FETCH ────────────────────────────────────────────────
+// For the 'excellent' tier — the actual national agency's own forecast,
+// not a gridded model. Only called for stations in OFFICIAL_SOURCE_WIRED.
+const OFFICIAL_CACHE = {};
+const OFFICIAL_CACHE_TTL = 30 * 60 * 1000;
+
+async function fetchOfficialForecast(station) {
+  if (OFFICIAL_CACHE[station] && (Date.now() - OFFICIAL_CACHE[station].ts) < OFFICIAL_CACHE_TTL) {
+    return OFFICIAL_CACHE[station].data;
+  }
+  let result = { highF: null, highC: null, source: null, error: null };
+  try {
+    if (US_STATIONS.has(station)) {
+      result = await fetchNWSForecast(station);
+    } else if (station === 'VHHH') {
+      result = await fetchHKOForecast();
+    } else if (station === 'WSSS') {
+      result = await fetchSGForecast();
+    }
+  } catch(e) {
+    result = { highF: null, highC: null, source: null, error: e.message };
+  }
+  OFFICIAL_CACHE[station] = { data: result, ts: Date.now() };
+  return result;
+}
+
+async function fetchNWSForecast(station) {
+  const meta = STATION_META[station];
+  const headers = { 'User-Agent': 'PolyScan24-7/1.0 github.com/WillowKM/polyscanv2', 'Accept': 'application/geo+json' };
+  const pointsRes = await fetch(`https://api.weather.gov/points/${meta.lat.toFixed(4)},${meta.lon.toFixed(4)}`, { headers });
+  if (!pointsRes.ok) return { highF: null, highC: null, source: 'NWS', error: `points HTTP ${pointsRes.status}` };
+  const pointsJson = await pointsRes.json();
+  const forecastUrl = pointsJson?.properties?.forecast;
+  if (!forecastUrl) return { highF: null, highC: null, source: 'NWS', error: 'no forecast URL in points response' };
+
+  const fcRes = await fetch(forecastUrl, { headers });
+  if (!fcRes.ok) return { highF: null, highC: null, source: 'NWS', error: `forecast HTTP ${fcRes.status}` };
+  const fcJson = await fcRes.json();
+  const periods = fcJson?.properties?.periods || [];
+  // Find today's daytime period (isDaytime true, first one = today or tonight)
+  const todayPeriod = periods.find(p => p.isDaytime) || periods[0];
+  if (!todayPeriod) return { highF: null, highC: null, source: 'NWS', error: 'no periods in forecast' };
+  const highF = todayPeriod.temperature;
+  return { highF, highC: toC(highF), source: 'NWS', error: null, narrative: todayPeriod.shortForecast };
+}
+
+async function fetchHKOForecast() {
+  const res = await fetch('https://data.weather.gov.hk/weatherAPI/opendata/weather.php?dataType=fnd&lang=en');
+  if (!res.ok) return { highF: null, highC: null, source: 'HKO', error: `HTTP ${res.status}` };
+  const json = await res.json();
+  const today = json?.weatherForecast?.[0];
+  if (!today) return { highF: null, highC: null, source: 'HKO', error: 'no forecast data' };
+  const highC = parseFloat(today.forecastMaxtemp?.value);
+  return { highF: isNaN(highC) ? null : parseFloat((highC*9/5+32).toFixed(1)), highC: isNaN(highC) ? null : highC, source: 'HKO', error: null, narrative: today.forecastWeather };
+}
+
+async function fetchSGForecast() {
+  const res = await fetch('https://api.data.gov.sg/v1/environment/4-day-weather-forecast');
+  if (!res.ok) return { highF: null, highC: null, source: 'NEA', error: `HTTP ${res.status}` };
+  const json = await res.json();
+  const today = json?.items?.[0]?.forecasts?.[0];
+  if (!today) return { highF: null, highC: null, source: 'NEA', error: 'no forecast data' };
+  const highC = parseFloat(today.temperature?.high);
+  return { highF: isNaN(highC) ? null : parseFloat((highC*9/5+32).toFixed(1)), highC: isNaN(highC) ? null : highC, source: 'NEA', error: null, narrative: today.forecast };
+}
+
 async function fetchHourlyMetNo(station, meta, openMeteoError) {
   try {
     const url = `https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=${meta.lat}&lon=${meta.lon}`;
@@ -1058,6 +1151,24 @@ async function fetchStation(station) {
     ? parseFloat(Math.abs(wuForecastHighC - forecastHighC).toFixed(1))
     : null;
 
+  // ── OFFICIAL SOURCE (excellent tier only) ────────────────────────────────
+  // The actual national agency's own forecast — not a gridded model. Where
+  // this disagrees meaningfully with WU specifically, that's the signal
+  // worth watching: most retail traders on Polymarket anchor to WU, so a
+  // verified official source disagreeing with WU can mean the market is
+  // mispriced against WU's number rather than the more accurate one.
+  const sourceQuality = SOURCE_QUALITY[station] || 'poor';
+  let official = { highF: null, highC: null, source: null, error: null };
+  if (OFFICIAL_SOURCE_WIRED.has(station)) {
+    official = await fetchOfficialForecast(station);
+  }
+  const officialHighDisplay = official.highC !== null
+    ? (isUS ? official.highF : official.highC)
+    : null;
+  const officialVsWU_C = (official.highC !== null && wuForecastHighC !== null)
+    ? parseFloat((official.highC - wuForecastHighC).toFixed(1)) // positive = official running warmer than WU
+    : null;
+
   return {
     temp:      isUS ? temp         : toC(temp),
     high:      isUS ? observedHigh : toC(observedHigh),
@@ -1079,6 +1190,12 @@ async function fetchStation(station) {
       estimateHigh:   estimateHighDisplay,                          // forecast high, adjusted by stability signals
       wuForecastHigh: wuForecastHighDisplay,                        // WU's OWN forecasted high, scraped directly — shown in the station's correct display unit
       sourceDisagreementC: sourceDisagreementC,                     // |WU forecast - model forecast|, in °C — flag when this is large
+      sourceQuality:  sourceQuality,                                // 'excellent' | 'good' | 'weak' | 'poor' — from the 50-city audit
+      officialHigh:      officialHighDisplay,                       // the actual national agency's own forecast (excellent tier only)
+      officialSourceName: official.source,                          // 'NWS' | 'HKO' | 'NEA' | null
+      officialNarrative:  official.narrative || null,
+      officialError:      official.error,
+      officialVsWU_C:     officialVsWU_C,                           // positive = official source running warmer than WU
     },
   };
 }

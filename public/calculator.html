@@ -68,6 +68,7 @@ td { padding:8px 10px; border-bottom:1px solid var(--border); vertical-align:mid
 tr:hover td { background:rgba(255,255,255,0.02); }
 .pill { display:inline-block; padding:2px 8px; border-radius:10px; font-size:10.5px; font-weight:700; }
 .pill.green { background:var(--green-bg); border:1px solid var(--green-border); color:var(--green); }
+.pill.orange { background:var(--orange-bg); border:1px solid var(--orange-border); color:var(--orange); }
 .pill.red   { background:var(--red-bg);   border:1px solid var(--red-border);   color:var(--red); }
 .pill.grey  { background:var(--bg3); border:1px solid var(--border); color:var(--muted); }
 .muted { color:var(--muted); }
@@ -769,6 +770,16 @@ function renderScanner(polyData, wxData) {
       : pd.isPatternDay ? `<span class="pill green">⭐ ${pd.label}</span>`
       : `<span class="pill grey">${pd.label} — mixed</span>`;
 
+    const sq = r.stability && r.stability.sourceQuality;
+    const sourcePill = !sq ? '<span class="pill grey">?</span>'
+      : sq === 'excellent' && r.stability.officialHigh !== null
+        ? `<span class="pill green" title="Official ${r.stability.officialSourceName} forecast: ${r.stability.officialHigh}°">✓ OFFICIAL</span>`
+      : sq === 'excellent'
+        ? `<span class="pill orange" title="${r.stability.officialError || 'Official source pending'}">EXCELLENT · pending</span>`
+      : sq === 'good' ? `<span class="pill orange">⚠ GOOD — model-based</span>`
+      : sq === 'weak' ? `<span class="pill orange">⚠ WEAK — model-based</span>`
+      : `<span class="pill red">⚠ POOR — model-based only</span>`;
+
     const portfolio = SUMMARY && SUMMARY.portfolio ? SUMMARY.portfolio : 0;
     const pctAt1Dollar = (priceCents) => portfolio > 0
       ? ` <span class="muted" style="font-size:9.5px;">(${((100/priceCents - 1) / portfolio * 100).toFixed(2)}%)</span>`
@@ -800,18 +811,28 @@ function renderScanner(polyData, wxData) {
           ? `<span class="pill red">⚠ Sources disagree by ${disagree}°</span>`
           : `<span class="pill green">Sources agree (Δ${disagree}°)</span>`)
       : '<span class="pill grey">WU forecast unavailable</span>';
+
+    const officialVsWU = stab && stab.officialVsWU_C !== null ? stab.officialVsWU_C : null;
+    const officialRow = stab && stab.officialSourceName ? `
+        <div><span class="muted">${stab.officialSourceName} official forecast:</span> <b>${stab.officialHigh ?? '—'}°</b></div>
+        ${officialVsWU !== null ? (Math.abs(officialVsWU) >= 1.5
+          ? `<span class="pill orange" title="If the market is pricing off WU's number, this gap may mean brackets are mispriced relative to the more reliable official source.">💰 ${stab.officialSourceName} vs WU: ${officialVsWU > 0 ? '+' : ''}${officialVsWU}° — possible underpriced bracket</span>`
+          : `<span class="pill green">${stab.officialSourceName} agrees with WU (Δ${Math.abs(officialVsWU)}°)</span>`) : ''}
+      ` : (stab && stab.sourceQuality === 'excellent' ? `<div class="muted" style="font-size:10.5px;">Official source pending${stab.officialError ? ': '+stab.officialError : ''}</div>` : '');
+
     const sourceCompareRow = stab ? `
       <div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--border);">
-        <div class="muted" style="font-size:10.5px;margin-bottom:4px;">SOURCE COMPARISON — independent forecasts for today's high</div>
+        <div class="muted" style="font-size:10.5px;margin-bottom:4px;">SOURCE COMPARISON — independent forecasts for today's high ${stab.sourceQuality ? `<span class="pill ${stab.sourceQuality==='excellent'?'green':stab.sourceQuality==='good'?'orange':'red'}" style="margin-left:6px;">${stab.sourceQuality.toUpperCase()} tier</span>` : ''}</div>
         <div style="display:flex;gap:20px;flex-wrap:wrap;align-items:center;font-size:11.5px;">
           <div><span class="muted">WU's own forecast:</span> <b>${stab.wuForecastHigh ?? '—'}°</b></div>
           <div><span class="muted">MET Norway/Open-Meteo model:</span> <b>${stab.forecastHigh ?? '—'}°</b></div>
           ${disagreeFlag}
+          ${officialRow}
         </div>
       </div>` : '';
     const detailRow = raw ? `
       <tr id="${detailId}" style="display:none;">
-        <td colspan="7" style="background:var(--bg3);">
+        <td colspan="8" style="background:var(--bg3);">
           <div style="display:flex;gap:20px;flex-wrap:wrap;padding:6px 4px;font-size:11.5px;">
             <div><span class="muted">Dew point:</span> ${raw.dew.min}° / ${raw.dew.median}° / ${raw.dew.max}°C <span class="muted">(drift ${raw.dew.driftC}°)</span></div>
             <div><span class="muted">Cloud cover:</span> ${raw.cloud.min}% / ${raw.cloud.median}% / ${raw.cloud.max}% <span class="muted">(range ${raw.cloud.rangePct}pp)</span></div>
@@ -828,6 +849,7 @@ function renderScanner(polyData, wxData) {
       <td class="city-cell">${r.city.name}${OPEN_TRADE_CITIES.has(r.city.name) ? ' <span class="pill green" style="font-size:9px;">● ACTIVE TRADE</span>' : ''}<div class="local-time">${localTime(r.city.tz)} local</div></td>
       <td>${stabPill}</td>
       <td>${patternPill}</td>
+      <td>${sourcePill}</td>
       <td class="mono">${highDisplay}</td>
       <td>${s1chips}</td>
       <td>${s2chips}</td>
@@ -850,8 +872,8 @@ function renderScanner(polyData, wxData) {
 
   document.getElementById('scannerWrap').innerHTML = `
     <table>
-      <thead><tr><th>City</th><th>Stability</th><th>Pattern Day</th><th>Forecasted High</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
-      <tbody>${trs || '<tr><td colspan="7" class="empty-note">No live price data yet — try Refresh.</td></tr>'}</tbody>
+      <thead><tr><th>City</th><th>Stability</th><th>Pattern Day</th><th>Source</th><th>Forecasted High</th><th>Strategy 1 (No 91-97c)</th><th>Strategy 2 (paired 90c+)</th><th>Strategy 3 (barbell)</th></tr></thead>
+      <tbody>${trs || '<tr><td colspan="8" class="empty-note">No live price data yet — try Refresh.</td></tr>'}</tbody>
     </table>
     <div class="empty-note">Live Polymarket prices for all ${rows.length} cities, always shown, regardless of stability data availability. Click any row to expand the raw dew point / cloud / humidity / wind / pressure numbers where available. Tap a price chip to prefill "Log Trade". Stability/Pattern Day come from Open-Meteo's forecast — when marked N/A, that source is temporarily unavailable, but you can still trade on price alone and cross-check WU yourself.</div>
     ${diagnosticBlock}

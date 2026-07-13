@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783940132160-k4moy",
+      "city": "Lucknow",
+      "strategy": "2",
+      "side": "YES",
+      "bracketLabel": "36",
+      "stake": 5,
+      "entryPriceCents": 92,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-13",
+      "openedAt": "2026-07-13T10:55:32.160Z",
+      "settledAt": null
+    },
+    {
       "id": "1783940110629-st80y",
       "city": "Lucknow",
       "strategy": "2",

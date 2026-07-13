@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783924324568-280t5",
+      "city": "Shenzhen",
+      "strategy": "1",
+      "side": "NO",
+      "bracketLabel": "35°C",
+      "stake": 2,
+      "entryPriceCents": 94,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-13",
+      "openedAt": "2026-07-13T06:32:04.568Z",
+      "settledAt": null
+    },
+    {
       "id": "1783924312253-43eot",
       "city": "Shenzhen",
       "strategy": "2",

@@ -1556,6 +1556,96 @@ const STATIONEDGE_STATIONS = {
   LLBG: { city:'Tel Aviv',      station:'Ben Gurion Airport',    tz:'Asia/Jerusalem', source:'metar' },
   LTFM: { city:'Istanbul',      station:'Istanbul Airport',      tz:'Europe/Istanbul', source:'metar' },
 };
+// ── STATIONEDGE SUPABASE RESEARCH RECORDER ────────────────────────────────
+const SUPABASE_URL = process.env.SUPABASE_URL || null;
+const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY || null;
+
+async function seSaveForecastResearch(data) {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY || !data?.highForecast) return false;
+
+  const meta = STATIONEDGE_STATIONS[data.code];
+  if (!meta) return false;
+
+  const localHour = seLocalHour(meta);
+
+  // Pre-peak research signal window: 11:00–12:59 station local time.
+  if (localHour < 11 || localHour >= 13) return false;
+
+  // Record only green setups.
+  if (data.stability < 70 || data.pattern < 70) return false;
+
+  const hf = data.highForecast;
+  const row = {
+    station_code: data.code,
+    city: data.city,
+    forecast_date: data.localDay,
+    local_signal_time: `${String(localHour).padStart(2, '0')}:00`,
+    model_version: 'V2',
+    forecast_low: hf.predictedLowC,
+    forecast_high: hf.predictedHighC,
+    barbell_one: hf.primaryOutcomesC?.[0] ?? null,
+    barbell_two: hf.primaryOutcomesC?.[1] ?? null,
+    confidence: hf.confidence,
+    stability: data.stability,
+    pattern_day: data.pattern,
+    validation_score: hf.validation?.score ?? null,
+    probability_ladder: hf.probabilityLadder ?? null,
+    weather_snapshot: {
+      driftC: hf.driftC,
+      driftStatus: hf.driftStatus,
+      heatingTrack: hf.heatingTrack,
+      signalWindow: hf.signalWindow,
+      officialForecastHighC: hf.officialForecastHighC,
+      latest: data.latest,
+      stabilityParts: data.stabilityParts,
+      patternParts: data.patternParts
+    }
+  };
+
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/stationedge_forecasts?on_conflict=station_code,forecast_date,model_version`,
+      {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_SECRET_KEY,
+          Authorization: `Bearer ${SUPABASE_SECRET_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'resolution=ignore-duplicates'
+        },
+        body: JSON.stringify(row)
+      }
+    );
+
+    if (!response.ok) {
+      console.error('[StationEdge Research] Save failed:', await response.text());
+      return false;
+    }
+
+    console.log(`[StationEdge Research] Recorded ${data.city} ${data.code} — ${hf.primaryOutcomesC?.join('/')}°C`);
+    return true;
+  } catch (e) {
+    console.error('[StationEdge Research] Supabase error:', e.message);
+    return false;
+  }
+}
+
+async function seResearchSweep() {
+  console.log('[StationEdge Research] Automatic sweep started');
+  const codes = Object.keys(STATIONEDGE_STATIONS);
+
+  for (const code of codes) {
+    try {
+      // Clear only StationEdge cache so the research sweep evaluates fresh station data.
+      delete STATIONEDGE_CACHE[code];
+      const data = await seStation(code);
+      await seSaveForecastResearch(data);
+    } catch (e) {
+      console.error(`[StationEdge Research] ${code} sweep failed:`, e.message);
+    }
+  }
+}
+
 const STATIONEDGE_CACHE = {};
 const STATIONEDGE_TTL = 5 * 60 * 1000;
 
@@ -1766,6 +1856,17 @@ app.get('/api/stationedge/station/:code', async (req,res) => {
   try { res.json(await seStation(String(req.params.code).toUpperCase())); }
   catch(e) { res.status(500).json({error:e.message}); }
 });
+
+// Automatic StationEdge research collection.
+// Render/Uptime Robot keeps the service awake; this sweep evaluates all stations
+// every 15 minutes and Supabase's unique key locks the first qualifying V2 signal.
+setTimeout(() => seResearchSweep().catch(e =>
+  console.error('[StationEdge Research] Initial sweep failed:', e.message)
+), 30 * 1000);
+
+setInterval(() => seResearchSweep().catch(e =>
+  console.error('[StationEdge Research] Scheduled sweep failed:', e.message)
+), 15 * 60 * 1000);
 
 app.get('/health', (req, res) => {
   res.json({ status:'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length, polyCached: Object.keys(POLY_CACHE).length });

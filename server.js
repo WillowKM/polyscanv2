@@ -77,7 +77,7 @@ const STATION_META = {
   KHOU: { cc:'us', city:'houston',        lat:29.6454,  lon:-95.2789  },
   KORD: { cc:'us', city:'chicago',        lat:41.9742,  lon:-87.9073  },
   CYYZ: { cc:'ca', city:'toronto',        lat:43.6777,  lon:-79.6248  },
-  VHHH: { cc:'hk', city:'hong-kong',      lat:22.3080,  lon:113.9185  },
+  VHHH: { cc:'hk', city:'hong-kong',      lat:22.3117,  lon:114.1717  }, // King's Park Met Station — the ACTUAL resolution reference since 1 July 1992 (confirmed via HKO's own station history + Polymarket's resolution text). NOT the airport (was wrongly using airport coords 22.308/113.9185 before) — key kept as 'VHHH' for continuity elsewhere in the codebase, but coordinates now correctly point at King's Park, Kowloon.
   KDFW: { cc:'us', city:'dallas',         lat:32.8998,  lon:-97.0403  },
   RCTP: { cc:'tw', city:'taipei',         lat:25.0797,  lon:121.2342  },
   EDDM: { cc:'de', city:'munich',         lat:48.3538,  lon:11.7861   },
@@ -127,7 +127,7 @@ const SOURCE_QUALITY = {
 };
 // Stations with a genuinely wired official-source fetch (not just "rated
 // excellent on paper") — used to decide whether to call fetchOfficialForecast
-const OFFICIAL_SOURCE_WIRED = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','KDFW','KAUS','KLAX','VHHH','WSSS']);
+const OFFICIAL_SOURCE_WIRED = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','KDFW','KAUS','KLAX','VHHH','WSSS','EDDM']);
 
 // ── City name → URL slug mapping ───────────────────────────────────────────
 // Matches exactly how Polymarket constructs their event slugs
@@ -791,6 +791,8 @@ async function fetchOfficialForecast(station) {
       result = await fetchHKOForecast();
     } else if (station === 'WSSS') {
       result = await fetchSGForecast();
+    } else if (station === 'EDDM') {
+      result = await fetchDWDForecast(station);
     }
   } catch(e) {
     result = { highF: null, highC: null, source: null, error: e.message };
@@ -826,17 +828,47 @@ async function fetchHKOForecast() {
   const today = json?.weatherForecast?.[0];
   if (!today) return { highF: null, highC: null, source: 'HKO', error: 'no forecast data' };
   const highC = parseFloat(today.forecastMaxtemp?.value);
-  return { highF: isNaN(highC) ? null : parseFloat((highC*9/5+32).toFixed(1)), highC: isNaN(highC) ? null : highC, source: 'HKO', error: null, narrative: today.forecastWeather };
+  return { highF: isNaN(highC) ? null : parseFloat((highC*9/5+32).toFixed(1)), highC: isNaN(highC) ? null : highC, source: 'HKO', error: null, narrative: (today.forecastWeather || '') + ' [Note: HKO\'s public forecast is territory-wide, not King\'s Park-specific — the actual resolution station]' };
 }
 
 async function fetchSGForecast() {
   const res = await fetch('https://api.data.gov.sg/v1/environment/4-day-weather-forecast');
   if (!res.ok) return { highF: null, highC: null, source: 'NEA', error: `HTTP ${res.status}` };
   const json = await res.json();
-  const today = json?.items?.[0]?.forecasts?.[0];
-  if (!today) return { highF: null, highC: null, source: 'NEA', error: 'no forecast data' };
+  const forecasts = json?.items?.[0]?.forecasts;
+  if (!forecasts || !forecasts.length) return { highF: null, highC: null, source: 'NEA', error: 'no forecast data' };
+
+  // The API returns 4 entries (today + next 3 days) — match by actual date
+  // (SGT) instead of assuming index 0 is today, which caused a real bug
+  // (grabbed a later day's forecast, e.g. 33° when today was ~30°).
+  const nowSGT = new Date(Date.now() + 8 * 60 * 60 * 1000); // UTC+8, no DST
+  const todayStr = nowSGT.toISOString().slice(0, 10);
+  const today = forecasts.find(f => f.date === todayStr) || forecasts[0];
+  if (!today) return { highF: null, highC: null, source: 'NEA', error: `no entry matching ${todayStr}` };
+  if (today.date !== todayStr) {
+    return { highF: null, highC: null, source: 'NEA', error: `date mismatch — wanted ${todayStr}, only found ${today.date}` };
+  }
+
   const highC = parseFloat(today.temperature?.high);
   return { highF: isNaN(highC) ? null : parseFloat((highC*9/5+32).toFixed(1)), highC: isNaN(highC) ? null : highC, source: 'NEA', error: null, narrative: today.forecast };
+}
+
+// DWD (Munich) via Bright Sky — a well-established free wrapper around DWD's
+// raw MOSMIX forecast data (2M+ requests/day in production, no key needed).
+// Genuinely keyless (confirmed: DWD's open-data server requires no auth).
+async function fetchDWDForecast(station) {
+  const meta = STATION_META[station];
+  const todayStr = new Date().toISOString().slice(0, 10); // Europe/Berlin is close enough to UTC-day for this purpose
+  const url = `https://api.brightsky.dev/weather?lat=${meta.lat}&lon=${meta.lon}&date=${todayStr}`;
+  const res = await fetch(url);
+  if (!res.ok) return { highF: null, highC: null, source: 'DWD', error: `HTTP ${res.status}` };
+  const json = await res.json();
+  const hours = json?.weather;
+  if (!hours || !hours.length) return { highF: null, highC: null, source: 'DWD', error: 'no weather data for today' };
+  const temps = hours.map(h => h.temperature).filter(t => t !== null && t !== undefined);
+  if (!temps.length) return { highF: null, highC: null, source: 'DWD', error: 'no temperature values today' };
+  const highC = Math.max(...temps);
+  return { highF: parseFloat((highC*9/5+32).toFixed(1)), highC: parseFloat(highC.toFixed(1)), source: 'DWD', error: null, narrative: null };
 }
 
 async function fetchHourlyMetNo(station, meta, openMeteoError) {

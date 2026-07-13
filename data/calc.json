@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783924469813-i7qc4",
+      "city": "Busan",
+      "strategy": "2",
+      "side": "YES",
+      "bracketLabel": "31°C",
+      "stake": 2,
+      "entryPriceCents": 91,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-13",
+      "openedAt": "2026-07-13T06:34:29.813Z",
+      "settledAt": null
+    },
+    {
       "id": "1783924324568-280t5",
       "city": "Shenzhen",
       "strategy": "1",

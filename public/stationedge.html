@@ -1,40 +1,105 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StationEdge | PolyScan</title>
+<title>StationEdge V3 | PolyScan</title>
 <style>
-:root{--bg:#07100e;--panel:#0f1c18;--line:#263832;--text:#edf6f2;--muted:#91a79f;--green:#4fe08c;--red:#ff7373}
+:root{--bg:#07100e;--panel:#0f1c18;--line:#263832;--text:#edf6f2;--muted:#91a79f;--green:#4fe08c;--red:#ff7373;--amber:#e0b84f}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
-header{padding:18px 4%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}
-header b{font-size:18px}header span,.green{color:var(--green)}header small,p{color:var(--muted)}
-main{max-width:1400px;margin:auto;padding:28px 4%}.top,.row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+header{padding:18px 4%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header b{font-size:18px}header span{color:var(--green)}header small{color:var(--muted)}
+main{max-width:1300px;margin:auto;padding:28px 4%}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
 button{background:var(--green);border:0;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.card,.detail section,.hero{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
-.card{cursor:pointer}.card h2{margin:0 0 4px}.code{color:var(--muted)}.state{font-size:11px;border:1px solid var(--line);padding:6px;border-radius:20px}
-.temp{font-size:34px;font-weight:900;margin:18px 0}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metrics small,small{display:block;color:var(--muted);font-size:10px}.metrics strong{display:block;margin-top:5px}.red{color:var(--red)}
-.eligible{margin-top:16px;padding:8px;text-align:center;border-radius:7px;font-weight:800;font-size:12px}.eligible.yes{background:#143b29;color:var(--green)}.eligible.no{background:#392020;color:var(--red)}
-.hero{display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.detail section{margin-top:14px}.score{font-size:48px;font-weight:900}.line{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:10px 0}
-.table{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}pre{white-space:pre-wrap;color:#cfe0da}.hidden{display:none}
-@media(max-width:700px){.two,.hero{grid-template-columns:1fr}.top{align-items:flex-start}}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.summary .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.summary .card small{display:block;color:var(--muted);font-size:11px;letter-spacing:.03em}
+.summary .card b{display:block;font-size:26px;margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card h2{margin:0 0 2px;font-size:18px}.code{color:var(--muted);font-size:13px}
+.status{font-size:11px;font-weight:800;border-radius:20px;padding:5px 10px;letter-spacing:.03em}
+.status.pending{background:#2a2f19;color:var(--amber)}
+.status.hit{background:#143b29;color:var(--green)}
+.status.miss{background:#392020;color:var(--red)}
+.row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.outcome{background:#0a1512;border:1px solid var(--line);border-radius:9px;padding:12px;text-align:center}
+.outcome small{color:var(--muted);font-size:10px;letter-spacing:.03em}
+.outcome .t{font-size:26px;font-weight:900;margin:6px 0 2px}
+.outcome .p{color:var(--green);font-weight:700;font-size:13px}
+.pair{text-align:center;color:var(--muted);font-size:12px;margin-bottom:10px}
+.pair b{color:var(--text)}
+.resolved{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;font-size:13px}
+.resolved b{color:var(--text)}
+.empty{color:var(--muted);text-align:center;padding:40px}
 </style></head>
-<body><header><b>POLYSCAN <span>STATIONEDGE</span></b><small>Exact-station weather intelligence · WU excluded</small></header>
-<main><div id="list"><div class="top"><div><h1>15 Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button onclick="load()">Refresh</button></div><div id="grid" class="grid"></div></div>
-<div id="detail" class="detail hidden"></div></main>
+<body>
+<header><b>POLYSCAN <span>STATIONEDGE V3</span></b><small>Forward-test engine · results only</small></header>
+<main>
+  <div class="top">
+    <div><h1 style="margin:0 0 4px">Forward-Test Results</h1><p style="margin:0;color:var(--muted)">All 15 stations, one locked prediction per station per day.</p></div>
+    <button onclick="load()">Refresh</button>
+  </div>
+  <div id="summary" class="summary"></div>
+  <div id="grid" class="grid"><p class="empty">Loading…</p></div>
+</main>
 <script>
-const isUS=s=>/^K[A-Z0-9]{3}$/.test(s?.code||'');
-const temp=(v,s)=>Number.isFinite(v)?(isUS(s)?(v*9/5+32).toFixed(1)+'°F':v.toFixed(1)+'°C'):'—';
-const tempPair=(v,s)=>v?v.map(x=>temp(x,s)).join(' / '):'Not available yet';
-const localTime=s=>new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true}).format(new Date());
-const fmt=v=>Number.isFinite(v)?v.toFixed(1)+'°C':'—';
-async function load(){document.getElementById('grid').innerHTML='<p>Loading exact station data…</p>';const r=await fetch('/api/stationedge/stations');const rows=await r.json();window.stationRows=rows;
-document.getElementById('grid').innerHTML=rows.map(s=>`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`).join('')}
-function openStation(code){const s=window.stationRows.find(x=>x.code===code);if(!s||s.error)return;window.currentStationEdgeStation=s;document.getElementById('list').classList.add('hidden');const d=document.getElementById('detail');d.classList.remove('hidden');
-d.innerHTML=`<button onclick="back()">← Dashboard</button><h1>${s.city} — ${s.code}</h1><p>${s.station} · ${s.latest?.source||s.source}</p><div class="line"><span>CURRENT LOCAL TIME</span><b id="localClock">${localTime(s)}</b></div><div class="hero"><div><small>CURRENT</small><div class="temp">${temp(s.latest?.temperatureC,s)}</div></div><div><small>OBSERVED MAX</small><div class="temp">${temp(s.observedMax,s)}</div></div><div><small>STATE</small><h2>${s.state}</h2></div></div>
-${s.highForecast?`<section><h2>Daily High Forecast Engine V2</h2><div class="hero"><div><small>FINAL HIGH FORECAST</small><div class="temp">${temp(s.highForecast.predictedLowC,s)} – ${temp(s.highForecast.predictedHighC,s)}</div></div><div><small>PRIMARY YES BARBELL</small><div class="temp">${tempPair(s.highForecast.primaryOutcomesC,s)}</div></div><div><small>CONFIDENCE</small><div class="temp">${s.highForecast.confidence}%</div></div></div><div class="line"><span>Signal window</span><b>${s.highForecast.signalWindow}</b></div><div class="line"><span>Forecast validation</span><b>${s.highForecast.validation.score}% · ${s.highForecast.validation.status}</b></div><div class="line"><span>Forecast drift</span><b>${s.highForecast.driftC>0?'+':''}${s.highForecast.driftC}°C · ${s.highForecast.driftStatus}</b></div><div class="line"><span>Initial 11:00 signal</span><b>${s.highForecast.initialSignalOutcomesC?tempPair(s.highForecast.initialSignalOutcomesC,s):'Not available yet'}</b></div><div class="line"><span>Heating track</span><b>${s.highForecast.heatingTrack}</b></div><div class="line"><span>Official TAF TX anchor</span><b>${s.highForecast.officialForecastHighC??'Not published'}</b></div><h3>Temperature Probability Ladder</h3><div class="table"><table><tr><th>Outcome</th><th>Model probability</th><th>Scanner classification</th></tr>${s.highForecast.probabilityLadder.map(x=>`<tr><td>${temp(x.temperatureC,s)}</td><td>${x.probability}%</td><td>${x.classification}</td></tr>`).join('')}</table></div><h3>Forecast Validation</h3>${s.highForecast.validation.checks.map(x=>`<div class="line"><span>${x.name}</span><b class="${x.ok?'green':'red'}">${x.ok?'SUPPORTED':'WARNING'} · ${x.detail}</b></div>`).join('')}</section>`:''}
-<div class="two"><section><h2>Stability Scanner</h2><div class="score ${s.stability>=70?'green':'red'}">${s.stability}%</div>${Object.entries(s.stabilityParts).map(([k,v])=>`<div class="line"><span>${k}</span><b>${v}%</b></div>`).join('')}</section>
-<section><h2>Pattern Day</h2><div class="score ${s.pattern>=70?'green':'red'}">${s.pattern}%</div><div class="line"><span>Dominant pattern</span><b>${s.patternParts.dominant}</b></div><div class="line"><span>Observed regime changes</span><b>${s.patternParts.changes}</b></div><div class="line"><span>Forecast transition markers</span><b>${s.patternParts.markers}</b></div></section></div>
-<section><h2>Exact-station curve</h2><div class="table"><table><tr><th>UTC</th><th>Temp</th><th>Dew point</th><th>Humidity</th><th>Wind kt</th><th>Clouds</th><th>Weather</th></tr>${s.observations.slice().reverse().map(o=>`<tr><td>${new Date(o.observedAt).toISOString().slice(5,16).replace('T',' ')}</td><td>${o.temperatureC??'—'}</td><td>${o.dewpointC?.toFixed?.(1)??'—'}</td><td>${o.humidityPct??'—'}</td><td>${o.windSpeedKt??'—'}</td><td>${o.clouds||'—'}</td><td>${o.weather||'—'}</td></tr>`).join('')}</table></div></section>
-<section><h2>Official forecast layer</h2><pre>${s.forecast||'No forecast returned for this station.'}</pre></section>`}
-function back(){document.getElementById('detail').classList.add('hidden');document.getElementById('list').classList.remove('hidden')}
+const isUS = code => /^K[A-Z0-9]{3}$/.test(code || '');
+function fmtTemp(v, unit) {
+  if (!Number.isFinite(v)) return '—';
+  return `${v}°${unit || (isUS ? 'F' : 'C')}`;
+}
+function statusClass(r) {
+  if (r === 'HIT') return 'hit';
+  if (r === 'MISS') return 'miss';
+  return 'pending';
+}
+function statusLabel(r) {
+  return r === 'HIT' ? 'HIT' : r === 'MISS' ? 'MISS' : 'PENDING';
+}
+
+async function load() {
+  document.getElementById('grid').innerHTML = '<p class="empty">Loading…</p>';
+  document.getElementById('summary').innerHTML = '';
+  let data;
+  try {
+    const r = await fetch('/api/stationedge/audit');
+    data = await r.json();
+    if (data.error) throw new Error(data.error);
+  } catch (e) {
+    document.getElementById('grid').innerHTML = `<p class="empty">Could not load results: ${e.message}</p>`;
+    return;
+  }
+
+  document.getElementById('summary').innerHTML = `
+    <div class="card"><small>TOTAL PREDICTIONS</small><b>${data.totalPredictions}</b></div>
+    <div class="card"><small>RESOLVED</small><b>${data.resolvedPredictions}</b></div>
+    <div class="card"><small>PAIR HIT RATE</small><b>${data.pairHitRate === null ? '—' : data.pairHitRate + '%'}</b></div>
+    <div class="card"><small>AVERAGE ERROR</small><b>${data.averageError === null ? '—' : data.averageError + '°'}</b></div>
+  `;
+
+  if (!data.records || !data.records.length) {
+    document.getElementById('grid').innerHTML = '<p class="empty">No predictions locked yet. StationEdge locks one prediction per station between 11:00–12:59 local station time.</p>';
+    return;
+  }
+
+  document.getElementById('grid').innerHTML = data.records.map(rec => {
+    const unit = rec.display_unit || (isUS(rec.station_code) ? 'F' : 'C');
+    const resolvedBlock = rec.result === 'HIT' || rec.result === 'MISS'
+      ? `<div class="resolved"><span>ACTUAL HIGH</span><b>${fmtTemp(rec.actual_high, unit)}</b></div>
+         <div class="resolved"><span>FORECAST ERROR</span><b>${Number.isFinite(rec.forecast_error) ? rec.forecast_error + '°' : '—'}</b></div>`
+      : '';
+    return `<div class="card">
+      <div class="row"><div><h2>${rec.city}</h2><div class="code">${rec.station_code} · ${rec.forecast_date}</div></div>
+      <span class="status ${statusClass(rec.result)}">${statusLabel(rec.result)}</span></div>
+      <div class="outcomes">
+        <div class="outcome"><small>OUTCOME 1</small><div class="t">${fmtTemp(rec.outcome_one, unit)}</div><div class="p">${Number.isFinite(rec.outcome_one_probability) ? rec.outcome_one_probability + '%' : '—'}</div></div>
+        <div class="outcome"><small>OUTCOME 2</small><div class="t">${fmtTemp(rec.outcome_two, unit)}</div><div class="p">${Number.isFinite(rec.outcome_two_probability) ? rec.outcome_two_probability + '%' : '—'}</div></div>
+      </div>
+      <div class="pair">PAIR COVERAGE: <b>${Number.isFinite(rec.pair_probability) ? rec.pair_probability + '%' : '—'}</b></div>
+      ${resolvedBlock}
+    </div>`;
+  }).join('');
+}
 load();
-setInterval(()=>{const el=document.getElementById('localClock');if(el&&window.currentStationEdgeStation)el.textContent=localTime(window.currentStationEdgeStation);},1000);
-</script></body></html>
+</script>
+</body></html>

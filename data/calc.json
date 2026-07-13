@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1783941067483-ir1yp",
+      "city": "Helsinki",
+      "strategy": "1",
+      "side": "NO",
+      "bracketLabel": "24°C",
+      "stake": 5,
+      "entryPriceCents": 94,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-13",
+      "openedAt": "2026-07-13T11:11:07.483Z",
+      "settledAt": null
+    },
+    {
       "id": "1783940132160-k4moy",
       "city": "Lucknow",
       "strategy": "2",

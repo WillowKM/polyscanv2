@@ -61,11 +61,13 @@
       "stake": 3.86,
       "entryPriceCents": 34,
       "session": null,
-      "status": "open",
+      "status": "LOSS",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-13",
       "openedAt": "2026-07-13T16:23:44.817Z",
-      "settledAt": null
+      "settledAt": "2026-07-13T19:03:17.159Z",
+      "profit": -3.86,
+      "autoResolved": true
     },
     {
       "id": "1783958423205-kyo3o",

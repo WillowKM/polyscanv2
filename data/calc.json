@@ -47,11 +47,12 @@
       "stake": 5,
       "entryPriceCents": 94,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-13",
       "openedAt": "2026-07-13T10:55:10.629Z",
-      "settledAt": null
+      "settledAt": "2026-07-13T13:37:01.621Z",
+      "profit": 0.3191
     },
     {
       "id": "1783924551369-kao5k",

@@ -1534,6 +1534,162 @@ app.post('/weather/batch', async (req, res) => {
   res.json(out);
 });
 
+
+// ── STATIONEDGE V1 ──────────────────────────────────────────────────────────
+// Separate page and API. This does not use Weather Underground and does not
+// alter the calculator. Phase 1 reads exact station observations from the
+// NOAA Aviation Weather Center, with HKO official open data for Hong Kong.
+const STATIONEDGE_STATIONS = {
+  HKO:  { city:'Hong Kong',     station:'Hong Kong Observatory', tz:'Asia/Hong_Kong', source:'hko' },
+  NZWN: { city:'Wellington',    station:'Wellington Intl',       tz:'Pacific/Auckland', source:'metar' },
+  RJTT: { city:'Tokyo',         station:'Haneda Airport',        tz:'Asia/Tokyo', source:'metar' },
+  RKSI: { city:'Seoul',         station:'Incheon Intl',          tz:'Asia/Seoul', source:'metar' },
+  RKPK: { city:'Busan',         station:'Gimhae Intl',           tz:'Asia/Seoul', source:'metar' },
+  EGLC: { city:'London',        station:'London City Airport',   tz:'Europe/London', source:'metar' },
+  EDDM: { city:'Munich',        station:'Munich Airport',        tz:'Europe/Berlin', source:'metar' },
+  EHAM: { city:'Amsterdam',     station:'Schiphol Airport',      tz:'Europe/Amsterdam', source:'metar' },
+  EFHK: { city:'Helsinki',      station:'Helsinki-Vantaa',       tz:'Europe/Helsinki', source:'metar' },
+  KLGA: { city:'New York',      station:'LaGuardia Airport',     tz:'America/New_York', source:'metar' },
+  KLAX: { city:'Los Angeles',   station:'Los Angeles Intl',      tz:'America/Los_Angeles', source:'metar' },
+  KSFO: { city:'San Francisco', station:'San Francisco Intl',    tz:'America/Los_Angeles', source:'metar' },
+  KSEA: { city:'Seattle',       station:'Seattle-Tacoma Intl',   tz:'America/Los_Angeles', source:'metar' },
+  LLBG: { city:'Tel Aviv',      station:'Ben Gurion Airport',    tz:'Asia/Jerusalem', source:'metar' },
+  LTFM: { city:'Istanbul',      station:'Istanbul Airport',      tz:'Europe/Istanbul', source:'metar' },
+};
+const STATIONEDGE_CACHE = {};
+const STATIONEDGE_TTL = 5 * 60 * 1000;
+
+function seNum(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+function seSpreadScore(values, good, bad) {
+  const a = values.filter(v => Number.isFinite(v));
+  if (a.length < 3) return 50;
+  const spread = Math.max(...a) - Math.min(...a);
+  if (spread <= good) return 100;
+  if (spread >= bad) return 0;
+  return Math.round(100 * (bad - spread) / (bad - good));
+}
+function seRegime(o) {
+  const wx = String(o.weather || '').toUpperCase();
+  const cloud = String(o.clouds || '').toUpperCase();
+  if (/(TS|SH|RA|DZ)/.test(wx)) return 'RAIN';
+  if (/(FG|BR)/.test(wx)) return 'FOG/MIST';
+  if (/(OVC|BKN)/.test(cloud)) return 'CLOUDY';
+  if (/SCT/.test(cloud)) return 'PARTLY CLOUDY';
+  if (/(FEW|SKC|CLR)/.test(cloud)) return 'CLEAR';
+  return 'UNKNOWN';
+}
+function seScores(obs, forecast='') {
+  const recent = obs.slice(-12);
+  const stabilityParts = {
+    dewpoint: seSpreadScore(recent.slice(-8).map(o => o.dewpointC), 1, 6),
+    humidity: seSpreadScore(recent.slice(-8).map(o => o.humidityPct), 8, 35),
+    pressure: seSpreadScore(recent.slice(-8).map(o => o.pressureHpa), 2, 10),
+    wind: seSpreadScore(recent.slice(-8).map(o => o.windSpeedKt), 5, 25),
+  };
+  const stability = Math.round(Object.values(stabilityParts).reduce((a,b)=>a+b,0)/4);
+  const regimes = recent.map(seRegime).filter(x => x !== 'UNKNOWN');
+  let changes = 0;
+  for (let i=1;i<regimes.length;i++) if (regimes[i] !== regimes[i-1]) changes++;
+  const markers = (String(forecast).match(/\b(TEMPO|BECMG|PROB\d*)\b/g) || []).length;
+  const pattern = regimes.length ? Math.max(0, 100 - changes*12 - Math.min(markers,4)*7) : 50;
+  const dominant = regimes.length
+    ? [...new Set(regimes)].sort((a,b)=>regimes.filter(x=>x===b).length-regimes.filter(x=>x===a).length)[0]
+    : 'UNKNOWN';
+  return { stability, stabilityParts, pattern, patternParts:{ dominant, changes, markers } };
+}
+function seState(meta, obs) {
+  const hour = Number(new Intl.DateTimeFormat('en-GB', {timeZone:meta.tz, hour:'2-digit', hour12:false}).format(new Date()));
+  if (hour < 9) return 'TOO EARLY';
+  if (hour < 11) return 'BUILDING';
+  if (hour >= 17) return 'TOO LATE';
+  const temps = obs.slice(-4).map(o=>o.temperatureC).filter(Number.isFinite);
+  if (temps.length >= 3) {
+    const delta = temps.at(-1) - temps[0];
+    if (delta > 0.5) return 'TRADE WINDOW';
+    if (delta <= -0.5) return 'PEAK RISK';
+  }
+  return 'PEAK APPROACH';
+}
+async function seFetchMetar(code) {
+  const url = `https://aviationweather.gov/api/data/metar?ids=${encodeURIComponent(code)}&format=json&hours=24`;
+  const r = await fetch(url, { headers:{'User-Agent':'PolyScan-StationEdge/1.0'} });
+  if (!r.ok) throw new Error(`AWC METAR ${code}: HTTP ${r.status}`);
+  const rows = await r.json();
+  return rows.map(x => {
+    const temp = seNum(x.temp), dew = seNum(x.dewp);
+    let rh = null;
+    if (temp !== null && dew !== null) {
+      rh = Math.round(100 * Math.exp((17.625*dew)/(243.04+dew) - (17.625*temp)/(243.04+temp)));
+    }
+    return {
+      observedAt: new Date((seNum(x.obsTime) || Date.now()/1000) * 1000).toISOString(),
+      temperatureC: temp, dewpointC: dew, humidityPct: rh,
+      pressureHpa: seNum(x.altim), windDirDeg: seNum(x.wdir), windSpeedKt: seNum(x.wspd),
+      clouds: Array.isArray(x.clouds) ? x.clouds.map(c=>`${c.cover||''}${c.base||''}`).join(' ') : '',
+      weather: x.wxString || '', raw: x.rawOb || '', source:'NOAA AWC METAR'
+    };
+  }).sort((a,b)=>new Date(a.observedAt)-new Date(b.observedAt));
+}
+async function seFetchTaf(code) {
+  const r = await fetch(`https://aviationweather.gov/api/data/taf?ids=${encodeURIComponent(code)}&format=json`, { headers:{'User-Agent':'PolyScan-StationEdge/1.0'} });
+  if (!r.ok) return '';
+  const rows = await r.json();
+  return rows?.[0]?.rawTAF || '';
+}
+function seDewpoint(temp, rh) {
+  if (!Number.isFinite(temp) || !Number.isFinite(rh) || rh <= 0) return null;
+  const a=17.625,b=243.04, alpha=Math.log(rh/100)+(a*temp)/(b+temp);
+  return b*alpha/(a-alpha);
+}
+async function seFetchHko() {
+  const base='https://data.weather.gov.hk/weatherAPI/opendata/weather.php';
+  const r=await fetch(`${base}?dataType=rhrread&lang=en`);
+  if (!r.ok) throw new Error(`HKO current: HTTP ${r.status}`);
+  const x=await r.json();
+  const find=(rows,name)=>seNum((rows||[]).find(v=>v.place===name)?.value);
+  const temp=find(x.temperature?.data,'Hong Kong Observatory');
+  const rh=find(x.humidity?.data,'Hong Kong Observatory');
+  const obs=[{
+    observedAt:x.updateTime || new Date().toISOString(), temperatureC:temp,
+    dewpointC:seDewpoint(temp,rh), humidityPct:rh, pressureHpa:null,
+    windDirDeg:null, windSpeedKt:null, clouds:'', weather:'', raw:JSON.stringify(x),
+    source:'HKO Open Data'
+  }];
+  const fr=await fetch(`${base}?dataType=flw&lang=en`);
+  const fx=fr.ok ? await fr.json() : {};
+  const forecast=[fx.generalSituation,fx.forecastDesc,fx.outlook].filter(Boolean).join(' | ');
+  return {obs, forecast};
+}
+async function seStation(code) {
+  const meta=STATIONEDGE_STATIONS[code];
+  if (!meta) throw new Error('Unknown StationEdge station');
+  const cached=STATIONEDGE_CACHE[code];
+  if (cached && Date.now()-cached.ts < STATIONEDGE_TTL) return cached.data;
+  let obs=[], forecast='';
+  if (meta.source === 'hko') ({obs,forecast}=await seFetchHko());
+  else { obs=await seFetchMetar(code); forecast=await seFetchTaf(code); }
+  const scores=seScores(obs,forecast);
+  const temps=obs.map(o=>o.temperatureC).filter(Number.isFinite);
+  const data={code,...meta, observations:obs, forecast, latest:obs.at(-1)||null,
+    observedMax:temps.length?Math.max(...temps):null, ...scores,
+    tradeable:scores.stability>=70 && scores.pattern>=70, state:seState(meta,obs)};
+  STATIONEDGE_CACHE[code]={ts:Date.now(),data};
+  return data;
+}
+app.get('/stationedge', (req,res) => res.sendFile(path.join(__dirname,'public','stationedge.html')));
+app.get('/api/stationedge/stations', async (req,res) => {
+  const codes=Object.keys(STATIONEDGE_STATIONS);
+  const settled=await Promise.allSettled(codes.map(seStation));
+  res.json(settled.map((x,i)=>x.status==='fulfilled'?x.value:{code:codes[i],...STATIONEDGE_STATIONS[codes[i]],error:x.reason?.message||'failed'}));
+});
+app.get('/api/stationedge/station/:code', async (req,res) => {
+  try { res.json(await seStation(String(req.params.code).toUpperCase())); }
+  catch(e) { res.status(500).json({error:e.message}); }
+});
+
 app.get('/health', (req, res) => {
   res.json({ status:'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length, polyCached: Object.keys(POLY_CACHE).length });
 });

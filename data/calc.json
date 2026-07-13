@@ -31,11 +31,13 @@
       "stake": 2,
       "entryPriceCents": 91,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-13",
       "openedAt": "2026-07-13T06:34:29.813Z",
-      "settledAt": null
+      "settledAt": "2026-07-13T09:09:25.944Z",
+      "profit": 0.1978,
+      "autoResolved": true
     },
     {
       "id": "1783924324568-280t5",
@@ -46,11 +48,13 @@
       "stake": 2,
       "entryPriceCents": 94,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-13",
       "openedAt": "2026-07-13T06:32:04.568Z",
-      "settledAt": null
+      "settledAt": "2026-07-13T09:09:25.944Z",
+      "profit": 0.1277,
+      "autoResolved": true
     },
     {
       "id": "1783924312253-43eot",
@@ -61,11 +65,13 @@
       "stake": 2,
       "entryPriceCents": 94,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-13",
       "openedAt": "2026-07-13T06:31:52.253Z",
-      "settledAt": null
+      "settledAt": "2026-07-13T09:09:25.944Z",
+      "profit": 0.1277,
+      "autoResolved": true
     },
     {
       "id": "1783771064831-1vg3v",

@@ -289,6 +289,19 @@ function localTime(tz) {
   catch(e) { return '--'; }
 }
 
+// Peak window (11am-4pm local) — the highest-uncertainty hours where the
+// day's actual high is still being decided. Pre-peak = too early to trust
+// any reading; In-peak = the critical window, watch closely; Post-peak =
+// today's high is very likely already locked in, favors Strategy 2.
+function peakWindow(tz) {
+  try {
+    const hour = parseInt(new Date().toLocaleTimeString('en-US', { timeZone: tz, hour:'numeric', hour12:false }), 10);
+    if (hour < 11) return { label: 'Pre-Peak', cls: 'grey' };
+    if (hour <= 16) return { label: 'In-Peak', cls: 'orange' };
+    return { label: 'Post-Peak', cls: 'green' };
+  } catch(e) { return { label: '—', cls: 'grey' }; }
+}
+
 // ── DAILY TARGET ─────────────────────────────────────────────────────────
 async function loadCalcState() {
   const res = await fetch('/calc/state');
@@ -743,6 +756,9 @@ function renderScanner(polyData, wxData) {
     const aActive = OPEN_TRADE_CITIES.has(a.city.name) ? 0 : 1;
     const bActive = OPEN_TRADE_CITIES.has(b.city.name) ? 0 : 1;
     if (aActive !== bActive) return aActive - bActive;
+    const aPeak = peakWindow(a.city.tz).label === 'In-Peak' ? 0 : 1;
+    const bPeak = peakWindow(b.city.tz).label === 'In-Peak' ? 0 : 1;
+    if (aPeak !== bPeak) return aPeak - bPeak;
     const aGreen = a.stability && a.stability.score === 'green' ? 0 : 1;
     const bGreen = b.stability && b.stability.score === 'green' ? 0 : 1;
     return aGreen - bGreen;
@@ -780,6 +796,7 @@ function renderScanner(polyData, wxData) {
       : sq === 'weak' ? `<span class="pill orange">⚠ WEAK — model-based</span>`
       : `<span class="pill red">⚠ POOR — model-based only</span>`;
 
+    const pw = peakWindow(r.city.tz);
     const portfolio = SUMMARY && SUMMARY.portfolio ? SUMMARY.portfolio : 0;
     const pctAt1Dollar = (priceCents) => portfolio > 0
       ? ` <span class="muted" style="font-size:9.5px;">(${((100/priceCents - 1) / portfolio * 100).toFixed(2)}%)</span>`
@@ -846,7 +863,7 @@ function renderScanner(polyData, wxData) {
       </tr>` : '';
 
     return `<tr class="${rowClass}" style="cursor:pointer;" onclick="document.getElementById('${detailId}').style.display = document.getElementById('${detailId}').style.display==='none'?'table-row':'none'">
-      <td class="city-cell">${r.city.name}${OPEN_TRADE_CITIES.has(r.city.name) ? ' <span class="pill green" style="font-size:9px;">● ACTIVE TRADE</span>' : ''}<div class="local-time">${localTime(r.city.tz)} local</div></td>
+      <td class="city-cell">${r.city.name}${OPEN_TRADE_CITIES.has(r.city.name) ? ' <span class="pill green" style="font-size:9px;">● ACTIVE TRADE</span>' : ''}<div class="local-time">${localTime(r.city.tz)} local <span class="pill ${pw.cls}" style="font-size:8.5px;padding:1px 5px;">${pw.label}</span></div></td>
       <td>${stabPill}</td>
       <td>${patternPill}</td>
       <td>${sourcePill}</td>

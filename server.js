@@ -1846,6 +1846,234 @@ async function seStation(code) {
   STATIONEDGE_CACHE[code]={ts:Date.now(),data};
   return data;
 }
+// ── STATIONEDGE V3 — FORWARD-TEST PREDICTION ENGINE ────────────────────────
+// V3 does not replace the V2 research engine above (that keeps running
+// untouched, writing model_version:'V2' rows). V3 is a separate, simplified
+// layer: it reduces the same internal engine's output down to exactly two
+// temperature outcomes with probabilities, locks ONE prediction per
+// station/day between 11:00–12:59 local station time (regardless of
+// stability/pattern scores — we want ALL 15 cities forward-tested), and
+// later resolves it against the actual observed high.
+const SE_V3_MODEL_VERSION = 'V3-FORWARD';
+
+// Accumulates HKO's daily high in-memory across sweeps, since the HKO Open
+// Data feed only returns the CURRENT reading (no historical series like
+// METAR does). This is a best-effort stand-in until a dedicated HKO
+// historical scraper exists — it resets on server restart, same tradeoff as
+// the existing DAILY_HIGHS tracker elsewhere in this file.
+const SE_HKO_DAILY = {}; // { 'YYYY-MM-DD': { maxC, lastObservedAt } }
+
+function seIsUsStation(code) {
+  return /^K[A-Z0-9]{3}$/.test(code || '');
+}
+function seNativeUnit(code) {
+  return seIsUsStation(code) ? 'F' : 'C';
+}
+function seToNative(tempC, unit) {
+  if (!Number.isFinite(tempC)) return null;
+  return unit === 'F' ? Math.round(tempC * 9 / 5 + 32) : Math.round(tempC);
+}
+
+// Reduces the existing internal forecast engine's output (probability
+// ladder, primary barbell pair) to exactly two native-unit outcomes with
+// probabilities. All the dew point / cloud / TAF / pattern analysis stays
+// internal — this is the only place V3 looks at it, and only to read the
+// two numbers it needs.
+function seBuildV3Outcomes(data) {
+  const hf = data.highForecast;
+  if (!hf || !Array.isArray(hf.primaryOutcomesC) || hf.primaryOutcomesC.length < 2) return null;
+  const unit = seNativeUnit(data.code);
+  const [c1, c2] = hf.primaryOutcomesC;
+  const findProb = (tC) => hf.probabilityLadder?.find(x => x.temperatureC === tC)?.probability ?? null;
+  let outcomeOne = seToNative(c1, unit);
+  let outcomeTwo = seToNative(c2, unit);
+  if (outcomeOne === null || outcomeTwo === null) return null;
+  if (outcomeOne === outcomeTwo) outcomeTwo += 1; // unit conversion collapsed two Celsius steps into one native step
+  return {
+    unit,
+    outcomeOne, outcomeTwo,
+    outcomeOneProbability: findProb(c1),
+    outcomeTwoProbability: findProb(c2),
+    pairProbability: hf.pairProbability ?? null,
+  };
+}
+
+async function seSupabaseRequest(pathAndQuery, options = {}) {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return null;
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${pathAndQuery}`, {
+    ...options,
+    headers: {
+      apikey: SUPABASE_SECRET_KEY,
+      Authorization: `Bearer ${SUPABASE_SECRET_KEY}`,
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+  });
+  if (!r.ok) {
+    console.error('[StationEdge V3] Supabase request failed:', r.status, await r.text());
+    return null;
+  }
+  const text = await r.text();
+  return text ? JSON.parse(text) : true;
+}
+
+// Locks the first V3 prediction for a station/day. Relies on the same
+// (station_code, forecast_date, model_version) unique constraint as V2 —
+// Prefer: resolution=ignore-duplicates means a second attempt later in the
+// 11:00–12:59 window (or from another sweep) is silently dropped, never
+// overwriting the locked row. No stability/pattern gate: every station is
+// forward-tested every day.
+async function seLockV3Prediction(data) {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return false;
+  const meta = STATIONEDGE_STATIONS[data.code];
+  if (!meta) return false;
+  const localHour = seLocalHour(meta);
+  if (localHour < 11 || localHour >= 13) return false;
+
+  const outcomes = seBuildV3Outcomes(data);
+  if (!outcomes) return false;
+
+  const row = {
+    station_code: data.code,
+    city: data.city,
+    forecast_date: data.localDay,
+    local_signal_time: `${String(localHour).padStart(2, '0')}:00`,
+    model_version: SE_V3_MODEL_VERSION,
+    display_unit: outcomes.unit,
+    outcome_one: outcomes.outcomeOne,
+    outcome_two: outcomes.outcomeTwo,
+    outcome_one_probability: outcomes.outcomeOneProbability,
+    outcome_two_probability: outcomes.outcomeTwoProbability,
+    pair_probability: outcomes.pairProbability,
+    result: null,
+  };
+
+  const res = await seSupabaseRequest(
+    `stationedge_forecasts?on_conflict=station_code,forecast_date,model_version`,
+    {
+      method: 'POST',
+      headers: { Prefer: 'resolution=ignore-duplicates' },
+      body: JSON.stringify(row),
+    }
+  );
+  if (res) console.log(`[StationEdge V3] Locked ${data.city} ${data.code} ${data.localDay} — ${outcomes.outcomeOne}/${outcomes.outcomeTwo}${outcomes.unit}`);
+  return !!res;
+}
+
+// Pulls the direct-station actual high for a given local calendar day.
+// METAR stations: filter the already-fetched 24h observation window to that
+// local date and take the max. HKO: use the in-memory daily accumulator
+// (see note above — best-effort until a dedicated historical scraper).
+async function seActualHighC(code, forecastDate) {
+  const meta = STATIONEDGE_STATIONS[code];
+  if (!meta) return null;
+  if (meta.source === 'hko') {
+    return SE_HKO_DAILY[forecastDate]?.maxC ?? null;
+  }
+  const obs = await seFetchMetar(code);
+  const localDayKey = (dateValue) => new Intl.DateTimeFormat('en-CA', {
+    timeZone: meta.tz, year: 'numeric', month: '2-digit', day: '2-digit'
+  }).format(new Date(dateValue));
+  const dayTemps = obs.filter(o => localDayKey(o.observedAt) === forecastDate)
+    .map(o => o.temperatureC).filter(Number.isFinite);
+  return dayTemps.length ? Math.max(...dayTemps) : null;
+}
+
+// Resolves any locked-but-unresolved V3 predictions once it's safe to do so
+// (station's local day has moved past the forecast date, or it's late —
+// 20:00+ local — in the forecast date itself, i.e. well after the normal
+// daily-high peak).
+async function seResolveV3Predictions() {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return;
+  const pending = await seSupabaseRequest(
+    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=is.null&select=station_code,city,forecast_date,outcome_one,outcome_two,display_unit`
+  );
+  if (!Array.isArray(pending) || !pending.length) return;
+
+  for (const row of pending) {
+    try {
+      const meta = STATIONEDGE_STATIONS[row.station_code];
+      if (!meta) continue;
+      const todayLocal = new Intl.DateTimeFormat('en-CA', { timeZone: meta.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+      const localHour = seLocalHour(meta);
+      const dayHasPassed = todayLocal !== row.forecast_date;
+      const lateInDay = todayLocal === row.forecast_date && localHour >= 20;
+      if (!dayHasPassed && !lateInDay) continue;
+
+      const actualC = await seActualHighC(row.station_code, row.forecast_date);
+      if (actualC === null) continue; // data not available yet — retry next sweep
+
+      const unit = row.display_unit || seNativeUnit(row.station_code);
+      const actualNative = seToNative(actualC, unit);
+      const result = (actualNative === row.outcome_one || actualNative === row.outcome_two) ? 'HIT' : 'MISS';
+      const error = Math.min(Math.abs(actualNative - row.outcome_one), Math.abs(actualNative - row.outcome_two));
+
+      await seSupabaseRequest(
+        `stationedge_forecasts?station_code=eq.${encodeURIComponent(row.station_code)}&forecast_date=eq.${encodeURIComponent(row.forecast_date)}&model_version=eq.${SE_V3_MODEL_VERSION}`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({
+            actual_high: actualNative,
+            result,
+            forecast_error: error,
+            resolved_at: new Date().toISOString(),
+          }),
+        }
+      );
+      console.log(`[StationEdge V3] Resolved ${row.city} ${row.station_code} ${row.forecast_date} — ${result} (actual ${actualNative}${unit}, error ${error})`);
+    } catch (e) {
+      console.error(`[StationEdge V3] Resolve failed for ${row.station_code}:`, e.message);
+    }
+  }
+}
+
+// One pass over all 15 stations: track HKO's running daily high, then
+// attempt to lock a V3 prediction if we're in the signal window.
+async function seV3Sweep() {
+  for (const code of Object.keys(STATIONEDGE_STATIONS)) {
+    try {
+      const data = await seStation(code);
+      if (STATIONEDGE_STATIONS[code].source === 'hko' && Number.isFinite(data.latest?.temperatureC)) {
+        const key = data.localDay;
+        const prev = SE_HKO_DAILY[key]?.maxC;
+        SE_HKO_DAILY[key] = { maxC: prev === undefined ? data.latest.temperatureC : Math.max(prev, data.latest.temperatureC), lastObservedAt: data.latest.observedAt };
+        // Trim old days so this doesn't grow forever.
+        for (const k of Object.keys(SE_HKO_DAILY)) if (k !== key) delete SE_HKO_DAILY[k];
+      }
+      await seLockV3Prediction(data);
+    } catch (e) {
+      console.error(`[StationEdge V3] Sweep failed for ${code}:`, e.message);
+    }
+  }
+  await seResolveV3Predictions();
+}
+
+app.get('/api/stationedge/audit', async (req, res) => {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
+    return res.status(503).json({ error: 'Supabase not configured' });
+  }
+  const rows = await seSupabaseRequest(
+    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&select=*&order=forecast_date.desc,city.asc`
+  );
+  if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load StationEdge audit data' });
+
+  const resolved = rows.filter(r => r.result === 'HIT' || r.result === 'MISS');
+  const hits = resolved.filter(r => r.result === 'HIT').length;
+  const misses = resolved.filter(r => r.result === 'MISS').length;
+  const errors = resolved.map(r => r.forecast_error).filter(Number.isFinite);
+  const avgError = errors.length ? errors.reduce((a, b) => a + b, 0) / errors.length : null;
+
+  res.json({
+    totalPredictions: rows.length,
+    resolvedPredictions: resolved.length,
+    hits,
+    misses,
+    pairHitRate: resolved.length ? Math.round((hits / resolved.length) * 100) : null,
+    averageError: avgError === null ? null : Math.round(avgError * 100) / 100,
+    records: rows,
+  });
+});
+
 app.get('/stationedge', (req,res) => res.sendFile(path.join(__dirname,'public','stationedge.html')));
 app.get('/api/stationedge/stations', async (req,res) => {
   const codes=Object.keys(STATIONEDGE_STATIONS);
@@ -1866,6 +2094,18 @@ setTimeout(() => seResearchSweep().catch(e =>
 
 setInterval(() => seResearchSweep().catch(e =>
   console.error('[StationEdge Research] Scheduled sweep failed:', e.message)
+), 15 * 60 * 1000);
+
+// StationEdge V3 forward-test engine — separate schedule, offset from the V2
+// sweep above so the two don't hammer the upstream APIs at the exact same
+// second. Runs all 15 stations, locks predictions in the 11:00–12:59 local
+// window, and resolves any predictions whose station-day has ended.
+setTimeout(() => seV3Sweep().catch(e =>
+  console.error('[StationEdge V3] Initial sweep failed:', e.message)
+), 45 * 1000);
+
+setInterval(() => seV3Sweep().catch(e =>
+  console.error('[StationEdge V3] Scheduled sweep failed:', e.message)
 ), 15 * 60 * 1000);
 
 app.get('/health', (req, res) => {

@@ -1671,11 +1671,18 @@ async function seStation(code) {
   let obs=[], forecast='';
   if (meta.source === 'hko') ({obs,forecast}=await seFetchHko());
   else { obs=await seFetchMetar(code); forecast=await seFetchTaf(code); }
-  const scores=seScores(obs,forecast);
-  const temps=obs.map(o=>o.temperatureC).filter(Number.isFinite);
-  const data={code,...meta, observations:obs, forecast, latest:obs.at(-1)||null,
-    observedMax:temps.length?Math.max(...temps):null, ...scores,
-    tradeable:scores.stability>=70 && scores.pattern>=70, state:seState(meta,obs)};
+  // Use only the station's current LOCAL calendar day for daily-high analysis.
+  const localDayKey = (dateValue) => new Intl.DateTimeFormat('en-CA', {
+    timeZone: meta.tz, year:'numeric', month:'2-digit', day:'2-digit'
+  }).format(new Date(dateValue));
+  const todayKey = localDayKey(new Date());
+  const todayObs = obs.filter(o => localDayKey(o.observedAt) === todayKey);
+
+  const scores=seScores(todayObs,forecast);
+  const temps=todayObs.map(o=>o.temperatureC).filter(Number.isFinite);
+  const data={code,...meta, observations:todayObs, forecast, latest:todayObs.at(-1)||null,
+    observedMax:temps.length?Math.max(...temps):null, localDay:todayKey, ...scores,
+    tradeable:scores.stability>=70 && scores.pattern>=70, state:seState(meta,todayObs)};
   STATIONEDGE_CACHE[code]={ts:Date.now(),data};
   return data;
 }

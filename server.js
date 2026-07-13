@@ -1678,58 +1678,57 @@ function seForecastTemps(forecast) {
   }
   return vals.filter(Number.isFinite);
 }
-function seHighForecast(meta, obs, forecast, scores) {
-  const temps = obs.map(o=>o.temperatureC).filter(Number.isFinite);
-  if (!temps.length) return null;
-
-  const current = temps.at(-1);
-  const observedMax = Math.max(...temps);
-  const recent = temps.slice(-4);
-  const rise = recent.length > 1 ? recent.at(-1)-recent[0] : 0;
-  const hour = seLocalHour(meta);
-  const tafHighs = seForecastTemps(forecast);
-  const tafHigh = tafHighs.length ? Math.max(...tafHighs) : null;
-  const latest = obs.at(-1) || {};
-  const regime = seRegime(latest);
-
-  // Remaining-heating estimate. Exact-station trend is primary; official TAF
-  // TX is a forecast anchor only when the station publishes one.
-  let remaining = hour < 9 ? 4 : hour < 11 ? 3 : hour < 13 ? 2 : hour < 15 ? 1 : 0;
-  if (rise > 1.5) remaining += 1;
-  if (rise < 0) remaining -= 0.5;
-  if (['CLOUDY','RAIN','FOG/MIST'].includes(regime)) remaining -= 0.75;
-  if (Number.isFinite(latest.humidityPct) && latest.humidityPct >= 80) remaining -= 0.5;
-  remaining = Math.max(0, remaining);
-
-  let centre = Math.max(observedMax, current + remaining);
-  if (tafHigh !== null) centre = centre*0.65 + tafHigh*0.35;
-  centre = Math.max(observedMax, centre);
-
-  const low = Math.max(Math.round(observedMax), Math.floor(centre));
-  const high = Math.max(low+1, Math.ceil(centre));
-  const outcomes = [low, high];
-
-  let confidence = Math.round(scores.stability*0.45 + scores.pattern*0.45 + (tafHigh!==null?10:3));
-  if (hour < 8) confidence -= 12;
-  if (rise > 2) confidence -= 5;
-  confidence = Math.max(25, Math.min(95, confidence));
-
-  let peakStart = hour < 12 ? 13 : Math.max(hour+1,13);
-  peakStart = Math.min(peakStart,16);
-  let peakEnd = Math.min(18, peakStart+2);
-  const state = hour < 9 ? 'TOO EARLY'
-    : hour < 11 ? 'BUILDING'
-    : hour >= 17 ? 'TOO LATE'
-    : observedMax >= high ? 'PEAK RISK'
-    : hour >= peakStart ? 'PEAK APPROACH'
-    : 'TRADE WINDOW';
-
-  return {
-    predictedLowC:low, predictedHighC:high, primaryOutcomesC:outcomes,
-    confidence, expectedPeakLocal:`${String(peakStart).padStart(2,'0')}:00–${String(peakEnd).padStart(2,'0')}:00`,
-    tradeWindow:state, officialForecastHighC:tafHigh,
-    model:'StationEdge High Engine V1'
-  };
+function seObsLocalHour(meta, observedAt) {
+  return Number(new Intl.DateTimeFormat('en-GB',{timeZone:meta.tz,hour:'2-digit',hour12:false}).format(new Date(observedAt)));
+}
+function seForecastCore(meta,obs,forecast,scores,hourOverride=null) {
+  const temps=obs.map(o=>o.temperatureC).filter(Number.isFinite); if(!temps.length)return null;
+  const current=temps.at(-1), observedMax=Math.max(...temps), recent=temps.slice(-4);
+  const rise=recent.length>1?recent.at(-1)-recent[0]:0, hour=hourOverride??seLocalHour(meta);
+  const latest=obs.at(-1)||{}, regime=seRegime(latest), tx=seForecastTemps(forecast), tafHigh=tx.length?Math.max(...tx):null;
+  let remaining=hour<9?4:hour<11?3:hour<13?2:hour<15?1:0;
+  if(rise>1.5)remaining+=1; if(rise<0)remaining-=.5;
+  if(['CLOUDY','RAIN','FOG/MIST'].includes(regime))remaining-=.75;
+  if(Number.isFinite(latest.humidityPct)&&latest.humidityPct>=80)remaining-=.5;
+  if(Number.isFinite(latest.dewpointC)&&current-latest.dewpointC>=8)remaining+=.25;
+  if(Number.isFinite(latest.windSpeedKt)&&latest.windSpeedKt>=20)remaining-=.25;
+  remaining=Math.max(0,remaining);
+  let centre=Math.max(observedMax,current+remaining);
+  if(tafHigh!==null)centre=centre*.65+tafHigh*.35; centre=Math.max(observedMax,centre);
+  return{centre,current,observedMax,rise,hour,tafHigh,regime,latest};
+}
+function seProbabilityLadder(centre,scores,core) {
+  const base=scores.stability*.45+scores.pattern*.45; let sigma=base>=80?.85:base>=70?1.05:1.35;
+  if(['RAIN','FOG/MIST'].includes(core.regime))sigma+=.25; if(Math.abs(core.rise)>2)sigma+=.15;
+  let ladder=[]; for(let t=Math.floor(centre)-3;t<=Math.ceil(centre)+3;t++)ladder.push({temperatureC:t,weight:Math.exp(-.5*Math.pow((t-centre)/sigma,2))});
+  const total=ladder.reduce((a,x)=>a+x.weight,0);
+  ladder=ladder.map(x=>({temperatureC:x.temperatureC,probability:Math.round(x.weight/total*100)}));
+  ladder.sort((a,b)=>b.probability-a.probability); ladder[0].probability+=100-ladder.reduce((a,x)=>a+x.probability,0); ladder.sort((a,b)=>a.temperatureC-b.temperatureC);
+  let pair=null; for(let i=0;i<ladder.length-1;i++){const score=ladder[i].probability+ladder[i+1].probability;if(!pair||score>pair.score)pair={score,outcomes:[ladder[i].temperatureC,ladder[i+1].temperatureC]};}
+  const primary=new Set(pair.outcomes);
+  ladder=ladder.map(x=>({...x,classification:primary.has(x.temperatureC)?'YES BARBELL':x.probability<=5?'STRONG NO CANDIDATE':x.probability<=12?'NO CANDIDATE':'WATCH / EDGE RISK'}));
+  return{ladder,primaryOutcomesC:pair.outcomes,pairProbability:pair.score};
+}
+function seValidation(meta,obs,core,scores){
+  const x=core.latest,c=[],add=(name,ok,detail)=>c.push({name,ok,detail});
+  add('Temperature track',core.rise>=-.5,core.rise>.5?'HEATING':core.rise<-.5?'WEAKENING':'STEADY');
+  add('Dew point',Number.isFinite(x.dewpointC),Number.isFinite(x.dewpointC)?`${x.dewpointC.toFixed(1)}°C`:'NO DATA');
+  add('Humidity',!Number.isFinite(x.humidityPct)||x.humidityPct<85,Number.isFinite(x.humidityPct)?`${x.humidityPct}%`:'NO DATA');
+  add('Cloud regime',!['RAIN','FOG/MIST'].includes(core.regime),core.regime);
+  add('Wind',!Number.isFinite(x.windSpeedKt)||x.windSpeedKt<25,Number.isFinite(x.windSpeedKt)?`${x.windSpeedKt} kt`:'NO DATA');
+  add('Pattern day',scores.pattern>=70,`${scores.pattern}%`); add('Stability',scores.stability>=70,`${scores.stability}%`);
+  const score=Math.round(c.reduce((a,x)=>a+(x.ok?1:0),0)/c.length*100);
+  return{score,status:score>=70?'SUPPORTED':score>=50?'WEAKENING':'BREAKING',checks:c};
+}
+function seHighForecast(meta,obs,forecast,scores){
+  const core=seForecastCore(meta,obs,forecast,scores); if(!core)return null;
+  const p=seProbabilityLadder(core.centre,scores,core),validation=seValidation(meta,obs,core,scores);
+  const signalObs=obs.filter(o=>seObsLocalHour(meta,o.observedAt)<=11), ss=seScores(signalObs,forecast);
+  const sc=signalObs.length?seForecastCore(meta,signalObs,forecast,ss,11):null, sp=sc?seProbabilityLadder(sc.centre,ss,sc):null;
+  const initial=sp?.primaryOutcomesC||null,current=p.primaryOutcomesC,drift=initial?((current[0]+current[1])/2)-((initial[0]+initial[1])/2):0;
+  const hour=core.hour,signalWindow=hour<9?'COLLECTING DATA':hour<11?'BUILDING FORECAST':hour<13?'PRIMARY SIGNAL WINDOW':hour<14?'LATE SIGNAL / DRIFT MONITOR':'NO NEW SIGNAL';
+  let confidence=Math.round(scores.stability*.35+scores.pattern*.35+validation.score*.2+(core.tafHigh!==null?10:4)); confidence=Math.max(25,Math.min(95,confidence));
+  return{predictedLowC:current[0],predictedHighC:current[1],primaryOutcomesC:current,confidence,signalWindow,validation,probabilityLadder:p.ladder,pairProbability:p.pairProbability,initialSignalOutcomesC:initial,driftC:Number(drift.toFixed(1)),driftStatus:drift>=.75?'UPWARD DRIFT':drift<=-.75?'DOWNWARD DRIFT':'STABLE',heatingTrack:validation.status==='SUPPORTED'?'ON FORECAST':validation.status==='WEAKENING'?'WATCH':'OFF FORECAST',officialForecastHighC:core.tafHigh,model:'StationEdge High Engine V2'};
 }
 
 async function seStation(code) {

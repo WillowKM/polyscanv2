@@ -1663,6 +1663,75 @@ async function seFetchHko() {
   const forecast=[fx.generalSituation,fx.forecastDesc,fx.outlook].filter(Boolean).join(' | ');
   return {obs, forecast};
 }
+
+function seLocalHour(meta) {
+  return Number(new Intl.DateTimeFormat('en-GB', {
+    timeZone:meta.tz, hour:'2-digit', hour12:false
+  }).format(new Date()));
+}
+function seForecastTemps(forecast) {
+  // TAF temperature groups such as TX30/1412Z. Do not treat unrelated TAF
+  // numbers as temperatures.
+  const vals = [];
+  for (const m of String(forecast||'').matchAll(/\bTX(M?\d{2})\/\d{4}Z/g)) {
+    vals.push(Number(m[1].replace('M','-')));
+  }
+  return vals.filter(Number.isFinite);
+}
+function seHighForecast(meta, obs, forecast, scores) {
+  const temps = obs.map(o=>o.temperatureC).filter(Number.isFinite);
+  if (!temps.length) return null;
+
+  const current = temps.at(-1);
+  const observedMax = Math.max(...temps);
+  const recent = temps.slice(-4);
+  const rise = recent.length > 1 ? recent.at(-1)-recent[0] : 0;
+  const hour = seLocalHour(meta);
+  const tafHighs = seForecastTemps(forecast);
+  const tafHigh = tafHighs.length ? Math.max(...tafHighs) : null;
+  const latest = obs.at(-1) || {};
+  const regime = seRegime(latest);
+
+  // Remaining-heating estimate. Exact-station trend is primary; official TAF
+  // TX is a forecast anchor only when the station publishes one.
+  let remaining = hour < 9 ? 4 : hour < 11 ? 3 : hour < 13 ? 2 : hour < 15 ? 1 : 0;
+  if (rise > 1.5) remaining += 1;
+  if (rise < 0) remaining -= 0.5;
+  if (['CLOUDY','RAIN','FOG/MIST'].includes(regime)) remaining -= 0.75;
+  if (Number.isFinite(latest.humidityPct) && latest.humidityPct >= 80) remaining -= 0.5;
+  remaining = Math.max(0, remaining);
+
+  let centre = Math.max(observedMax, current + remaining);
+  if (tafHigh !== null) centre = centre*0.65 + tafHigh*0.35;
+  centre = Math.max(observedMax, centre);
+
+  const low = Math.max(Math.round(observedMax), Math.floor(centre));
+  const high = Math.max(low+1, Math.ceil(centre));
+  const outcomes = [low, high];
+
+  let confidence = Math.round(scores.stability*0.45 + scores.pattern*0.45 + (tafHigh!==null?10:3));
+  if (hour < 8) confidence -= 12;
+  if (rise > 2) confidence -= 5;
+  confidence = Math.max(25, Math.min(95, confidence));
+
+  let peakStart = hour < 12 ? 13 : Math.max(hour+1,13);
+  peakStart = Math.min(peakStart,16);
+  let peakEnd = Math.min(18, peakStart+2);
+  const state = hour < 9 ? 'TOO EARLY'
+    : hour < 11 ? 'BUILDING'
+    : hour >= 17 ? 'TOO LATE'
+    : observedMax >= high ? 'PEAK RISK'
+    : hour >= peakStart ? 'PEAK APPROACH'
+    : 'TRADE WINDOW';
+
+  return {
+    predictedLowC:low, predictedHighC:high, primaryOutcomesC:outcomes,
+    confidence, expectedPeakLocal:`${String(peakStart).padStart(2,'0')}:00–${String(peakEnd).padStart(2,'0')}:00`,
+    tradeWindow:state, officialForecastHighC:tafHigh,
+    model:'StationEdge High Engine V1'
+  };
+}
+
 async function seStation(code) {
   const meta=STATIONEDGE_STATIONS[code];
   if (!meta) throw new Error('Unknown StationEdge station');
@@ -1680,9 +1749,11 @@ async function seStation(code) {
 
   const scores=seScores(todayObs,forecast);
   const temps=todayObs.map(o=>o.temperatureC).filter(Number.isFinite);
+  const highForecast=seHighForecast(meta,todayObs,forecast,scores);
   const data={code,...meta, observations:todayObs, forecast, latest:todayObs.at(-1)||null,
     observedMax:temps.length?Math.max(...temps):null, localDay:todayKey, ...scores,
-    tradeable:scores.stability>=70 && scores.pattern>=70, state:seState(meta,todayObs)};
+    highForecast,
+    tradeable:scores.stability>=70 && scores.pattern>=70, state:highForecast?.tradeWindow||seState(meta,todayObs)};
   STATIONEDGE_CACHE[code]={ts:Date.now(),data};
   return data;
 }

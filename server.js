@@ -1771,11 +1771,60 @@ function seForecastTemps(forecast) {
 function seObsLocalHour(meta, observedAt) {
   return Number(new Intl.DateTimeFormat('en-GB',{timeZone:meta.tz,hour:'2-digit',hour12:false}).format(new Date(observedAt)));
 }
-function seForecastCore(meta,obs,forecast,scores,hourOverride=null) {
+// StationEdge's own code for Hong Kong is 'HKO'; the shared official-source
+// routing elsewhere in this file (fetchOfficialForecast, STATION_META) keys
+// it as 'VHHH' (the actual ICAO/resolution station code). This just maps
+// between the two so StationEdge can reuse that existing infrastructure
+// instead of re-implementing it.
+function seOfficialLookupCode(code) { return code === 'HKO' ? 'VHHH' : code; }
+
+// Resolves TODAY'S full daily high from a real forecast source — not the
+// TAF's TX/TN group (US-format only, absent from most international TAFs,
+// which was silently degrading this to a same-hour extrapolation for every
+// non-US station) and not a third-party aggregator. Priority:
+//   1. The national agency's own forecast (NWS/HKO/NEA/DWD) where wired.
+//   2. MET Norway (api.met.no) — a national meteorological institute, not a
+//      third-party site — used as the fallback for every other station,
+//      taking the max of today's hourly temperatures it publishes.
+// This is a forecast (a projection of where the day is headed), as opposed
+// to "nowcasting" — very-short-range (0–2hr) extrapolation from current
+// observations, which is what aviation TAF amendments and METAR trends are
+// closer to. The old current+remaining-hours heuristic below is kept only
+// as a same-hour nowcast floor, never as the primary daily-high signal.
+const SE_OFFICIAL_HIGH_CACHE = {};
+const SE_OFFICIAL_HIGH_TTL = 30 * 60 * 1000;
+async function seOfficialDailyHighC(code) {
+  const cached = SE_OFFICIAL_HIGH_CACHE[code];
+  if (cached && (Date.now() - cached.ts) < SE_OFFICIAL_HIGH_TTL) return cached.data;
+  const lookupCode = seOfficialLookupCode(code);
+  const meta = STATION_META[lookupCode];
+  let result = { highC: null, source: null };
+  try {
+    if (OFFICIAL_SOURCE_WIRED.has(lookupCode)) {
+      const off = await fetchOfficialForecast(lookupCode);
+      if (Number.isFinite(off.highC)) result = { highC: off.highC, source: `official:${off.source}` };
+    }
+    if (result.highC === null && meta) {
+      const mn = await fetchHourlyMetNo(code, meta, null);
+      const temps = (mn.rows || []).map(r => r.tempC).filter(Number.isFinite);
+      if (temps.length) result = { highC: Math.max(...temps), source: 'official:met-norway' };
+    }
+  } catch (e) {
+    console.error(`[StationEdge] Official forecast fetch failed for ${code}:`, e.message);
+  }
+  SE_OFFICIAL_HIGH_CACHE[code] = { data: result, ts: Date.now() };
+  return result;
+}
+
+function seForecastCore(meta,obs,forecast,scores,hourOverride=null,officialHighC=null) {
   const temps=obs.map(o=>o.temperatureC).filter(Number.isFinite); if(!temps.length)return null;
   const current=temps.at(-1), observedMax=Math.max(...temps), recent=temps.slice(-4);
   const rise=recent.length>1?recent.at(-1)-recent[0]:0, hour=hourOverride??seLocalHour(meta);
   const latest=obs.at(-1)||{}, regime=seRegime(latest), tx=seForecastTemps(forecast), tafHigh=tx.length?Math.max(...tx):null;
+  // Same-hour nowcast floor only — a short extrapolation of current
+  // conditions, used to make sure the model never predicts a high BELOW
+  // where the station already sits right now. This is not the day's
+  // forecast; officialHighC (a real agency source) is.
   let remaining=hour<9?4:hour<11?3:hour<13?2:hour<15?1:0;
   if(rise>1.5)remaining+=1; if(rise<0)remaining-=.5;
   if(['CLOUDY','RAIN','FOG/MIST'].includes(regime))remaining-=.75;
@@ -1783,9 +1832,20 @@ function seForecastCore(meta,obs,forecast,scores,hourOverride=null) {
   if(Number.isFinite(latest.dewpointC)&&current-latest.dewpointC>=8)remaining+=.25;
   if(Number.isFinite(latest.windSpeedKt)&&latest.windSpeedKt>=20)remaining-=.25;
   remaining=Math.max(0,remaining);
-  let centre=Math.max(observedMax,current+remaining);
-  if(tafHigh!==null)centre=centre*.65+tafHigh*.35; centre=Math.max(observedMax,centre);
-  return{centre,current,observedMax,rise,hour,tafHigh,regime,latest};
+  const nowcastFloor=Math.max(observedMax,current+remaining);
+  let centre;
+  if (officialHighC !== null) {
+    // The real forecast leads; the nowcast floor only pulls it up if the
+    // station has already observed something hotter than the forecast
+    // expected (forecast running cold today).
+    centre = Math.max(officialHighC, nowcastFloor*.15 + officialHighC*.85);
+  } else if (tafHigh !== null) {
+    centre = Math.max(observedMax, nowcastFloor*.35 + tafHigh*.65);
+  } else {
+    centre = nowcastFloor; // last resort — no real forecast source reachable
+  }
+  centre=Math.max(observedMax,centre);
+  return{centre,current,observedMax,rise,hour,tafHigh,officialHighC,regime,latest};
 }
 function seProbabilityLadder(centre,scores,core) {
   const base=scores.stability*.45+scores.pattern*.45; let sigma=base>=80?.85:base>=70?1.05:1.35;
@@ -1810,15 +1870,16 @@ function seValidation(meta,obs,core,scores){
   const score=Math.round(c.reduce((a,x)=>a+(x.ok?1:0),0)/c.length*100);
   return{score,status:score>=70?'SUPPORTED':score>=50?'WEAKENING':'BREAKING',checks:c};
 }
-function seHighForecast(meta,obs,forecast,scores){
-  const core=seForecastCore(meta,obs,forecast,scores); if(!core)return null;
+async function seHighForecast(code,meta,obs,forecast,scores){
+  const official=await seOfficialDailyHighC(code);
+  const core=seForecastCore(meta,obs,forecast,scores,null,official.highC); if(!core)return null;
   const p=seProbabilityLadder(core.centre,scores,core),validation=seValidation(meta,obs,core,scores);
   const signalObs=obs.filter(o=>seObsLocalHour(meta,o.observedAt)<=11), ss=seScores(signalObs,forecast);
-  const sc=signalObs.length?seForecastCore(meta,signalObs,forecast,ss,11):null, sp=sc?seProbabilityLadder(sc.centre,ss,sc):null;
+  const sc=signalObs.length?seForecastCore(meta,signalObs,forecast,ss,11,official.highC):null, sp=sc?seProbabilityLadder(sc.centre,ss,sc):null;
   const initial=sp?.primaryOutcomesC||null,current=p.primaryOutcomesC,drift=initial?((current[0]+current[1])/2)-((initial[0]+initial[1])/2):0;
   const hour=core.hour,signalWindow=hour<9?'COLLECTING DATA':hour<11?'BUILDING FORECAST':hour<13?'PRIMARY SIGNAL WINDOW':hour<14?'LATE SIGNAL / DRIFT MONITOR':'NO NEW SIGNAL';
-  let confidence=Math.round(scores.stability*.35+scores.pattern*.35+validation.score*.2+(core.tafHigh!==null?10:4)); confidence=Math.max(25,Math.min(95,confidence));
-  return{predictedLowC:current[0],predictedHighC:current[1],primaryOutcomesC:current,confidence,signalWindow,validation,probabilityLadder:p.ladder,pairProbability:p.pairProbability,initialSignalOutcomesC:initial,driftC:Number(drift.toFixed(1)),driftStatus:drift>=.75?'UPWARD DRIFT':drift<=-.75?'DOWNWARD DRIFT':'STABLE',heatingTrack:validation.status==='SUPPORTED'?'ON FORECAST':validation.status==='WEAKENING'?'WATCH':'OFF FORECAST',officialForecastHighC:core.tafHigh,model:'StationEdge High Engine V2'};
+  let confidence=Math.round(scores.stability*.35+scores.pattern*.35+validation.score*.2+(official.highC!==null?10:core.tafHigh!==null?7:4)); confidence=Math.max(25,Math.min(95,confidence));
+  return{predictedLowC:current[0],predictedHighC:current[1],primaryOutcomesC:current,confidence,signalWindow,validation,probabilityLadder:p.ladder,pairProbability:p.pairProbability,initialSignalOutcomesC:initial,driftC:Number(drift.toFixed(1)),driftStatus:drift>=.75?'UPWARD DRIFT':drift<=-.75?'DOWNWARD DRIFT':'STABLE',heatingTrack:validation.status==='SUPPORTED'?'ON FORECAST':validation.status==='WEAKENING'?'WATCH':'OFF FORECAST',officialForecastHighC:official.highC??core.tafHigh,officialForecastSource:official.source,model:'StationEdge High Engine V2'};
 }
 
 async function seStation(code) {
@@ -1838,7 +1899,7 @@ async function seStation(code) {
 
   const scores=seScores(todayObs,forecast);
   const temps=todayObs.map(o=>o.temperatureC).filter(Number.isFinite);
-  const highForecast=seHighForecast(meta,todayObs,forecast,scores);
+  const highForecast=await seHighForecast(code,meta,todayObs,forecast,scores);
   const data={code,...meta, observations:todayObs, forecast, latest:todayObs.at(-1)||null,
     observedMax:temps.length?Math.max(...temps):null, localDay:todayKey, ...scores,
     highForecast,
@@ -1945,6 +2006,8 @@ async function seLockV3Prediction(data) {
     outcome_one_probability: outcomes.outcomeOneProbability,
     outcome_two_probability: outcomes.outcomeTwoProbability,
     pair_probability: outcomes.pairProbability,
+    stability_score: Number.isFinite(data.stability) ? Math.round(data.stability) : null,
+    pattern_score: Number.isFinite(data.pattern) ? Math.round(data.pattern) : null,
     result: null,
   };
 
@@ -2057,6 +2120,7 @@ app.get('/api/stationedge/audit', async (req, res) => {
   );
   if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load StationEdge audit data' });
 
+  const enrichedRows = rows.map(r => ({ ...r, tz: STATIONEDGE_STATIONS[r.station_code]?.tz || null }));
   const resolved = rows.filter(r => r.result === 'HIT' || r.result === 'MISS');
   const hits = resolved.filter(r => r.result === 'HIT').length;
   const misses = resolved.filter(r => r.result === 'MISS').length;
@@ -2070,7 +2134,7 @@ app.get('/api/stationedge/audit', async (req, res) => {
     misses,
     pairHitRate: resolved.length ? Math.round((hits / resolved.length) * 100) : null,
     averageError: avgError === null ? null : Math.round(avgError * 100) / 100,
-    records: rows,
+    records: enrichedRows,
   });
 });
 

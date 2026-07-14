@@ -44,7 +44,7 @@ const CALC_FILE         = path.join(DATA_DIR, 'calc.json');       // Calculator:
 
 console.log(`[storage] Using DATA_DIR = ${DATA_DIR}${process.env.DATA_DIR ? ' (persistent disk)' : ' (⚠️ EPHEMERAL — set DATA_DIR env var to a mounted disk path to persist across restarts)'}`);
 
-const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ','KDFW','KAUS','KLAX']);
+const US_STATIONS = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','CYYZ','KDFW','KDAL','KAUS','KLAX']);
 
 // lat/lon added for Open-Meteo daily-high lookups — coordinates match
 // each station's physical airport location so the high lines up with
@@ -79,6 +79,7 @@ const STATION_META = {
   CYYZ: { cc:'ca', city:'toronto',        lat:43.6777,  lon:-79.6248  },
   VHHH: { cc:'hk', city:'hong-kong',      lat:22.3117,  lon:114.1717  }, // King's Park Met Station — the ACTUAL resolution reference since 1 July 1992 (confirmed via HKO's own station history + Polymarket's resolution text). NOT the airport (was wrongly using airport coords 22.308/113.9185 before) — key kept as 'VHHH' for continuity elsewhere in the codebase, but coordinates now correctly point at King's Park, Kowloon.
   KDFW: { cc:'us', city:'dallas',         lat:32.8998,  lon:-97.0403  },
+  KDAL: { cc:'us', city:'dallas',         lat:32.8471,  lon:-96.8518  },
   RCTP: { cc:'tw', city:'taipei',         lat:25.0797,  lon:121.2342  },
   EDDM: { cc:'de', city:'munich',         lat:48.3538,  lon:11.7861   },
   EFHK: { cc:'fi', city:'helsinki',       lat:60.3172,  lon:24.9633   },
@@ -127,7 +128,7 @@ const SOURCE_QUALITY = {
 };
 // Stations with a genuinely wired official-source fetch (not just "rated
 // excellent on paper") — used to decide whether to call fetchOfficialForecast
-const OFFICIAL_SOURCE_WIRED = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','KDFW','KAUS','KLAX','VHHH','WSSS','EDDM']);
+const OFFICIAL_SOURCE_WIRED = new Set(['KATL','KLGA','KSEA','KSFO','KMIA','KBKF','KHOU','KORD','KDFW','KDAL','KAUS','KLAX','VHHH','WSSS','EDDM']);
 
 // ── City name → URL slug mapping ───────────────────────────────────────────
 // Matches exactly how Polymarket constructs their event slugs
@@ -1555,6 +1556,14 @@ const STATIONEDGE_STATIONS = {
   KSEA: { city:'Seattle',       station:'Seattle-Tacoma Intl',   tz:'America/Los_Angeles', source:'metar' },
   LLBG: { city:'Tel Aviv',      station:'Ben Gurion Airport',    tz:'Asia/Jerusalem', source:'metar' },
   LTFM: { city:'Istanbul',      station:'Istanbul Airport',      tz:'Europe/Istanbul', source:'metar' },
+  KATL: { city:'Atlanta',       station:'Hartsfield-Jackson Intl', tz:'America/New_York', source:'metar' },
+  KAUS: { city:'Austin',        station:'Austin-Bergstrom Intl', tz:'America/Chicago', source:'metar' },
+  KORD: { city:'Chicago',       station:"O'Hare Intl",           tz:'America/Chicago', source:'metar' },
+  KDAL: { city:'Dallas',        station:'Dallas Love Field',     tz:'America/Chicago', source:'metar' },
+  KBKF: { city:'Denver',        station:'Buckley SFB',           tz:'America/Denver', source:'metar' },
+  KHOU: { city:'Houston',       station:'William P. Hobby Airport', tz:'America/Chicago', source:'metar' },
+  KMIA: { city:'Miami',         station:'Miami Intl',            tz:'America/New_York', source:'metar' },
+  WSSS: { city:'Singapore',     station:'Changi Airport',        tz:'Asia/Singapore', source:'metar' },
 };
 // ── STATIONEDGE SUPABASE RESEARCH RECORDER ────────────────────────────────
 const SUPABASE_URL = process.env.SUPABASE_URL || null;

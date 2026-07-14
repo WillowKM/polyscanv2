@@ -36,6 +36,12 @@ button{background:var(--green);border:0;border-radius:8px;padding:10px 14px;font
 .pair b{color:var(--text)}
 .badges{display:flex;justify-content:center;gap:14px;font-size:12px;color:var(--muted);margin-bottom:10px}
 .localtime{font-size:11px;color:var(--muted);margin-top:2px}
+.record{font-size:13px;font-weight:800;padding:4px 10px;border-radius:20px;background:#0a1512;border:1px solid var(--line)}
+.record.good{color:var(--green)}.record.bad{color:var(--red)}.record.neutral{color:var(--muted)}
+.history{display:flex;gap:4px;margin:10px 0;flex-wrap:wrap}
+.dot{width:20px;height:20px;border-radius:5px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.dot.hit{background:#143b29;color:var(--green)}.dot.miss{background:#392020;color:var(--red)}.dot.pending{background:#2a2f19;color:var(--amber)}
+.sub{color:var(--muted);font-size:11px;margin:6px 0 0}
 .resolved{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;font-size:13px}
 .resolved b{color:var(--text)}
 .empty{color:var(--muted);text-align:center;padding:40px}
@@ -56,12 +62,13 @@ button{background:var(--green);border:0;border-radius:8px;padding:10px 14px;font
   <div class="tabs">
     <div class="tab active" id="tabV3" onclick="showTab('v3')">Forward Test</div>
     <div class="tab" id="tabV2" onclick="showTab('v2')">Live Monitor</div>
+    <a href="/" style="margin-left:auto;align-self:center;color:var(--muted);text-decoration:none;font-weight:700;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:8px 14px">📟 Calculator</a>
   </div>
 
   <!-- Forward Test (V3) -->
   <div id="viewV3">
     <div class="top">
-      <div><h1 style="margin:0 0 4px">Forward-Test Results</h1><p style="margin:0">All 15 stations, one locked prediction per station per day.</p></div>
+      <div><h1 style="margin:0 0 4px">Forward-Test Results</h1><p id="v3sub" style="margin:0">One card per city — track record shown as hits/resolved days.</p></div>
       <button onclick="loadV3()">Refresh</button>
     </div>
     <div id="v3summary" class="summary"></div>
@@ -70,7 +77,7 @@ button{background:var(--green);border:0;border-radius:8px;padding:10px 14px;font
 
   <!-- Live Monitor (V2) -->
   <div id="viewV2" class="hidden">
-    <div id="list"><div class="top"><div><h1>15 Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button onclick="loadV2()">Refresh</button></div><div id="grid" class="grid"></div></div>
+    <div id="list"><div class="top"><div><h1 id="v2count">Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button onclick="loadV2()">Refresh</button></div><div id="grid" class="grid"></div></div>
     <div id="detail" class="detail hidden"></div>
   </div>
 </main>
@@ -113,27 +120,52 @@ async function loadV3() {
     document.getElementById('v3grid').innerHTML = '<p class="empty">No predictions locked yet. StationEdge locks one prediction per station between 11:00–12:59 local station time.</p>';
     return;
   }
-  document.getElementById('v3grid').innerHTML = data.records.map(rec => {
-    const unit = rec.display_unit || (isUS(rec.station_code) ? 'F' : 'C');
-    const resolvedBlock = rec.result === 'HIT' || rec.result === 'MISS'
-      ? `<div class="resolved"><span>ACTUAL HIGH</span><b>${fmtTemp(rec.actual_high, unit)}</b></div>
-         <div class="resolved"><span>FORECAST ERROR</span><b>${Number.isFinite(rec.forecast_error) ? rec.forecast_error + '°' : '—'}</b></div>`
+
+  // Group every day's record by station, newest forecast_date first.
+  const byStation = {};
+  for (const rec of data.records) {
+    (byStation[rec.station_code] ||= []).push(rec);
+  }
+  for (const code in byStation) byStation[code].sort((a, b) => b.forecast_date.localeCompare(a.forecast_date));
+
+  const cityCards = Object.values(byStation).map(days => {
+    const latest = days[0];
+    const resolvedDays = days.filter(d => d.result === 'HIT' || d.result === 'MISS');
+    const hits = resolvedDays.filter(d => d.result === 'HIT').length;
+    const recordClass = resolvedDays.length === 0 ? 'neutral' : (hits / resolvedDays.length) >= 0.5 ? 'good' : 'bad';
+    const recordText = resolvedDays.length ? `${hits}/${resolvedDays.length}` : '—';
+
+    const unit = latest.display_unit || (isUS(latest.station_code) ? 'F' : 'C');
+    const resolvedBlock = latest.result === 'HIT' || latest.result === 'MISS'
+      ? `<div class="resolved"><span>ACTUAL HIGH</span><b>${fmtTemp(latest.actual_high, unit)}</b></div>
+         <div class="resolved"><span>FORECAST ERROR</span><b>${Number.isFinite(latest.forecast_error) ? latest.forecast_error + '°' : '—'}</b></div>`
       : '';
-    const localNow = rec.tz ? new Intl.DateTimeFormat('en-US',{timeZone:rec.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date()) : null;
-    const stabEmoji = Number.isFinite(rec.stability_score) ? (rec.stability_score>=70?'🟢':'🔴') : '⚪';
-    const patEmoji = Number.isFinite(rec.pattern_score) ? (rec.pattern_score>=70?'🟢':'🔴') : '⚪';
+    const localNow = latest.tz ? new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date()) : null;
+    const stabEmoji = Number.isFinite(latest.stability_score) ? (latest.stability_score>=70?'🟢':'🔴') : '⚪';
+    const patEmoji = Number.isFinite(latest.pattern_score) ? (latest.pattern_score>=70?'🟢':'🔴') : '⚪';
+    // Small day-by-day history strip, most recent 10 days, oldest→newest left→right.
+    const historyDots = days.slice(0, 10).reverse().map(d => {
+      const cls = d.result === 'HIT' ? 'hit' : d.result === 'MISS' ? 'miss' : 'pending';
+      const mark = d.result === 'HIT' ? '✓' : d.result === 'MISS' ? '✕' : '…';
+      return `<span class="dot ${cls}" title="${d.forecast_date}: ${d.result || 'PENDING'}">${mark}</span>`;
+    }).join('');
+
     return `<div class="v3card">
-      <div class="v3row"><div><h2>${rec.city}</h2><div class="code">${rec.station_code} · ${rec.forecast_date}</div>${localNow?`<div class="localtime">🕐 ${localNow} local</div>`:''}</div>
-      <span class="status ${statusClass(rec.result)}">${statusLabel(rec.result)}</span></div>
+      <div class="v3row"><div><h2>${latest.city}</h2><div class="code">${latest.station_code} · latest: ${latest.forecast_date}</div>${localNow?`<div class="localtime">🕐 ${localNow} local</div>`:''}</div>
+      <span class="record ${recordClass}">${recordText}</span></div>
+      <div class="history">${historyDots}</div>
+      <p class="sub">Today's status: <b class="status ${statusClass(latest.result)}" style="padding:3px 8px">${statusLabel(latest.result)}</b></p>
       <div class="outcomes">
-        <div class="outcome"><small>OUTCOME 1</small><div class="t">${fmtTemp(rec.outcome_one, unit)}</div><div class="p">${Number.isFinite(rec.outcome_one_probability) ? rec.outcome_one_probability + '%' : '—'}</div></div>
-        <div class="outcome"><small>OUTCOME 2</small><div class="t">${fmtTemp(rec.outcome_two, unit)}</div><div class="p">${Number.isFinite(rec.outcome_two_probability) ? rec.outcome_two_probability + '%' : '—'}</div></div>
+        <div class="outcome"><small>OUTCOME 1</small><div class="t">${fmtTemp(latest.outcome_one, unit)}</div><div class="p">${Number.isFinite(latest.outcome_one_probability) ? latest.outcome_one_probability + '%' : '—'}</div></div>
+        <div class="outcome"><small>OUTCOME 2</small><div class="t">${fmtTemp(latest.outcome_two, unit)}</div><div class="p">${Number.isFinite(latest.outcome_two_probability) ? latest.outcome_two_probability + '%' : '—'}</div></div>
       </div>
-      <div class="pair">PAIR COVERAGE: <b>${Number.isFinite(rec.pair_probability) ? rec.pair_probability + '%' : '—'}</b></div>
-      <div class="badges"><span>${stabEmoji} Stability ${Number.isFinite(rec.stability_score)?rec.stability_score+'%':'—'}</span><span>${patEmoji} Pattern ${Number.isFinite(rec.pattern_score)?rec.pattern_score+'%':'—'}</span></div>
+      <div class="pair">PAIR COVERAGE: <b>${Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—'}</b></div>
+      <div class="badges"><span>${stabEmoji} Stability ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'}</span><span>${patEmoji} Pattern ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'}</span></div>
       ${resolvedBlock}
     </div>`;
-  }).join('');
+  });
+
+  document.getElementById('v3grid').innerHTML = cityCards.join('');
 }
 
 // ── Live Monitor (V2) — unchanged from the original dashboard ──────────────
@@ -144,6 +176,7 @@ async function loadV2(){
   window.__v2Loaded = true;
   document.getElementById('grid').innerHTML='<p>Loading exact station data…</p>';
   const r=await fetch('/api/stationedge/stations');const rows=await r.json();window.stationRows=rows;
+  document.getElementById('v2count').textContent = `${rows.length} Resolution Stations`;
   document.getElementById('grid').innerHTML=rows.map(s=>`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} local</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`).join('');
 }
 function openStation(code){const s=window.stationRows.find(x=>x.code===code);if(!s||s.error)return;window.currentStationEdgeStation=s;document.getElementById('list').classList.add('hidden');const d=document.getElementById('detail');d.classList.remove('hidden');

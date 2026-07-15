@@ -372,9 +372,16 @@ async function loadV3() {
     const hasSavedDrift = Number.isFinite(latest.savedDrift)
       && Boolean(cardForecastDate)
       && savedDriftDate === cardForecastDate;
+    const stationLocalHour = latest.tz
+      ? Number(new Intl.DateTimeFormat('en-GB',{timeZone:latest.tz,hour:'2-digit',hour12:false}).format(new Date()))
+      : null;
+    const driftWindowOpen = Number.isFinite(stationLocalHour) && stationLocalHour >= 11 && stationLocalHour < 20;
     const shownDrift = hasSavedDrift ? latest.savedDrift : latest.driftC;
     const shownStatus = hasSavedDrift ? latest.savedDriftStatus : latest.driftStatus;
-    const driftBlock = Number.isFinite(shownDrift)
+    // Saved drift evidence remains visible on its own resolved historical row.
+    // LIVE drift is never shown before 11:00 or from the 20:00 resolution point onward.
+    const showDrift = hasSavedDrift || (driftWindowOpen && !latest.result && Number.isFinite(latest.driftC));
+    const driftBlock = showDrift && Number.isFinite(shownDrift)
       ? `<div class="driftLine">📈 ${hasSavedDrift ? 'LOCKED DRIFT ALERT' : 'LIVE DRIFT SINCE LOCK'}: <b>${shownDrift>0?'+':''}${shownDrift}° · ${shownStatus}</b>${hasSavedDrift && latest.driftAlertTime ? ` · ALERT ${latest.driftAlertTime} LOCAL` : ` (${latest.heatingTrack})`}</div>`
       : '';
 

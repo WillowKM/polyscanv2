@@ -2,58 +2,108 @@
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>StationEdge | PolyScan</title>
 <style>
+:root{--bg:#07100e;--panel:#0f1c18;--line:#263832;--text:#edf6f2;--muted:#91a79f;--green:#4fe08c;--red:#ff7373;--amber:#e0b84f}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
+header{padding:18px 4%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
+header b{font-size:18px}header span,.green{color:var(--green)}header small,p{color:var(--muted)}
+main{max-width:1400px;margin:auto;padding:28px 4%}
+.tabs{display:flex;gap:8px;margin-bottom:22px;border-bottom:1px solid var(--line)}
+.tab{padding:10px 16px;cursor:pointer;color:var(--muted);font-weight:700;border-bottom:2px solid transparent}
+.tab.active{color:var(--text);border-bottom:2px solid var(--green)}
+.hidden{display:none}
+button{background:var(--green);border:0;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer}
 
-:root{--bg:#050708;--panel:#0a0e11;--panel2:#0d1216;--line:#263038;--line2:#151c21;--text:#f2f5f6;--muted:#7e8a92;--green:#32d583;--red:#ff5f6d;--amber:#ffb020;--cyan:#38bdf8;--shadow:0 14px 38px rgba(0,0,0,.28)}
+/* Forward test (V3) styles */
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.summary .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.summary .card small{display:block;color:var(--muted);font-size:11px;letter-spacing:.03em}
+.summary .card b{display:block;font-size:26px;margin-top:6px}
+.v3grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.v3card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.v3card h2{margin:0 0 2px;font-size:18px}.code{color:var(--muted);font-size:13px}
+.status{font-size:11px;font-weight:800;border-radius:20px;padding:5px 10px;letter-spacing:.03em}
+.status.pending{background:#2a2f19;color:var(--amber)}
+.status.hit{background:#143b29;color:var(--green)}
+.status.miss{background:#392020;color:var(--red)}
+.v3row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+.outcome{background:#0a1512;border:1px solid var(--line);border-radius:9px;padding:12px;text-align:center}
+.outcome small{color:var(--muted);font-size:10px;letter-spacing:.03em}
+.outcome .t{font-size:26px;font-weight:900;margin:6px 0 2px}
+.outcome .p{color:var(--green);font-weight:700;font-size:13px}
+.pair{text-align:center;color:var(--muted);font-size:12px;margin-bottom:10px}
+.pair b{color:var(--text)}
+.badges{display:flex;justify-content:center;gap:14px;font-size:12px;color:var(--muted);margin-bottom:10px}
+.localtime{font-size:11px;color:var(--muted);margin-top:2px}
+.record{font-size:13px;font-weight:800;padding:4px 10px;border-radius:20px;background:#0a1512;border:1px solid var(--line)}
+.record.good{color:var(--green)}.record.bad{color:var(--red)}.record.neutral{color:var(--muted)}
+.history{display:flex;gap:4px;margin:10px 0;flex-wrap:wrap}
+.dot{width:20px;height:20px;border-radius:5px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
+.dot.hit{background:#143b29;color:var(--green)}.dot.miss{background:#392020;color:var(--red)}.dot.pending{background:#2a2f19;color:var(--amber)}
+.sub{color:var(--muted);font-size:11px;margin:6px 0 0}
+.resolved{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;font-size:13px}
+.resolved b{color:var(--text)}
+.empty{color:var(--muted);text-align:center;padding:40px}
+
+/* Live monitor (V2) styles */
+.row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.card,.detail section,.hero{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+.card{cursor:pointer}.card h2{margin:0 0 4px}.state{font-size:11px;border:1px solid var(--line);padding:6px;border-radius:20px}
+.temp{font-size:34px;font-weight:900;margin:18px 0}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metrics small,small{display:block;color:var(--muted);font-size:10px}.metrics strong{display:block;margin-top:5px}.red{color:var(--red)}
+.eligible{margin-top:16px;padding:8px;text-align:center;border-radius:7px;font-weight:800;font-size:12px}.eligible.yes{background:#143b29;color:var(--green)}.eligible.no{background:#392020;color:var(--red)}
+.hero{display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.detail section{margin-top:14px}.score{font-size:48px;font-weight:900}.line{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:10px 0}
+.table{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}pre{white-space:pre-wrap;color:#cfe0da}
+@media(max-width:700px){.two,.hero{grid-template-columns:1fr}.top{align-items:flex-start}}
+
+:root{--bg:#050708;--panel:#0b1013;--line:#273139;--text:#f1f4f5;--muted:#7f8b92;--green:#32d583;--red:#ff5f6d;--amber:#ffb020;--cyan:#38bdf8}
 *{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}
-body{margin:0;background:linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.012) 1px,transparent 1px),var(--bg);background-size:32px 32px;color:var(--text);font:13px -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif;letter-spacing:.01em}
-body:before{content:"";position:fixed;inset:0 0 auto 0;height:2px;background:linear-gradient(90deg,var(--amber),var(--cyan),var(--green));z-index:20}
-header{min-height:58px;padding:0 2.2%;border-bottom:1px solid var(--line);background:rgba(5,7,8,.94);backdrop-filter:blur(12px);display:flex;justify-content:space-between;align-items:center;gap:14px;position:sticky;top:0;z-index:15}
-header b{font-size:15px;letter-spacing:.12em}header b:before{content:"SE // ";color:var(--amber)}header span{color:#fff}header small{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.12em}
-.green{color:var(--green)!important}.red{color:var(--red)!important}p{color:var(--muted)}
-main{width:100%;max-width:1680px;margin:auto;padding:18px 2.2% 36px}
-.tabs{display:flex;align-items:stretch;gap:0;margin-bottom:20px;border:1px solid var(--line);background:var(--panel);min-height:42px;overflow:hidden}
-.tab{display:flex;align-items:center;padding:0 18px;cursor:pointer;color:var(--muted);font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;border-right:1px solid var(--line);border-bottom:2px solid transparent}
-.tab.active{color:var(--amber);background:#101418;border-bottom-color:var(--amber)}
-.tabs a{margin-left:auto!important;align-self:stretch!important;display:flex;align-items:center;color:var(--muted)!important;text-decoration:none!important;font-size:10px!important;letter-spacing:.08em;text-transform:uppercase;border:0!important;border-left:1px solid var(--line)!important;border-radius:0!important;padding:0 16px!important}
-.tabs a:hover,.tab:hover{background:#11181d;color:var(--text)!important}.hidden{display:none!important}
-button{appearance:none;background:var(--amber);color:#090b0c;border:0;border-radius:2px;padding:9px 14px;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
-h1{font-size:20px!important;letter-spacing:-.02em}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}.top p{font-size:11px}
-.summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:16px}
-.summary .card{background:var(--panel);border:0;border-radius:0;padding:14px 16px;min-width:0}.summary .card small,.metrics small,small{display:block;color:var(--muted);font-size:9px;letter-spacing:.1em;text-transform:uppercase}
-.summary .card b{display:block;font-size:24px;margin-top:7px;font-variant-numeric:tabular-nums}.summary .card:nth-child(3) b{color:var(--green)}
-.v3grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.v3card,.card,.detail section,.hero{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;box-shadow:var(--shadow)}
-.v3card{padding:14px;position:relative;min-width:0;overflow:hidden}.v3card:before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--line)}.v3card:hover{border-color:#3b4851}
-.v3card h2{margin:0 0 2px;font-size:15px;text-transform:uppercase;letter-spacing:.04em}.code{color:var(--cyan);font-size:10px;font-weight:800;letter-spacing:.08em}.localtime{font-size:9px;color:var(--muted);margin-top:4px;text-transform:uppercase}
-.status,.record{font-size:9px;font-weight:900;border-radius:2px;padding:4px 7px;letter-spacing:.08em;text-transform:uppercase}.status.pending,.dot.pending{background:rgba(255,176,32,.12);color:var(--amber)}.status.hit,.dot.hit{background:rgba(50,213,131,.12);color:var(--green)}.status.miss,.dot.miss{background:rgba(255,95,109,.12);color:var(--red)}
-.v3row,.row{display:flex;justify-content:space-between;align-items:center;gap:12px}
-.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);margin:12px 0}.outcome{background:#080c0f;border:0;border-radius:0;padding:12px 8px;text-align:left;min-width:0}.outcome small{font-size:8px}.outcome .t{font-size:24px;font-weight:800;margin:7px 0 3px;letter-spacing:-.05em;white-space:nowrap;font-variant-numeric:tabular-nums}.outcome .p{color:var(--green);font-weight:800;font-size:12px;font-variant-numeric:tabular-nums}
-.pair{display:flex;justify-content:space-between;text-align:left;color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);padding:8px 0;margin-bottom:8px}.pair b{color:var(--text);font-size:12px}
-.badges{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:10px;color:var(--muted);margin-bottom:8px}.badges span{background:#080c0f;border:1px solid var(--line2);padding:7px;white-space:nowrap}
-.history{display:flex;gap:3px;margin:9px 0;flex-wrap:wrap}.dot{width:18px;height:5px;border-radius:0;font-size:0;display:block}.sub{color:var(--muted);font-size:9px;margin:6px 0 0;text-transform:uppercase;letter-spacing:.05em}
-.resolved{border-top:1px solid var(--line);margin-top:8px;padding-top:8px;display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}.resolved b{color:var(--text);font-variant-numeric:tabular-nums}
-.record{background:#080c0f;border:1px solid var(--line)}.record.good{color:var(--green)}.record.bad{color:var(--red)}.record.neutral{color:var(--muted)}.empty{color:var(--muted);text-align:center;padding:40px;border:1px dashed var(--line)}
-.grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.card{cursor:pointer;padding:14px;min-width:0;overflow:hidden}.card:hover{border-color:var(--cyan);transform:translateY(-1px)}.card h2{margin:0 0 4px;font-size:15px;text-transform:uppercase}
-.state{font-size:9px;border:1px solid var(--line);padding:5px 7px;border-radius:2px;color:var(--amber);text-transform:uppercase}.temp{font-size:30px;font-weight:800;margin:14px 0;letter-spacing:-.05em;font-variant-numeric:tabular-nums}
-.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}.metrics>div{background:#080c0f;padding:8px;min-width:0}.metrics strong{display:block;margin-top:5px;font-size:12px;font-variant-numeric:tabular-nums}
-.eligible{margin-top:10px;padding:7px;text-align:center;border-radius:1px;font-weight:900;font-size:9px;letter-spacing:.1em}.eligible.yes{background:rgba(50,213,131,.12);color:var(--green);border:1px solid rgba(50,213,131,.25)}.eligible.no{background:rgba(255,95,109,.1);color:var(--red);border:1px solid rgba(255,95,109,.2)}
-.detail>button{margin-bottom:10px}.detail>h1{margin-bottom:3px}.hero{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:14px 0;padding:0;overflow:hidden}.hero>div{padding:16px;border-right:1px solid var(--line);min-width:0}.hero>div:last-child{border-right:0}.hero .temp{margin:8px 0 0}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.detail section{margin-top:10px;padding:16px;overflow:hidden}.detail section h2{font-size:14px;text-transform:uppercase;letter-spacing:.05em;margin-top:0}.detail section h3{font-size:11px;color:var(--amber);text-transform:uppercase;letter-spacing:.08em;margin-top:20px}
-.score{font-size:42px;font-weight:900;letter-spacing:-.05em}.line{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line2);padding:9px 0;font-size:11px}.line span{color:var(--muted)}.line b{text-align:right}
-.table{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}table{width:100%;border-collapse:collapse;font-size:10px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line2);white-space:nowrap;font-variant-numeric:tabular-nums}th{color:var(--amber);font-size:8px;text-transform:uppercase;letter-spacing:.08em;background:#080c0f;position:sticky;top:0}
-pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#b8c4ca;font:10px ui-monospace,SFMono-Regular,Menlo,monospace;line-height:1.55}
-@media(max-width:1100px){.v3grid{grid-template-columns:repeat(2,minmax(0,1fr))}.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
-@media(max-width:700px){body{font-size:12px;background-size:24px 24px}header{min-height:52px;padding:0 14px}header small{display:none}main{padding:12px 10px 24px}.tabs{margin-bottom:14px;min-height:40px}.tab{padding:0 12px;font-size:9px}.tabs a{padding:0 10px!important;font-size:0!important}.tabs a:after{content:"CALC";font-size:9px}.summary{grid-template-columns:1fr 1fr}.summary .card{padding:11px}.summary .card b{font-size:20px}.v3grid,.grid,.two,.hero{grid-template-columns:1fr}.v3grid,.grid{gap:8px}.v3card,.card{padding:12px}.outcome .t{font-size:22px}.hero>div{border-right:0;border-bottom:1px solid var(--line);padding:12px}.hero>div:last-child{border-bottom:0}.top{align-items:flex-start}.top>div{max-width:75%}.top h1{font-size:18px!important}.line{gap:10px}.line b{max-width:58%;overflow-wrap:anywhere}.badges{gap:4px}.badges span{font-size:9px}}
-@media(min-width:1800px){main{max-width:2200px}.v3grid{grid-template-columns:repeat(5,minmax(0,1fr))}.grid{grid-template-columns:repeat(6,minmax(0,1fr))}body{font-size:15px}}
+body{background:#050708;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif}
+header{background:rgba(5,7,8,.96)!important;border-bottom:1px solid var(--line)!important;position:sticky;top:0;z-index:20}
+header b{letter-spacing:.1em}header .willow{font-style:normal;color:var(--amber);font-size:9px;letter-spacing:.12em;margin-left:12px;border-left:1px solid var(--line);padding-left:12px}
+main{max-width:1680px!important;width:100%;margin:auto;padding-left:2.2%!important;padding-right:2.2%!important}
+.card,.v3card,.detail section,.hero{background:linear-gradient(180deg,#0d1216,#090d10)!important;border-color:var(--line)!important;border-radius:3px!important}
+.tabs{border:1px solid var(--line);background:#090d10}.tab.active{color:var(--amber)!important;border-color:var(--amber)!important}
+.code{color:var(--cyan)!important}.green{color:var(--green)!important}.red{color:var(--red)!important}
+button{background:var(--amber)!important;color:#080a0b!important;border-radius:2px!important}
+.marketTicker{height:30px;overflow:hidden;border-bottom:1px solid var(--line);background:#080b0d;color:#aab5bb;white-space:nowrap}
+.tickerTrack{display:inline-flex;align-items:center;gap:18px;height:30px;min-width:max-content;animation:tickerTape 30s linear infinite;font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em;text-transform:uppercase}
+.tickerTrack b{color:var(--amber);font-size:11px}.tickerTrack i{font-style:normal;color:var(--green)}.tickerBrand{color:var(--cyan)}.tickerSep{color:#39454c;font-size:7px}
+@keyframes tickerTape{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.temp{position:relative!important;display:inline-flex!important;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
+.temp:before{content:"PEAK";font:900 7px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:#090b0c;background:var(--amber);padding:3px 5px;border-radius:1px}
+.hero .temp:after{content:" ▲ SESSION HIGH";font:800 8px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--green);letter-spacing:.08em}
+.table{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.terminalFooter{max-width:1680px;margin:0 auto;padding:13px 2.2%;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;color:var(--muted);font:800 8px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase}
+.terminalFooter b{color:var(--amber)}
+@media(max-width:700px){header .willow{display:block;margin:3px 0 0;padding:0;border:0;font-size:7px}.marketTicker{height:27px}.tickerTrack{height:27px;animation-duration:24s}main{padding-left:10px!important;padding-right:10px!important}.hero .temp:after{display:none}.terminalFooter{padding:12px 10px;flex-direction:column;gap:5px}.terminalFooter span:first-child{display:none}}
+@media(min-width:1800px){main{max-width:2200px!important}.terminalFooter{max-width:2200px}}
+@media(prefers-reduced-motion:reduce){.tickerTrack{animation:none}}
 
 </style></head>
 <body>
-<header><b><span>STATIONEDGE</span> WEATHER MARKET INTELLIGENCE</b><small>Exact-station weather intelligence · WU excluded</small></header>
+<header><b>POLYSCAN <span>STATIONEDGE</span> <em class="willow">POLYSCAN BY WILLOW</em></b><small>Exact-station weather intelligence · WU excluded</small></header>
+
+<div class="marketTicker">
+  <div class="tickerTrack">
+    <span class="tickerBrand">JSE LINK // JOHANNESBURG</span><span class="tickerSep">◆</span>
+    <span>SAST <b id="sastClock">--:--:--</b></span><span class="tickerSep">◆</span>
+    <span>STATIONEDGE <i>LIVE</i></span><span class="tickerSep">◆</span>
+    <span>WEATHER MARKET INTELLIGENCE</span><span class="tickerSep">◆</span>
+    <span>POLYSCAN BY WILLOW</span><span class="tickerSep">◆</span>
+    <span class="tickerBrand">JSE LINK // JOHANNESBURG</span><span class="tickerSep">◆</span>
+    <span>SAST <b class="sastMirror">--:--:--</b></span><span class="tickerSep">◆</span>
+    <span>STATIONEDGE <i>LIVE</i></span><span class="tickerSep">◆</span>
+    <span>WEATHER MARKET INTELLIGENCE</span><span class="tickerSep">◆</span>
+    <span>POLYSCAN BY WILLOW</span>
+  </div>
+</div>
+
 <main>
   <div class="tabs">
     <div class="tab active" id="tabV3" onclick="showTab('v3')">Forward Test</div>
     <div class="tab" id="tabV2" onclick="showTab('v2')">Live Monitor</div>
-    <a href="/" style="margin-left:auto;align-self:center;color:var(--muted);text-decoration:none;font-weight:700;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:8px 14px">Calculator</a>
+    <a href="/" style="margin-left:auto;align-self:center;color:var(--muted);text-decoration:none;font-weight:700;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:8px 14px">📟 Calculator</a>
   </div>
 
   <!-- Forward Test (V3) -->
@@ -72,6 +122,7 @@ pre{white-space:pre-wrap;overflow-wrap:anywhere;color:#b8c4ca;font:10px ui-monos
     <div id="detail" class="detail hidden"></div>
   </div>
 </main>
+<footer class="terminalFooter"><span>STATIONEDGE // WEATHER MARKET INTELLIGENCE</span><b>POLYSCAN BY WILLOW</b><span>JOHANNESBURG · SAST</span></footer>
 <script>
 function showTab(which) {
   document.getElementById('tabV3').classList.toggle('active', which === 'v3');
@@ -137,8 +188,8 @@ async function loadV3() {
          <div class="resolved"><span>FORECAST ERROR</span><b>${Number.isFinite(latest.forecast_error) ? latest.forecast_error + '°' : '—'}</b></div>`
       : '';
     const localNow = latest.tz ? new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date()) : null;
-    const stabEmoji = Number.isFinite(latest.stability_score) ? (latest.stability_score>=70?'●':'▲') : '○';
-    const patEmoji = Number.isFinite(latest.pattern_score) ? (latest.pattern_score>=70?'●':'▲') : '○';
+    const stabEmoji = Number.isFinite(latest.stability_score) ? (latest.stability_score>=70?'🟢':'🔴') : '⚪';
+    const patEmoji = Number.isFinite(latest.pattern_score) ? (latest.pattern_score>=70?'🟢':'🔴') : '⚪';
     // Small day-by-day history strip, most recent 10 days, oldest→newest left→right.
     const historyDots = days.slice(0, 10).reverse().map(d => {
       const cls = d.result === 'HIT' ? 'hit' : d.result === 'MISS' ? 'miss' : 'pending';
@@ -147,7 +198,7 @@ async function loadV3() {
     }).join('');
 
     return `<div class="v3card">
-      <div class="v3row"><div><h2>${latest.city}</h2><div class="code">${latest.station_code} · latest: ${latest.forecast_date}</div>${localNow?`<div class="localtime">${localNow} local</div>`:''}</div>
+      <div class="v3row"><div><h2>${latest.city}</h2><div class="code">${latest.station_code} · latest: ${latest.forecast_date}</div>${localNow?`<div class="localtime">🕐 ${localNow} local</div>`:''}</div>
       <span class="record ${recordClass}">${recordText}</span></div>
       <div class="history">${historyDots}</div>
       <p class="sub">Today's status: <b class="status ${statusClass(latest.result)}" style="padding:3px 8px">${statusLabel(latest.result)}</b></p>
@@ -157,7 +208,7 @@ async function loadV3() {
       </div>
       <div class="pair">PAIR COVERAGE: <b>${Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—'}</b></div>
       <div class="badges"><span>${stabEmoji} Stability ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'}</span><span>${patEmoji} Pattern ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'}</span></div>
-      ${!latest.result && Number.isFinite(latest.driftC) ? `<p class="sub">LIVE DRIFT SINCE LOCK: <b>${latest.driftC>0?'+':''}${latest.driftC}° · ${latest.driftStatus}</b> (${latest.heatingTrack})</p>` : ''}
+      ${!latest.result && Number.isFinite(latest.driftC) ? `<p class="sub">📈 Live drift since lock: <b>${latest.driftC>0?'+':''}${latest.driftC}° · ${latest.driftStatus}</b> (${latest.heatingTrack})</p>` : ''}
       ${resolvedBlock}
     </div>`;
   });
@@ -174,7 +225,7 @@ async function loadV2(){
   document.getElementById('grid').innerHTML='<p>Loading exact station data…</p>';
   const r=await fetch('/api/stationedge/stations');const rows=await r.json();window.stationRows=rows;
   document.getElementById('v2count').textContent = `${rows.length} Resolution Stations`;
-  document.getElementById('grid').innerHTML=rows.map(s=>`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">${localTime(s)} local</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`).join('');
+  document.getElementById('grid').innerHTML=rows.map(s=>`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} local</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`).join('');
 }
 function openStation(code){const s=window.stationRows.find(x=>x.code===code);if(!s||s.error)return;window.currentStationEdgeStation=s;document.getElementById('list').classList.add('hidden');const d=document.getElementById('detail');d.classList.remove('hidden');
 d.innerHTML=`<button onclick="backV2()">← Dashboard</button><h1>${s.city} — ${s.code}</h1><p>${s.station} · ${s.latest?.source||s.source}</p><div class="line"><span>CURRENT LOCAL TIME</span><b id="localClock">${localTime(s)}</b></div><div class="hero"><div><small>CURRENT</small><div class="temp">${temp(s.latest?.temperatureC,s)}</div></div><div><small>OBSERVED MAX</small><div class="temp">${temp(s.observedMax,s)}</div></div><div><small>STATE</small><h2>${s.state}</h2></div></div>
@@ -188,5 +239,13 @@ function backV2(){document.getElementById('detail').classList.add('hidden');docu
 
 loadV3();
 setInterval(()=>{const el=document.getElementById('localClock');if(el&&window.currentStationEdgeStation)el.textContent=localTime(window.currentStationEdgeStation);},1000);
+
+function updateSASTClock(){
+  const t=new Intl.DateTimeFormat('en-ZA',{timeZone:'Africa/Johannesburg',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
+  const el=document.getElementById('sastClock'); if(el) el.textContent=t;
+  document.querySelectorAll('.sastMirror').forEach(x=>x.textContent=t);
+}
+updateSASTClock(); setInterval(updateSASTClock,1000);
+
 </script>
 </body></html>

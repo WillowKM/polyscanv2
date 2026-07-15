@@ -2229,7 +2229,24 @@ app.get('/api/stationedge/audit', async (req, res) => {
   );
   if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load StationEdge audit data' });
 
-  const enrichedRows = rows.map(r => ({ ...r, tz: STATIONEDGE_STATIONS[r.station_code]?.tz || null }));
+  const enrichedRows = rows.map(r => {
+    const driftAlert = seDriftAlertFromSignalTime(r.local_signal_time);
+    const unit = r.display_unit || (SE_US_CODES.has(r.station_code) ? 'F' : 'C');
+    const driftHit = r.result === 'HIT' && Number.isFinite(r.actual_high)
+      ? (!seSameOutcome(r.actual_high, r.outcome_one, unit) &&
+         !seSameOutcome(r.actual_high, r.outcome_two, unit) &&
+         seDriftCoveredHit(r, r.actual_high, unit))
+      : false;
+    return {
+      ...r,
+      tz: STATIONEDGE_STATIONS[r.station_code]?.tz || null,
+      driftAlertMagnitude: driftAlert?.magnitude ?? null,
+      driftAlertDirection: driftAlert?.direction ?? null,
+      driftAlertTime: driftAlert?.time ?? null,
+      driftAlertForecastDate: driftAlert ? r.forecast_date : null,
+      resolution_type: driftHit ? 'DRIFT_COVERED_HIT' : (r.result || 'PENDING')
+    };
+  });
 
   // Attach the LIVE drift reading (how far today's running forecast has moved
   // since the 11am-ish signal) so it's visible on the Forward Test card
@@ -2250,7 +2267,15 @@ app.get('/api/stationedge/audit', async (req, res) => {
       }
     } catch (e) { /* leave drift missing for this station rather than fail the whole response */ }
   }));
-  for (const r of enrichedRows) Object.assign(r, driftByCode[r.station_code] || {});
+  for (const r of enrichedRows) {
+    Object.assign(r, driftByCode[r.station_code] || {});
+    // A persisted qualifying alert is historical evidence. Never replace it
+    // visually with the station's current live drift after the row resolves.
+    if (Number.isFinite(r.driftAlertMagnitude) && r.driftAlertDirection) {
+      r.savedDrift = r.driftAlertDirection * r.driftAlertMagnitude;
+      r.savedDriftStatus = r.driftAlertDirection > 0 ? 'UPWARD DRIFT' : 'DOWNWARD DRIFT';
+    }
+  }
 
   const resolved = rows.filter(r => r.result === 'HIT' || r.result === 'MISS');
   const hits = resolved.filter(r => r.result === 'HIT').length;

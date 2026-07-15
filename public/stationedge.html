@@ -285,7 +285,7 @@ function statusClass(r) { return r === 'HIT' ? 'hit' : r === 'MISS' ? 'miss' : '
 function statusLabel(r) { return r === 'HIT' ? 'HIT' : r === 'MISS' ? 'MISS' : 'PENDING'; }
 function isDirectHit(r){ const unit=r.display_unit||(isUS(r.station_code)?'F':'C'); return seUiSameOutcome(r.actual_high,r.outcome_one,unit)||seUiSameOutcome(r.actual_high,r.outcome_two,unit); }
 function seUiSameOutcome(a,p,u){ if(!Number.isFinite(a)||!Number.isFinite(p))return false; return u==='F'?bucketLowF(a)===bucketLowF(p):a===p; }
-function isDriftCoveredHit(r){ return r.result==='HIT' && !isDirectHit(r) && Number.isFinite(r.forecast_error); }
+function isDriftCoveredHit(r){ return r.resolution_type==='DRIFT_COVERED_HIT'; }
 
 function buildTape(cityCardsData) {
   if (!cityCardsData.length) return '<span class="tItem">No live positions yet — waiting on the next signal window</span>';
@@ -365,8 +365,17 @@ async function loadV3() {
       return `<span class="dot ${cls}" title="${d.forecast_date}: ${d.result || 'PENDING'}">${mark}</span>`;
     }).join('');
 
-    const driftBlock = (!latest.result && Number.isFinite(latest.driftC))
-      ? `<div class="driftLine">📈 LIVE DRIFT SINCE LOCK: <b>${latest.driftC>0?'+':''}${latest.driftC}° · ${latest.driftStatus}</b> (${latest.heatingTrack})</div>`
+    // Drift evidence is strictly scoped to this card's forecast date.
+    // A previous day's saved alert must never bleed into today's card.
+    const cardForecastDate = latest.forecast_date;
+    const savedDriftDate = latest.driftAlertForecastDate || latest.forecast_date;
+    const hasSavedDrift = Number.isFinite(latest.savedDrift)
+      && Boolean(cardForecastDate)
+      && savedDriftDate === cardForecastDate;
+    const shownDrift = hasSavedDrift ? latest.savedDrift : latest.driftC;
+    const shownStatus = hasSavedDrift ? latest.savedDriftStatus : latest.driftStatus;
+    const driftBlock = Number.isFinite(shownDrift)
+      ? `<div class="driftLine">📈 ${hasSavedDrift ? 'LOCKED DRIFT ALERT' : 'LIVE DRIFT SINCE LOCK'}: <b>${shownDrift>0?'+':''}${shownDrift}° · ${shownStatus}</b>${hasSavedDrift && latest.driftAlertTime ? ` · ALERT ${latest.driftAlertTime} LOCAL` : ` (${latest.heatingTrack})`}</div>`
       : '';
 
     cityCards.push(`<div class="v3card">

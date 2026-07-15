@@ -93,7 +93,12 @@ function showTab(which) {
 
 // ── Forward Test (V3) ────────────────────────────────────────────────────
 const isUS = code => /^K[A-Z0-9]{3}$/.test(code || '');
-function fmtTemp(v, unit) { return Number.isFinite(v) ? `${v}°${unit}` : '—'; }
+function bucketLowF(t) { const m = ((t % 2) + 2) % 2; return t - m; }
+function fmtTemp(v, unit) {
+  if (!Number.isFinite(v)) return '—';
+  if (unit === 'F') { const lo = bucketLowF(v); return `${lo}-${lo+1}°F`; }
+  return `${v}°${unit}`;
+}
 function statusClass(r) { return r === 'HIT' ? 'hit' : r === 'MISS' ? 'miss' : 'pending'; }
 function statusLabel(r) { return r === 'HIT' ? 'HIT' : r === 'MISS' ? 'MISS' : 'PENDING'; }
 

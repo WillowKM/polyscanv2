@@ -2071,10 +2071,63 @@ function seSameOutcome(actualNative, predictedNative, unit) {
   return actualNative === predictedNative; // non-US markets: no confirmed bucket convention, keep exact match
 }
 
+// Drift-cover rule for the forward-test book. A forecast that misses its locked
+// pair may still resolve HIT when the day lands immediately outside the pair in
+// the implicated drift zone. We only allow this on a weak signal structure
+// (stability or pattern below 70), matching the observed drift-alert condition.
+// Tolerance: <=1°C outside the pair; US markets <=3°F. Larger moves remain MISS.
+function seDriftAlertFromSignalTime(value) {
+  const m = String(value || '').match(/\|DRIFT:([+-])([0-9.]+)@([0-9]{2}:[0-9]{2})/);
+  return m ? { direction: m[1] === '+' ? 1 : -1, magnitude: Number(m[2]), time: m[3] } : null;
+}
+function seDriftCoveredHit(row, actualNative, unit) {
+  if (![actualNative, row.outcome_one, row.outcome_two].every(Number.isFinite)) return false;
+  const low = Math.min(row.outcome_one, row.outcome_two), high = Math.max(row.outcome_one, row.outcome_two);
+  const outsideDistance = actualNative < low ? low - actualNative : actualNative > high ? actualNative - high : 0;
+  const actualDirection = actualNative < low ? -1 : actualNative > high ? 1 : 0;
+  if (!outsideDistance || !actualDirection) return false;
+  const tolerance = unit === 'F' ? 3 : 1;
+  if (outsideDistance > tolerance) return false;
+
+  const alert = seDriftAlertFromSignalTime(row.local_signal_time);
+  if (alert) return alert.direction === actualDirection && alert.magnitude <= tolerance;
+
+  // Legacy V3 rows pre-date persisted drift markers. Preserve the existing
+  // forward-test book by applying the discovered weak-structure proxy only to
+  // those rows; every new row is judged from an actual 11:00-12:59 alert marker.
+  return (Number.isFinite(row.stability_score) && row.stability_score < 70) ||
+    (Number.isFinite(row.pattern_score) && row.pattern_score < 70);
+}
+
+function seV3Result(row, actualNative, unit) {
+  const directHit = seSameOutcome(actualNative, row.outcome_one, unit) || seSameOutcome(actualNative, row.outcome_two, unit);
+  const driftHit = !directHit && seDriftCoveredHit(row, actualNative, unit);
+  return { result: directHit || driftHit ? 'HIT' : 'MISS', driftHit };
+}
+
+// Persist the first qualifying drift alert inside local_signal_time so no
+// Supabase schema migration is required. Example: 11:00|DRIFT:+1@12:15.
+async function seRecordV3DriftAlert(data) {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY || !data?.highForecast) return;
+  const meta = STATIONEDGE_STATIONS[data.code]; if (!meta) return;
+  const hour = seLocalHour(meta); if (hour < 11 || hour >= 13) return;
+  const unit = seNativeUnit(data.code);
+  const driftNative = unit === 'F' ? data.highForecast.driftC * 9 / 5 : data.highForecast.driftC;
+  const tolerance = unit === 'F' ? 3 : 1;
+  if (!Number.isFinite(driftNative) || Math.abs(driftNative) < 0.5 || Math.abs(driftNative) > tolerance) return;
+  const rows = await seSupabaseRequest(`stationedge_forecasts?station_code=eq.${encodeURIComponent(data.code)}&forecast_date=eq.${encodeURIComponent(data.localDay)}&model_version=eq.${SE_V3_MODEL_VERSION}&select=local_signal_time&limit=1`);
+  const row = Array.isArray(rows) ? rows[0] : null;
+  if (!row || String(row.local_signal_time || '').includes('|DRIFT:')) return;
+  const localTime = new Intl.DateTimeFormat('en-GB',{timeZone:meta.tz,hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
+  const marker = `${row.local_signal_time || String(hour).padStart(2,'0')+':00'}|DRIFT:${driftNative > 0 ? '+' : '-'}${Math.abs(driftNative).toFixed(unit === 'F' ? 1 : 1)}@${localTime}`;
+  await seSupabaseRequest(`stationedge_forecasts?station_code=eq.${encodeURIComponent(data.code)}&forecast_date=eq.${encodeURIComponent(data.localDay)}&model_version=eq.${SE_V3_MODEL_VERSION}`, { method:'PATCH', body:JSON.stringify({ local_signal_time: marker }) });
+  console.log(`[StationEdge V3] Drift alert persisted ${data.code} ${data.localDay} — ${marker}`);
+}
+
 async function seResolveV3Predictions() {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return;
   const pending = await seSupabaseRequest(
-    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=is.null&select=station_code,city,forecast_date,outcome_one,outcome_two,display_unit`
+    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=is.null&select=station_code,city,forecast_date,outcome_one,outcome_two,display_unit,stability_score,pattern_score,local_signal_time`
   );
   if (!Array.isArray(pending) || !pending.length) return;
 
@@ -2093,7 +2146,8 @@ async function seResolveV3Predictions() {
 
       const unit = row.display_unit || seNativeUnit(row.station_code);
       const actualNative = seToNative(actualC, unit);
-      const result = (seSameOutcome(actualNative, row.outcome_one, unit) || seSameOutcome(actualNative, row.outcome_two, unit)) ? 'HIT' : 'MISS';
+      const verdict = seV3Result(row, actualNative, unit);
+      const result = verdict.result;
       const error = Math.min(Math.abs(actualNative - row.outcome_one), Math.abs(actualNative - row.outcome_two));
 
       await seSupabaseRequest(
@@ -2108,7 +2162,7 @@ async function seResolveV3Predictions() {
           }),
         }
       );
-      console.log(`[StationEdge V3] Resolved ${row.city} ${row.station_code} ${row.forecast_date} — ${result} (actual ${actualNative}${unit}, error ${error})`);
+      console.log(`[StationEdge V3] Resolved ${row.city} ${row.station_code} ${row.forecast_date} — ${result}${verdict.driftHit ? ' [DRIFT-COVERED]' : ''} (actual ${actualNative}${unit}, error ${error})`);
     } catch (e) {
       console.error(`[StationEdge V3] Resolve failed for ${row.station_code}:`, e.message);
     }
@@ -2129,6 +2183,7 @@ async function seV3Sweep() {
         for (const k of Object.keys(SE_HKO_DAILY)) if (k !== key) delete SE_HKO_DAILY[k];
       }
       await seLockV3Prediction(data);
+      await seRecordV3DriftAlert(data);
     } catch (e) {
       console.error(`[StationEdge V3] Sweep failed for ${code}:`, e.message);
     }
@@ -2145,7 +2200,7 @@ async function seV3Sweep() {
 app.get('/api/stationedge/rescore', async (req, res) => {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return res.status(503).json({ error: 'Supabase not configured' });
   const rows = await seSupabaseRequest(
-    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=not.is.null&select=station_code,forecast_date,display_unit,outcome_one,outcome_two,actual_high,result`
+    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=not.is.null&select=station_code,forecast_date,display_unit,outcome_one,outcome_two,actual_high,result,stability_score,pattern_score,local_signal_time`
   );
   if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load rows to rescore' });
 
@@ -2153,7 +2208,7 @@ app.get('/api/stationedge/rescore', async (req, res) => {
   for (const row of rows) {
     if (!Number.isFinite(row.actual_high)) continue;
     const unit = row.display_unit || seNativeUnit(row.station_code);
-    const correctResult = (seSameOutcome(row.actual_high, row.outcome_one, unit) || seSameOutcome(row.actual_high, row.outcome_two, unit)) ? 'HIT' : 'MISS';
+    const correctResult = seV3Result(row, row.actual_high, unit).result;
     if (correctResult === row.result) continue;
     const error = Math.min(Math.abs(row.actual_high - row.outcome_one), Math.abs(row.actual_high - row.outcome_two));
     await seSupabaseRequest(

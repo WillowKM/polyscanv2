@@ -1,116 +1,178 @@
 <!doctype html>
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>StationEdge | PolyScan</title>
+<title>STATIONEDGE // POLYSCAN TERMINAL</title>
 <style>
-:root{--bg:#07100e;--panel:#0f1c18;--line:#263832;--text:#edf6f2;--muted:#91a79f;--green:#4fe08c;--red:#ff7373;--amber:#e0b84f}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px Arial,sans-serif}
-header{padding:18px 4%;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
-header b{font-size:18px}header span,.green{color:var(--green)}header small,p{color:var(--muted)}
-main{max-width:1400px;margin:auto;padding:28px 4%}
-.tabs{display:flex;gap:8px;margin-bottom:22px;border-bottom:1px solid var(--line)}
-.tab{padding:10px 16px;cursor:pointer;color:var(--muted);font-weight:700;border-bottom:2px solid transparent}
-.tab.active{color:var(--text);border-bottom:2px solid var(--green)}
+:root{
+  --bg:#060807;--panel:#0b0f0e;--panel2:#0e1412;--line:#1d2624;--line2:#2a3735;
+  --text:#eef4f1;--muted:#7d8f89;--dim:#4d5a56;
+  --amber:#ffb020;--green:#2fe08a;--red:#ff5468;--cyan:#3fc8f0;
+  --mono:ui-monospace,SFMono-Regular,'JetBrains Mono',Menlo,Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--text);font:14px var(--sans);
+  background-image:radial-gradient(circle at 15% 0%, rgba(255,176,32,.05), transparent 40%),radial-gradient(circle at 85% 10%, rgba(63,200,240,.04), transparent 40%);}
+.mono{font-family:var(--mono)}
 .hidden{display:none}
-button{background:var(--green);border:0;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer}
 
-/* Forward test (V3) styles */
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px}
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
-.summary .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
-.summary .card small{display:block;color:var(--muted);font-size:11px;letter-spacing:.03em}
-.summary .card b{display:block;font-size:26px;margin-top:6px}
-.v3grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
-.v3card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
-.v3card h2{margin:0 0 2px;font-size:18px}.code{color:var(--muted);font-size:13px}
-.status{font-size:11px;font-weight:800;border-radius:20px;padding:5px 10px;letter-spacing:.03em}
-.status.pending{background:#2a2f19;color:var(--amber)}
-.status.hit{background:#143b29;color:var(--green)}
-.status.miss{background:#392020;color:var(--red)}
-.v3row{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
-.outcomes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-.outcome{background:#0a1512;border:1px solid var(--line);border-radius:9px;padding:12px;text-align:center}
-.outcome small{color:var(--muted);font-size:10px;letter-spacing:.03em}
-.outcome .t{font-size:26px;font-weight:900;margin:6px 0 2px}
-.outcome .p{color:var(--green);font-weight:700;font-size:13px}
-.pair{text-align:center;color:var(--muted);font-size:12px;margin-bottom:10px}
-.pair b{color:var(--text)}
-.badges{display:flex;justify-content:center;gap:14px;font-size:12px;color:var(--muted);margin-bottom:10px}
-.localtime{font-size:11px;color:var(--muted);margin-top:2px}
-.record{font-size:13px;font-weight:800;padding:4px 10px;border-radius:20px;background:#0a1512;border:1px solid var(--line)}
-.record.good{color:var(--green)}.record.bad{color:var(--red)}.record.neutral{color:var(--muted)}
-.history{display:flex;gap:4px;margin:10px 0;flex-wrap:wrap}
-.dot{width:20px;height:20px;border-radius:5px;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:800}
-.dot.hit{background:#143b29;color:var(--green)}.dot.miss{background:#392020;color:var(--red)}.dot.pending{background:#2a2f19;color:var(--amber)}
-.sub{color:var(--muted);font-size:11px;margin:6px 0 0}
-.resolved{border-top:1px solid var(--line);margin-top:10px;padding-top:10px;display:flex;justify-content:space-between;font-size:13px}
-.resolved b{color:var(--text)}
-.empty{color:var(--muted);text-align:center;padding:40px}
+/* ── Header ─────────────────────────────────────────────────────────── */
+header{position:sticky;top:0;z-index:30;background:rgba(6,8,7,.97);backdrop-filter:blur(6px);border-bottom:1px solid var(--line);padding:14px 3%;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.brand b{font:800 16px var(--mono);letter-spacing:.14em}
+.brand b span{color:var(--amber)}
+.brand .sub{font:700 9px var(--mono);letter-spacing:.16em;color:var(--dim);border-left:1px solid var(--line);padding-left:10px;margin-left:2px}
+.hclock{font:800 13px var(--mono);color:var(--cyan);letter-spacing:.05em;display:flex;align-items:center;gap:8px}
+.hclock small{color:var(--dim);font:700 9px var(--mono);letter-spacing:.14em}
 
-/* Live monitor (V2) styles */
-.row{display:flex;justify-content:space-between;gap:12px;align-items:center}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}.card,.detail section,.hero{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
-.card{cursor:pointer}.card h2{margin:0 0 4px}.state{font-size:11px;border:1px solid var(--line);padding:6px;border-radius:20px}
-.temp{font-size:34px;font-weight:900;margin:18px 0}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metrics small,small{display:block;color:var(--muted);font-size:10px}.metrics strong{display:block;margin-top:5px}.red{color:var(--red)}
-.eligible{margin-top:16px;padding:8px;text-align:center;border-radius:7px;font-weight:800;font-size:12px}.eligible.yes{background:#143b29;color:var(--green)}.eligible.no{background:#392020;color:var(--red)}
-.hero{display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}.detail section{margin-top:14px}.score{font-size:48px;font-weight:900}.line{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:10px 0}
-.table{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}pre{white-space:pre-wrap;color:#cfe0da}
-@media(max-width:700px){.two,.hero{grid-template-columns:1fr}.top{align-items:flex-start}}
+/* ── Ticker tape ────────────────────────────────────────────────────── */
+.tape{height:32px;overflow:hidden;border-bottom:1px solid var(--line);background:#050706;position:relative}
+.tape:before,.tape:after{content:'';position:absolute;top:0;bottom:0;width:40px;z-index:2;pointer-events:none}
+.tape:before{left:0;background:linear-gradient(90deg,#050706,transparent)}
+.tape:after{right:0;background:linear-gradient(270deg,#050706,transparent)}
+.tapeTrack{display:inline-flex;align-items:center;height:32px;white-space:nowrap;animation:scroll 45s linear infinite;font:700 11px var(--mono)}
+.tapeTrack:hover{animation-play-state:paused}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.tItem{display:inline-flex;align-items:center;gap:7px;padding:0 16px;color:var(--muted)}
+.tItem b{color:var(--text);letter-spacing:.03em}
+.tItem .up{color:var(--green)}.tItem .down{color:var(--red)}.tItem .flat{color:var(--dim)}
+.tSep{color:var(--line2)}
 
-:root{--bg:#050708;--panel:#0b1013;--line:#273139;--text:#f1f4f5;--muted:#7f8b92;--green:#32d583;--red:#ff5f6d;--amber:#ffb020;--cyan:#38bdf8}
-*{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}
-body{background:#050708;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif}
-header{background:rgba(5,7,8,.96)!important;border-bottom:1px solid var(--line)!important;position:sticky;top:0;z-index:20}
-header b{letter-spacing:.1em}header .willow{font-style:normal;color:var(--amber);font-size:9px;letter-spacing:.12em;margin-left:12px;border-left:1px solid var(--line);padding-left:12px}
-main{max-width:1680px!important;width:100%;margin:auto;padding-left:2.2%!important;padding-right:2.2%!important}
-.card,.v3card,.detail section,.hero{background:linear-gradient(180deg,#0d1216,#090d10)!important;border-color:var(--line)!important;border-radius:3px!important}
-.tabs{border:1px solid var(--line);background:#090d10}.tab.active{color:var(--amber)!important;border-color:var(--amber)!important}
-.code{color:var(--cyan)!important}.green{color:var(--green)!important}.red{color:var(--red)!important}
-button{background:var(--amber)!important;color:#080a0b!important;border-radius:2px!important}
-.marketTicker{height:30px;overflow:hidden;border-bottom:1px solid var(--line);background:#080b0d;color:#aab5bb;white-space:nowrap}
-.tickerTrack{display:inline-flex;align-items:center;gap:18px;height:30px;min-width:max-content;animation:tickerTape 30s linear infinite;font:800 9px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.11em;text-transform:uppercase}
-.tickerTrack b{color:var(--amber);font-size:11px}.tickerTrack i{font-style:normal;color:var(--green)}.tickerBrand{color:var(--cyan)}.tickerSep{color:#39454c;font-size:7px}
-@keyframes tickerTape{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.temp{position:relative!important;display:inline-flex!important;align-items:center;gap:8px;font-variant-numeric:tabular-nums}
-.temp:before{content:"PEAK";font:900 7px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:#090b0c;background:var(--amber);padding:3px 5px;border-radius:1px}
-.hero .temp:after{content:" ▲ SESSION HIGH";font:800 8px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--green);letter-spacing:.08em}
-.table{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
-.terminalFooter{max-width:1680px;margin:0 auto;padding:13px 2.2%;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;color:var(--muted);font:800 8px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;text-transform:uppercase}
-.terminalFooter b{color:var(--amber)}
-@media(max-width:700px){header .willow{display:block;margin:3px 0 0;padding:0;border:0;font-size:7px}.marketTicker{height:27px}.tickerTrack{height:27px;animation-duration:24s}main{padding-left:10px!important;padding-right:10px!important}.hero .temp:after{display:none}.terminalFooter{padding:12px 10px;flex-direction:column;gap:5px}.terminalFooter span:first-child{display:none}}
-@media(min-width:1800px){main{max-width:2200px!important}.terminalFooter{max-width:2200px}}
-@media(prefers-reduced-motion:reduce){.tickerTrack{animation:none}}
+/* ── Layout ─────────────────────────────────────────────────────────── */
+main{max-width:1680px;margin:auto;padding:24px 3% 60px}
+.tabs{display:flex;align-items:center;gap:2px;margin-bottom:20px;border-bottom:1px solid var(--line)}
+.tab{padding:11px 18px;cursor:pointer;color:var(--muted);font:800 11px var(--mono);letter-spacing:.1em;border-bottom:2px solid transparent;text-transform:uppercase}
+.tab.active{color:var(--amber);border-bottom-color:var(--amber)}
+.tab:hover{color:var(--text)}
+.calcLink{margin-left:auto;align-self:center;color:var(--muted);text-decoration:none;font:800 11px var(--mono);letter-spacing:.08em;border:1px solid var(--line);border-radius:2px;padding:9px 14px;text-transform:uppercase}
+.calcLink:hover{border-color:var(--amber);color:var(--amber)}
 
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.top h1{margin:0 0 4px;font:800 20px var(--sans);letter-spacing:-.01em}
+.top p{margin:0;color:var(--muted);font-size:12.5px}
+.btn{background:var(--amber);color:#0a0a09;border:0;border-radius:2px;padding:10px 16px;font:800 11px var(--mono);letter-spacing:.08em;cursor:pointer;text-transform:uppercase}
+.btn:hover{filter:brightness(1.1)}
+
+/* ── Summary strip (board-style) ───────────────────────────────────── */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:22px;border-radius:2px;overflow:hidden}
+.summary .card{background:var(--panel);padding:16px}
+.summary .card small{display:block;color:var(--dim);font:700 9px var(--mono);letter-spacing:.14em}
+.summary .card b{display:block;font:800 26px var(--mono);margin-top:6px;letter-spacing:-.02em}
+
+/* ── City ticker cards ──────────────────────────────────────────────── */
+.v3grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.v3card{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;overflow:hidden;transition:border-color .15s}
+.v3card:hover{border-color:var(--line2)}
+.v3head{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 16px 10px;border-bottom:1px solid var(--line)}
+.ticker-sym{font:800 20px var(--mono);letter-spacing:.02em;color:var(--text)}
+.ticker-city{color:var(--muted);font-size:11.5px;margin-top:1px}
+.ticker-time{color:var(--dim);font:700 10px var(--mono);margin-top:4px;letter-spacing:.03em}
+.record{font:800 13px var(--mono);padding:5px 10px;border-radius:2px;background:#08100d;border:1px solid var(--line2);white-space:nowrap}
+.record.good{color:var(--green);border-color:rgba(47,224,138,.3)}
+.record.bad{color:var(--red);border-color:rgba(255,84,104,.3)}
+.record.neutral{color:var(--dim)}
+
+.history{display:flex;gap:3px;padding:10px 16px 0;flex-wrap:wrap}
+.dot{width:18px;height:18px;border-radius:2px;font-size:9px;display:flex;align-items:center;justify-content:center;font-weight:800;font-family:var(--mono)}
+.dot.hit{background:rgba(47,224,138,.12);color:var(--green)}
+.dot.miss{background:rgba(255,84,104,.12);color:var(--red)}
+.dot.pending{background:rgba(255,176,32,.12);color:var(--amber)}
+
+.statusRow{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 4px}
+.statusRow .lbl{color:var(--dim);font:700 9px var(--mono);letter-spacing:.12em;text-transform:uppercase}
+.status{font:800 10px var(--mono);border-radius:2px;padding:4px 9px;letter-spacing:.08em}
+.status.pending{background:rgba(255,176,32,.14);color:var(--amber)}
+.status.hit{background:rgba(47,224,138,.14);color:var(--green)}
+.status.miss{background:rgba(255,84,104,.14);color:var(--red)}
+
+.quotes{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin:10px 16px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.quote{background:#070b09;padding:12px 10px;text-align:center}
+.quote .qlbl{color:var(--dim);font:700 9px var(--mono);letter-spacing:.12em}
+.quote .qval{font:800 22px var(--mono);margin:6px 0 3px;letter-spacing:-.01em}
+.quote .qprob{color:var(--green);font:700 12px var(--mono)}
+
+.pairRow{display:flex;justify-content:space-between;padding:0 16px;color:var(--dim);font:700 10px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+.pairRow b{color:var(--text)}
+
+.badgeRow{display:flex;gap:14px;padding:10px 16px;font:700 11px var(--mono);color:var(--muted)}
+
+.driftLine{margin:0 16px 10px;padding:8px 10px;background:rgba(63,200,240,.06);border:1px solid rgba(63,200,240,.18);border-radius:2px;font:700 11px var(--mono);color:var(--cyan)}
+.driftLine b{color:var(--text)}
+
+.resolvedBox{margin:0 16px 14px;padding:10px;background:#070b09;border:1px solid var(--line);border-radius:2px}
+.resolvedBox .rline{display:flex;justify-content:space-between;font:700 11px var(--mono);padding:4px 0;color:var(--dim)}
+.resolvedBox .rline b{color:var(--text);font-size:13px}
+
+.empty{color:var(--muted);text-align:center;padding:50px 20px;font-size:13px}
+
+/* ── Live Monitor cards ─────────────────────────────────────────────── */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.card{cursor:pointer;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;padding:16px;transition:border-color .15s}
+.card:hover{border-color:var(--line2)}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card h2{margin:0 0 2px;font-size:16px}
+.code{color:var(--cyan);font:700 11.5px var(--mono)}
+.state{font:700 10px var(--mono);border:1px solid var(--line2);padding:5px 9px;border-radius:2px;color:var(--muted);white-space:nowrap}
+.localtime{font:700 10px var(--mono);color:var(--dim);margin-top:6px}
+.temp{font:800 32px var(--mono);margin:14px 0;letter-spacing:-.02em;position:relative;display:inline-flex;align-items:center;gap:8px}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.metrics small,small{display:block;color:var(--dim);font:700 9px var(--mono);letter-spacing:.08em}
+.metrics strong{display:block;margin-top:5px;font-family:var(--mono)}
+.green{color:var(--green)}.red{color:var(--red)}
+.eligible{margin-top:14px;padding:8px;text-align:center;border-radius:2px;font:800 10px var(--mono);letter-spacing:.08em}
+.eligible.yes{background:rgba(47,224,138,.12);color:var(--green)}
+.eligible.no{background:rgba(255,84,104,.12);color:var(--red)}
+
+.detail section,.hero{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;padding:18px}
+.hero{display:grid;grid-template-columns:repeat(3,1fr);margin:18px 0;gap:12px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.detail section{margin-top:12px}
+.score{font:800 44px var(--mono)}
+.line{display:flex;justify-content:space-between;border-top:1px solid var(--line);padding:10px 0;font-size:13px}
+.table{overflow:auto;max-width:100%;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12.5px}
+th,td{text-align:left;padding:9px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--dim);font-weight:700;font-size:10px;letter-spacing:.06em}
+pre{white-space:pre-wrap;color:#bcd0c9;font-family:var(--mono);font-size:12px}
+.backBtn{background:transparent;border:1px solid var(--line2);color:var(--muted);border-radius:2px;padding:8px 14px;font:700 10px var(--mono);letter-spacing:.08em;cursor:pointer}
+.backBtn:hover{color:var(--text);border-color:var(--amber)}
+
+footer.term{max-width:1680px;margin:0 auto;padding:16px 3%;border-top:1px solid var(--line);display:flex;justify-content:space-between;gap:14px;color:var(--dim);font:700 9px var(--mono);letter-spacing:.1em;text-transform:uppercase;flex-wrap:wrap}
+footer.term b{color:var(--amber)}
+
+@media(max-width:700px){
+  header{padding:12px 4%}.brand .sub{display:none}
+  main{padding:18px 4% 40px}
+  .two,.hero{grid-template-columns:1fr}
+  .top{align-items:flex-start}
+  footer.term{flex-direction:column;gap:6px}
+}
 </style></head>
 <body>
-<header><b>POLYSCAN <span>STATIONEDGE</span> <em class="willow">POLYSCAN BY WILLOW</em></b><small>Exact-station weather intelligence · WU excluded</small></header>
 
-<div class="marketTicker">
-  <div class="tickerTrack">
-    <span class="tickerBrand">JSE LINK // JOHANNESBURG</span><span class="tickerSep">◆</span>
-    <span>SAST <b id="sastClock">--:--:--</b></span><span class="tickerSep">◆</span>
-    <span>STATIONEDGE <i>LIVE</i></span><span class="tickerSep">◆</span>
-    <span>WEATHER MARKET INTELLIGENCE</span><span class="tickerSep">◆</span>
-    <span>POLYSCAN BY WILLOW</span><span class="tickerSep">◆</span>
-    <span class="tickerBrand">JSE LINK // JOHANNESBURG</span><span class="tickerSep">◆</span>
-    <span>SAST <b class="sastMirror">--:--:--</b></span><span class="tickerSep">◆</span>
-    <span>STATIONEDGE <i>LIVE</i></span><span class="tickerSep">◆</span>
-    <span>WEATHER MARKET INTELLIGENCE</span><span class="tickerSep">◆</span>
-    <span>POLYSCAN BY WILLOW</span>
-  </div>
-</div>
+<header>
+  <div class="brand"><span class="dot"></span><b>POLYSCAN <span>STATIONEDGE</span></b><span class="sub">TERMINAL · BY WILLOW</span></div>
+  <div class="hclock"><small>LOCAL</small><span id="hClock">--:--:--</span></div>
+</header>
+
+<div class="tape"><div class="tapeTrack" id="tapeTrack">
+  <span class="tItem">Loading market tape…</span>
+</div></div>
 
 <main>
   <div class="tabs">
     <div class="tab active" id="tabV3" onclick="showTab('v3')">Forward Test</div>
     <div class="tab" id="tabV2" onclick="showTab('v2')">Live Monitor</div>
-    <a href="/" style="margin-left:auto;align-self:center;color:var(--muted);text-decoration:none;font-weight:700;font-size:13px;border:1px solid var(--line);border-radius:8px;padding:8px 14px">📟 Calculator</a>
+    <a href="/" class="calcLink">📟 Calculator</a>
   </div>
 
   <!-- Forward Test (V3) -->
   <div id="viewV3">
     <div class="top">
-      <div><h1 style="margin:0 0 4px">Forward-Test Results</h1><p id="v3sub" style="margin:0">One card per city — track record shown as hits/resolved days.</p></div>
-      <button onclick="loadV3()">Refresh</button>
+      <div><h1>Forward-Test Book</h1><p id="v3sub">One position per city — running record shown as hits / resolved</p></div>
+      <button class="btn" onclick="loadV3()">↻ Refresh</button>
     </div>
     <div id="v3summary" class="summary"></div>
     <div id="v3grid" class="v3grid"><p class="empty">Loading…</p></div>
@@ -118,12 +180,25 @@ button{background:var(--amber)!important;color:#080a0b!important;border-radius:2
 
   <!-- Live Monitor (V2) -->
   <div id="viewV2" class="hidden">
-    <div id="list"><div class="top"><div><h1 id="v2count">Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button onclick="loadV2()">Refresh</button></div><div id="grid" class="grid"></div></div>
+    <div id="list">
+      <div class="top"><div><h1 id="v2count">Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button class="btn" onclick="loadV2()">↻ Refresh</button></div>
+      <div id="grid" class="grid"></div>
+    </div>
     <div id="detail" class="detail hidden"></div>
   </div>
 </main>
-<footer class="terminalFooter"><span>STATIONEDGE // WEATHER MARKET INTELLIGENCE</span><b>POLYSCAN BY WILLOW</b><span>JOHANNESBURG · SAST</span></footer>
+
+<footer class="term"><span>STATIONEDGE // WEATHER MARKET INTELLIGENCE</span><b>POLYSCAN BY WILLOW</b><span id="fClock">--:--:--</span></footer>
+
 <script>
+// ── Clocks ──────────────────────────────────────────────────────────────
+function updateClocks(){
+  const t = new Date().toLocaleTimeString('en-US',{hour12:false});
+  const h = document.getElementById('hClock'); if (h) h.textContent = t;
+  const f = document.getElementById('fClock'); if (f) f.textContent = t;
+}
+updateClocks(); setInterval(updateClocks, 1000);
+
 function showTab(which) {
   document.getElementById('tabV3').classList.toggle('active', which === 'v3');
   document.getElementById('tabV2').classList.toggle('active', which === 'v2');
@@ -144,6 +219,19 @@ function fmtTemp(v, unit) {
 function statusClass(r) { return r === 'HIT' ? 'hit' : r === 'MISS' ? 'miss' : 'pending'; }
 function statusLabel(r) { return r === 'HIT' ? 'HIT' : r === 'MISS' ? 'MISS' : 'PENDING'; }
 
+function buildTape(cityCardsData) {
+  if (!cityCardsData.length) return '<span class="tItem">No live positions yet — waiting on the next signal window</span>';
+  const items = cityCardsData.map(c => {
+    const arrow = !c.latest.result && Number.isFinite(c.latest.driftC)
+      ? (c.latest.driftC > 0.3 ? `<span class="up">▲${c.latest.driftC.toFixed(1)}°</span>` : c.latest.driftC < -0.3 ? `<span class="down">▼${Math.abs(c.latest.driftC).toFixed(1)}°</span>` : `<span class="flat">flat</span>`)
+      : (c.latest.result === 'HIT' ? '<span class="up">HIT</span>' : c.latest.result === 'MISS' ? '<span class="down">MISS</span>' : '<span class="flat">…</span>');
+    const unit = c.latest.display_unit || (isUS(c.latest.station_code) ? 'F' : 'C');
+    return `<span class="tItem"><b>${c.latest.station_code}</b> ${fmtTemp(c.latest.outcome_one, unit)}/${fmtTemp(c.latest.outcome_two, unit)} ${arrow}<span class="tSep">◆</span></span>`;
+  });
+  const doubled = items.concat(items); // seamless loop
+  return doubled.join('');
+}
+
 async function loadV3() {
   window.__v3Loaded = true;
   document.getElementById('v3grid').innerHTML = '<p class="empty">Loading…</p>';
@@ -161,10 +249,11 @@ async function loadV3() {
     <div class="card"><small>TOTAL PREDICTIONS</small><b>${data.totalPredictions}</b></div>
     <div class="card"><small>RESOLVED</small><b>${data.resolvedPredictions}</b></div>
     <div class="card"><small>PAIR HIT RATE</small><b>${data.pairHitRate === null ? '—' : data.pairHitRate + '%'}</b></div>
-    <div class="card"><small>AVERAGE ERROR</small><b>${data.averageError === null ? '—' : data.averageError + '°'}</b></div>
+    <div class="card"><small>AVG ERROR</small><b>${data.averageError === null ? '—' : data.averageError + '°'}</b></div>
   `;
   if (!data.records || !data.records.length) {
-    document.getElementById('v3grid').innerHTML = '<p class="empty">No predictions locked yet. StationEdge locks one prediction per station between 11:00–12:59 local station time.</p>';
+    document.getElementById('v3grid').innerHTML = '<p class="empty">No predictions locked yet. StationEdge locks one prediction per station between its local signal window.</p>';
+    document.getElementById('tapeTrack').innerHTML = buildTape([]);
     return;
   }
 
@@ -175,8 +264,12 @@ async function loadV3() {
   }
   for (const code in byStation) byStation[code].sort((a, b) => b.forecast_date.localeCompare(a.forecast_date));
 
-  const cityCards = Object.values(byStation).map(days => {
-    const latest = days[0];
+  const grouped = Object.values(byStation).map(days => ({ days, latest: days[0] }));
+  grouped.sort((a, b) => a.latest.city.localeCompare(b.latest.city));
+
+  document.getElementById('tapeTrack').innerHTML = buildTape(grouped);
+
+  const cityCards = grouped.map(({ days, latest }) => {
     const resolvedDays = days.filter(d => d.result === 'HIT' || d.result === 'MISS');
     const hits = resolvedDays.filter(d => d.result === 'HIT').length;
     const recordClass = resolvedDays.length === 0 ? 'neutral' : (hits / resolvedDays.length) >= 0.5 ? 'good' : 'bad';
@@ -184,31 +277,43 @@ async function loadV3() {
 
     const unit = latest.display_unit || (isUS(latest.station_code) ? 'F' : 'C');
     const resolvedBlock = latest.result === 'HIT' || latest.result === 'MISS'
-      ? `<div class="resolved"><span>ACTUAL HIGH</span><b>${fmtTemp(latest.actual_high, unit)}</b></div>
-         <div class="resolved"><span>FORECAST ERROR</span><b>${Number.isFinite(latest.forecast_error) ? latest.forecast_error + '°' : '—'}</b></div>`
+      ? `<div class="resolvedBox">
+           <div class="rline"><span>ACTUAL HIGH</span><b>${fmtTemp(latest.actual_high, unit)}</b></div>
+           <div class="rline"><span>FORECAST ERROR</span><b>${Number.isFinite(latest.forecast_error) ? latest.forecast_error + '°' : '—'}</b></div>
+         </div>`
       : '';
     const localNow = latest.tz ? new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date()) : null;
     const stabEmoji = Number.isFinite(latest.stability_score) ? (latest.stability_score>=70?'🟢':'🔴') : '⚪';
     const patEmoji = Number.isFinite(latest.pattern_score) ? (latest.pattern_score>=70?'🟢':'🔴') : '⚪';
-    // Small day-by-day history strip, most recent 10 days, oldest→newest left→right.
+
     const historyDots = days.slice(0, 10).reverse().map(d => {
       const cls = d.result === 'HIT' ? 'hit' : d.result === 'MISS' ? 'miss' : 'pending';
       const mark = d.result === 'HIT' ? '✓' : d.result === 'MISS' ? '✕' : '…';
       return `<span class="dot ${cls}" title="${d.forecast_date}: ${d.result || 'PENDING'}">${mark}</span>`;
     }).join('');
 
+    const driftBlock = (!latest.result && Number.isFinite(latest.driftC))
+      ? `<div class="driftLine">📈 LIVE DRIFT SINCE LOCK: <b>${latest.driftC>0?'+':''}${latest.driftC}° · ${latest.driftStatus}</b> (${latest.heatingTrack})</div>`
+      : '';
+
     return `<div class="v3card">
-      <div class="v3row"><div><h2>${latest.city}</h2><div class="code">${latest.station_code} · latest: ${latest.forecast_date}</div>${localNow?`<div class="localtime">🕐 ${localNow} local</div>`:''}</div>
-      <span class="record ${recordClass}">${recordText}</span></div>
-      <div class="history">${historyDots}</div>
-      <p class="sub">Today's status: <b class="status ${statusClass(latest.result)}" style="padding:3px 8px">${statusLabel(latest.result)}</b></p>
-      <div class="outcomes">
-        <div class="outcome"><small>OUTCOME 1</small><div class="t">${fmtTemp(latest.outcome_one, unit)}</div><div class="p">${Number.isFinite(latest.outcome_one_probability) ? latest.outcome_one_probability + '%' : '—'}</div></div>
-        <div class="outcome"><small>OUTCOME 2</small><div class="t">${fmtTemp(latest.outcome_two, unit)}</div><div class="p">${Number.isFinite(latest.outcome_two_probability) ? latest.outcome_two_probability + '%' : '—'}</div></div>
+      <div class="v3head">
+        <div>
+          <div class="ticker-sym">${latest.station_code}</div>
+          <div class="ticker-city">${latest.city}</div>
+          <div class="ticker-time">${latest.forecast_date}${localNow ? ' · 🕐 ' + localNow + ' LOCAL' : ''}</div>
+        </div>
+        <span class="record ${recordClass}">${recordText}</span>
       </div>
-      <div class="pair">PAIR COVERAGE: <b>${Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—'}</b></div>
-      <div class="badges"><span>${stabEmoji} Stability ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'}</span><span>${patEmoji} Pattern ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'}</span></div>
-      ${!latest.result && Number.isFinite(latest.driftC) ? `<p class="sub">📈 Live drift since lock: <b>${latest.driftC>0?'+':''}${latest.driftC}° · ${latest.driftStatus}</b> (${latest.heatingTrack})</p>` : ''}
+      <div class="history">${historyDots}</div>
+      <div class="statusRow"><span class="lbl">Position Status</span><span class="status ${statusClass(latest.result)}">${statusLabel(latest.result)}</span></div>
+      <div class="quotes">
+        <div class="quote"><div class="qlbl">OUTCOME 1</div><div class="qval">${fmtTemp(latest.outcome_one, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_one_probability) ? latest.outcome_one_probability + '%' : '—'}</div></div>
+        <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(latest.outcome_two, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_two_probability) ? latest.outcome_two_probability + '%' : '—'}</div></div>
+      </div>
+      <div class="pairRow"><span>Pair Coverage</span><b>${Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—'}</b></div>
+      <div class="badgeRow"><span>${stabEmoji} STAB ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'}</span><span>${patEmoji} PATT ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'}</span></div>
+      ${driftBlock}
       ${resolvedBlock}
     </div>`;
   });
@@ -216,19 +321,19 @@ async function loadV3() {
   document.getElementById('v3grid').innerHTML = cityCards.join('');
 }
 
-// ── Live Monitor (V2) — unchanged from the original dashboard ──────────────
+// ── Live Monitor (V2) ────────────────────────────────────────────────────
 const temp=(v,s)=>Number.isFinite(v)?(isUS(s?.code)?(v*9/5+32).toFixed(1)+'°F':v.toFixed(1)+'°C'):'—';
 const tempPair=(v,s)=>v?v.map(x=>temp(x,s)).join(' / '):'Not available yet';
 const localTime=s=>new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',second:'2-digit',hour12:true}).format(new Date());
 async function loadV2(){
   window.__v2Loaded = true;
-  document.getElementById('grid').innerHTML='<p>Loading exact station data…</p>';
+  document.getElementById('grid').innerHTML='<p class="empty">Loading exact station data…</p>';
   const r=await fetch('/api/stationedge/stations');const rows=await r.json();window.stationRows=rows;
   document.getElementById('v2count').textContent = `${rows.length} Resolution Stations`;
-  document.getElementById('grid').innerHTML=rows.map(s=>`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} local</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`).join('');
+  document.getElementById('grid').innerHTML=rows.map(s=>`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`).join('');
 }
 function openStation(code){const s=window.stationRows.find(x=>x.code===code);if(!s||s.error)return;window.currentStationEdgeStation=s;document.getElementById('list').classList.add('hidden');const d=document.getElementById('detail');d.classList.remove('hidden');
-d.innerHTML=`<button onclick="backV2()">← Dashboard</button><h1>${s.city} — ${s.code}</h1><p>${s.station} · ${s.latest?.source||s.source}</p><div class="line"><span>CURRENT LOCAL TIME</span><b id="localClock">${localTime(s)}</b></div><div class="hero"><div><small>CURRENT</small><div class="temp">${temp(s.latest?.temperatureC,s)}</div></div><div><small>OBSERVED MAX</small><div class="temp">${temp(s.observedMax,s)}</div></div><div><small>STATE</small><h2>${s.state}</h2></div></div>
+d.innerHTML=`<button class="backBtn" onclick="backV2()">← DASHBOARD</button><h1>${s.city} — ${s.code}</h1><p>${s.station} · ${s.latest?.source||s.source}</p><div class="line"><span>CURRENT LOCAL TIME</span><b id="localClock">${localTime(s)}</b></div><div class="hero"><div><small>CURRENT</small><div class="temp">${temp(s.latest?.temperatureC,s)}</div></div><div><small>OBSERVED MAX</small><div class="temp">${temp(s.observedMax,s)}</div></div><div><small>STATE</small><h2>${s.state}</h2></div></div>
 ${s.highForecast?`<section><h2>Daily High Forecast Engine V2</h2><div class="hero"><div><small>FINAL HIGH FORECAST</small><div class="temp">${temp(s.highForecast.predictedLowC,s)} – ${temp(s.highForecast.predictedHighC,s)}</div></div><div><small>PRIMARY YES BARBELL</small><div class="temp">${tempPair(s.highForecast.primaryOutcomesC,s)}</div></div><div><small>CONFIDENCE</small><div class="temp">${s.highForecast.confidence}%</div></div></div><div class="line"><span>Signal window</span><b>${s.highForecast.signalWindow}</b></div><div class="line"><span>Forecast validation</span><b>${s.highForecast.validation.score}% · ${s.highForecast.validation.status}</b></div><div class="line"><span>Forecast drift</span><b>${s.highForecast.driftC>0?'+':''}${s.highForecast.driftC}°C · ${s.highForecast.driftStatus}</b></div><div class="line"><span>Initial 11:00 signal</span><b>${s.highForecast.initialSignalOutcomesC?tempPair(s.highForecast.initialSignalOutcomesC,s):'Not available yet'}</b></div><div class="line"><span>Heating track</span><b>${s.highForecast.heatingTrack}</b></div><div class="line"><span>Official daily-high source</span><b>${s.highForecast.officialForecastHighC!=null?temp(s.highForecast.officialForecastHighC,s):'Not available'} ${s.highForecast.officialForecastSource?'· '+s.highForecast.officialForecastSource:''}</b></div><h3>Temperature Probability Ladder</h3><div class="table"><table><tr><th>Outcome</th><th>Model probability</th><th>Scanner classification</th></tr>${s.highForecast.probabilityLadder.map(x=>`<tr><td>${temp(x.temperatureC,s)}</td><td>${x.probability}%</td><td>${x.classification}</td></tr>`).join('')}</table></div><h3>Forecast Validation</h3>${s.highForecast.validation.checks.map(x=>`<div class="line"><span>${x.name}</span><b class="${x.ok?'green':'red'}">${x.ok?'SUPPORTED':'WARNING'} · ${x.detail}</b></div>`).join('')}</section>`:''}
 <div class="two"><section><h2>Stability Scanner</h2><div class="score ${s.stability>=70?'green':'red'}">${s.stability}%</div>${Object.entries(s.stabilityParts).map(([k,v])=>`<div class="line"><span>${k}</span><b>${v}%</b></div>`).join('')}</section>
 <section><h2>Pattern Day</h2><div class="score ${s.pattern>=70?'green':'red'}">${s.pattern}%</div><div class="line"><span>Dominant pattern</span><b>${s.patternParts.dominant}</b></div><div class="line"><span>Observed regime changes</span><b>${s.patternParts.changes}</b></div><div class="line"><span>Forecast transition markers</span><b>${s.patternParts.markers}</b></div></section></div>
@@ -239,13 +344,6 @@ function backV2(){document.getElementById('detail').classList.add('hidden');docu
 
 loadV3();
 setInterval(()=>{const el=document.getElementById('localClock');if(el&&window.currentStationEdgeStation)el.textContent=localTime(window.currentStationEdgeStation);},1000);
-
-function updateSASTClock(){
-  const t=new Intl.DateTimeFormat('en-ZA',{timeZone:'Africa/Johannesburg',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
-  const el=document.getElementById('sastClock'); if(el) el.textContent=t;
-  document.querySelectorAll('.sastMirror').forEach(x=>x.textContent=t);
-}
-updateSASTClock(); setInterval(updateSASTClock,1000);
-
+setInterval(()=>{ if (!document.getElementById('viewV3').classList.contains('hidden')) loadV3(); }, 5 * 60 * 1000); // keep the tape/cards fresh without a manual click
 </script>
 </body></html>

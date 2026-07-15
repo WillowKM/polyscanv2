@@ -11,9 +11,13 @@
 }
 html[data-theme="day"]{
   --bg:#f4f1ea;--panel:#ffffff;--panel2:#faf8f3;--line:#ddd6c7;--line2:#c9c0aa;
-  --text:#181a17;--muted:#5c6058;--dim:#8a8d84;
+  --text:#111411;--muted:#414840;--dim:#5d665d;
   --amber:#b8720a;--green:#0f9e5e;--red:#d3364a;--cyan:#0f7ea8;
 }
+html[data-theme="day"] header{background:rgba(244,241,234,.97)}
+html[data-theme="day"] .tape{background:linear-gradient(90deg,#18372d,#50340a,#12384a,#18372d)}
+html[data-theme="day"] .tItem{color:#f1f7f4}
+html[data-theme="day"] .quote,html[data-theme="day"] .resolvedBox{background:#fff}
 html[data-theme="day"] body{background-image:radial-gradient(circle at 15% 0%, rgba(184,114,10,.05), transparent 40%),radial-gradient(circle at 85% 10%, rgba(15,126,168,.05), transparent 40%)}
 body{transition:background-color .2s,color .2s}
 *{transition:background-color .15s,border-color .15s,color .15s}
@@ -36,14 +40,15 @@ header{position:sticky;top:0;z-index:30;background:rgba(6,8,7,.97);backdrop-filt
 .hclock small{color:var(--dim);font:700 9px var(--mono);letter-spacing:.14em}
 
 /* ── Ticker tape ────────────────────────────────────────────────────── */
-.tape{height:32px;overflow:hidden;border-bottom:1px solid var(--line);background:#050706;position:relative}
+.tape{height:36px;overflow:hidden;border-bottom:1px solid var(--line);background:linear-gradient(90deg,#07110d,#100b05,#07101a,#07110d);position:relative;box-shadow:inset 0 -1px rgba(63,200,240,.12)}
 .tape:before,.tape:after{content:'';position:absolute;top:0;bottom:0;width:40px;z-index:2;pointer-events:none}
-.tape:before{left:0;background:linear-gradient(90deg,#050706,transparent)}
-.tape:after{right:0;background:linear-gradient(270deg,#050706,transparent)}
-.tapeTrack{display:inline-flex;align-items:center;height:32px;white-space:nowrap;animation:scroll 45s linear infinite;font:700 11px var(--mono)}
+.tape:before{left:0;background:linear-gradient(90deg,var(--bg),transparent)}
+.tape:after{right:0;background:linear-gradient(270deg,var(--bg),transparent)}
+.tapeTrack{display:inline-flex;align-items:center;height:36px;white-space:nowrap;animation:scroll 38s linear infinite;font:700 11px var(--mono)}
 .tapeTrack:hover{animation-play-state:paused}
 @keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-.tItem{display:inline-flex;align-items:center;gap:7px;padding:0 16px;color:var(--muted)}
+.tItem{display:inline-flex;align-items:center;gap:8px;padding:0 18px;color:#c8d6d0;text-shadow:0 0 12px rgba(63,200,240,.12)}
+.tItem:nth-child(4n+1) b{color:var(--cyan)}.tItem:nth-child(4n+2) b{color:var(--amber)}.tItem:nth-child(4n+3) b{color:var(--green)}.tItem:nth-child(4n) b{color:#d49cff}
 .tItem b{color:var(--text);letter-spacing:.03em}
 .tItem .up{color:var(--green)}.tItem .down{color:var(--red)}.tItem .flat{color:var(--dim)}
 .tSep{color:var(--line2)}
@@ -62,6 +67,7 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .top p{margin:0;color:var(--muted);font-size:12.5px}
 .btn{background:var(--amber);color:#0a0a09;border:0;border-radius:2px;padding:10px 16px;font:800 11px var(--mono);letter-spacing:.08em;cursor:pointer;text-transform:uppercase}
 .btn:hover{filter:brightness(1.1)}
+.topActions{display:flex;gap:8px;flex-wrap:wrap}.btn.secondary{background:transparent;color:var(--cyan);border:1px solid rgba(63,200,240,.45)}
 
 /* ── Summary strip (board-style) ───────────────────────────────────── */
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:22px;border-radius:2px;overflow:hidden}
@@ -77,7 +83,7 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .ticker-sym{font:800 20px var(--mono);letter-spacing:.02em;color:var(--text)}
 .ticker-city{color:var(--muted);font-size:11.5px;margin-top:1px}
 .ticker-time{color:var(--dim);font:700 10px var(--mono);margin-top:4px;letter-spacing:.03em}
-.record{font:800 13px var(--mono);padding:5px 10px;border-radius:2px;background:#08100d;border:1px solid var(--line2);white-space:nowrap}
+.record{font:800 13px var(--mono);padding:5px 10px;border-radius:2px;background:var(--panel);border:1px solid var(--line2);white-space:nowrap}
 .record.good{color:var(--green);border-color:rgba(47,224,138,.3)}
 .record.bad{color:var(--red);border-color:rgba(255,84,104,.3)}
 .record.neutral{color:var(--dim)}
@@ -96,7 +102,7 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .status.miss{background:rgba(255,84,104,.14);color:var(--red)}
 
 .quotes{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin:10px 16px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
-.quote{background:#070b09;padding:12px 10px;text-align:center}
+.quote{background:var(--panel);padding:12px 10px;text-align:center}
 .quote .qlbl{color:var(--dim);font:700 9px var(--mono);letter-spacing:.12em}
 .quote .qval{font:800 22px var(--mono);margin:6px 0 3px;letter-spacing:-.01em}
 .quote .qprob{color:var(--green);font:700 12px var(--mono)}
@@ -109,7 +115,7 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .driftLine{margin:0 16px 10px;padding:8px 10px;background:rgba(63,200,240,.06);border:1px solid rgba(63,200,240,.18);border-radius:2px;font:700 11px var(--mono);color:var(--cyan)}
 .driftLine b{color:var(--text)}
 
-.resolvedBox{margin:0 16px 14px;padding:10px;background:#070b09;border:1px solid var(--line);border-radius:2px}
+.resolvedBox{margin:0 16px 14px;padding:10px;background:var(--panel);border:1px solid var(--line);border-radius:2px}
 .resolvedBox .rline{display:flex;justify-content:space-between;font:700 11px var(--mono);padding:4px 0;color:var(--dim)}
 .resolvedBox .rline b{color:var(--text);font-size:13px}
 
@@ -186,7 +192,7 @@ footer.term b{color:var(--amber)}
   <div id="viewV3">
     <div class="top">
       <div><h1>Forward-Test Book</h1><p id="v3sub">One position per city — running record shown as hits / resolved</p></div>
-      <button class="btn" onclick="loadV3()">↻ Refresh</button>
+      <div class="topActions"><button class="btn secondary" onclick="downloadV3Csv()">⇩ Download CSV</button><button class="btn" onclick="loadV3()">↻ Refresh</button></div>
     </div>
     <div id="v3summary" class="summary"></div>
     <div id="v3grid" class="v3grid"><p class="empty">Loading…</p></div>
@@ -277,6 +283,9 @@ function fmtTemp(v, unit) {
 }
 function statusClass(r) { return r === 'HIT' ? 'hit' : r === 'MISS' ? 'miss' : 'pending'; }
 function statusLabel(r) { return r === 'HIT' ? 'HIT' : r === 'MISS' ? 'MISS' : 'PENDING'; }
+function isDirectHit(r){ const unit=r.display_unit||(isUS(r.station_code)?'F':'C'); return seUiSameOutcome(r.actual_high,r.outcome_one,unit)||seUiSameOutcome(r.actual_high,r.outcome_two,unit); }
+function seUiSameOutcome(a,p,u){ if(!Number.isFinite(a)||!Number.isFinite(p))return false; return u==='F'?bucketLowF(a)===bucketLowF(p):a===p; }
+function isDriftCoveredHit(r){ return r.result==='HIT' && !isDirectHit(r) && Number.isFinite(r.forecast_error); }
 
 function buildTape(cityCardsData) {
   if (!cityCardsData.length) return '<span class="tItem">No live positions yet — waiting on the next signal window</span>';
@@ -343,6 +352,7 @@ async function loadV3() {
       ? `<div class="resolvedBox">
            <div class="rline"><span>ACTUAL HIGH</span><b>${fmtTemp(latest.actual_high, unit)}</b></div>
            <div class="rline"><span>FORECAST ERROR</span><b>${Number.isFinite(latest.forecast_error) ? latest.forecast_error + '°' : '—'}</b></div>
+           ${isDriftCoveredHit(latest)?'<div class="rline"><span>RESOLUTION</span><b class="green">DRIFT-COVERED HIT</b></div>':''}
          </div>`
       : '';
     const localNow = latest.tz ? new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date()) : null;
@@ -382,6 +392,16 @@ async function loadV3() {
   }
 
   document.getElementById('v3grid').innerHTML = cityCards.join('');
+}
+
+function csvCell(v){ const s=v==null?'':String(v); return /[\",\n]/.test(s)?'\"'+s.replace(/\"/g,'\"\"')+'\"':s; }
+async function downloadV3Csv(){
+  const r=await fetch('/api/stationedge/audit'); const data=await r.json();
+  if(data.error||!Array.isArray(data.records)) return alert(data.error||'No StationEdge records available');
+  const cols=['forecast_date','station_code','city','local_signal_time','display_unit','outcome_one','outcome_two','outcome_one_probability','outcome_two_probability','pair_probability','stability_score','pattern_score','actual_high','forecast_error','result','resolution_type','model_version'];
+  const lines=[cols.join(',')];
+  for(const x of data.records){ const row={...x,resolution_type:isDriftCoveredHit(x)?'DRIFT_COVERED_HIT':(x.result||'PENDING')}; lines.push(cols.map(c=>csvCell(row[c])).join(',')); }
+  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='stationedge-forward-test-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 
 // ── Live Monitor (V2) ────────────────────────────────────────────────────

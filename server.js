@@ -2055,6 +2055,21 @@ async function seActualHighC(code, forecastDate) {
 // (station's local day has moved past the forecast date, or it's late —
 // 20:00+ local — in the forecast date itself, i.e. well after the normal
 // daily-high peak).
+// Polymarket's US daily-high markets resolve in 2°F-wide buckets anchored on
+// even numbers (88-89, 90-91, 92-93, 94-95...) — not single-degree exactness.
+// So a 95°F prediction and a 94°F actual are the SAME winning outcome. This
+// returns the low edge of the bucket a given whole-degree F reading falls
+// into; two readings are "the same bucket" iff this returns the same value
+// for both.
+function sePolymarketBucketLowF(tempF) {
+  const mod = ((tempF % 2) + 2) % 2;
+  return tempF - mod;
+}
+function seSameOutcome(actualNative, predictedNative, unit) {
+  if (unit === 'F') return sePolymarketBucketLowF(actualNative) === sePolymarketBucketLowF(predictedNative);
+  return actualNative === predictedNative; // non-US markets: no confirmed bucket convention, keep exact match
+}
+
 async function seResolveV3Predictions() {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return;
   const pending = await seSupabaseRequest(
@@ -2077,7 +2092,7 @@ async function seResolveV3Predictions() {
 
       const unit = row.display_unit || seNativeUnit(row.station_code);
       const actualNative = seToNative(actualC, unit);
-      const result = (actualNative === row.outcome_one || actualNative === row.outcome_two) ? 'HIT' : 'MISS';
+      const result = (seSameOutcome(actualNative, row.outcome_one, unit) || seSameOutcome(actualNative, row.outcome_two, unit)) ? 'HIT' : 'MISS';
       const error = Math.min(Math.abs(actualNative - row.outcome_one), Math.abs(actualNative - row.outcome_two));
 
       await seSupabaseRequest(
@@ -2119,6 +2134,35 @@ async function seV3Sweep() {
   }
   await seResolveV3Predictions();
 }
+
+// One-time fix-up: re-scores every already-resolved V3 row against the
+// correct Polymarket bucket logic above. Needed because rows resolved
+// before this fix used exact-degree matching and may have wrongly recorded
+// a MISS where the actual high shared a bucket with a predicted outcome.
+// Safe to call more than once — it only re-derives result/error from the
+// actual_high and outcomes already stored, nothing else changes.
+app.post('/api/stationedge/rescore', async (req, res) => {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return res.status(503).json({ error: 'Supabase not configured' });
+  const rows = await seSupabaseRequest(
+    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=not.is.null&select=station_code,forecast_date,display_unit,outcome_one,outcome_two,actual_high,result`
+  );
+  if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load rows to rescore' });
+
+  let corrected = 0;
+  for (const row of rows) {
+    if (!Number.isFinite(row.actual_high)) continue;
+    const unit = row.display_unit || seNativeUnit(row.station_code);
+    const correctResult = (seSameOutcome(row.actual_high, row.outcome_one, unit) || seSameOutcome(row.actual_high, row.outcome_two, unit)) ? 'HIT' : 'MISS';
+    if (correctResult === row.result) continue;
+    const error = Math.min(Math.abs(row.actual_high - row.outcome_one), Math.abs(row.actual_high - row.outcome_two));
+    await seSupabaseRequest(
+      `stationedge_forecasts?station_code=eq.${encodeURIComponent(row.station_code)}&forecast_date=eq.${encodeURIComponent(row.forecast_date)}&model_version=eq.${SE_V3_MODEL_VERSION}`,
+      { method: 'PATCH', body: JSON.stringify({ result: correctResult, forecast_error: error }) }
+    );
+    corrected++;
+  }
+  res.json({ checked: rows.length, corrected });
+});
 
 app.get('/api/stationedge/audit', async (req, res) => {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {

@@ -2141,7 +2141,7 @@ async function seV3Sweep() {
 // a MISS where the actual high shared a bucket with a predicted outcome.
 // Safe to call more than once — it only re-derives result/error from the
 // actual_high and outcomes already stored, nothing else changes.
-app.post('/api/stationedge/rescore', async (req, res) => {
+app.get('/api/stationedge/rescore', async (req, res) => {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return res.status(503).json({ error: 'Supabase not configured' });
   const rows = await seSupabaseRequest(
     `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=not.is.null&select=station_code,forecast_date,display_unit,outcome_one,outcome_two,actual_high,result`

@@ -2090,7 +2090,14 @@ function seDriftCoveredHit(row, actualNative, unit) {
   if (outsideDistance > tolerance) return false;
 
   const alert = seDriftAlertFromSignalTime(row.local_signal_time);
-  if (alert) return alert.direction === actualDirection && alert.magnitude <= tolerance;
+  if (alert) {
+    // Drift can be monitored/locked until 20:00, but the special
+    // drift-covered HIT rule remains restricted to alerts raised in the
+    // original 11:00-12:59 trade-protection window.
+    const alertHour = Number(String(alert.time || '').split(':')[0]);
+    const inProtectionWindow = Number.isFinite(alertHour) && alertHour >= 11 && alertHour < 13;
+    return inProtectionWindow && alert.direction === actualDirection && alert.magnitude <= tolerance;
+  }
 
   // Legacy V3 rows pre-date persisted drift markers. Preserve the existing
   // forward-test book by applying the discovered weak-structure proxy only to
@@ -2110,7 +2117,10 @@ function seV3Result(row, actualNative, unit) {
 async function seRecordV3DriftAlert(data) {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY || !data?.highForecast) return;
   const meta = STATIONEDGE_STATIONS[data.code]; if (!meta) return;
-  const hour = seLocalHour(meta); if (hour < 11 || hour >= 13) return;
+  const hour = seLocalHour(meta);
+  // Drift locking/monitoring is active only from 11:00 until the 20:00
+  // local resolution sweep for this station.
+  if (hour < 11 || hour >= 20) return;
   const unit = seNativeUnit(data.code);
   const driftNative = unit === 'F' ? data.highForecast.driftC * 9 / 5 : data.highForecast.driftC;
   const tolerance = unit === 'F' ? 3 : 1;

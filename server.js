@@ -1560,9 +1560,9 @@ const STATIONEDGE_STATIONS = {
   KAUS: { city:'Austin',        station:'Austin-Bergstrom Intl', tz:'America/Chicago', source:'metar' },
   KORD: { city:'Chicago',       station:"O'Hare Intl",           tz:'America/Chicago', source:'metar' },
   KDAL: { city:'Dallas',        station:'Dallas Love Field',     tz:'America/Chicago', source:'metar' },
-  KBKF: { city:'Denver',        station:'Buckley SFB',           tz:'America/Denver', source:'metar' },
-  KHOU: { city:'Houston',       station:'William P. Hobby Airport', tz:'America/Chicago', source:'metar' },
-  KMIA: { city:'Miami',         station:'Miami Intl',            tz:'America/New_York', source:'metar' },
+  KBKF: { city:'Denver',        station:'Buckley SFB',           tz:'America/Denver', source:'metar', lockWindow:[13,15] },
+  KHOU: { city:'Houston',       station:'William P. Hobby Airport', tz:'America/Chicago', source:'metar', lockWindow:[13,15] },
+  KMIA: { city:'Miami',         station:'Miami Intl',            tz:'America/New_York', source:'metar', lockWindow:[13,15] },
   WSSS: { city:'Singapore',     station:'Changi Airport',        tz:'Asia/Singapore', source:'metar' },
 };
 // ── STATIONEDGE SUPABASE RESEARCH RECORDER ────────────────────────────────
@@ -1998,7 +1998,8 @@ async function seLockV3Prediction(data) {
   const meta = STATIONEDGE_STATIONS[data.code];
   if (!meta) return false;
   const localHour = seLocalHour(meta);
-  if (localHour < 11 || localHour >= 13) return false;
+  const [winStart, winEnd] = meta.lockWindow || [11, 13]; // end is exclusive
+  if (localHour < winStart || localHour >= winEnd) return false;
 
   const outcomes = seBuildV3Outcomes(data);
   if (!outcomes) return false;
@@ -2174,6 +2175,28 @@ app.get('/api/stationedge/audit', async (req, res) => {
   if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load StationEdge audit data' });
 
   const enrichedRows = rows.map(r => ({ ...r, tz: STATIONEDGE_STATIONS[r.station_code]?.tz || null }));
+
+  // Attach the LIVE drift reading (how far today's running forecast has moved
+  // since the 11am-ish signal) so it's visible on the Forward Test card
+  // without having to click into Live Monitor. Only fetched once per unique
+  // station, not per historical row.
+  const uniqueCodes = [...new Set(rows.map(r => r.station_code))];
+  const driftByCode = {};
+  await Promise.all(uniqueCodes.map(async code => {
+    try {
+      const data = await seStation(code);
+      if (data?.highForecast) {
+        driftByCode[code] = {
+          driftC: data.highForecast.driftC,
+          driftStatus: data.highForecast.driftStatus,
+          heatingTrack: data.highForecast.heatingTrack,
+          signalWindow: data.highForecast.signalWindow,
+        };
+      }
+    } catch (e) { /* leave drift missing for this station rather than fail the whole response */ }
+  }));
+  for (const r of enrichedRows) Object.assign(r, driftByCode[r.station_code] || {});
+
   const resolved = rows.filter(r => r.result === 'HIT' || r.result === 'MISS');
   const hits = resolved.filter(r => r.result === 'HIT').length;
   const misses = resolved.filter(r => r.result === 'MISS').length;

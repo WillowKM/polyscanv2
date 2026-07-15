@@ -9,6 +9,14 @@
   --mono:ui-monospace,SFMono-Regular,'JetBrains Mono',Menlo,Consolas,monospace;
   --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Arial,sans-serif;
 }
+html[data-theme="day"]{
+  --bg:#f4f1ea;--panel:#ffffff;--panel2:#faf8f3;--line:#ddd6c7;--line2:#c9c0aa;
+  --text:#181a17;--muted:#5c6058;--dim:#8a8d84;
+  --amber:#b8720a;--green:#0f9e5e;--red:#d3364a;--cyan:#0f7ea8;
+}
+html[data-theme="day"] body{background-image:radial-gradient(circle at 15% 0%, rgba(184,114,10,.05), transparent 40%),radial-gradient(circle at 85% 10%, rgba(15,126,168,.05), transparent 40%)}
+body{transition:background-color .2s,color .2s}
+*{transition:background-color .15s,border-color .15s,color .15s}
 *{box-sizing:border-box}
 html,body{max-width:100%;overflow-x:hidden}
 body{margin:0;background:var(--bg);color:var(--text);font:14px var(--sans);
@@ -106,6 +114,9 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .resolvedBox .rline b{color:var(--text);font-size:13px}
 
 .empty{color:var(--muted);text-align:center;padding:50px 20px;font-size:13px}
+.regionHead{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin:18px 0 2px;color:var(--dim);font:800 11px var(--mono);letter-spacing:.16em;text-transform:uppercase}
+.regionHead:first-child{margin-top:0}
+.regionHead:after{content:'';flex:1;height:1px;background:var(--line)}
 
 /* ── Live Monitor cards ─────────────────────────────────────────────── */
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
@@ -154,7 +165,10 @@ footer.term b{color:var(--amber)}
 
 <header>
   <div class="brand"><span class="dot"></span><b>POLYSCAN <span>STATIONEDGE</span></b><span class="sub">TERMINAL · BY WILLOW</span></div>
-  <div class="hclock"><small>LOCAL</small><span id="hClock">--:--:--</span></div>
+  <div style="display:flex;align-items:center;gap:14px">
+    <div class="hclock"><small>LOCAL</small><span id="hClock">--:--:--</span></div>
+    <button id="themeToggle" onclick="toggleTheme()" class="calcLink" style="cursor:pointer">🌙</button>
+  </div>
 </header>
 
 <div class="tape"><div class="tapeTrack" id="tapeTrack">
@@ -191,6 +205,23 @@ footer.term b{color:var(--amber)}
 <footer class="term"><span>STATIONEDGE // WEATHER MARKET INTELLIGENCE</span><b>POLYSCAN BY WILLOW</b><span id="fClock">--:--:--</span></footer>
 
 <script>
+// ── Theme ───────────────────────────────────────────────────────────────
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const btn = document.getElementById('themeToggle');
+  if (btn) btn.textContent = theme === 'day' ? '☀️' : '🌙';
+}
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'day' ? 'night' : 'day';
+  applyTheme(current);
+  try { localStorage.setItem('stationedge-theme', current); } catch(e) {}
+}
+(function initTheme() {
+  let saved = null;
+  try { saved = localStorage.getItem('stationedge-theme'); } catch(e) {}
+  applyTheme(saved || 'night');
+})();
+
 // ── Clocks ──────────────────────────────────────────────────────────────
 function updateClocks(){
   const t = new Date().toLocaleTimeString('en-US',{hour12:false});
@@ -198,6 +229,34 @@ function updateClocks(){
   const f = document.getElementById('fClock'); if (f) f.textContent = t;
 }
 updateClocks(); setInterval(updateClocks, 1000);
+
+// ── Region grouping + signal-window priority (shared by both tabs) ───────
+const REGION_ORDER = ['Asia', 'Europe', 'US', 'Other'];
+const REGION_BY_CODE = {
+  RJTT:'Asia', RKSI:'Asia', RKPK:'Asia', HKO:'Asia', VHHH:'Asia', WSSS:'Asia', RCTP:'Asia',
+  EGLC:'Europe', EHAM:'Europe', EFHK:'Europe', EDDM:'Europe', EPWA:'Europe',
+  KLGA:'US', KLAX:'US', KSFO:'US', KSEA:'US', KATL:'US', KAUS:'US', KORD:'US', KDAL:'US', KDFW:'US', KBKF:'US', KHOU:'US', KMIA:'US',
+};
+function regionOf(code) { return REGION_BY_CODE[code] || 'Other'; }
+const SIGNAL_PRIORITY = {
+  'PRIMARY SIGNAL WINDOW': 0,        // Trade Now
+  'LATE SIGNAL / DRIFT MONITOR': 1,  // Peak Approach
+  'BUILDING FORECAST': 2,            // Building
+  'COLLECTING DATA': 3,
+  'NO NEW SIGNAL': 4,
+};
+function signalRank(sw) { return SIGNAL_PRIORITY[sw] ?? 5; }
+function sortByRegionAndSignal(items, getCode, getSignalWindow, getCity) {
+  return items.slice().sort((a, b) => {
+    const rA = REGION_ORDER.indexOf(regionOf(getCode(a)));
+    const rB = REGION_ORDER.indexOf(regionOf(getCode(b)));
+    if (rA !== rB) return rA - rB;
+    const sA = signalRank(getSignalWindow(a));
+    const sB = signalRank(getSignalWindow(b));
+    if (sA !== sB) return sA - sB;
+    return getCity(a).localeCompare(getCity(b));
+  });
+}
 
 function showTab(which) {
   document.getElementById('tabV3').classList.toggle('active', which === 'v3');
@@ -265,11 +324,15 @@ async function loadV3() {
   for (const code in byStation) byStation[code].sort((a, b) => b.forecast_date.localeCompare(a.forecast_date));
 
   const grouped = Object.values(byStation).map(days => ({ days, latest: days[0] }));
-  grouped.sort((a, b) => a.latest.city.localeCompare(b.latest.city));
+  const sortedGrouped = sortByRegionAndSignal(grouped, g => g.latest.station_code, g => g.latest.signalWindow, g => g.latest.city);
 
-  document.getElementById('tapeTrack').innerHTML = buildTape(grouped);
+  document.getElementById('tapeTrack').innerHTML = buildTape(sortedGrouped);
 
-  const cityCards = grouped.map(({ days, latest }) => {
+  const cityCards = [];
+  let lastRegion = null;
+  for (const { days, latest } of sortedGrouped) {
+    const region = regionOf(latest.station_code);
+    if (region !== lastRegion) { cityCards.push(`<div class="regionHead">${region}</div>`); lastRegion = region; }
     const resolvedDays = days.filter(d => d.result === 'HIT' || d.result === 'MISS');
     const hits = resolvedDays.filter(d => d.result === 'HIT').length;
     const recordClass = resolvedDays.length === 0 ? 'neutral' : (hits / resolvedDays.length) >= 0.5 ? 'good' : 'bad';
@@ -296,7 +359,7 @@ async function loadV3() {
       ? `<div class="driftLine">📈 LIVE DRIFT SINCE LOCK: <b>${latest.driftC>0?'+':''}${latest.driftC}° · ${latest.driftStatus}</b> (${latest.heatingTrack})</div>`
       : '';
 
-    return `<div class="v3card">
+    cityCards.push(`<div class="v3card">
       <div class="v3head">
         <div>
           <div class="ticker-sym">${latest.station_code}</div>
@@ -315,8 +378,8 @@ async function loadV3() {
       <div class="badgeRow"><span>${stabEmoji} STAB ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'}</span><span>${patEmoji} PATT ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'}</span></div>
       ${driftBlock}
       ${resolvedBlock}
-    </div>`;
-  });
+    </div>`);
+  }
 
   document.getElementById('v3grid').innerHTML = cityCards.join('');
 }
@@ -330,7 +393,15 @@ async function loadV2(){
   document.getElementById('grid').innerHTML='<p class="empty">Loading exact station data…</p>';
   const r=await fetch('/api/stationedge/stations');const rows=await r.json();window.stationRows=rows;
   document.getElementById('v2count').textContent = `${rows.length} Resolution Stations`;
-  document.getElementById('grid').innerHTML=rows.map(s=>`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`).join('');
+  const sorted = sortByRegionAndSignal(rows, s => s.code, s => s.highForecast?.signalWindow, s => s.city);
+  const cards = [];
+  let lastRegion = null;
+  for (const s of sorted) {
+    const region = regionOf(s.code);
+    if (region !== lastRegion) { cards.push(`<div class="regionHead">${region}</div>`); lastRegion = region; }
+    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`);
+  }
+  document.getElementById('grid').innerHTML = cards.join('');
 }
 function openStation(code){const s=window.stationRows.find(x=>x.code===code);if(!s||s.error)return;window.currentStationEdgeStation=s;document.getElementById('list').classList.add('hidden');const d=document.getElementById('detail');d.classList.remove('hidden');
 d.innerHTML=`<button class="backBtn" onclick="backV2()">← DASHBOARD</button><h1>${s.city} — ${s.code}</h1><p>${s.station} · ${s.latest?.source||s.source}</p><div class="line"><span>CURRENT LOCAL TIME</span><b id="localClock">${localTime(s)}</b></div><div class="hero"><div><small>CURRENT</small><div class="temp">${temp(s.latest?.temperatureC,s)}</div></div><div><small>OBSERVED MAX</small><div class="temp">${temp(s.observedMax,s)}</div></div><div><small>STATE</small><h2>${s.state}</h2></div></div>

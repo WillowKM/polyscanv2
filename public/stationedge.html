@@ -439,11 +439,23 @@ const SESSION_ORDER       = ['asian', 'eu', 'us'];
 function evaluateCandidate(g) {
   const { latest } = g;
   const unit = latest.display_unit || (isUS(latest.station_code) ? 'F' : 'C');
+
+  // Only ever recommend a trade between 08:00-20:00 local to that station —
+  // outside that window we don't know enough (too early) or it's too late
+  // in the day to matter for a fresh entry.
+  const localHour = latest.tz
+    ? Number(new Intl.DateTimeFormat('en-GB',{timeZone:latest.tz,hour:'2-digit',hour12:false}).format(new Date()))
+    : null;
+  const inWindow = Number.isFinite(localHour) && localHour >= 8 && localHour < 20;
+
   const price1 = matchLivePrice(latest.city, latest.outcome_one, unit);
   const price2 = matchLivePrice(latest.city, latest.outcome_two, unit);
   const stabOk = Number.isFinite(latest.stability_score) && latest.stability_score >= 70;
   const pattOk = Number.isFinite(latest.pattern_score) && latest.pattern_score >= 70;
 
+  if (!inWindow) {
+    return { g, unit, status: 'watch', reason: `Outside the 08:00–20:00 local trading window (currently ${Number.isFinite(localHour)?localHour+':00':'—'} local) — not recommended right now.` };
+  }
   if (!stabOk || !pattOk) {
     return { g, unit, status: 'none', reason: `No signal — Stability ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'} / Pattern ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'} (need 70/70)` };
   }
@@ -461,7 +473,7 @@ function evaluateCandidate(g) {
   if (edge1 < MIN_EDGE_CENTS || edge2 < MIN_EDGE_CENTS) {
     return { g, unit, price1, price2, edge1, edge2, combined, status: 'watch', reason: `Edge too thin — leg edges are ${edge1.toFixed(0)}¢ / ${edge2.toFixed(0)}¢, need ${MIN_EDGE_CENTS}¢+ on both.` };
   }
-  return { g, unit, price1, price2, edge1, edge2, combined, avgEdge, status: 'go', reason: `Both legs clear ${MIN_EDGE_CENTS}¢ edge, combined ${combined.toFixed(0)}¢ ≤ ${MAX_COMBINED_CENTS}¢ ceiling.` };
+  return { g, unit, price1, price2, edge1, edge2, combined, avgEdge, status: 'go', reason: `Both legs clear ${MIN_EDGE_CENTS}¢ edge, combined ${combined.toFixed(0)}¢ ≤ ${MAX_COMBINED_CENTS}¢ ceiling, within trading window.` };
 }
 
 // Solve stake sizing backward from a PROFIT target (not a payout target).
@@ -502,6 +514,7 @@ function buildSessionPlanner(sortedGrouped) {
   const nominalExposure = RISK_SUMMARY.sessions.asian ? RISK_SUMMARY.sessions.asian.exposureCap : 0;
 
   let rolloverTarget = 0, rolloverExposure = 0;
+  window.__plannerLegIds = [];
   const cards = SESSION_ORDER.map(key => {
     const candidates  = bySession[key];
     const sess        = RISK_SUMMARY.sessions[key];
@@ -549,14 +562,20 @@ function buildSessionPlanner(sortedGrouped) {
     rolloverTarget = Math.max(0, gapLeft);
     rolloverExposure = Math.max(0, expLeft);
 
-    const legsHtml = legs.map(({ cand, sizing }) => {
+    const legsHtml = legs.map(({ cand, sizing }, i) => {
       const latest = cand.g.latest;
-      return `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);">
+      const legId = `${key}_${i}`;
+      window.__plannerLegIds.push(legId);
+      return `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);" id="pleg_${legId}" data-p1="${cand.price1}" data-p2="${cand.price2}">
         <div class="pcity" style="font-size:14px;">${latest.city}</div>
         <div class="pnote" style="margin-top:2px;">${cand.reason}</div>
         <div class="pleg"><span>Buy Yes ${fmtTemp(latest.outcome_one, cand.unit)}</span><b>${cand.price1.toFixed(0)}¢ (edge +${cand.edge1.toFixed(0)})</b></div>
         <div class="pleg"><span>Buy Yes ${fmtTemp(latest.outcome_two, cand.unit)}</span><b>${cand.price2.toFixed(0)}¢ (edge +${cand.edge2.toFixed(0)})</b></div>
-        <div class="pstake">Stake: $${sizing.stake1.toFixed(2)} + $${sizing.stake2.toFixed(2)} = $${sizing.totalStake.toFixed(2)}<br><span style="font-size:10.5px;color:var(--muted);font-weight:400;">→ profit $${sizing.profitIfWin.toFixed(2)} if either leg hits</span></div>
+        <div style="display:flex;gap:10px;margin-top:8px;">
+          <div class="riskField" style="width:auto;"><label>Stake leg 1 ($)</label><input type="number" step="0.01" value="${sizing.stake1.toFixed(2)}" oninput="recalcLeg('${legId}')" id="stake1_${legId}"></div>
+          <div class="riskField" style="width:auto;"><label>Stake leg 2 ($)</label><input type="number" step="0.01" value="${sizing.stake2.toFixed(2)}" oninput="recalcLeg('${legId}')" id="stake2_${legId}"></div>
+        </div>
+        <div class="pstake" id="pstake_${legId}"></div>
       </div>`;
     }).join('');
 
@@ -573,6 +592,31 @@ function buildSessionPlanner(sortedGrouped) {
     </div>`;
   }).join('');
   grid.innerHTML = cards;
+  (window.__plannerLegIds || []).forEach(recalcLeg);
+}
+
+// Recompute profit/loss when Willow manually edits a leg's stake — this is
+// the manual override: sizing above is just a starting suggestion.
+function recalcLeg(legId) {
+  const box = document.getElementById(`pleg_${legId}`);
+  if (!box) return;
+  const p1 = parseFloat(box.dataset.p1) / 100; // price as a fraction
+  const p2 = parseFloat(box.dataset.p2) / 100;
+  const s1 = parseFloat(document.getElementById(`stake1_${legId}`).value) || 0;
+  const s2 = parseFloat(document.getElementById(`stake2_${legId}`).value) || 0;
+  const totalStake = s1 + s2;
+  const payoutIfLeg1 = p1 > 0 ? s1 / p1 : 0;
+  const payoutIfLeg2 = p2 > 0 ? s2 / p2 : 0;
+  const profitIfLeg1 = payoutIfLeg1 - totalStake;
+  const profitIfLeg2 = payoutIfLeg2 - totalStake;
+  const balanced = Math.abs(profitIfLeg1 - profitIfLeg2) < 0.01;
+  const out = document.getElementById(`pstake_${legId}`);
+  if (!out) return;
+  out.innerHTML = `Total stake: $${totalStake.toFixed(2)}<br>
+    <span style="font-size:10.5px;color:var(--muted);font-weight:400;">
+      If leg 1 hits: profit $${profitIfLeg1.toFixed(2)} · If leg 2 hits: profit $${profitIfLeg2.toFixed(2)}
+      ${balanced ? ' <span style="color:var(--green);">(balanced barbell)</span>' : ' <span style="color:var(--amber);">(unbalanced — legs no longer pay equally)</span>'}
+    </span>`;
 }
 
 async function loadV3() {

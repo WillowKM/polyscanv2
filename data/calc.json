@@ -14,11 +14,12 @@
       "stake": 5.07,
       "entryPriceCents": 37,
       "session": null,
-      "status": "open",
+      "status": "WIN",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-16",
       "openedAt": "2026-07-16T03:57:47.341Z",
-      "settledAt": null
+      "settledAt": "2026-07-16T06:47:14.054Z",
+      "profit": 8.6327
     },
     {
       "id": "1784174265562-hl4ty",

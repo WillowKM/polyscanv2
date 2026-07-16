@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1784174265562-hl4ty",
+      "city": "(city)",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "28°C",
+      "stake": 5.48,
+      "entryPriceCents": 40,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-16",
+      "openedAt": "2026-07-16T03:57:45.562Z",
+      "settledAt": null
+    },
+    {
       "id": "1783959829044-aqbe0",
       "city": "Dallas",
       "strategy": "3",

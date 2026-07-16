@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1784174267341-4bmfd",
+      "city": "(city)",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "29°C",
+      "stake": 5.07,
+      "entryPriceCents": 37,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-16",
+      "openedAt": "2026-07-16T03:57:47.341Z",
+      "settledAt": null
+    },
+    {
       "id": "1784174265562-hl4ty",
       "city": "(city)",
       "strategy": "3",

@@ -106,6 +106,39 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .quote .qlbl{color:var(--dim);font:700 9px var(--mono);letter-spacing:.12em}
 .quote .qval{font:800 22px var(--mono);margin:6px 0 3px;letter-spacing:-.01em}
 .quote .qprob{color:var(--green);font:700 12px var(--mono)}
+.quote .qlive{margin-top:5px;padding-top:5px;border-top:1px dashed var(--line)}
+.quote .qlive .llbl{color:var(--dim);font:700 8.5px var(--mono);letter-spacing:.1em}
+.quote .qlive .lval{font:800 15px var(--mono);margin-top:2px}
+.quote .qlive .edge{font:700 10px var(--mono);margin-top:2px}
+.edge.pos{color:var(--green)}.edge.neg{color:var(--red)}.edge.flat{color:var(--dim)}
+
+/* ── Risk calculator panel ─────────────────────────────────────────── */
+.riskPanel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;padding:16px 18px;margin-bottom:18px}
+.riskPanel h2{margin:0 0 12px;font:800 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.riskInputs{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
+.riskField{display:flex;flex-direction:column;gap:4px}
+.riskField label{font:700 9px var(--mono);color:var(--dim);letter-spacing:.08em;text-transform:uppercase}
+.riskField input{background:var(--panel);border:1px solid var(--line);border-radius:2px;color:var(--text);padding:8px 10px;font:700 13px var(--mono);width:120px}
+.riskStats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.riskStats .rcard{background:var(--panel);padding:12px 14px}
+.riskStats .rcard small{display:block;color:var(--dim);font:700 9px var(--mono);letter-spacing:.1em}
+.riskStats .rcard b{display:block;font:800 18px var(--mono);margin-top:5px}
+.riskStats .rcard.hi b{color:var(--green)}.riskStats .rcard.lo b{color:var(--red)}
+
+/* ── Session planner ────────────────────────────────────────────────── */
+.plannerGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:18px}
+.plannerCard{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;padding:14px 16px}
+.plannerCard.go{border-color:rgba(47,224,138,.35)}
+.plannerCard .psess{font:800 10px var(--mono);letter-spacing:.12em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
+.plannerCard .pcity{font:800 17px var(--sans);margin-bottom:2px}
+.plannerCard .pstatus{display:inline-block;font:800 9.5px var(--mono);letter-spacing:.08em;padding:3px 8px;border-radius:2px;margin-bottom:10px}
+.plannerCard .pstatus.go{background:rgba(47,224,138,.14);color:var(--green)}
+.plannerCard .pstatus.watch{background:rgba(255,176,32,.14);color:var(--amber)}
+.plannerCard .pstatus.none{background:rgba(125,143,137,.14);color:var(--dim)}
+.plannerCard .pleg{display:flex;justify-content:space-between;font:700 11.5px var(--mono);padding:5px 0;border-top:1px solid var(--line)}
+.plannerCard .pleg b{color:var(--text)}
+.plannerCard .pnote{margin-top:10px;color:var(--muted);font-size:11px;line-height:1.5}
+.plannerCard .pstake{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font:800 14px var(--mono);color:var(--cyan)}
 
 .pairRow{display:flex;justify-content:space-between;padding:0 16px;color:var(--dim);font:700 10px var(--mono);letter-spacing:.06em;text-transform:uppercase}
 .pairRow b{color:var(--text)}
@@ -193,6 +226,20 @@ footer.term b{color:var(--amber)}
     <div class="top">
       <div><h1>Forward-Test Book</h1><p id="v3sub">One position per city — running record shown as hits / resolved</p></div>
       <div class="topActions"><button class="btn secondary" onclick="downloadV3Csv()">⇩ Download CSV</button><button class="btn" onclick="loadV3()">↻ Refresh</button></div>
+    </div>
+    <div class="riskPanel">
+      <h2>Risk Calculator</h2>
+      <div class="riskInputs">
+        <div class="riskField"><label>Bankroll ($)</label><input id="rcBankroll" type="number" step="0.01"></div>
+        <div class="riskField"><label>Exposure cap ($)</label><input id="rcExposure" type="number" step="0.01"></div>
+        <div class="riskField"><label>Daily target (%)</label><input id="rcTarget" type="number" step="0.1"></div>
+        <button class="btn" onclick="saveRiskSettings()">Save</button>
+      </div>
+      <div class="riskStats" id="riskStatsRow"></div>
+    </div>
+    <div class="riskPanel">
+      <h2>Session Planner <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— best qualifying trade per session, sized against today's target</span></h2>
+      <div class="plannerGrid" id="plannerGrid"><div class="empty" style="padding:20px;">Loading…</div></div>
     </div>
     <div id="v3summary" class="summary"></div>
     <div id="v3grid" class="v3grid"><p class="empty">Loading…</p></div>
@@ -300,10 +347,194 @@ function buildTape(cityCardsData) {
   return doubled.join('');
 }
 
+// ── Risk Calculator ──────────────────────────────────────────────────────
+let RISK_SUMMARY = null;
+async function loadRiskCalc() {
+  try {
+    const r = await fetch('/calc/state');
+    const data = await r.json();
+    document.getElementById('rcBankroll').value = data.settings.portfolio   ?? '';
+    document.getElementById('rcExposure').value = data.settings.exposureCap ?? '';
+    document.getElementById('rcTarget').value   = data.settings.targetPct   ?? 6;
+    renderRiskStats(data.summary);
+    RISK_SUMMARY = data.summary;
+    return data.summary;
+  } catch (e) { return null; /* calculator state is non-critical to the forward-test view */ }
+}
+function renderRiskStats(s) {
+  const wrap = document.getElementById('riskStatsRow');
+  if (!wrap || !s) return;
+  wrap.innerHTML = `
+    <div class="rcard"><small>DAILY TARGET</small><b>$${s.targetDollars.toFixed(2)}</b></div>
+    <div class="rcard"><small>SESSION TARGET (÷3)</small><b>$${s.sessionTarget.toFixed(2)}</b></div>
+    <div class="rcard ${s.profitToday>=0?'hi':'lo'}"><small>PROFIT TODAY</small><b>$${s.profitToday.toFixed(2)}</b></div>
+    <div class="rcard"><small>% OF TARGET</small><b>${s.pctOfTarget.toFixed(0)}%${s.targetMet?' ✅':''}</b></div>
+    <div class="rcard"><small>EXPOSURE USED</small><b>$${s.exposureUsed.toFixed(2)}</b></div>
+    <div class="rcard"><small>EXPOSURE FREE</small><b>$${s.exposureFree.toFixed(2)}</b></div>
+  `;
+}
+async function saveRiskSettings() {
+  const portfolio   = parseFloat(document.getElementById('rcBankroll').value) || 0;
+  const exposureCap = parseFloat(document.getElementById('rcExposure').value) || 0;
+  const targetPct   = parseFloat(document.getElementById('rcTarget').value)   || 6;
+  const res = await fetch('/calc/settings', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ portfolio, exposureCap, targetPct })
+  });
+  const data = await res.json();
+  renderRiskStats(data.summary);
+  RISK_SUMMARY = data.summary;
+  if (window.__lastSortedGrouped) buildSessionPlanner(window.__lastSortedGrouped);
+}
+
+// ── Live Polymarket prices, matched to model brackets ──────────────────────
+let LIVE_POLY = {};
+async function fetchLivePrices(cityNames) {
+  try {
+    const res = await fetch('/poly/batch', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cities: cityNames })
+    });
+    LIVE_POLY = await res.json();
+  } catch (e) { LIVE_POLY = {}; }
+}
+// Matches a model outcome (a bucketed temp value + display unit) against the
+// live Polymarket outcomes array for that city, using the same "does the
+// bracket label contain this number" approach the backend uses for bet settlement.
+function matchLivePrice(cityName, tempValue, unit) {
+  const entry = LIVE_POLY[cityName];
+  const outcomes = entry && entry.polyData && entry.polyData.outcomes;
+  if (!outcomes || !Number.isFinite(tempValue)) return null;
+  let needle;
+  if (unit === 'F') {
+    const lo = bucketLowF(tempValue);
+    needle = `${lo}-${lo+1}`;
+  } else {
+    needle = `${tempValue}`;
+  }
+  const match = outcomes.find(o => (o.bracket || '').includes(needle));
+  return match && Number.isFinite(match.prob) ? match.prob : null;
+}
+function liveQuoteBlock(cityName, tempValue, modelProb, unit) {
+  const priceProb = matchLivePrice(cityName, tempValue, unit); // 0-100, same scale as model prob (Yes %)
+  if (priceProb === null) return '<div class="qlive"><div class="llbl">LIVE PRICE</div><div class="lval" style="color:var(--dim)">—</div></div>';
+  const priceCents = priceProb.toFixed(0);
+  let edgeHtml = '';
+  if (Number.isFinite(modelProb)) {
+    const edge = modelProb - priceProb;
+    const cls = edge >= 5 ? 'pos' : edge <= -5 ? 'neg' : 'flat';
+    edgeHtml = `<div class="edge ${cls}">${edge>0?'+':''}${edge.toFixed(0)}pt edge</div>`;
+  }
+  return `<div class="qlive"><div class="llbl">LIVE PRICE</div><div class="lval">${priceCents}¢</div>${edgeHtml}</div>`;
+}
+
+// ── Session Planner ──────────────────────────────────────────────────────
+// Fixed filter thresholds (per Willow's rules): Stability & Pattern already
+// gate at 70% upstream in StationEdge. Layered on top here:
+const MIN_EDGE_CENTS      = 5;   // model% - price% per leg, minimum to call it a real edge
+const MAX_COMBINED_CENTS  = 85;  // p1 + p2 ceiling for the barbell — protects the RR
+const REGION_TO_SESSION   = { Asia: 'asian', Europe: 'eu', US: 'us' };
+
+function evaluateCandidate(g) {
+  const { latest } = g;
+  const unit = latest.display_unit || (isUS(latest.station_code) ? 'F' : 'C');
+  const price1 = matchLivePrice(latest.city, latest.outcome_one, unit);
+  const price2 = matchLivePrice(latest.city, latest.outcome_two, unit);
+  const stabOk = Number.isFinite(latest.stability_score) && latest.stability_score >= 70;
+  const pattOk = Number.isFinite(latest.pattern_score) && latest.pattern_score >= 70;
+
+  if (!stabOk || !pattOk) {
+    return { g, unit, status: 'none', reason: `No signal — Stability ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'} / Pattern ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'} (need 70/70)` };
+  }
+  if (price1 === null || price2 === null) {
+    return { g, unit, status: 'watch', reason: 'Forecast confirmed, but no live price for one or both legs yet.' };
+  }
+  const edge1 = latest.outcome_one_probability - price1;
+  const edge2 = latest.outcome_two_probability - price2;
+  const combined = price1 + price2;
+  const avgEdge = (edge1 + edge2) / 2;
+
+  if (combined > MAX_COMBINED_CENTS) {
+    return { g, unit, price1, price2, edge1, edge2, combined, status: 'watch', reason: `Combined price ${combined.toFixed(0)}¢ is above the ${MAX_COMBINED_CENTS}¢ ceiling — barbell RR too thin right now.` };
+  }
+  if (edge1 < MIN_EDGE_CENTS || edge2 < MIN_EDGE_CENTS) {
+    return { g, unit, price1, price2, edge1, edge2, combined, status: 'watch', reason: `Edge too thin — leg edges are ${edge1.toFixed(0)}¢ / ${edge2.toFixed(0)}¢, need ${MIN_EDGE_CENTS}¢+ on both.` };
+  }
+  return { g, unit, price1, price2, edge1, edge2, combined, avgEdge, status: 'go', reason: `Both legs clear ${MIN_EDGE_CENTS}¢ edge, combined ${combined.toFixed(0)}¢ ≤ ${MAX_COMBINED_CENTS}¢ ceiling.` };
+}
+
+function sizeTrade(candidate, sessionSummary) {
+  // Scale how much of the session's remaining gap to commit based on edge quality:
+  // 5¢ edge -> 25% of remaining, 15¢+ edge -> 100% of remaining ("go for the whole
+  // session target when the trade is very good"). Always hard-capped by exposure free.
+  const qualityFrac = Math.max(0.25, Math.min(1, (candidate.avgEdge - MIN_EDGE_CENTS) / 10));
+  const desiredPayout = (sessionSummary.remaining > 0 ? sessionSummary.remaining : sessionSummary.target) * qualityFrac;
+  const combinedFrac = candidate.combined / 100;
+  const maxPayoutByExposure = combinedFrac > 0 ? sessionSummary.exposureFree / combinedFrac : 0;
+  const payout = Math.max(0, Math.min(desiredPayout, maxPayoutByExposure));
+  const stake1 = payout * (candidate.price1 / 100);
+  const stake2 = payout * (candidate.price2 / 100);
+  return { payout, stake1, stake2, totalStake: stake1 + stake2, qualityFrac };
+}
+
+function buildSessionPlanner(sortedGrouped) {
+  window.__lastSortedGrouped = sortedGrouped;
+  const grid = document.getElementById('plannerGrid');
+  if (!grid) return;
+  if (!RISK_SUMMARY || !RISK_SUMMARY.sessions) {
+    grid.innerHTML = '<div class="empty" style="padding:20px;">Set your bankroll, exposure cap and target above to get session recommendations.</div>';
+    return;
+  }
+
+  const bySession = { asian: [], eu: [], us: [] };
+  for (const g of sortedGrouped) {
+    const region = regionOf(g.latest.station_code);
+    const sessKey = REGION_TO_SESSION[region];
+    if (sessKey) bySession[sessKey].push(evaluateCandidate(g));
+  }
+
+  const SESS_LABEL = { asian: '🌏 Asian Session', eu: '🇪🇺 EU Session', us: '🇺🇸 US Session' };
+  const cards = ['asian', 'eu', 'us'].map(key => {
+    const candidates = bySession[key];
+    const sessSummary = RISK_SUMMARY.sessions[key];
+    const goCandidates = candidates.filter(c => c.status === 'go').sort((a, b) => b.avgEdge - a.avgEdge);
+    const best = goCandidates[0];
+
+    if (sessSummary && sessSummary.targetMet) {
+      return `<div class="plannerCard"><div class="psess">${SESS_LABEL[key]}</div><span class="pstatus none">TARGET MET</span><div class="pnote">This session already hit its target ($${sessSummary.profit.toFixed(2)} / $${sessSummary.target.toFixed(2)}). No new recommendation unless you want to keep pushing.</div></div>`;
+    }
+
+    if (!best) {
+      const watch = candidates.filter(c => c.status === 'watch').sort((a,b)=>(b.avgEdge??-99)-(a.avgEdge??-99))[0];
+      const shown = watch || candidates[0];
+      return `<div class="plannerCard">
+        <div class="psess">${SESS_LABEL[key]}</div>
+        <span class="pstatus ${shown ? 'watch' : 'none'}">${shown ? 'WATCH' : 'NO SIGNAL'}</span>
+        <div class="pcity">${shown ? shown.g.latest.city : '—'}</div>
+        <div class="pnote">${shown ? shown.reason : 'No cities in this region have a live signal yet.'}</div>
+      </div>`;
+    }
+
+    const sizing = sizeTrade(best, sessSummary);
+    const latest = best.g.latest;
+    return `<div class="plannerCard go">
+      <div class="psess">${SESS_LABEL[key]}</div>
+      <span class="pstatus go">TRADE NOW</span>
+      <div class="pcity">${latest.city}</div>
+      <div class="pnote">${best.reason}</div>
+      <div class="pleg"><span>Buy Yes ${fmtTemp(latest.outcome_one, best.unit)}</span><b>${best.price1.toFixed(0)}¢ (edge +${best.edge1.toFixed(0)})</b></div>
+      <div class="pleg"><span>Buy Yes ${fmtTemp(latest.outcome_two, best.unit)}</span><b>${best.price2.toFixed(0)}¢ (edge +${best.edge2.toFixed(0)})</b></div>
+      <div class="pstake">Stake: $${sizing.stake1.toFixed(2)} + $${sizing.stake2.toFixed(2)} = $${sizing.totalStake.toFixed(2)}<br><span style="font-size:10.5px;color:var(--muted);font-weight:400;">→ pays $${sizing.payout.toFixed(2)} either leg hits · sized at ${(sizing.qualityFrac*100).toFixed(0)}% of session's remaining gap</span></div>
+    </div>`;
+  }).join('');
+  grid.innerHTML = cards;
+}
+
 async function loadV3() {
   window.__v3Loaded = true;
   document.getElementById('v3grid').innerHTML = '<p class="empty">Loading…</p>';
   document.getElementById('v3summary').innerHTML = '';
+  const riskSummaryPromise = loadRiskCalc();
   let data;
   try {
     const r = await fetch('/api/stationedge/audit');
@@ -336,6 +567,9 @@ async function loadV3() {
   const sortedGrouped = sortByRegionAndSignal(grouped, g => g.latest.station_code, g => g.latest.signalWindow, g => g.latest.city);
 
   document.getElementById('tapeTrack').innerHTML = buildTape(sortedGrouped);
+
+  await Promise.all([fetchLivePrices(sortedGrouped.map(g => g.latest.city)), riskSummaryPromise]);
+  buildSessionPlanner(sortedGrouped);
 
   const cityCards = [];
   let lastRegion = null;
@@ -397,8 +631,8 @@ async function loadV3() {
       <div class="history">${historyDots}</div>
       <div class="statusRow"><span class="lbl">Position Status</span><span class="status ${statusClass(latest.result)}">${statusLabel(latest.result)}</span></div>
       <div class="quotes">
-        <div class="quote"><div class="qlbl">OUTCOME 1</div><div class="qval">${fmtTemp(latest.outcome_one, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_one_probability) ? latest.outcome_one_probability + '%' : '—'}</div></div>
-        <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(latest.outcome_two, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_two_probability) ? latest.outcome_two_probability + '%' : '—'}</div></div>
+        <div class="quote"><div class="qlbl">OUTCOME 1</div><div class="qval">${fmtTemp(latest.outcome_one, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_one_probability) ? latest.outcome_one_probability + '%' : '—'}</div>${liveQuoteBlock(latest.city, latest.outcome_one, latest.outcome_one_probability, unit)}</div>
+        <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(latest.outcome_two, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_two_probability) ? latest.outcome_two_probability + '%' : '—'}</div>${liveQuoteBlock(latest.city, latest.outcome_two, latest.outcome_two_probability, unit)}</div>
       </div>
       <div class="pairRow"><span>Pair Coverage</span><b>${Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—'}</b></div>
       <div class="badgeRow"><span>${stabEmoji} STAB ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'}</span><span>${patEmoji} PATT ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'}</span></div>

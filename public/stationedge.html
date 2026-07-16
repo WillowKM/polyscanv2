@@ -431,9 +431,10 @@ function liveQuoteBlock(cityName, tempValue, modelProb, unit) {
 // ── Session Planner ──────────────────────────────────────────────────────
 // Fixed filter thresholds (per Willow's rules): Stability & Pattern already
 // gate at 70% upstream in StationEdge. Layered on top here:
-const MIN_EDGE_CENTS      = 5;   // model% - price% per leg, minimum to call it a real edge
+const MIN_EDGE_CENTS      = 8;   // model% - price% per leg, minimum to call it a real edge
 const MAX_COMBINED_CENTS  = 85;  // p1 + p2 ceiling for the barbell — protects the RR
 const REGION_TO_SESSION   = { Asia: 'asian', Europe: 'eu', US: 'us' };
+const SESSION_ORDER       = ['asian', 'eu', 'us'];
 
 function evaluateCandidate(g) {
   const { latest } = g;
@@ -463,18 +464,21 @@ function evaluateCandidate(g) {
   return { g, unit, price1, price2, edge1, edge2, combined, avgEdge, status: 'go', reason: `Both legs clear ${MIN_EDGE_CENTS}¢ edge, combined ${combined.toFixed(0)}¢ ≤ ${MAX_COMBINED_CENTS}¢ ceiling.` };
 }
 
-function sizeTrade(candidate, sessionSummary) {
-  // Scale how much of the session's remaining gap to commit based on edge quality:
-  // 5¢ edge -> 25% of remaining, 15¢+ edge -> 100% of remaining ("go for the whole
-  // session target when the trade is very good"). Always hard-capped by exposure free.
-  const qualityFrac = Math.max(0.25, Math.min(1, (candidate.avgEdge - MIN_EDGE_CENTS) / 10));
-  const desiredPayout = (sessionSummary.remaining > 0 ? sessionSummary.remaining : sessionSummary.target) * qualityFrac;
+// Solve stake sizing backward from a PROFIT target (not a payout target).
+// If you stake X*combined total and win, profit = X - X*combined = X*(1-combined).
+// So X = desiredProfit / (1-combined), hard-capped by however much exposure room is left.
+function sizeForProfitGap(candidate, desiredProfit, exposureLeft) {
   const combinedFrac = candidate.combined / 100;
-  const maxPayoutByExposure = combinedFrac > 0 ? sessionSummary.exposureFree / combinedFrac : 0;
-  const payout = Math.max(0, Math.min(desiredPayout, maxPayoutByExposure));
-  const stake1 = payout * (candidate.price1 / 100);
-  const stake2 = payout * (candidate.price2 / 100);
-  return { payout, stake1, stake2, totalStake: stake1 + stake2, qualityFrac };
+  const qualityFrac = Math.max(0.25, Math.min(1, (candidate.avgEdge - MIN_EDGE_CENTS) / 10)); // 8¢->25%, 18¢+->100% of the gap this trade attempts to close
+  const attemptedProfit = desiredProfit * qualityFrac;
+  const xByProfit    = attemptedProfit / (1 - combinedFrac);
+  const xByExposure  = exposureLeft / combinedFrac;
+  const X = Math.max(0, Math.min(xByProfit, xByExposure));
+  const stake1 = X * (candidate.price1 / 100);
+  const stake2 = X * (candidate.price2 / 100);
+  const totalStake = stake1 + stake2;
+  const profitIfWin = X - totalStake;
+  return { stake1, stake2, totalStake, profitIfWin, qualityFrac };
 }
 
 function buildSessionPlanner(sortedGrouped) {
@@ -494,37 +498,78 @@ function buildSessionPlanner(sortedGrouped) {
   }
 
   const SESS_LABEL = { asian: '🌏 Asian Session', eu: '🇪🇺 EU Session', us: '🇺🇸 US Session' };
-  const cards = ['asian', 'eu', 'us'].map(key => {
-    const candidates = bySession[key];
-    const sessSummary = RISK_SUMMARY.sessions[key];
-    const goCandidates = candidates.filter(c => c.status === 'go').sort((a, b) => b.avgEdge - a.avgEdge);
-    const best = goCandidates[0];
+  const nominalTarget   = RISK_SUMMARY.sessionTarget;
+  const nominalExposure = RISK_SUMMARY.sessions.asian ? RISK_SUMMARY.sessions.asian.exposureCap : 0;
 
-    if (sessSummary && sessSummary.targetMet) {
-      return `<div class="plannerCard"><div class="psess">${SESS_LABEL[key]}</div><span class="pstatus none">TARGET MET</span><div class="pnote">This session already hit its target ($${sessSummary.profit.toFixed(2)} / $${sessSummary.target.toFixed(2)}). No new recommendation unless you want to keep pushing.</div></div>`;
+  let rolloverTarget = 0, rolloverExposure = 0;
+  const cards = SESSION_ORDER.map(key => {
+    const candidates  = bySession[key];
+    const sess        = RISK_SUMMARY.sessions[key];
+    const cascadeTarget   = nominalTarget + rolloverTarget;
+    const cascadeExposure = nominalExposure + rolloverExposure;
+    const profitGap   = Math.max(0, cascadeTarget - sess.profit);
+    const exposureCap = Math.max(0, cascadeExposure - sess.exposureUsed);
+
+    // carry forward whatever this session doesn't close, for the next session
+    const alreadyMet = sess.profit >= cascadeTarget && cascadeTarget > 0;
+
+    if (alreadyMet) {
+      rolloverTarget = 0;
+      rolloverExposure = Math.max(0, cascadeExposure - sess.exposureUsed); // unused room still carries forward
+      return `<div class="plannerCard"><div class="psess">${SESS_LABEL[key]}</div><span class="pstatus none">TARGET MET</span><div class="pnote">$${sess.profit.toFixed(2)} / $${cascadeTarget.toFixed(2)} target (incl. any carried-forward gap). No new recommendation unless you want to keep pushing.</div></div>`;
     }
 
-    if (!best) {
+    const goCandidates = candidates.filter(c => c.status === 'go').sort((a, b) => b.avgEdge - a.avgEdge);
+
+    if (!goCandidates.length) {
       const watch = candidates.filter(c => c.status === 'watch').sort((a,b)=>(b.avgEdge??-99)-(a.avgEdge??-99))[0];
       const shown = watch || candidates[0];
+      rolloverTarget = profitGap;
+      rolloverExposure = exposureCap;
       return `<div class="plannerCard">
         <div class="psess">${SESS_LABEL[key]}</div>
         <span class="pstatus ${shown ? 'watch' : 'none'}">${shown ? 'WATCH' : 'NO SIGNAL'}</span>
         <div class="pcity">${shown ? shown.g.latest.city : '—'}</div>
-        <div class="pnote">${shown ? shown.reason : 'No cities in this region have a live signal yet.'}</div>
+        <div class="pnote">Gap to close: $${profitGap.toFixed(2)} (target $${cascadeTarget.toFixed(2)}). ${shown ? shown.reason : 'No cities in this region have a live signal yet.'}</div>
       </div>`;
     }
 
-    const sizing = sizeTrade(best, sessSummary);
-    const latest = best.g.latest;
+    // Allocate across candidates in edge-rank order until the gap is closed or exposure runs out
+    let gapLeft = profitGap, expLeft = exposureCap;
+    const legs = [];
+    for (const cand of goCandidates) {
+      if (gapLeft <= 0.01 || expLeft <= 0.01) break;
+      const sizing = sizeForProfitGap(cand, gapLeft, expLeft);
+      if (sizing.totalStake <= 0.01) continue;
+      legs.push({ cand, sizing });
+      gapLeft -= sizing.profitIfWin;
+      expLeft -= sizing.totalStake;
+    }
+
+    rolloverTarget = Math.max(0, gapLeft);
+    rolloverExposure = Math.max(0, expLeft);
+
+    const legsHtml = legs.map(({ cand, sizing }) => {
+      const latest = cand.g.latest;
+      return `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);">
+        <div class="pcity" style="font-size:14px;">${latest.city}</div>
+        <div class="pnote" style="margin-top:2px;">${cand.reason}</div>
+        <div class="pleg"><span>Buy Yes ${fmtTemp(latest.outcome_one, cand.unit)}</span><b>${cand.price1.toFixed(0)}¢ (edge +${cand.edge1.toFixed(0)})</b></div>
+        <div class="pleg"><span>Buy Yes ${fmtTemp(latest.outcome_two, cand.unit)}</span><b>${cand.price2.toFixed(0)}¢ (edge +${cand.edge2.toFixed(0)})</b></div>
+        <div class="pstake">Stake: $${sizing.stake1.toFixed(2)} + $${sizing.stake2.toFixed(2)} = $${sizing.totalStake.toFixed(2)}<br><span style="font-size:10.5px;color:var(--muted);font-weight:400;">→ profit $${sizing.profitIfWin.toFixed(2)} if either leg hits</span></div>
+      </div>`;
+    }).join('');
+
+    const shortfallNote = gapLeft > 0.01
+      ? `<div class="pnote" style="margin-top:10px;color:var(--amber);">Could only responsibly close $${(profitGap-gapLeft).toFixed(2)} of the $${profitGap.toFixed(2)} gap within filters/exposure — $${gapLeft.toFixed(2)} carries forward, not forced.</div>`
+      : '';
+
     return `<div class="plannerCard go">
       <div class="psess">${SESS_LABEL[key]}</div>
-      <span class="pstatus go">TRADE NOW</span>
-      <div class="pcity">${latest.city}</div>
-      <div class="pnote">${best.reason}</div>
-      <div class="pleg"><span>Buy Yes ${fmtTemp(latest.outcome_one, best.unit)}</span><b>${best.price1.toFixed(0)}¢ (edge +${best.edge1.toFixed(0)})</b></div>
-      <div class="pleg"><span>Buy Yes ${fmtTemp(latest.outcome_two, best.unit)}</span><b>${best.price2.toFixed(0)}¢ (edge +${best.edge2.toFixed(0)})</b></div>
-      <div class="pstake">Stake: $${sizing.stake1.toFixed(2)} + $${sizing.stake2.toFixed(2)} = $${sizing.totalStake.toFixed(2)}<br><span style="font-size:10.5px;color:var(--muted);font-weight:400;">→ pays $${sizing.payout.toFixed(2)} either leg hits · sized at ${(sizing.qualityFrac*100).toFixed(0)}% of session's remaining gap</span></div>
+      <span class="pstatus go">TRADE NOW${legs.length>1?` · ${legs.length} CITIES`:''}</span>
+      <div class="pnote">Gap to close this session: $${profitGap.toFixed(2)}</div>
+      ${legsHtml}
+      ${shortfallNote}
     </div>`;
   }).join('');
   grid.innerHTML = cards;

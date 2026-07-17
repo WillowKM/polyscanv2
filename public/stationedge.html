@@ -827,13 +827,27 @@ async function loadV2(){
   loadRiskCalc().then(() => buildSessionPlanner());
   const r=await fetch('/api/stationedge/stations');const rows=await r.json();window.stationRows=rows;
   document.getElementById('v2count').textContent = `${rows.length} Resolution Stations`;
+  await fetchLivePrices(rows.map(s => s.city));
   const sorted = sortByRegionAndSignal(rows, s => s.code, s => s.highForecast?.signalWindow, s => s.city);
   const cards = [];
   let lastRegion = null;
   for (const s of sorted) {
     const region = regionOf(s.code);
     if (region !== lastRegion) { cards.push(`<div class="regionHead">${region}</div>`); lastRegion = region; }
-    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>`}</div>`);
+    const unit = isUS(s.code) ? 'F' : 'C';
+    const hf = s.highForecast;
+    let quotesHtml = '';
+    if (hf && Array.isArray(hf.primaryOutcomesC) && hf.primaryOutcomesC.length >= 2) {
+      const [c1, c2] = hf.primaryOutcomesC;
+      const o1 = cToNative(c1, unit), o2 = cToNative(c2, unit);
+      const p1 = hf.probabilityLadder?.find(x => x.temperatureC === c1)?.probability ?? null;
+      const p2 = hf.probabilityLadder?.find(x => x.temperatureC === c2)?.probability ?? null;
+      quotesHtml = `<div class="quotes">
+        <div class="quote"><div class="qlbl">OUTCOME 1</div><div class="qval">${fmtTemp(o1, unit)}</div><div class="qprob">${Number.isFinite(p1) ? p1 + '%' : '—'}</div>${liveQuoteBlock(s.city, o1, p1, unit)}</div>
+        <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(o2, unit)}</div><div class="qprob">${Number.isFinite(p2) ? p2 + '%' : '—'}</div>${liveQuoteBlock(s.city, o2, p2, unit)}</div>
+      </div>`;
+    }
+    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}`}</div>`);
   }
   document.getElementById('grid').innerHTML = cards.join('');
 }

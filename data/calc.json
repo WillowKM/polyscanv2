@@ -61,11 +61,12 @@
       "stake": 3.13,
       "entryPriceCents": 43,
       "session": "eu",
-      "status": "open",
+      "status": "LOSS",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-17",
       "openedAt": "2026-07-17T10:01:19.995Z",
-      "settledAt": null
+      "settledAt": "2026-07-17T17:40:28.455Z",
+      "profit": -3.13
     },
     {
       "id": "1783959829044-aqbe0",

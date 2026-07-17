@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1784282479995-afnvw",
+      "city": "London",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "28°C",
+      "stake": 3.13,
+      "entryPriceCents": 43,
+      "session": "eu",
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-07-17",
+      "openedAt": "2026-07-17T10:01:19.995Z",
+      "settledAt": null
+    },
+    {
       "id": "1783959829044-aqbe0",
       "city": "Dallas",
       "strategy": "3",

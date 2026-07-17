@@ -287,7 +287,7 @@ updateClocks(); setInterval(updateClocks, 1000);
 const REGION_ORDER = ['Asia', 'Europe', 'US', 'Other'];
 const REGION_BY_CODE = {
   RJTT:'Asia', RKSI:'Asia', RKPK:'Asia', HKO:'Asia', VHHH:'Asia', WSSS:'Asia', RCTP:'Asia',
-  EGLC:'Europe', EHAM:'Europe', EFHK:'Europe', EDDM:'Europe', EPWA:'Europe',
+  EGLC:'Europe', EHAM:'Europe', EFHK:'Europe', EDDM:'Europe', EPWA:'Europe', LLBG:'Europe', LTFM:'Europe',
   KLGA:'US', KLAX:'US', KSFO:'US', KSEA:'US', KATL:'US', KAUS:'US', KORD:'US', KDAL:'US', KDFW:'US', KBKF:'US', KHOU:'US', KMIA:'US',
 };
 function regionOf(code) { return REGION_BY_CODE[code] || 'Other'; }
@@ -465,7 +465,25 @@ function marketTopTwo(cityName) {
 // kept separate on purpose as the clean accuracy benchmark — see server.js).
 // V2 is what the Live Monitor page already shows, and it's what actually has
 // something useful to say before 11am.
-function evaluateCandidate(station) {
+// ── Manual pins ───────────────────────────────────────────────────────────
+// Lets Willow override the auto-picked recommendation for a session with a
+// specific city from the same region — e.g. "I don't like London, use
+// Istanbul instead" — while still getting the same stake/profit calculator.
+// One pin per session; pinning a new city replaces whatever was pinned there.
+window.__manualPins = window.__manualPins || { asian: null, eu: null, us: null };
+function pinCity(code) {
+  const region = regionOf(code);
+  const sessKey = REGION_TO_SESSION[region];
+  if (!sessKey) { alert('This station is not mapped to a trading session.'); return; }
+  window.__manualPins[sessKey] = (window.__manualPins[sessKey] === code) ? null : code; // click again to unpin
+  loadV2();
+}
+function unpinSession(sessKey) {
+  window.__manualPins[sessKey] = null;
+  loadV2();
+}
+
+function evaluateCandidate(station, forced) {
   const code = station.code;
   const city = station.city;
   const unit = isUS(code) ? 'F' : 'C';
@@ -476,12 +494,12 @@ function evaluateCandidate(station) {
     : null;
   const inWindow = Number.isFinite(localHour) && localHour >= 8 && localHour < 20;
 
-  if (!inWindow) {
+  if (!inWindow && !forced) {
     return { code, city, unit, status: 'watch', reason: `Outside the 08:00–20:00 local trading window (currently ${Number.isFinite(localHour)?localHour+':00':'—'} local) — not recommended right now.` };
   }
   const stabOk = Number.isFinite(station.stability) && station.stability >= 70;
   const pattOk = Number.isFinite(station.pattern) && station.pattern >= 70;
-  if (!stabOk || !pattOk) {
+  if ((!stabOk || !pattOk) && !forced) {
     return { code, city, unit, status: 'none', reason: `No signal — Stability ${Number.isFinite(station.stability)?station.stability+'%':'—'} / Pattern ${Number.isFinite(station.pattern)?station.pattern+'%':'—'} (need 70/70)` };
   }
   if (!hf || !Array.isArray(hf.primaryOutcomesC) || hf.primaryOutcomesC.length < 2) {
@@ -497,7 +515,7 @@ function evaluateCandidate(station) {
   const price1 = matchLivePrice(city, outcome1, unit);
   const price2 = matchLivePrice(city, outcome2, unit);
   if (price1 === null || price2 === null || !Number.isFinite(modelProb1) || !Number.isFinite(modelProb2)) {
-    return { code, city, unit, outcome1, outcome2, confidence: hf.confidence, status: 'watch', reason: 'Forecast confirmed, but no live price for one or both legs yet.' };
+    return { code, city, unit, outcome1, outcome2, confidence: hf.confidence, status: 'watch', reason: 'Forecast confirmed, but no live price for one or both legs yet — cannot pin without a live price.' };
   }
 
   // Cross-check: are the model's two picks actually the market's own top-2
@@ -505,9 +523,11 @@ function evaluateCandidate(station) {
   // internally confident (88%) while the live market has already moved to a
   // different pair of favorites. High "edge" from a stale/wrong pick isn't
   // real edge, so this blocks the recommendation instead of trusting the
-  // model over the market.
+  // model over the market. Skipped when manually pinned — that's Willow
+  // overriding the filters on purpose, on a real, live-priced trade.
   const topTwo = marketTopTwo(city);
-  if (topTwo && topTwo.length === 2) {
+  let alignmentWarning = '';
+  if (!forced && topTwo && topTwo.length === 2) {
     const modelSet = new Set([outcome1, outcome2]);
     const agree = topTwo.every(t => Number.isFinite(t.val) && modelSet.has(t.val));
     if (!agree) {
@@ -515,6 +535,10 @@ function evaluateCandidate(station) {
       return { code, city, unit, outcome1, outcome2, confidence: hf.confidence, status: 'watch',
         reason: `Model favors ${fmtTemp(outcome1,unit)}/${fmtTemp(outcome2,unit)}, but the market's real top-2 right now is ${marketDesc} — model disagrees with the market, not recommended.` };
     }
+  } else if (forced && topTwo && topTwo.length === 2) {
+    const modelSet = new Set([outcome1, outcome2]);
+    const agree = topTwo.every(t => Number.isFinite(t.val) && modelSet.has(t.val));
+    if (!agree) alignmentWarning = ` ⚠ market's real top-2 is ${topTwo.map(t=>`${t.label} (${t.prob.toFixed(0)}%)`).join(' / ')} — does not match model pick.`;
   }
 
   const edge1 = modelProb1 - price1;
@@ -523,13 +547,19 @@ function evaluateCandidate(station) {
   const avgEdge = (edge1 + edge2) / 2;
   const base = { code, city, unit, outcome1, outcome2, modelProb1, modelProb2, price1, price2, edge1, edge2, combined, avgEdge, confidence: hf.confidence };
 
-  if (combined > MAX_COMBINED_CENTS) {
+  if (combined > MAX_COMBINED_CENTS && !forced) {
     return { ...base, status: 'watch', reason: `Combined price ${combined.toFixed(0)}¢ is above the ${MAX_COMBINED_CENTS}¢ ceiling — barbell RR too thin right now.` };
   }
-  if (edge1 < MIN_EDGE_CENTS || edge2 < MIN_EDGE_CENTS) {
-    return { ...base, status: 'watch', reason: `Edge too thin — leg edges are ${edge1.toFixed(0)}¢ / ${edge2.toFixed(0)}¢, need ${MIN_EDGE_CENTS}¢+ on both.` };
+  if ((edge1 < -MIN_EDGE_CENTS || edge2 < -MIN_EDGE_CENTS) && !forced) {
+    return { ...base, status: 'watch', reason: `Leg priced against you by more than ${MIN_EDGE_CENTS}¢ — edges are ${edge1.toFixed(0)}¢ / ${edge2.toFixed(0)}¢.` };
   }
-  return { ...base, status: 'go', reason: `Live confidence ${hf.confidence}% · both legs clear ${MIN_EDGE_CENTS}¢ edge · combined ${combined.toFixed(0)}¢ ≤ ${MAX_COMBINED_CENTS}¢.` };
+  if (forced) {
+    const flags = [];
+    if (combined > MAX_COMBINED_CENTS) flags.push(`combined ${combined.toFixed(0)}¢ is over your ${MAX_COMBINED_CENTS}¢ ceiling`);
+    if (edge1 < -MIN_EDGE_CENTS || edge2 < -MIN_EDGE_CENTS) flags.push(`edges ${edge1.toFixed(0)}¢/${edge2.toFixed(0)}¢ are priced against you`);
+    return { ...base, status: 'go', reason: `Manually pinned — filters bypassed.${flags.length ? ' ⚠ ' + flags.join('; ') + '.' : ''}${alignmentWarning}` };
+  }
+  return { ...base, status: 'go', reason: `Live confidence ${hf.confidence}% · aligned with market top-2 · both legs within ${MIN_EDGE_CENTS}¢ tolerance · combined ${combined.toFixed(0)}¢ ≤ ${MAX_COMBINED_CENTS}¢.` };
 }
 
 // Solve stake sizing backward from a PROFIT target (not a payout target).
@@ -599,7 +629,19 @@ async function buildSessionPlanner() {
     // one clears the filters, exactly like Amsterdam + London both being live
     // at once: best pricing/edge goes on top, the rest are still there to
     // scroll to.
-    const goCandidates = candidates.filter(c => c.status === 'go').sort((a, b) => b.avgEdge - a.avgEdge);
+    let goCandidates = candidates.filter(c => c.status === 'go').sort((a, b) => b.avgEdge - a.avgEdge);
+
+    // A manual pin always takes the #1 slot for its session, on top of
+    // whatever the auto-ranking picked — "swap London for Istanbul" means
+    // Istanbul goes first, filters bypassed, still fully priced/sized.
+    const pinnedCode = window.__manualPins[key];
+    if (pinnedCode) {
+      const pinnedStation = stations.find(s => s.code === pinnedCode);
+      const pinnedCand = pinnedStation ? evaluateCandidate(pinnedStation, true) : null;
+      if (pinnedCand && pinnedCand.status === 'go') {
+        goCandidates = [{ ...pinnedCand, pinned: true }, ...goCandidates.filter(c => c.code !== pinnedCode)];
+      }
+    }
 
     if (!goCandidates.length) {
       const watch = candidates.filter(c => c.status === 'watch').sort((a,b)=>(b.avgEdge??-99)-(a.avgEdge??-99))[0];
@@ -637,8 +679,9 @@ async function buildSessionPlanner() {
     const legHtml = (cand, sizing, i, tag) => {
       const legId = `${key}_${i}`;
       window.__plannerLegIds.push(legId);
+      const pinTag = cand.pinned ? ` <span style="color:var(--cyan);">📌 MANUAL PIN</span> <button class="btn secondary" style="padding:2px 8px;font-size:10px;" onclick="unpinSession('${key}')">unpin</button>` : '';
       return `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);" id="pleg_${legId}" data-p1="${cand.price1}" data-p2="${cand.price2}">
-        <div class="pcity" style="font-size:14px;">${cand.city} ${tag}</div>
+        <div class="pcity" style="font-size:14px;">${cand.city} ${tag}${pinTag}</div>
         <div class="pnote" style="margin-top:2px;">${cand.reason}</div>
         <div class="pleg"><span>Buy Yes ${fmtTemp(cand.outcome1, cand.unit)}</span><b>${cand.price1.toFixed(0)}¢ (edge +${cand.edge1.toFixed(0)})</b></div>
         <div class="pleg"><span>Buy Yes ${fmtTemp(cand.outcome2, cand.unit)}</span><b>${cand.price2.toFixed(0)}¢ (edge +${cand.edge2.toFixed(0)})</b></div>
@@ -650,9 +693,9 @@ async function buildSessionPlanner() {
       </div>`;
     };
 
-    const allocatedHtml = allocated.map(({cand,sizing}, i) => legHtml(cand, sizing, `a${i}`, '· BEST FIT')).join('');
+    const allocatedHtml = allocated.map(({cand,sizing}, i) => legHtml(cand, sizing, `a${i}`, cand.pinned ? '' : '· BEST FIT')).join('');
     // Extras still get a starting-point size (against whatever's left, even $0) so the input is never empty
-    const extrasHtml = extras.map((cand, i) => legHtml(cand, sizeForProfitGap(cand, 0, exposureCap), `x${i}`, '· ALSO QUALIFIES')).join('');
+    const extrasHtml = extras.map((cand, i) => legHtml(cand, sizeForProfitGap(cand, 0, exposureCap), `x${i}`, cand.pinned ? '' : '· ALSO QUALIFIES')).join('');
 
     const shortfallNote = gapLeft > 0.01
       ? `<div class="pnote" style="margin-top:10px;color:var(--amber);">Could only responsibly close $${(profitGap-gapLeft).toFixed(2)} of the $${profitGap.toFixed(2)} gap within filters/exposure — $${gapLeft.toFixed(2)} carries forward, not forced.</div>`
@@ -847,7 +890,12 @@ async function loadV2(){
         <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(o2, unit)}</div><div class="qprob">${Number.isFinite(p2) ? p2 + '%' : '—'}</div>${liveQuoteBlock(s.city, o2, p2, unit)}</div>
       </div>`;
     }
-    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}`}</div>`);
+    const sessKeyForCard = REGION_TO_SESSION[region];
+    const isPinned = sessKeyForCard && window.__manualPins[sessKeyForCard] === s.code;
+    const pinBtn = sessKeyForCard
+      ? `<button class="btn ${isPinned?'':'secondary'}" style="width:100%;margin-top:10px;" onclick="event.stopPropagation();pinCity('${s.code}')">${isPinned ? '📌 Pinned as recommendation — click to unpin' : '📌 Use as recommendation'}</button>`
+      : '';
+    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}${pinBtn}`}</div>`);
   }
   document.getElementById('grid').innerHTML = cards.join('');
 }

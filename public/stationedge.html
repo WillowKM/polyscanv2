@@ -126,19 +126,10 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .riskStats .rcard.hi b{color:var(--green)}.riskStats .rcard.lo b{color:var(--red)}
 
 /* ── Session planner ────────────────────────────────────────────────── */
-.plannerGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-bottom:18px}
-.plannerCard{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;padding:14px 16px}
-.plannerCard.go{border-color:rgba(47,224,138,.35)}
-.plannerCard .psess{font:800 10px var(--mono);letter-spacing:.12em;color:var(--dim);text-transform:uppercase;margin-bottom:8px}
-.plannerCard .pcity{font:800 17px var(--sans);margin-bottom:2px}
-.plannerCard .pstatus{display:inline-block;font:800 9.5px var(--mono);letter-spacing:.08em;padding:3px 8px;border-radius:2px;margin-bottom:10px}
-.plannerCard .pstatus.go{background:rgba(47,224,138,.14);color:var(--green)}
-.plannerCard .pstatus.watch{background:rgba(255,176,32,.14);color:var(--amber)}
-.plannerCard .pstatus.none{background:rgba(125,143,137,.14);color:var(--dim)}
-.plannerCard .pleg{display:flex;justify-content:space-between;font:700 11.5px var(--mono);padding:5px 0;border-top:1px solid var(--line)}
-.plannerCard .pleg b{color:var(--text)}
-.plannerCard .pnote{margin-top:10px;color:var(--muted);font-size:11px;line-height:1.5}
-.plannerCard .pstake{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font:800 14px var(--mono);color:var(--cyan)}
+.pstatus{display:inline-block;font:800 9.5px var(--mono);letter-spacing:.08em;padding:3px 8px;border-radius:2px}
+.pstatus.go{background:rgba(47,224,138,.14);color:var(--green)}
+.pstatus.watch{background:rgba(255,176,32,.14);color:var(--amber)}
+.pstatus.none{background:rgba(125,143,137,.14);color:var(--dim)}
 
 .pairRow{display:flex;justify-content:space-between;padding:0 16px;color:var(--dim);font:700 10px var(--mono);letter-spacing:.06em;text-transform:uppercase}
 .pairRow b{color:var(--text)}
@@ -242,10 +233,33 @@ footer.term b{color:var(--amber)}
         <button class="btn" onclick="saveRiskSettings()">Save</button>
       </div>
       <div class="riskStats" id="riskStatsRow"></div>
+      <div id="sessionRow" style="margin-top:14px;"></div>
     </div>
     <div class="riskPanel">
-      <h2>Session Planner <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— best qualifying trade per session, sized against today's target</span></h2>
-      <div class="plannerGrid" id="plannerGrid"><div class="empty" style="padding:20px;">Loading…</div></div>
+      <h2>Trade Structurer <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— proportional-stake spread calculator: guarantees the same profit no matter which leg hits</span></h2>
+      <div class="riskInputs">
+        <div class="riskField"><label>City</label><input id="tsCity" type="text" placeholder="Type or load from a card below" style="width:160px;"></div>
+        <div class="riskField"><label>Session</label>
+          <select id="tsSession" style="background:var(--panel);border:1px solid var(--line);border-radius:2px;color:var(--text);padding:8px 10px;font:700 13px var(--mono);width:130px;">
+            <option value="">— unassigned —</option>
+            <option value="asian">🌏 Asian</option>
+            <option value="eu">🇪🇺 EU</option>
+            <option value="us">🇺🇸 US</option>
+          </select>
+        </div>
+        <div class="riskField"><label>Total budget ($)</label><input id="tsBudget" type="number" step="0.01" value="10"></div>
+        <button class="btn secondary" onclick="solveForSessionGap()">Solve for session's remaining gap</button>
+      </div>
+      <div id="tsGapNote" style="color:var(--dim);font-size:11.5px;margin-bottom:10px;"></div>
+      <div id="tsLegs"></div>
+      <button class="btn secondary" onclick="addStructurerLeg()">+ Add Yes bracket</button>
+      <button class="btn secondary" onclick="addStructurerTail()">+ Add cheap tail (No)</button>
+      <div style="margin-top:12px;"><button class="btn" onclick="computeStructurer()">Calculate</button></div>
+      <div id="tsResult" style="margin-top:14px;"></div>
+    </div>
+    <div class="riskPanel">
+      <h2>Trade Log <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— auto-settles WIN/LOSS when a bracket price hits 99¢/1¢; Cash Out any time before then</span></h2>
+      <div id="tradeLogWrap"></div>
     </div>
     <div id="list">
       <div class="top"><div><h1 id="v2count">Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button class="btn" onclick="loadV2()">↻ Refresh</button></div>
@@ -357,6 +371,8 @@ async function loadRiskCalc() {
     document.getElementById('rcExposure').value = data.settings.exposureCap ?? '';
     document.getElementById('rcTarget').value   = data.settings.targetPct   ?? 6;
     renderRiskStats(data.summary);
+    renderSessions(data.summary);
+    renderTradeLog(data.trades || []);
     RISK_SUMMARY = data.summary;
     return data.summary;
   } catch (e) { return null; /* calculator state is non-critical to the forward-test view */ }
@@ -383,8 +399,8 @@ async function saveRiskSettings() {
   });
   const data = await res.json();
   renderRiskStats(data.summary);
+  renderSessions(data.summary);
   RISK_SUMMARY = data.summary;
-  buildSessionPlanner();
 }
 
 // ── Live Polymarket prices, matched to model brackets ──────────────────────
@@ -428,315 +444,260 @@ function liveQuoteBlock(cityName, tempValue, modelProb, unit) {
   return `<div class="qlive"><div class="llbl">LIVE PRICE</div><div class="lval">${priceCents}¢</div>${edgeHtml}</div>`;
 }
 
-// ── Session Planner ──────────────────────────────────────────────────────
-// Fixed filter thresholds (per Willow's rules): Stability & Pattern already
-// gate at 70% upstream in StationEdge. Layered on top here:
-const MIN_EDGE_CENTS      = 8;   // model% - price% per leg, minimum to call it a real edge
-const MAX_COMBINED_CENTS  = 85;  // p1 + p2 ceiling for the barbell — protects the RR
-const REGION_TO_SESSION   = { Asia: 'asian', Europe: 'eu', US: 'us' };
-const SESSION_ORDER       = ['asian', 'eu', 'us'];
-
+const REGION_TO_SESSION = { Asia: 'asian', Europe: 'eu', US: 'us' };
 function cToNative(cVal, unit) {
   if (!Number.isFinite(cVal)) return null;
   return unit === 'F' ? Math.round(cVal * 9 / 5 + 32) : Math.round(cVal);
 }
 
-// Parses a temp value out of a Polymarket bracket label ("24°C" -> 24,
-// "92-93°F" -> 92) so we can rank the market's own top-2 by price and check
-// whether the model's pick actually agrees with what the market thinks —
-// not just whether the model's own two picks happen to be priced cheaply.
-function parseBracketTemp(label) {
-  const m = String(label || '').match(/-?\d+(\.\d+)?/);
-  return m ? parseFloat(m[0]) : null;
-}
-function marketTopTwo(cityName) {
-  const entry = LIVE_POLY[cityName];
-  const outcomes = entry && entry.polyData && entry.polyData.outcomes;
-  if (!outcomes || !outcomes.length) return null;
-  return outcomes
-    .filter(o => Number.isFinite(o.prob))
-    .sort((a, b) => b.prob - a.prob)
-    .slice(0, 2)
-    .map(o => ({ label: o.bracket, prob: o.prob, val: parseBracketTemp(o.bracket) }));
+// ── Session summary cards (ported from calculator.html, unchanged math) ──
+// No rollover: each session's target is a fixed 2%-style slice, set once at
+// the start of the day and never cascaded. If a session comes up short, the
+// remaining budget just waits for another qualifying setup — or stays
+// unspent and that's a valid outcome, not a bug.
+const SESSION_LABELS = { asian: '🌏 Asian', eu: '🇪🇺 EU', us: '🇺🇸 US' };
+function renderSessions(s) {
+  const wrap = document.getElementById('sessionRow');
+  if (!wrap) return;
+  if (!s.sessions) { wrap.innerHTML = ''; return; }
+  const cards = ['asian','eu','us'].map(key => {
+    const sess = s.sessions[key];
+    const guideNote = sess.tradesCount >= 3 ? '<span style="color:var(--amber);">· 3+ trades (soft guide, not a hard cap)</span>' : `<span style="color:var(--dim);">· ${sess.tradesCount}/3 trades</span>`;
+    return `<div class="rcard" style="flex:1;min-width:220px;">
+        <small>${SESSION_LABELS[key]} SESSION ${guideNote}</small>
+        <b style="font-size:17px;">$${sess.profit.toFixed(2)} <span style="color:var(--dim);font-size:12px;font-weight:400;">/ $${sess.target.toFixed(2)}</span></b>
+        <div style="font-size:11px;color:var(--dim);margin-top:4px;">Remaining: $${sess.remaining.toFixed(2)} (${sess.targetPctOfPortfolio}% of portfolio target)${sess.targetMet?' — met ✅':''}</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:2px;">Exposure: $${sess.exposureUsed.toFixed(2)} used / $${sess.exposureCap.toFixed(2)} cap · $${sess.exposureFree.toFixed(2)} free</div>
+      </div>`;
+  }).join('');
+  wrap.innerHTML = `<div class="riskStats" style="display:flex;gap:1px;">${cards}</div>`;
 }
 
-// Reads from V2 (the continuous, all-day live research engine) instead of
-// V3 (which only locks one prediction per day, 11:00-12:59 local, and is
-// kept separate on purpose as the clean accuracy benchmark — see server.js).
-// V2 is what the Live Monitor page already shows, and it's what actually has
-// something useful to say before 11am.
-// ── Manual pins ───────────────────────────────────────────────────────────
-// Lets Willow override the auto-picked recommendation for a session with a
-// specific city from the same region — e.g. "I don't like London, use
-// Istanbul instead" — while still getting the same stake/profit calculator.
-// One pin per session; pinning a new city replaces whatever was pinned there.
-window.__manualPins = window.__manualPins || { asian: null, eu: null, us: null };
-function pinCity(code) {
+// ── Trade Log (ported from calculator.html) ───────────────────────────────
+function computeProfitClient(t) {
+  if (t.profit !== undefined && t.profit !== null) return t.profit;
+  const shares = t.stake / (t.entryPriceCents / 100);
+  if (t.status === 'WIN') return shares * 1 - t.stake;
+  if (t.status === 'LOSS') return -t.stake;
+  if (t.status === 'CASHOUT') return shares * (t.cashoutPriceCents / 100) - t.stake;
+  return 0;
+}
+function renderTradeLog(trades) {
+  const wrap = document.getElementById('tradeLogWrap');
+  if (!wrap) return;
+  if (!trades.length) {
+    wrap.innerHTML = '<div class="empty" style="padding:14px 0;">No trades logged yet today — send legs from the Trade Structurer below, or log one manually.</div>';
+    return;
+  }
+  const rows = trades.map(t => {
+    const autoTag = t.autoResolved ? ' <span style="color:var(--dim);font-size:9.5px;" title="Auto-settled when the bracket price hit 0/100¢">AUTO</span>' : '';
+    const statusPill = t.status === 'open' ? '<span class="pstatus none">OPEN</span>' :
+      t.status === 'WIN' ? `<span class="pstatus go">WIN</span>${autoTag}` :
+      t.status === 'LOSS' ? `<span class="pstatus watch" style="background:rgba(255,90,90,.14);color:var(--red);">LOSS</span>${autoTag}` :
+      '<span class="pstatus none">CASHOUT</span>';
+    const profit = t.status === 'open' ? '—' : `$${computeProfitClient(t).toFixed(2)}`;
+    const actions = t.status === 'open' ? `
+      <button class="btn secondary" style="padding:3px 8px;font-size:11px;" onclick="settleTrade('${t.id}','WIN')">Won</button>
+      <button class="btn secondary" style="padding:3px 8px;font-size:11px;" onclick="settleTrade('${t.id}','LOSS')">Lost</button>
+      <button class="btn secondary" style="padding:3px 8px;font-size:11px;" onclick="cashOutPrompt('${t.id}')">Cash Out</button>
+      <button class="btn secondary" style="padding:3px 8px;font-size:11px;" onclick="deleteTrade('${t.id}')">✕</button>
+    ` : `<button class="btn secondary" style="padding:3px 8px;font-size:11px;" onclick="deleteTrade('${t.id}')">Remove</button>`;
+    return `<tr>
+      <td>${t.city}</td><td>${t.session ? SESSION_LABELS[t.session] : '—'}</td><td>${t.side}</td>
+      <td class="mono">${t.bracketLabel || '—'}</td><td class="mono">$${t.stake.toFixed(2)}</td>
+      <td class="mono">${t.entryPriceCents}¢</td><td>${statusPill}</td><td class="mono">${profit}</td><td>${actions}</td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>SESSION</th><th>SIDE</th><th>BRACKET</th><th>STAKE</th><th>ENTRY</th><th>STATUS</th><th>PROFIT</th><th>ACTIONS</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+async function settleTrade(id, outcome) {
+  const res = await fetch(`/calc/trades/${id}/settle`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ outcome }) });
+  await res.json();
+  loadRiskCalc();
+}
+function cashOutPrompt(id) {
+  const price = prompt('Cash-out price right now (cents per share)?');
+  if (!price) return;
+  fetch(`/calc/trades/${id}/settle`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ outcome:'CASHOUT', cashoutPriceCents: parseFloat(price) }) })
+    .then(r=>r.json()).then(() => loadRiskCalc());
+}
+async function deleteTrade(id) {
+  await fetch(`/calc/trades/${id}`, { method:'DELETE' });
+  loadRiskCalc();
+}
+
+// ── Trade Structurer (ported directly from calculator.html — same math) ──
+// Proportional-stake spread: stake_i = budget * price_i / sum(prices) makes
+// every Yes leg pay the SAME profit no matter which one hits. Tail No legs
+// are flat side-stakes, not part of that balance.
+let tsLegCount = 0;
+function tsLegRow(tail) {
+  tsLegCount++;
+  const id = `tsleg-${tsLegCount}`;
+  const div = document.createElement('div');
+  div.id = id;
+  if (tail) div.dataset.tail = 'true';
+  div.style.cssText = 'display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap;';
+  div.innerHTML = `
+    <span class="pstatus ${tail?'watch':'go'}" style="min-width:36px;text-align:center;">${tail?'NO':'YES'}</span>
+    <input type="text" placeholder="Bracket (e.g. 33°C)" class="ts-bracket" style="background:var(--panel);border:1px solid var(--line);border-radius:2px;color:var(--text);padding:7px 9px;font:700 12px var(--mono);width:130px;">
+    <input type="number" step="0.1" placeholder="Price (¢)" class="ts-price" style="background:var(--panel);border:1px solid var(--line);border-radius:2px;color:var(--text);padding:7px 9px;font:700 12px var(--mono);width:90px;">
+    ${tail ? `<input type="number" step="0.01" value="1" placeholder="Stake ($)" class="ts-tail-stake" style="background:var(--panel);border:1px solid var(--line);border-radius:2px;color:var(--text);padding:7px 9px;font:700 12px var(--mono);width:80px;">` : ''}
+    <button class="btn secondary" style="padding:5px 9px;font-size:11px;" onclick="document.getElementById('${id}').remove()">✕</button>
+  `;
+  document.getElementById('tsLegs').appendChild(div);
+}
+function addStructurerLeg() { tsLegRow(false); }
+function addStructurerTail() { tsLegRow(true); }
+
+function readTsLegs() {
+  const legDivs = Array.from(document.getElementById('tsLegs').children);
+  const yesLegs = [], tailLegs = [];
+  legDivs.forEach(div => {
+    const bracket = div.querySelector('.ts-bracket').value.trim();
+    const price = parseFloat(div.querySelector('.ts-price').value);
+    if (!bracket || !price) return;
+    if (div.dataset.tail === 'true') {
+      const stakeInput = div.querySelector('.ts-tail-stake');
+      tailLegs.push({ bracket, price, stake: stakeInput ? (parseFloat(stakeInput.value) || 1) : 1 });
+    } else {
+      yesLegs.push({ bracket, price });
+    }
+  });
+  return { yesLegs, tailLegs };
+}
+
+function solveForSessionGap() {
+  const sessionKey = document.getElementById('tsSession').value;
+  const note = document.getElementById('tsGapNote');
+  if (!sessionKey) { alert('Pick a session first (Asian/EU/US).'); return; }
+  if (!RISK_SUMMARY || !RISK_SUMMARY.sessions) { alert('Session data not loaded yet — try again in a moment.'); return; }
+  const sess = RISK_SUMMARY.sessions[sessionKey];
+  const remaining = sess.remaining;
+  if (remaining <= 0) {
+    note.innerHTML = `<span style="color:var(--green);">This session's target is already met — any additional profit is a bonus, not required.</span>`;
+    return;
+  }
+  const { yesLegs, tailLegs } = readTsLegs();
+  if (!yesLegs.length) {
+    note.innerHTML = `<span style="color:var(--amber);">Enter your Yes bracket(s) and price(s) first, then hit Solve — the required budget depends on their prices.</span>`;
+    return;
+  }
+  const sumF = yesLegs.reduce((s, l) => s + l.price / 100, 0);
+  if (sumF >= 1) {
+    note.innerHTML = `<span style="color:var(--red);">These Yes prices sum to ${(sumF*100).toFixed(0)}%+ — no guaranteed-profit structure exists at these prices.</span>`;
+    return;
+  }
+  const tailCost = tailLegs.reduce((s, t) => s + t.stake, 0);
+  const tailsProfitSum = tailLegs.reduce((s, t) => s + t.stake * (100 / t.price - 1), 0);
+  const yesBudgetNeeded = (remaining - tailsProfitSum) * sumF / (1 - sumF);
+  const totalBudgetNeeded = Math.max(0, yesBudgetNeeded) + tailCost;
+
+  if (totalBudgetNeeded > sess.exposureFree) {
+    document.getElementById('tsBudget').value = sess.exposureFree.toFixed(2);
+    computeStructurer();
+    const achievable = tsLastResult ? tsLastResult.guaranteedProfit : null;
+    note.innerHTML = `<span style="color:var(--red);">${SESSION_LABELS[sessionKey]} needs $${remaining.toFixed(2)} more, but that needs $${totalBudgetNeeded.toFixed(2)} — this session only has <b>$${sess.exposureFree.toFixed(2)}</b> exposure free. Budget capped at $${sess.exposureFree.toFixed(2)}` +
+      (achievable !== null ? ` — best guaranteed profit at that size is <b>$${achievable.toFixed(2)}</b>, ${achievable < remaining ? 'short of the gap — a second setup will be needed.' : 'still enough to close the gap.'}` : '.') + `</span>`;
+    return;
+  }
+  document.getElementById('tsBudget').value = totalBudgetNeeded.toFixed(2);
+  computeStructurer();
+  note.innerHTML = `${SESSION_LABELS[sessionKey]} session needs $${remaining.toFixed(2)} more to hit target. Budget set to <b>$${totalBudgetNeeded.toFixed(2)}</b> — split calculated below.`;
+}
+
+let tsLastResult = null;
+function computeStructurer() {
+  const budget = parseFloat(document.getElementById('tsBudget').value) || 0;
+  const city = document.getElementById('tsCity').value || '(city)';
+  const { yesLegs, tailLegs } = readTsLegs();
+  const result = document.getElementById('tsResult');
+
+  if (!yesLegs.length) { result.innerHTML = '<div class="empty" style="padding:10px 0;">Add at least one Yes bracket first.</div>'; return; }
+
+  const tailCost = tailLegs.reduce((s, t) => s + t.stake, 0);
+  const yesBudget = budget - tailCost;
+  if (yesBudget <= 0) { result.innerHTML = '<div class="empty" style="padding:10px 0;color:var(--red);">Budget too small to cover the tail legs plus any Yes stake.</div>'; return; }
+
+  const sumF = yesLegs.reduce((s, l) => s + l.price / 100, 0);
+  const legsWithStake = yesLegs.map(l => ({ ...l, stake: parseFloat((yesBudget * (l.price/100) / sumF).toFixed(2)) }));
+  const tailsProfitEach = tailLegs.map(t => ({ ...t, profit: parseFloat((t.stake * (100/t.price - 1)).toFixed(3)) }));
+  const tailsProfitSum = tailsProfitEach.reduce((s, t) => s + t.profit, 0);
+  const guaranteedProfit = sumF < 1 ? parseFloat((yesBudget * (1 - sumF) / sumF + tailsProfitSum).toFixed(2)) : null;
+  const portfolioPct = (guaranteedProfit !== null && RISK_SUMMARY && RISK_SUMMARY.portfolio) ? parseFloat(((guaranteedProfit / RISK_SUMMARY.portfolio) * 100).toFixed(2)) : null;
+
+  tsLastResult = { city, session: document.getElementById('tsSession').value, legsWithStake, tailsProfitEach, budget, guaranteedProfit, sumF };
+
+  let html = '';
+  if (sumF >= 1) {
+    html = `<div class="empty" style="padding:10px 0;color:var(--red);">These Yes prices sum to ${(sumF*100).toFixed(0)}%+ — no guaranteed-profit structure exists at these prices.</div>`;
+  } else {
+    html += `<table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="text-align:left;color:var(--dim);font-size:10px;"><th>SIDE</th><th>BRACKET</th><th>PRICE</th><th>STAKE</th><th>PROFIT IF THIS LEG HITS</th></tr></thead><tbody>`;
+    legsWithStake.forEach(l => {
+      const profit = parseFloat((l.stake * (100/l.price - 1)).toFixed(2));
+      html += `<tr><td><span class="pstatus go">YES</span></td><td>${l.bracket}</td><td class="mono">${l.price}¢</td><td class="mono">$${l.stake.toFixed(2)}</td><td class="mono" style="color:var(--green);">+$${profit.toFixed(2)}</td></tr>`;
+    });
+    tailsProfitEach.forEach(t => {
+      html += `<tr><td><span class="pstatus watch" style="background:rgba(255,90,90,.14);color:var(--red);">NO</span></td><td>${t.bracket}</td><td class="mono">${t.price}¢</td><td class="mono">$${t.stake.toFixed(2)}</td><td class="mono" style="color:var(--green);">+$${t.profit.toFixed(2)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+    html += `<div class="riskStats" style="display:flex;gap:1px;margin-top:10px;">
+      <div class="rcard hi"><small>GUARANTEED PROFIT</small><b>$${guaranteedProfit.toFixed(2)}${portfolioPct!==null?` <span style="font-size:11px;color:var(--dim);">(${portfolioPct}%)</span>`:''}</b></div>
+      <div class="rcard"><small>TOTAL STAKE</small><b>$${(yesBudget+tailCost).toFixed(2)}</b></div>
+      <div class="rcard lo"><small>IF ALL LEGS MISS</small><b>-$${(yesBudget+tailCost-tailsProfitSum).toFixed(2)}</b></div>
+    </div>`;
+    html += `<div style="color:var(--dim);font-size:11px;margin-top:8px;">"Guaranteed" means identical profit across whichever Yes bracket hits — it does not cover outcomes outside these legs.</div>`;
+    html += `<button class="btn" style="margin-top:10px;" onclick="sendStructurerToLog()">Send all legs to Trade Log</button>`;
+  }
+  result.innerHTML = html;
+}
+
+async function sendStructurerToLog() {
+  if (!tsLastResult) return;
+  const { city, session, legsWithStake, tailsProfitEach } = tsLastResult;
+  const allLegs = [
+    ...legsWithStake.map(l => ({ city, strategy:'3', side:'YES', bracketLabel:l.bracket, stake:l.stake, entryPriceCents:l.price, session })),
+    ...tailsProfitEach.map(t => ({ city, strategy:'3', side:'NO', bracketLabel:t.bracket, stake:t.stake, entryPriceCents:t.price, session })),
+  ];
+  for (const leg of allLegs) {
+    await fetch('/calc/trades', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(leg) });
+  }
+  document.getElementById('tsResult').innerHTML += '<div style="color:var(--green);margin-top:8px;">✓ All legs logged to Trade Log above.</div>';
+  loadRiskCalc();
+}
+
+// Autofill the Structurer from a Live Monitor card — pulls that city's
+// current model top-2 + live prices straight into the leg rows.
+function loadIntoStructurer(code) {
+  const station = (window.stationRows || []).find(s => s.code === code);
+  if (!station) return;
   const region = regionOf(code);
-  const sessKey = REGION_TO_SESSION[region];
-  if (!sessKey) { alert('This station is not mapped to a trading session.'); return; }
-  window.__manualPins[sessKey] = (window.__manualPins[sessKey] === code) ? null : code; // click again to unpin
-  loadV2();
-}
-function unpinSession(sessKey) {
-  window.__manualPins[sessKey] = null;
-  loadV2();
-}
-
-function evaluateCandidate(station, forced) {
-  const code = station.code;
-  const city = station.city;
+  const sessKey = REGION_TO_SESSION[region] || '';
   const unit = isUS(code) ? 'F' : 'C';
   const hf = station.highForecast;
-
-  const localHour = station.tz
-    ? Number(new Intl.DateTimeFormat('en-GB',{timeZone:station.tz,hour:'2-digit',hour12:false}).format(new Date()))
-    : null;
-  const inWindow = Number.isFinite(localHour) && localHour >= 8 && localHour < 20;
-
-  if (!inWindow && !forced) {
-    return { code, city, unit, status: 'watch', reason: `Outside the 08:00–20:00 local trading window (currently ${Number.isFinite(localHour)?localHour+':00':'—'} local) — not recommended right now.` };
+  document.getElementById('tsCity').value = station.city;
+  document.getElementById('tsSession').value = sessKey;
+  document.getElementById('tsLegs').innerHTML = '';
+  if (hf && Array.isArray(hf.primaryOutcomesC) && hf.primaryOutcomesC.length >= 2) {
+    const [c1, c2] = hf.primaryOutcomesC;
+    [c1, c2].forEach(c => {
+      const o = cToNative(c, unit);
+      const price = matchLivePrice(station.city, o, unit);
+      tsLegRow(false);
+      const last = document.getElementById('tsLegs').lastElementChild;
+      last.querySelector('.ts-bracket').value = fmtTemp(o, unit);
+      if (price !== null) last.querySelector('.ts-price').value = price;
+    });
   }
-  const stabOk = Number.isFinite(station.stability) && station.stability >= 70;
-  const pattOk = Number.isFinite(station.pattern) && station.pattern >= 70;
-  if ((!stabOk || !pattOk) && !forced) {
-    return { code, city, unit, status: 'none', reason: `No signal — Stability ${Number.isFinite(station.stability)?station.stability+'%':'—'} / Pattern ${Number.isFinite(station.pattern)?station.pattern+'%':'—'} (need 70/70)` };
-  }
-  if (!hf || !Array.isArray(hf.primaryOutcomesC) || hf.primaryOutcomesC.length < 2) {
-    return { code, city, unit, status: 'watch', reason: 'Live forecast engine has not produced a barbell pair yet — still collecting data.' };
-  }
-
-  const [c1, c2] = hf.primaryOutcomesC;
-  const outcome1 = cToNative(c1, unit);
-  const outcome2 = cToNative(c2, unit);
-  const findProb = (tC) => hf.probabilityLadder?.find(x => x.temperatureC === tC)?.probability ?? null;
-  const modelProb1 = findProb(c1), modelProb2 = findProb(c2);
-
-  const price1 = matchLivePrice(city, outcome1, unit);
-  const price2 = matchLivePrice(city, outcome2, unit);
-  if (price1 === null || price2 === null || !Number.isFinite(modelProb1) || !Number.isFinite(modelProb2)) {
-    return { code, city, unit, outcome1, outcome2, confidence: hf.confidence, status: 'watch', reason: 'Forecast confirmed, but no live price for one or both legs yet — cannot pin without a live price.' };
-  }
-
-  // Cross-check: are the model's two picks actually the market's own top-2
-  // priced brackets right now? This is the Helsinki case — the model can be
-  // internally confident (88%) while the live market has already moved to a
-  // different pair of favorites. High "edge" from a stale/wrong pick isn't
-  // real edge, so this blocks the recommendation instead of trusting the
-  // model over the market. Skipped when manually pinned — that's Willow
-  // overriding the filters on purpose, on a real, live-priced trade.
-  const topTwo = marketTopTwo(city);
-  let alignmentWarning = '';
-  if (!forced && topTwo && topTwo.length === 2) {
-    const modelSet = new Set([outcome1, outcome2]);
-    const agree = topTwo.every(t => Number.isFinite(t.val) && modelSet.has(t.val));
-    if (!agree) {
-      const marketDesc = topTwo.map(t => `${t.label} (${t.prob.toFixed(0)}%)`).join(' / ');
-      return { code, city, unit, outcome1, outcome2, confidence: hf.confidence, status: 'watch',
-        reason: `Model favors ${fmtTemp(outcome1,unit)}/${fmtTemp(outcome2,unit)}, but the market's real top-2 right now is ${marketDesc} — model disagrees with the market, not recommended.` };
-    }
-  } else if (forced && topTwo && topTwo.length === 2) {
-    const modelSet = new Set([outcome1, outcome2]);
-    const agree = topTwo.every(t => Number.isFinite(t.val) && modelSet.has(t.val));
-    if (!agree) alignmentWarning = ` ⚠ market's real top-2 is ${topTwo.map(t=>`${t.label} (${t.prob.toFixed(0)}%)`).join(' / ')} — does not match model pick.`;
-  }
-
-  const edge1 = modelProb1 - price1;
-  const edge2 = modelProb2 - price2;
-  const combined = price1 + price2;
-  const avgEdge = (edge1 + edge2) / 2;
-  const base = { code, city, unit, outcome1, outcome2, modelProb1, modelProb2, price1, price2, edge1, edge2, combined, avgEdge, confidence: hf.confidence };
-
-  if (combined > MAX_COMBINED_CENTS && !forced) {
-    return { ...base, status: 'watch', reason: `Combined price ${combined.toFixed(0)}¢ is above the ${MAX_COMBINED_CENTS}¢ ceiling — barbell RR too thin right now.` };
-  }
-  if ((edge1 < -MIN_EDGE_CENTS || edge2 < -MIN_EDGE_CENTS) && !forced) {
-    return { ...base, status: 'watch', reason: `Leg priced against you by more than ${MIN_EDGE_CENTS}¢ — edges are ${edge1.toFixed(0)}¢ / ${edge2.toFixed(0)}¢.` };
-  }
-  if (forced) {
-    const flags = [];
-    if (combined > MAX_COMBINED_CENTS) flags.push(`combined ${combined.toFixed(0)}¢ is over your ${MAX_COMBINED_CENTS}¢ ceiling`);
-    if (edge1 < -MIN_EDGE_CENTS || edge2 < -MIN_EDGE_CENTS) flags.push(`edges ${edge1.toFixed(0)}¢/${edge2.toFixed(0)}¢ are priced against you`);
-    return { ...base, status: 'go', reason: `Manually pinned — filters bypassed.${flags.length ? ' ⚠ ' + flags.join('; ') + '.' : ''}${alignmentWarning}` };
-  }
-  return { ...base, status: 'go', reason: `Live confidence ${hf.confidence}% · aligned with market top-2 · both legs within ${MIN_EDGE_CENTS}¢ tolerance · combined ${combined.toFixed(0)}¢ ≤ ${MAX_COMBINED_CENTS}¢.` };
+  document.getElementById('tsGapNote').innerHTML = '';
+  document.getElementById('tsResult').innerHTML = '';
+  document.getElementById('tsCity').scrollIntoView({ behavior:'smooth', block:'center' });
 }
 
-// Solve stake sizing backward from a PROFIT target (not a payout target).
-// If you stake X*combined total and win, profit = X - X*combined = X*(1-combined).
-// So X = desiredProfit / (1-combined), hard-capped by however much exposure room is left.
-function sizeForProfitGap(candidate, desiredProfit, exposureLeft) {
-  const combinedFrac = candidate.combined / 100;
-  const qualityFrac = Math.max(0.25, Math.min(1, (candidate.avgEdge - MIN_EDGE_CENTS) / 10)); // 8¢->25%, 18¢+->100% of the gap this trade attempts to close
-  const attemptedProfit = desiredProfit * qualityFrac;
-  const xByProfit    = attemptedProfit / (1 - combinedFrac);
-  const xByExposure  = exposureLeft / combinedFrac;
-  const X = Math.max(0, Math.min(xByProfit, xByExposure));
-  const stake1 = X * (candidate.price1 / 100);
-  const stake2 = X * (candidate.price2 / 100);
-  const totalStake = stake1 + stake2;
-  const profitIfWin = X - totalStake;
-  return { stake1, stake2, totalStake, profitIfWin, qualityFrac };
-}
-
-async function buildSessionPlanner() {
-  const grid = document.getElementById('plannerGrid');
-  if (!grid) return;
-  if (!RISK_SUMMARY || !RISK_SUMMARY.sessions) {
-    grid.innerHTML = '<div class="empty" style="padding:20px;">Set your bankroll, exposure cap and target above to get session recommendations.</div>';
-    return;
-  }
-
-  let stations = [];
-  try {
-    stations = await fetch('/api/stationedge/stations').then(r => r.json());
-  } catch (e) {
-    grid.innerHTML = `<div class="empty" style="padding:20px;">Could not load live station data: ${e.message}</div>`;
-    return;
-  }
-
-  await fetchLivePrices(stations.map(s => s.city));
-
-  const bySession = { asian: [], eu: [], us: [] };
-  for (const s of stations) {
-    const sessKey = REGION_TO_SESSION[regionOf(s.code)];
-    if (sessKey) bySession[sessKey].push(evaluateCandidate(s));
-  }
-
-  const SESS_LABEL = { asian: '🌏 Asian Session', eu: '🇪🇺 EU Session', us: '🇺🇸 US Session' };
-  const nominalTarget   = RISK_SUMMARY.sessionTarget;
-  const nominalExposure = RISK_SUMMARY.sessions.asian ? RISK_SUMMARY.sessions.asian.exposureCap : 0;
-
-  let rolloverTarget = 0, rolloverExposure = 0;
-  window.__plannerLegIds = [];
-  const cards = SESSION_ORDER.map(key => {
-    const candidates  = bySession[key];
-    const sess        = RISK_SUMMARY.sessions[key];
-    const cascadeTarget   = nominalTarget + rolloverTarget;
-    const cascadeExposure = nominalExposure + rolloverExposure;
-    const profitGap   = Math.max(0, cascadeTarget - sess.profit);
-    const exposureCap = Math.max(0, cascadeExposure - sess.exposureUsed);
-    const alreadyMet = sess.profit >= cascadeTarget && cascadeTarget > 0;
-
-    if (alreadyMet) {
-      rolloverTarget = 0;
-      rolloverExposure = Math.max(0, cascadeExposure - sess.exposureUsed);
-      return `<div class="plannerCard"><div class="psess">${SESS_LABEL[key]}</div><span class="pstatus none">TARGET MET</span><div class="pnote">$${sess.profit.toFixed(2)} / $${cascadeTarget.toFixed(2)} target (incl. any carried-forward gap). No new recommendation unless you want to keep pushing.</div></div>`;
-    }
-
-    // Rank EVERY qualifying city best-edge-first — not just one. This is what
-    // lets multiple cities show up in the same session card once more than
-    // one clears the filters, exactly like Amsterdam + London both being live
-    // at once: best pricing/edge goes on top, the rest are still there to
-    // scroll to.
-    let goCandidates = candidates.filter(c => c.status === 'go').sort((a, b) => b.avgEdge - a.avgEdge);
-
-    // A manual pin always takes the #1 slot for its session, on top of
-    // whatever the auto-ranking picked — "swap London for Istanbul" means
-    // Istanbul goes first, filters bypassed, still fully priced/sized.
-    const pinnedCode = window.__manualPins[key];
-    if (pinnedCode) {
-      const pinnedStation = stations.find(s => s.code === pinnedCode);
-      const pinnedCand = pinnedStation ? evaluateCandidate(pinnedStation, true) : null;
-      if (pinnedCand && pinnedCand.status === 'go') {
-        goCandidates = [{ ...pinnedCand, pinned: true }, ...goCandidates.filter(c => c.code !== pinnedCode)];
-      }
-    }
-
-    if (!goCandidates.length) {
-      const watch = candidates.filter(c => c.status === 'watch').sort((a,b)=>(b.avgEdge??-99)-(a.avgEdge??-99))[0];
-      const shown = watch || candidates[0];
-      rolloverTarget = profitGap;
-      rolloverExposure = exposureCap;
-      return `<div class="plannerCard">
-        <div class="psess">${SESS_LABEL[key]}</div>
-        <span class="pstatus ${shown ? 'watch' : 'none'}">${shown ? 'WATCH' : 'NO SIGNAL'}</span>
-        <div class="pcity">${shown ? shown.city : '—'}</div>
-        <div class="pnote">Gap to close: $${profitGap.toFixed(2)} (target $${cascadeTarget.toFixed(2)}). ${shown ? shown.reason : 'No cities in this region have a live signal yet.'}</div>
-      </div>`;
-    }
-
-    // Allocate stake against the gap in best-edge-first order until it's closed
-    // or exposure runs out — same as before. Anything left over after that is
-    // still shown, just marked as an extra option rather than pre-sized.
-    let gapLeft = profitGap, expLeft = exposureCap;
-    const allocated = [], extras = [];
-    for (const cand of goCandidates) {
-      if (gapLeft > 0.01 && expLeft > 0.01) {
-        const sizing = sizeForProfitGap(cand, gapLeft, expLeft);
-        if (sizing.totalStake > 0.01) {
-          allocated.push({ cand, sizing });
-          gapLeft -= sizing.profitIfWin;
-          expLeft -= sizing.totalStake;
-          continue;
-        }
-      }
-      extras.push(cand);
-    }
-    rolloverTarget = Math.max(0, gapLeft);
-    rolloverExposure = Math.max(0, expLeft);
-
-    const legHtml = (cand, sizing, i, tag) => {
-      const legId = `${key}_${i}`;
-      window.__plannerLegIds.push(legId);
-      const pinTag = cand.pinned ? ` <span style="color:var(--cyan);">📌 MANUAL PIN</span> <button class="btn secondary" style="padding:2px 8px;font-size:10px;" onclick="unpinSession('${key}')">unpin</button>` : '';
-      return `<div style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);" id="pleg_${legId}" data-p1="${cand.price1}" data-p2="${cand.price2}">
-        <div class="pcity" style="font-size:14px;">${cand.city} ${tag}${pinTag}</div>
-        <div class="pnote" style="margin-top:2px;">${cand.reason}</div>
-        <div class="pleg"><span>Buy Yes ${fmtTemp(cand.outcome1, cand.unit)}</span><b>${cand.price1.toFixed(0)}¢ (edge +${cand.edge1.toFixed(0)})</b></div>
-        <div class="pleg"><span>Buy Yes ${fmtTemp(cand.outcome2, cand.unit)}</span><b>${cand.price2.toFixed(0)}¢ (edge +${cand.edge2.toFixed(0)})</b></div>
-        <div style="display:flex;gap:10px;margin-top:8px;">
-          <div class="riskField" style="width:auto;"><label>Stake leg 1 ($)</label><input type="number" step="0.01" value="${sizing.stake1.toFixed(2)}" oninput="recalcLeg('${legId}')" id="stake1_${legId}"></div>
-          <div class="riskField" style="width:auto;"><label>Stake leg 2 ($)</label><input type="number" step="0.01" value="${sizing.stake2.toFixed(2)}" oninput="recalcLeg('${legId}')" id="stake2_${legId}"></div>
-        </div>
-        <div class="pstake" id="pstake_${legId}"></div>
-      </div>`;
-    };
-
-    const allocatedHtml = allocated.map(({cand,sizing}, i) => legHtml(cand, sizing, `a${i}`, cand.pinned ? '' : '· BEST FIT')).join('');
-    // Extras still get a starting-point size (against whatever's left, even $0) so the input is never empty
-    const extrasHtml = extras.map((cand, i) => legHtml(cand, sizeForProfitGap(cand, 0, exposureCap), `x${i}`, cand.pinned ? '' : '· ALSO QUALIFIES')).join('');
-
-    const shortfallNote = gapLeft > 0.01
-      ? `<div class="pnote" style="margin-top:10px;color:var(--amber);">Could only responsibly close $${(profitGap-gapLeft).toFixed(2)} of the $${profitGap.toFixed(2)} gap within filters/exposure — $${gapLeft.toFixed(2)} carries forward, not forced.</div>`
-      : '';
-
-    return `<div class="plannerCard go">
-      <div class="psess">${SESS_LABEL[key]}</div>
-      <span class="pstatus go">TRADE NOW${goCandidates.length>1?` · ${goCandidates.length} CITIES QUALIFY`:''}</span>
-      <div class="pnote">Gap to close this session: $${profitGap.toFixed(2)} · best edge first, scroll for more</div>
-      ${allocatedHtml}
-      ${extrasHtml}
-      ${shortfallNote}
-    </div>`;
-  }).join('');
-  grid.innerHTML = cards;
-  (window.__plannerLegIds || []).forEach(recalcLeg);
-}
-
-// Recompute profit/loss when Willow manually edits a leg's stake — this is
-// the manual override: sizing above is just a starting suggestion.
-function recalcLeg(legId) {
-  const box = document.getElementById(`pleg_${legId}`);
-  if (!box) return;
-  const p1 = parseFloat(box.dataset.p1) / 100; // price as a fraction
-  const p2 = parseFloat(box.dataset.p2) / 100;
-  const s1 = parseFloat(document.getElementById(`stake1_${legId}`).value) || 0;
-  const s2 = parseFloat(document.getElementById(`stake2_${legId}`).value) || 0;
-  const totalStake = s1 + s2;
-  const payoutIfLeg1 = p1 > 0 ? s1 / p1 : 0;
-  const payoutIfLeg2 = p2 > 0 ? s2 / p2 : 0;
-  const profitIfLeg1 = payoutIfLeg1 - totalStake;
-  const profitIfLeg2 = payoutIfLeg2 - totalStake;
-  const balanced = Math.abs(profitIfLeg1 - profitIfLeg2) < 0.01;
-  const out = document.getElementById(`pstake_${legId}`);
-  if (!out) return;
-  out.innerHTML = `Total stake: $${totalStake.toFixed(2)}<br>
-    <span style="font-size:10.5px;color:var(--muted);font-weight:400;">
-      If leg 1 hits: profit $${profitIfLeg1.toFixed(2)} · If leg 2 hits: profit $${profitIfLeg2.toFixed(2)}
-      ${balanced ? ' <span style="color:var(--green);">(balanced barbell)</span>' : ' <span style="color:var(--amber);">(unbalanced — legs no longer pay equally)</span>'}
-    </span>`;
-}
+// Seed one Yes row + one tail row so the panel isn't empty on first load
+addStructurerLeg(); addStructurerLeg();
 
 async function loadV3() {
   window.__v3Loaded = true;
@@ -867,7 +828,7 @@ const localTime=s=>new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric'
 async function loadV2(){
   window.__v2Loaded = true;
   document.getElementById('grid').innerHTML='<p class="empty">Loading exact station data…</p>';
-  loadRiskCalc().then(() => buildSessionPlanner());
+  loadRiskCalc();
   const r=await fetch('/api/stationedge/stations');const rows=await r.json();window.stationRows=rows;
   document.getElementById('v2count').textContent = `${rows.length} Resolution Stations`;
   await fetchLivePrices(rows.map(s => s.city));
@@ -890,12 +851,8 @@ async function loadV2(){
         <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(o2, unit)}</div><div class="qprob">${Number.isFinite(p2) ? p2 + '%' : '—'}</div>${liveQuoteBlock(s.city, o2, p2, unit)}</div>
       </div>`;
     }
-    const sessKeyForCard = REGION_TO_SESSION[region];
-    const isPinned = sessKeyForCard && window.__manualPins[sessKeyForCard] === s.code;
-    const pinBtn = sessKeyForCard
-      ? `<button class="btn ${isPinned?'':'secondary'}" style="width:100%;margin-top:10px;" onclick="event.stopPropagation();pinCity('${s.code}')">${isPinned ? '📌 Pinned as recommendation — click to unpin' : '📌 Use as recommendation'}</button>`
-      : '';
-    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}${pinBtn}`}</div>`);
+    const structBtn = `<button class="btn secondary" style="width:100%;margin-top:10px;" onclick="event.stopPropagation();loadIntoStructurer('${s.code}')">→ Load into Trade Structurer</button>`;
+    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}${structBtn}`}</div>`);
   }
   document.getElementById('grid').innerHTML = cards.join('');
 }

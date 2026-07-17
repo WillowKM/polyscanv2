@@ -44,11 +44,13 @@
       "stake": 1.82,
       "entryPriceCents": 25,
       "session": "eu",
-      "status": "open",
+      "status": "LOSS",
       "cashoutPriceCents": null,
       "sastDate": "2026-07-17",
       "openedAt": "2026-07-17T10:01:21.150Z",
-      "settledAt": null
+      "settledAt": "2026-07-17T17:37:48.551Z",
+      "profit": -1.82,
+      "autoResolved": true
     },
     {
       "id": "1784282479995-afnvw",

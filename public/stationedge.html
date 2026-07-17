@@ -227,6 +227,12 @@ footer.term b{color:var(--amber)}
       <div><h1>Forward-Test Book</h1><p id="v3sub">One position per city — running record shown as hits / resolved</p></div>
       <div class="topActions"><button class="btn secondary" onclick="downloadV3Csv()">⇩ Download CSV</button><button class="btn" onclick="loadV3()">↻ Refresh</button></div>
     </div>
+    <div id="v3summary" class="summary"></div>
+    <div id="v3grid" class="v3grid"><p class="empty">Loading…</p></div>
+  </div>
+
+  <!-- Live Monitor (V2) -->
+  <div id="viewV2" class="hidden">
     <div class="riskPanel">
       <h2>Risk Calculator</h2>
       <div class="riskInputs">
@@ -241,12 +247,6 @@ footer.term b{color:var(--amber)}
       <h2>Session Planner <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— best qualifying trade per session, sized against today's target</span></h2>
       <div class="plannerGrid" id="plannerGrid"><div class="empty" style="padding:20px;">Loading…</div></div>
     </div>
-    <div id="v3summary" class="summary"></div>
-    <div id="v3grid" class="v3grid"><p class="empty">Loading…</p></div>
-  </div>
-
-  <!-- Live Monitor (V2) -->
-  <div id="viewV2" class="hidden">
     <div id="list">
       <div class="top"><div><h1 id="v2count">Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button class="btn" onclick="loadV2()">↻ Refresh</button></div>
       <div id="grid" class="grid"></div>
@@ -441,6 +441,25 @@ function cToNative(cVal, unit) {
   return unit === 'F' ? Math.round(cVal * 9 / 5 + 32) : Math.round(cVal);
 }
 
+// Parses a temp value out of a Polymarket bracket label ("24°C" -> 24,
+// "92-93°F" -> 92) so we can rank the market's own top-2 by price and check
+// whether the model's pick actually agrees with what the market thinks —
+// not just whether the model's own two picks happen to be priced cheaply.
+function parseBracketTemp(label) {
+  const m = String(label || '').match(/-?\d+(\.\d+)?/);
+  return m ? parseFloat(m[0]) : null;
+}
+function marketTopTwo(cityName) {
+  const entry = LIVE_POLY[cityName];
+  const outcomes = entry && entry.polyData && entry.polyData.outcomes;
+  if (!outcomes || !outcomes.length) return null;
+  return outcomes
+    .filter(o => Number.isFinite(o.prob))
+    .sort((a, b) => b.prob - a.prob)
+    .slice(0, 2)
+    .map(o => ({ label: o.bracket, prob: o.prob, val: parseBracketTemp(o.bracket) }));
+}
+
 // Reads from V2 (the continuous, all-day live research engine) instead of
 // V3 (which only locks one prediction per day, 11:00-12:59 local, and is
 // kept separate on purpose as the clean accuracy benchmark — see server.js).
@@ -479,6 +498,23 @@ function evaluateCandidate(station) {
   const price2 = matchLivePrice(city, outcome2, unit);
   if (price1 === null || price2 === null || !Number.isFinite(modelProb1) || !Number.isFinite(modelProb2)) {
     return { code, city, unit, outcome1, outcome2, confidence: hf.confidence, status: 'watch', reason: 'Forecast confirmed, but no live price for one or both legs yet.' };
+  }
+
+  // Cross-check: are the model's two picks actually the market's own top-2
+  // priced brackets right now? This is the Helsinki case — the model can be
+  // internally confident (88%) while the live market has already moved to a
+  // different pair of favorites. High "edge" from a stale/wrong pick isn't
+  // real edge, so this blocks the recommendation instead of trusting the
+  // model over the market.
+  const topTwo = marketTopTwo(city);
+  if (topTwo && topTwo.length === 2) {
+    const modelSet = new Set([outcome1, outcome2]);
+    const agree = topTwo.every(t => Number.isFinite(t.val) && modelSet.has(t.val));
+    if (!agree) {
+      const marketDesc = topTwo.map(t => `${t.label} (${t.prob.toFixed(0)}%)`).join(' / ');
+      return { code, city, unit, outcome1, outcome2, confidence: hf.confidence, status: 'watch',
+        reason: `Model favors ${fmtTemp(outcome1,unit)}/${fmtTemp(outcome2,unit)}, but the market's real top-2 right now is ${marketDesc} — model disagrees with the market, not recommended.` };
+    }
   }
 
   const edge1 = modelProb1 - price1;
@@ -663,7 +699,6 @@ async function loadV3() {
   window.__v3Loaded = true;
   document.getElementById('v3grid').innerHTML = '<p class="empty">Loading…</p>';
   document.getElementById('v3summary').innerHTML = '';
-  const riskSummaryPromise = loadRiskCalc();
   let data;
   try {
     const r = await fetch('/api/stationedge/audit');
@@ -697,8 +732,7 @@ async function loadV3() {
 
   document.getElementById('tapeTrack').innerHTML = buildTape(sortedGrouped);
 
-  await Promise.all([fetchLivePrices(sortedGrouped.map(g => g.latest.city)), riskSummaryPromise]);
-  buildSessionPlanner();
+  await fetchLivePrices(sortedGrouped.map(g => g.latest.city));
 
   const cityCards = [];
   let lastRegion = null;
@@ -790,6 +824,7 @@ const localTime=s=>new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric'
 async function loadV2(){
   window.__v2Loaded = true;
   document.getElementById('grid').innerHTML='<p class="empty">Loading exact station data…</p>';
+  loadRiskCalc().then(() => buildSessionPlanner());
   const r=await fetch('/api/stationedge/stations');const rows=await r.json();window.stationRows=rows;
   document.getElementById('v2count').textContent = `${rows.length} Resolution Stations`;
   const sorted = sortByRegionAndSignal(rows, s => s.code, s => s.highForecast?.signalWindow, s => s.city);

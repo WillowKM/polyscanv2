@@ -261,6 +261,14 @@ footer.term b{color:var(--amber)}
       <h2>Trade Log <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— auto-settles WIN/LOSS when a bracket price hits 99¢/1¢; Cash Out any time before then</span></h2>
       <div id="tradeLogWrap"></div>
     </div>
+    <div class="riskPanel">
+      <h2>Advance Scan <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— observation only, no calculator attached. Flags markets opened days ahead of resolution across all 50 cities where the 3 top brackets are each priced over 20¢ and combine to 80¢ or less.</span></h2>
+      <div class="riskInputs">
+        <div class="riskField"><label>Days ahead</label><input id="advDaysAhead" type="number" min="1" max="7" value="2" style="width:80px;"></div>
+        <button class="btn secondary" onclick="loadAdvanceScan()">↻ Scan</button>
+      </div>
+      <div id="advanceScanWrap"><div class="empty" style="padding:14px 0;">Click Scan to check all 50 cities.</div></div>
+    </div>
     <div id="list">
       <div class="top"><div><h1 id="v2count">Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button class="btn" onclick="loadV2()">↻ Refresh</button></div>
       <div id="grid" class="grid"></div>
@@ -363,6 +371,40 @@ function buildTape(cityCardsData) {
 
 // ── Risk Calculator ──────────────────────────────────────────────────────
 let RISK_SUMMARY = null;
+// ── Advance Scan (observation only) ────────────────────────────────────────
+// Checks Polymarket's already-open markets for a future day, across all
+// mapped cities — no model prediction involved, since the forecast engine
+// only produces same-day predictions (see the earlier discussion: 2-day-out
+// forecasts aren't something the model has ever been validated on). This is
+// purely "does the market itself currently show 3 roughly-even, real
+// brackets" — a Polymarket-side screen, for you to watch and log outcomes
+// against, nothing more.
+async function loadAdvanceScan() {
+  const wrap = document.getElementById('advanceScanWrap');
+  const daysAhead = parseInt(document.getElementById('advDaysAhead').value) || 2;
+  wrap.innerHTML = '<div class="empty" style="padding:14px 0;">Scanning all 50 cities — this hits Polymarket directly for each one, give it a moment…</div>';
+  let data;
+  try {
+    data = await fetch(`/api/stationedge/advance-scan?daysAhead=${daysAhead}`).then(r => r.json());
+  } catch (e) {
+    wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">Scan failed: ${e.message}</div>`;
+    return;
+  }
+  if (data.error) { wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">${data.error}</div>`; return; }
+  if (!data.matches.length) {
+    wrap.innerHTML = `<div class="empty" style="padding:14px 0;">No city ${daysAhead} day(s) ahead currently has 3 brackets each over ${data.minLegCents}¢ combining to ${data.maxCombinedCents}¢ or less. Try again later — this can change as the market fills in.</div>`;
+    return;
+  }
+  const rows = data.matches.map(m => {
+    const bracketCells = m.brackets.map(b => `<td class="mono">${b.bracket}<br><span style="color:var(--dim);">${b.prob}¢</span></td>`).join('');
+    return `<tr><td>${m.city}</td><td class="mono">${m.code || '—'}</td>${bracketCells}<td class="mono">${m.combined}¢</td></tr>`;
+  }).join('');
+  wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">${data.matches.length} of 50 cities qualify, ${daysAhead} day(s) ahead:</div>
+    <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>BRACKET 1</th><th>BRACKET 2</th><th>BRACKET 3</th><th>COMBINED</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
 async function loadRiskCalc() {
   try {
     const r = await fetch('/calc/state');
@@ -868,7 +910,7 @@ async function loadV2(){
 // ── Simple inline SVG charts for the station detail view ──────────────────
 // Native unit, same color tokens as the rest of the UI. Charts are additive —
 // every existing table/section stays exactly as it was.
-function buildTempCurveSvg(observations, s) {
+function buildTempCurveSvg(observations, s, snapshots) {
   const pts = observations.filter(o => Number.isFinite(o.temperatureC));
   if (pts.length < 2) return '';
   const unit = isUS(s.code) ? '°F' : '°C';
@@ -879,29 +921,56 @@ function buildTempCurveSvg(observations, s) {
   const fHigh = hf && Number.isFinite(hf.predictedHighC) ? toNative(hf.predictedHighC) : null;
 
   const W = 700, H = 220, padL = 40, padR = 16, padT = 16, padB = 40;
-  const allVals = [...vals, ...(fLow!==null?[fLow]:[]), ...(fHigh!==null?[fHigh]:[])];
+  const dayStart = new Date(pts[0].observedAt).getTime();
+  const dayEnd = new Date(pts[pts.length-1].observedAt).getTime();
+  const span = (dayEnd - dayStart) || 1;
+  const hasTrail = Array.isArray(snapshots) && snapshots.length >= 2;
+  const trailLows  = hasTrail ? snapshots.filter(sn=>Number.isFinite(sn.predicted_low_c)).map(sn=>toNative(sn.predicted_low_c)) : [];
+  const trailHighs = hasTrail ? snapshots.filter(sn=>Number.isFinite(sn.predicted_high_c)).map(sn=>toNative(sn.predicted_high_c)) : [];
+
+  const allVals = [...vals, ...(fLow!==null?[fLow]:[]), ...(fHigh!==null?[fHigh]:[]), ...trailLows, ...trailHighs];
   const min = Math.min(...allVals), max = Math.max(...allVals);
   const range = (max - min) || 1;
   const x = i => padL + (i / (vals.length - 1)) * (W - padL - padR);
+  const xAt = t => padL + ((t - dayStart) / span) * (W - padL - padR);
   const y = v => padT + (1 - (v - min) / range) * (H - padT - padB);
   const path = vals.map((v, i) => `${i === 0 ? 'M' : 'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
   const lastX = x(vals.length - 1), lastY = y(vals[vals.length - 1]);
 
-  // Time axis: first / middle / last observation, in station-local time
   const fmtT = ts => new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(ts));
   const tickIdx = [0, Math.floor((pts.length-1)/2), pts.length-1];
   const timeTicks = tickIdx.map(i => `<text x="${x(i).toFixed(1)}" y="${H-padB+16}" text-anchor="middle" fill="var(--dim)" font-size="9.5" font-family="var(--mono)">${fmtT(pts[i].observedAt)}</text>`).join('');
 
-  const forecastBand = (fLow!==null && fHigh!==null)
-    ? `<rect x="${padL}" y="${y(fHigh).toFixed(1)}" width="${(W-padL-padR).toFixed(1)}" height="${Math.max(1,(y(fLow)-y(fHigh))).toFixed(1)}" fill="var(--amber)" opacity="0.12"/>
-       <line x1="${padL}" y1="${y(fHigh).toFixed(1)}" x2="${W-padR}" y2="${y(fHigh).toFixed(1)}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5,4"/>
-       <line x1="${padL}" y1="${y(fLow).toFixed(1)}" x2="${W-padR}" y2="${y(fLow).toFixed(1)}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5,4"/>
-       <text x="${W-padR}" y="${y(fHigh).toFixed(1)-4}" text-anchor="end" fill="var(--amber)" font-size="10" font-family="var(--mono)">forecast high ${fHigh.toFixed(1)}${unit}</text>
-       <text x="${W-padR}" y="${y(fLow).toFixed(1)+13}" text-anchor="end" fill="var(--amber)" font-size="10" font-family="var(--mono)">forecast low ${fLow.toFixed(1)}${unit}</text>`
-    : '';
+  let forecastLayer;
+  if (hasTrail) {
+    // Real forecast trail: how the model's own predicted high/low moved
+    // through the day, one point per sweep cycle — plotted through time
+    // exactly like the observed line, not a fabricated shape.
+    const linePath = (rows, key) => rows.filter(sn=>Number.isFinite(sn[key])).map((sn,i) => {
+      const px = xAt(new Date(sn.snapshot_at).getTime()).toFixed(1);
+      const py = y(toNative(sn[key])).toFixed(1);
+      return `${i===0?'M':'L'}${px},${py}`;
+    }).join(' ');
+    const lastHigh = snapshots.filter(sn=>Number.isFinite(sn.predicted_high_c)).at(-1);
+    forecastLayer = `
+      <path d="${linePath(snapshots,'predicted_high_c')}" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <path d="${linePath(snapshots,'predicted_low_c')}" fill="none" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5,4" opacity="0.6"/>
+      ${lastHigh ? `<text x="${xAt(new Date(lastHigh.snapshot_at).getTime()).toFixed(1)}" y="${y(toNative(lastHigh.predicted_high_c)).toFixed(1)-6}" text-anchor="end" fill="var(--amber)" font-size="10" font-family="var(--mono)">forecast high (live trail)</text>` : ''}`;
+  } else if (fLow !== null && fHigh !== null) {
+    // Fallback: no trail history yet (first day this is running) — show the
+    // current single forecast reading as a flat range instead of nothing.
+    forecastLayer = `
+      <rect x="${padL}" y="${y(fHigh).toFixed(1)}" width="${(W-padL-padR).toFixed(1)}" height="${Math.max(1,(y(fLow)-y(fHigh))).toFixed(1)}" fill="var(--amber)" opacity="0.12"/>
+      <line x1="${padL}" y1="${y(fHigh).toFixed(1)}" x2="${W-padR}" y2="${y(fHigh).toFixed(1)}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <line x1="${padL}" y1="${y(fLow).toFixed(1)}" x2="${W-padR}" y2="${y(fLow).toFixed(1)}" stroke="var(--amber)" stroke-width="1.5" stroke-dasharray="5,4"/>
+      <text x="${W-padR}" y="${y(fHigh).toFixed(1)-4}" text-anchor="end" fill="var(--amber)" font-size="10" font-family="var(--mono)">forecast high ${fHigh.toFixed(1)}${unit} (no trail history yet)</text>
+      <text x="${W-padR}" y="${y(fLow).toFixed(1)+13}" text-anchor="end" fill="var(--amber)" font-size="10" font-family="var(--mono)">forecast low ${fLow.toFixed(1)}${unit}</text>`;
+  } else {
+    forecastLayer = '';
+  }
 
   return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:${H}px;">
-    ${forecastBand}
+    ${forecastLayer}
     <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="var(--line)" stroke-width="1"/>
     <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="var(--line)" stroke-width="1"/>
     <text x="4" y="${y(max)+4}" fill="var(--dim)" font-size="10" font-family="var(--mono)">${max.toFixed(1)}${unit}</text>
@@ -910,7 +979,7 @@ function buildTempCurveSvg(observations, s) {
     <path d="${path}" fill="none" stroke="var(--cyan)" stroke-width="2"/>
     <circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="3.5" fill="var(--cyan)"/>
     <text x="8" y="14" fill="var(--cyan)" font-size="10" font-family="var(--mono)">● observed</text>
-    ${fLow!==null?`<text x="90" y="14" fill="var(--amber)" font-size="10" font-family="var(--mono)">┅ forecast range</text>`:''}
+    <text x="90" y="14" fill="var(--amber)" font-size="10" font-family="var(--mono)">┅ forecast${hasTrail?' (live trail)':' range'}</text>
   </svg>`;
 }
 function buildProbLadderSvg(ladder, s) {
@@ -934,7 +1003,7 @@ d.innerHTML=`<button class="backBtn" onclick="backV2()">← DASHBOARD</button><h
 ${s.highForecast?`<section><h2>Daily High Forecast Engine V2</h2><div class="hero"><div><small>FINAL HIGH FORECAST</small><div class="temp">${temp(s.highForecast.predictedLowC,s)} – ${temp(s.highForecast.predictedHighC,s)}</div></div><div><small>PRIMARY YES BARBELL</small><div class="temp">${tempPair(s.highForecast.primaryOutcomesC,s)}</div></div><div><small>CONFIDENCE</small><div class="temp">${s.highForecast.confidence}%</div></div></div><div class="line"><span>Signal window</span><b>${s.highForecast.signalWindow}</b></div><div class="line"><span>Forecast validation</span><b>${s.highForecast.validation.score}% · ${s.highForecast.validation.status}</b></div><div class="line"><span>Forecast drift</span><b>${s.highForecast.driftC>0?'+':''}${s.highForecast.driftC}°C · ${s.highForecast.driftStatus}</b></div><div class="line"><span>Initial 11:00 signal</span><b>${s.highForecast.initialSignalOutcomesC?tempPair(s.highForecast.initialSignalOutcomesC,s):'Not available yet'}</b></div><div class="line"><span>Heating track</span><b>${s.highForecast.heatingTrack}</b></div><div class="line"><span>Official daily-high source</span><b>${s.highForecast.officialForecastHighC!=null?temp(s.highForecast.officialForecastHighC,s):'Not available'} ${s.highForecast.officialForecastSource?'· '+s.highForecast.officialForecastSource:''}</b></div><h3>Temperature Probability Ladder</h3>${buildProbLadderSvg(s.highForecast.probabilityLadder,s)}<div class="table"><table><tr><th>Outcome</th><th>Model probability</th><th>Scanner classification</th></tr>${s.highForecast.probabilityLadder.map(x=>`<tr><td>${temp(x.temperatureC,s)}</td><td>${x.probability}%</td><td>${x.classification}</td></tr>`).join('')}</table></div><h3>Forecast Validation</h3>${s.highForecast.validation.checks.map(x=>`<div class="line"><span>${x.name}</span><b class="${x.ok?'green':'red'}">${x.ok?'SUPPORTED':'WARNING'} · ${x.detail}</b></div>`).join('')}</section>`:''}
 <div class="two"><section><h2>Stability Scanner</h2><div class="score ${s.stability>=70?'green':'red'}">${s.stability}%</div>${Object.entries(s.stabilityParts).map(([k,v])=>`<div class="line"><span>${k}</span><b>${v}%</b></div>`).join('')}</section>
 <section><h2>Pattern Day</h2><div class="score ${s.pattern>=70?'green':'red'}">${s.pattern}%</div><div class="line"><span>Dominant pattern</span><b>${s.patternParts.dominant}</b></div><div class="line"><span>Observed regime changes</span><b>${s.patternParts.changes}</b></div><div class="line"><span>Forecast transition markers</span><b>${s.patternParts.markers}</b></div></section></div>
-<section><h2>Exact-station curve</h2>${buildTempCurveSvg(s.observations,s)}<div class="table"><table><tr><th>Local Time</th><th>Temp</th><th>Dew point (°C)</th><th>Humidity</th><th>Wind kt</th><th>Clouds</th><th>Weather</th></tr>${s.observations.slice().reverse().map(o=>`<tr><td>${new Intl.DateTimeFormat('en-US',{timeZone:s.tz,month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(o.observedAt))}</td><td>${temp(o.temperatureC,s)}</td><td>${o.dewpointC?.toFixed?.(1)??'—'}</td><td>${o.humidityPct??'—'}</td><td>${o.windSpeedKt??'—'}</td><td>${o.clouds||'—'}</td><td>${o.weather||'—'}</td></tr>`).join('')}</table></div></section>
+<section><h2>Exact-station curve</h2><div id="tempCurveWrap">${buildTempCurveSvg(s.observations,s)}</div><div class="table"><table><tr><th>Local Time</th><th>Temp</th><th>Dew point (°C)</th><th>Humidity</th><th>Wind kt</th><th>Clouds</th><th>Weather</th></tr>${s.observations.slice().reverse().map(o=>`<tr><td>${new Intl.DateTimeFormat('en-US',{timeZone:s.tz,month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(o.observedAt))}</td><td>${temp(o.temperatureC,s)}</td><td>${o.dewpointC?.toFixed?.(1)??'—'}</td><td>${o.humidityPct??'—'}</td><td>${o.windSpeedKt??'—'}</td><td>${o.clouds||'—'}</td><td>${o.weather||'—'}</td></tr>`).join('')}</table></div></section>
 <section><h2>Official forecast layer</h2><pre>${s.forecast||'No forecast returned for this station.'}</pre></section>`;
 }
 function backV2(){document.getElementById('detail').classList.add('hidden');document.getElementById('list').classList.remove('hidden')}

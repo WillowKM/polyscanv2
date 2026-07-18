@@ -2397,9 +2397,13 @@ async function fetchPolymarketEventForDate(cityName, daysAhead) {
 
 app.get('/api/stationedge/advance-scan', async (req, res) => {
   try {
-    const daysAhead = Math.max(1, Math.min(7, parseInt(req.query.daysAhead) || 2));
+    const daysAhead = Math.max(1, Math.min(30, parseInt(req.query.daysAhead) || 2));
     const MIN_LEG_CENTS = 20, MAX_COMBINED_CENTS = 80;
-    const cities = [...new Set(Object.values(STATIONEDGE_STATIONS).map(m => m.city))];
+    // Every city with a known Polymarket slug — not just the 50 stations we
+    // have METAR/station mappings for. This is a Polymarket-side screen, so
+    // it shouldn't be limited to the smaller station-mapped list (that's
+    // what left Milan out — it has a real market but no METAR station entry).
+    const cities = Object.keys(CITY_SLUGS);
 
     const results = await Promise.all(cities.map(async city => {
       const data = await fetchPolymarketEventForDate(city, daysAhead);
@@ -2413,7 +2417,7 @@ app.get('/api/stationedge/advance-scan', async (req, res) => {
       return { city, code, daysAhead, brackets: top3, combined, eventSlug: data.eventSlug };
     }));
 
-    res.json({ daysAhead, minLegCents: MIN_LEG_CENTS, maxCombinedCents: MAX_COMBINED_CENTS, matches: results.filter(Boolean) });
+    res.json({ daysAhead, minLegCents: MIN_LEG_CENTS, maxCombinedCents: MAX_COMBINED_CENTS, citiesScanned: cities.length, matches: results.filter(Boolean) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

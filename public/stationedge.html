@@ -264,9 +264,10 @@ footer.term b{color:var(--amber)}
     <div class="riskPanel">
       <h2>Advance Scan <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— observation only, no calculator attached. Flags markets opened days ahead of resolution across all 50 cities where the 3 top brackets are each priced over 20¢ and combine to 80¢ or less.</span></h2>
       <div class="riskInputs">
-        <div class="riskField"><label>Days ahead</label><input id="advDaysAhead" type="number" min="1" max="7" value="2" style="width:80px;"></div>
+        <div class="riskField"><label>Days ahead</label><input id="advDaysAhead" type="number" min="1" max="30" value="2" style="width:80px;"></div>
         <button class="btn secondary" onclick="loadAdvanceScan()">↻ Scan</button>
       </div>
+      <div style="color:var(--dim);font-size:10.5px;margin-top:-8px;margin-bottom:10px;">Note: Polymarket doesn't open weather markets more than a few days out — a large "days ahead" number just means fewer or no matches, not an error.</div>
       <div id="advanceScanWrap"><div class="empty" style="padding:14px 0;">Click Scan to check all 50 cities.</div></div>
     </div>
     <div id="list">
@@ -399,7 +400,7 @@ async function loadAdvanceScan() {
     const bracketCells = m.brackets.map(b => `<td class="mono">${b.bracket}<br><span style="color:var(--dim);">${b.prob}¢</span></td>`).join('');
     return `<tr><td>${m.city}</td><td class="mono">${m.code || '—'}</td>${bracketCells}<td class="mono">${m.combined}¢</td></tr>`;
   }).join('');
-  wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">${data.matches.length} of 50 cities qualify, ${daysAhead} day(s) ahead:</div>
+  wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">${data.matches.length} of ${data.citiesScanned} cities qualify, ${daysAhead} day(s) ahead:</div>
     <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
     <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>BRACKET 1</th><th>BRACKET 2</th><th>BRACKET 3</th><th>COMBINED</th></tr></thead>
     <tbody>${rows}</tbody></table></div>`;

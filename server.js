@@ -192,19 +192,20 @@ function todayString() {
 }
 
 // Format: "june-19-2026"
-function polyDateSlug() {
+function polyDateSlug(daysAhead = 0) {
   const d = new Date();
+  d.setDate(d.getDate() + daysAhead);
   const months = ['january','february','march','april','may','june',
                   'july','august','september','october','november','december'];
   return `${months[d.getMonth()]}-${d.getDate()}-${d.getFullYear()}`;
 }
 
-// Build the Polymarket event slug for a city on today's date
+// Build the Polymarket event slug for a city, optionally N days ahead of today
 // e.g. "highest-temperature-in-chicago-on-june-19-2026"
-function buildEventSlug(cityName) {
+function buildEventSlug(cityName, daysAhead = 0) {
   const citySlug = CITY_SLUGS[cityName];
   if (!citySlug) return null;
-  return `highest-temperature-in-${citySlug}-on-${polyDateSlug()}`;
+  return `highest-temperature-in-${citySlug}-on-${polyDateSlug(daysAhead)}`;
 }
 
 // Build the specific market slug when a bet temperature is known
@@ -1569,6 +1570,50 @@ const STATIONEDGE_STATIONS = {
 const SUPABASE_URL = process.env.SUPABASE_URL || null;
 const SUPABASE_SECRET_KEY = process.env.SUPABASE_SECRET_KEY || null;
 
+// Continuous forecast-trail snapshot — a NEW, separate table from the one
+// above. seSaveForecastResearch only fires once/day inside the 11:00-13:00
+// window on green setups (that's its whole job: a single clean research
+// lock). This writes on EVERY sweep cycle, unconditionally, for every
+// station regardless of stability/pattern/time — so we get a real
+// timestamped trail of how the model's own forecast moved through the day,
+// for charting alongside the observed temperature curve. Wrapped in its own
+// try/catch and called separately from seSaveForecastResearch so a failure
+// here can never affect the existing research lock or the engine itself.
+async function seSaveForecastSnapshot(data) {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY || !data?.highForecast) return false;
+  const hf = data.highForecast;
+  const row = {
+    station_code: data.code,
+    city: data.city,
+    forecast_date: data.localDay,
+    snapshot_at: new Date().toISOString(),
+    predicted_low_c: hf.predictedLowC,
+    predicted_high_c: hf.predictedHighC,
+    barbell_one: hf.primaryOutcomesC?.[0] ?? null,
+    barbell_two: hf.primaryOutcomesC?.[1] ?? null,
+    confidence: hf.confidence ?? null,
+  };
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/stationedge_snapshots`, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_SECRET_KEY,
+        Authorization: `Bearer ${SUPABASE_SECRET_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(row)
+    });
+    if (!response.ok) {
+      console.error('[StationEdge Snapshot] Save failed:', await response.text());
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error('[StationEdge Snapshot] Supabase error:', e.message);
+    return false;
+  }
+}
+
 async function seSaveForecastResearch(data) {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY || !data?.highForecast) return false;
 
@@ -1649,6 +1694,9 @@ async function seResearchSweep() {
       delete STATIONEDGE_CACHE[code];
       const data = await seStation(code);
       await seSaveForecastResearch(data);
+      // Additive only — never lets a snapshot failure touch the sweep above.
+      try { await seSaveForecastSnapshot(data); }
+      catch (e) { console.error(`[StationEdge Snapshot] ${code} failed:`, e.message); }
     } catch (e) {
       console.error(`[StationEdge Research] ${code} sweep failed:`, e.message);
     }
@@ -2310,9 +2358,83 @@ app.get('/api/stationedge/stations', async (req,res) => {
   const settled=await Promise.allSettled(codes.map(seStation));
   res.json(settled.map((x,i)=>x.status==='fulfilled'?x.value:{code:codes[i],...STATIONEDGE_STATIONS[codes[i]],error:x.reason?.message||'failed'}));
 });
+// Separate from fetchPolymarketEvent on purpose — that function and its cache
+// are keyed by city name only and used everywhere same-day trading depends
+// on. This fetches an arbitrary days-ahead event under its OWN cache key, so
+// it can never collide with or slow down the existing same-day engine.
+const POLY_ADVANCE_CACHE = {};
+async function fetchPolymarketEventForDate(cityName, daysAhead) {
+  const cacheKey = `${cityName}::${daysAhead}`;
+  if (POLY_ADVANCE_CACHE[cacheKey] && (Date.now() - POLY_ADVANCE_CACHE[cacheKey].ts) < POLY_CACHE_TTL) {
+    return POLY_ADVANCE_CACHE[cacheKey].data;
+  }
+  const eventSlug = buildEventSlug(cityName, daysAhead);
+  if (!eventSlug) return null;
+  try {
+    const url = `https://gamma-api.polymarket.com/events?slug=${eventSlug}`;
+    const res = await fetch(url, { headers: { 'Accept': 'application/json' }, timeout: 8000 });
+    if (!res.ok) return null;
+    const json = await res.json();
+    if (!json || !json.length) return null;
+    const event = json[0];
+    const markets = event.markets || [];
+    const outcomes = markets.map(m => {
+      let yesProb = null;
+      try {
+        const prices = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : m.outcomePrices;
+        yesProb = prices && prices[0] ? Math.round(parseFloat(prices[0]) * 100) : null;
+      } catch(e) {}
+      return { bracket: m.groupItemTitle || m.question || '', slug: m.slug || '', prob: yesProb, volume: m.volume ? parseFloat(m.volume).toFixed(0) : '0' };
+    }).filter(o => o.prob !== null);
+    const data = { eventSlug, title: event.title || '', outcomes, volume: event.volume ? parseFloat(event.volume).toFixed(0) : '0' };
+    POLY_ADVANCE_CACHE[cacheKey] = { data, ts: Date.now() };
+    return data;
+  } catch (e) {
+    console.error(`[Advance Scan] ${cityName} +${daysAhead}d fetch failed:`, e.message);
+    return null;
+  }
+}
+
+app.get('/api/stationedge/advance-scan', async (req, res) => {
+  try {
+    const daysAhead = Math.max(1, Math.min(7, parseInt(req.query.daysAhead) || 2));
+    const MIN_LEG_CENTS = 20, MAX_COMBINED_CENTS = 80;
+    const cities = [...new Set(Object.values(STATIONEDGE_STATIONS).map(m => m.city))];
+
+    const results = await Promise.all(cities.map(async city => {
+      const data = await fetchPolymarketEventForDate(city, daysAhead);
+      if (!data || !data.outcomes.length) return null;
+      const top3 = data.outcomes.filter(o => Number.isFinite(o.prob)).sort((a,b) => b.prob - a.prob).slice(0, 3);
+      if (top3.length < 3) return null;
+      const combined = top3.reduce((s,o) => s + o.prob, 0);
+      const allAbove20 = top3.every(o => o.prob > MIN_LEG_CENTS);
+      if (!allAbove20 || combined > MAX_COMBINED_CENTS) return null;
+      const code = Object.entries(STATIONEDGE_STATIONS).find(([,m]) => m.city === city)?.[0] || null;
+      return { city, code, daysAhead, brackets: top3, combined, eventSlug: data.eventSlug };
+    }));
+
+    res.json({ daysAhead, minLegCents: MIN_LEG_CENTS, maxCombinedCents: MAX_COMBINED_CENTS, matches: results.filter(Boolean) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.get('/api/stationedge/station/:code', async (req,res) => {
   try { res.json(await seStation(String(req.params.code).toUpperCase())); }
   catch(e) { res.status(500).json({error:e.message}); }
+});
+// Today's forecast-trail snapshots for one station — how the model's own
+// prediction moved through the day, for charting against observed temps.
+// Read-only; does not touch the engine or the once-daily research lock.
+app.get('/api/stationedge/snapshots/:code', async (req, res) => {
+  try {
+    const code = String(req.params.code).toUpperCase();
+    const meta = STATIONEDGE_STATIONS[code];
+    if (!meta) return res.status(404).json({ error: 'Unknown StationEdge station' });
+    const today = new Intl.DateTimeFormat('en-CA', { timeZone: meta.tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date());
+    const rows = await seSupabaseRequest(
+      `stationedge_snapshots?station_code=eq.${code}&forecast_date=eq.${today}&select=snapshot_at,predicted_low_c,predicted_high_c,barbell_one,barbell_two,confidence&order=snapshot_at.asc`
+    );
+    res.json(rows || []);
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // Automatic StationEdge research collection.

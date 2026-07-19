@@ -1,8 +1,8 @@
 {
   "settings": {
-    "portfolio": 30,
-    "exposureCap": 30,
-    "targetPct": 50
+    "portfolio": 87,
+    "exposureCap": 27,
+    "targetPct": 7
   },
   "trades": [
     {

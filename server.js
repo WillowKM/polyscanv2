@@ -1905,7 +1905,17 @@ function seForecastCore(meta,obs,forecast,scores,hourOverride=null,officialHighC
   return{centre,current,observedMax,rise,hour,tafHigh,officialHighC,regime,latest};
 }
 function seProbabilityLadder(centre,scores,core) {
-  const base=scores.stability*.45+scores.pattern*.45; let sigma=base>=80?.85:base>=70?1.05:1.35;
+  // NOTE (2026-07): the old base>=80 tier set sigma=.85 (tightest band, most
+  // confident). Forward-test data (159 resolved V3 trades) showed that exact
+  // bucket — stability+pattern averaging 90+ — hitting only 40-54% of the
+  // time, its WORST-performing range, while the model reported its HIGHEST
+  // confidence there. Raw stability/pattern spread (how calm dewpoint/
+  // humidity/pressure/wind have been recently) doesn't reliably predict
+  // where the day's peak lands, so it shouldn't be allowed to narrow the
+  // band below what's actually validated. Capped at 1.05 (the old "70-79"
+  // tier) until stability is recalibrated against real hit-rate-per-bucket
+  // data instead of its own internal spread score.
+  const base=scores.stability*.45+scores.pattern*.45; let sigma=base>=70?1.05:1.35;
   if(['RAIN','FOG/MIST'].includes(core.regime))sigma+=.25; if(Math.abs(core.rise)>2)sigma+=.15;
   let ladder=[]; for(let t=Math.floor(centre)-3;t<=Math.ceil(centre)+3;t++)ladder.push({temperatureC:t,weight:Math.exp(-.5*Math.pow((t-centre)/sigma,2))});
   const total=ladder.reduce((a,x)=>a+x.weight,0);
@@ -2352,6 +2362,78 @@ app.get('/api/stationedge/audit', async (req, res) => {
   });
 });
 
+// Live version of the manual CSV edge analysis (2026-07-21 discussion):
+// per-city edge (actual hit rate vs. the market's own average price),
+// price-bucket calibration (does edge hold up as the market gets more
+// confident), and drift-vs-no-drift comparison. Recomputed from whatever's
+// currently resolved in Supabase, not a point-in-time export.
+const EDGE_MIN_SAMPLE = 15; // below this, a city's edge is flagged low-confidence
+app.get('/api/stationedge/edge-dashboard', async (req, res) => {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return res.status(503).json({ error: 'Supabase not configured' });
+  const rows = await seSupabaseRequest(
+    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=not.is.null&select=city,station_code,pair_probability,stability_score,pattern_score,result,local_signal_time`
+  );
+  if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load StationEdge forecast rows' });
+
+  const isHit = r => r.result === 'HIT';
+  const hasDrift = r => String(r.local_signal_time || '').includes('|DRIFT:');
+
+  // Per-city
+  const byCity = {};
+  for (const r of rows) {
+    if (!Number.isFinite(r.pair_probability)) continue;
+    (byCity[r.city] ||= []).push(r);
+  }
+  const cities = Object.entries(byCity).map(([city, rs]) => {
+    const n = rs.length;
+    const avgPrice = rs.reduce((a,r) => a + r.pair_probability, 0) / n;
+    const hitRate = rs.filter(isHit).length / n * 100;
+    return {
+      city, code: rs[0]?.station_code || null, n,
+      avgPriceCents: Math.round(avgPrice * 10) / 10,
+      hitRatePct: Math.round(hitRate * 10) / 10,
+      edgePct: Math.round((hitRate - avgPrice) * 10) / 10,
+      lowSample: n < EDGE_MIN_SAMPLE,
+    };
+  }).sort((a,b) => b.edgePct - a.edgePct);
+
+  // Price-bucket calibration (does the market-price-vs-actual gap hold at every confidence level)
+  const priceBuckets = {};
+  for (const r of rows) {
+    if (!Number.isFinite(r.pair_probability)) continue;
+    const b = Math.floor(r.pair_probability / 10) * 10;
+    (priceBuckets[b] ||= []).push(r);
+  }
+  const priceCalibration = Object.entries(priceBuckets).map(([b, rs]) => ({
+    bucket: `${b}-${Number(b)+9}%`,
+    n: rs.length,
+    actualHitRatePct: Math.round(rs.filter(isHit).length / rs.length * 1000) / 10,
+  })).sort((a,b) => parseInt(a.bucket) - parseInt(b.bucket));
+
+  // Drift vs no-drift
+  const driftRows = rows.filter(hasDrift), noDriftRows = rows.filter(r => !hasDrift(r));
+  const driftComparison = {
+    withDrift: { n: driftRows.length, hitRatePct: driftRows.length ? Math.round(driftRows.filter(isHit).length / driftRows.length * 1000) / 10 : null },
+    withoutDrift: { n: noDriftRows.length, hitRatePct: noDriftRows.length ? Math.round(noDriftRows.filter(isHit).length / noDriftRows.length * 1000) / 10 : null },
+  };
+
+  // Today's recommended watch city: highest edge, enough sample size, market
+  // still in the 40-59c coin-flip zone (where edge actually held up), and no
+  // live drift flag on today's row if one exists yet.
+  const todayCandidates = cities.filter(c => !c.lowSample && c.edgePct > 0);
+  const recommendedWatchCity = todayCandidates[0] || null;
+
+  res.json({
+    totalResolved: rows.length,
+    minSampleForConfidence: EDGE_MIN_SAMPLE,
+    cities,
+    priceCalibration,
+    driftComparison,
+    recommendedWatchCity,
+    note: 'Edge = actual hit rate minus the market\'s own average price at lock time. Positive edge means StationEdge has been beating the market\'s price on that slice; cities/buckets below the sample threshold are shown but flagged low-confidence.',
+  });
+});
+
 app.get('/stationedge', (req,res) => res.sendFile(path.join(__dirname,'public','stationedge.html')));
 app.get('/api/stationedge/stations', async (req,res) => {
   const codes=Object.keys(STATIONEDGE_STATIONS);
@@ -2395,9 +2477,33 @@ async function fetchPolymarketEventForDate(cityName, daysAhead) {
   }
 }
 
+// Full-coverage bracket-sum arbitrage check. Unlike the top-3 scan above
+// (a market-structure screen), this sums EVERY outcome's Yes price for the
+// event. If that full sum is under 100c, buying Yes on every bracket at a
+// price-proportional stake split guarantees the SAME payout regardless of
+// which bracket resolves true — a real, weighting-independent edge. See
+// discussion 2026-07-21: weighting can only redistribute profit BETWEEN
+// brackets, never turn a >=100c sum into a guaranteed profit, so this is
+// the one number that actually matters for the "cover everything" strategy.
+const ARB_SUM_THRESHOLD_CENTS = 99; // must clear ~1c of real edge before fees to bother flagging
+function seArbStakeSplit(outcomes, exposureDollars) {
+  const sumCents = outcomes.reduce((s, o) => s + o.prob, 0);
+  if (!sumCents) return null;
+  const legs = outcomes.map(o => ({
+    bracket: o.bracket,
+    priceCents: o.prob,
+    volume: o.volume,
+    stake: Math.round((o.prob / sumCents) * exposureDollars * 100) / 100,
+  }));
+  const guaranteedPayout = Math.round((exposureDollars * 100 / sumCents)) / 100;
+  const edgePct = Math.round(((100 / sumCents) - 1) * 10000) / 100; // 2dp %
+  return { sumCents, legs, exposureDollars, guaranteedPayout, guaranteedProfit: Math.round((guaranteedPayout - exposureDollars) * 100) / 100, edgePct };
+}
+
 app.get('/api/stationedge/advance-scan', async (req, res) => {
   try {
     const daysAhead = Math.max(1, Math.min(30, parseInt(req.query.daysAhead) || 2));
+    const exposureDollars = Math.max(1, Math.min(10000, parseFloat(req.query.exposure) || 30));
     const MIN_LEG_CENTS = 20, MAX_COMBINED_CENTS = 80;
     // Every city with a known Polymarket slug — not just the 50 stations we
     // have METAR/station mappings for. This is a Polymarket-side screen, so
@@ -2408,16 +2514,43 @@ app.get('/api/stationedge/advance-scan', async (req, res) => {
     const results = await Promise.all(cities.map(async city => {
       const data = await fetchPolymarketEventForDate(city, daysAhead);
       if (!data || !data.outcomes.length) return null;
-      const top3 = data.outcomes.filter(o => Number.isFinite(o.prob)).sort((a,b) => b.prob - a.prob).slice(0, 3);
-      if (top3.length < 3) return null;
-      const combined = top3.reduce((s,o) => s + o.prob, 0);
-      const allAbove20 = top3.every(o => o.prob > MIN_LEG_CENTS);
-      if (!allAbove20 || combined > MAX_COMBINED_CENTS) return null;
       const code = Object.entries(STATIONEDGE_STATIONS).find(([,m]) => m.city === city)?.[0] || null;
-      return { city, code, daysAhead, brackets: top3, combined, eventSlug: data.eventSlug };
+
+      const sorted = data.outcomes.filter(o => Number.isFinite(o.prob)).sort((a,b) => b.prob - a.prob);
+      const top3 = sorted.slice(0, 3);
+      let top3Match = null;
+      if (top3.length === 3) {
+        const combined = top3.reduce((s,o) => s + o.prob, 0);
+        const allAbove20 = top3.every(o => o.prob > MIN_LEG_CENTS);
+        if (allAbove20 && combined <= MAX_COMBINED_CENTS) {
+          top3Match = { brackets: top3, combined };
+        }
+      }
+
+      // Full-coverage arb check — needs at least 2 real outcomes to mean anything.
+      let arbFlag = null;
+      if (sorted.length >= 2) {
+        const fullSumCents = sorted.reduce((s,o) => s + o.prob, 0);
+        if (fullSumCents > 0 && fullSumCents < ARB_SUM_THRESHOLD_CENTS) {
+          arbFlag = seArbStakeSplit(sorted, exposureDollars);
+        }
+      }
+
+      if (!top3Match && !arbFlag) return null;
+      return { city, code, daysAhead, eventSlug: data.eventSlug, top3Match, arbFlag, hasStationEdgeModel: !!code };
     }));
 
-    res.json({ daysAhead, minLegCents: MIN_LEG_CENTS, maxCombinedCents: MAX_COMBINED_CENTS, citiesScanned: cities.length, matches: results.filter(Boolean) });
+    const matches = results.filter(Boolean);
+    res.json({
+      daysAhead,
+      exposureDollars,
+      minLegCents: MIN_LEG_CENTS,
+      maxCombinedCents: MAX_COMBINED_CENTS,
+      arbSumThresholdCents: ARB_SUM_THRESHOLD_CENTS,
+      citiesScanned: cities.length,
+      matches,
+      arbFlagsOnly: matches.filter(m => m.arbFlag).sort((a,b) => b.arbFlag.edgePct - a.arbFlag.edgePct),
+    });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

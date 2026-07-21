@@ -225,6 +225,11 @@ footer.term b{color:var(--amber)}
   <!-- Live Monitor (V2) -->
   <div id="viewV2" class="hidden">
     <div class="riskPanel">
+      <h2>Edge Dashboard <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— live version of the per-city edge analysis: actual hit rate vs. the market's own average price at lock time, updated from whatever's currently resolved.</span></h2>
+      <div class="riskInputs"><button class="btn secondary" onclick="loadEdgeDashboard()">↻ Refresh</button></div>
+      <div id="edgeDashWrap"><div class="empty" style="padding:14px 0;">Loading…</div></div>
+    </div>
+    <div class="riskPanel">
       <h2>Risk Calculator</h2>
       <div class="riskInputs">
         <div class="riskField"><label>Bankroll ($)</label><input id="rcBankroll" type="number" step="0.01"></div>
@@ -262,12 +267,14 @@ footer.term b{color:var(--amber)}
       <div id="tradeLogWrap"></div>
     </div>
     <div class="riskPanel">
-      <h2>Advance Scan <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— observation only, no calculator attached. Flags markets opened days ahead of resolution across all 50 cities where the 3 top brackets are each priced over 20¢ and combine to 80¢ or less.</span></h2>
+      <h2>Advance Scan <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— scans all 50 cities for two things: (1) real full-coverage arbitrage, where every bracket's Yes price sums under 100¢ so buying all of them guarantees the same profit regardless of outcome, and (2) the older top-3-bracket structure screen (observation only).</span></h2>
       <div class="riskInputs">
         <div class="riskField"><label>Days ahead</label><input id="advDaysAhead" type="number" min="1" max="30" value="2" style="width:80px;"></div>
+        <div class="riskField"><label>Exposure ($)</label><input id="advExposure" type="number" min="1" step="1" value="30" style="width:90px;"></div>
         <button class="btn secondary" onclick="loadAdvanceScan()">↻ Scan</button>
       </div>
-      <div style="color:var(--dim);font-size:10.5px;margin-top:-8px;margin-bottom:10px;">Note: Polymarket doesn't open weather markets more than a few days out — a large "days ahead" number just means fewer or no matches, not an error.</div>
+      <div style="color:var(--dim);font-size:10.5px;margin-top:-8px;margin-bottom:10px;">Note: Polymarket doesn't open weather markets more than a few days out — a large "days ahead" number just means fewer or no matches, not an error. Arb flags need the full price sum under 99¢ (leaves ~1¢ of room before fees/slippage) — genuine flags will be rare and usually small; that's expected on a liquid book, not a bug.</div>
+      <div id="arbFlagsWrap"></div>
       <div id="advanceScanWrap"><div class="empty" style="padding:14px 0;">Click Scan to check all 50 cities.</div></div>
     </div>
     <div id="list">
@@ -341,6 +348,60 @@ function showTab(which) {
   document.getElementById('viewV2').classList.toggle('hidden', which !== 'v2');
   if (which === 'v3' && !window.__v3Loaded) loadV3();
   if (which === 'v2' && !window.__v2Loaded) loadV2();
+  if (which === 'v2') loadEdgeDashboard();
+}
+
+// ── Edge Dashboard ───────────────────────────────────────────────────────
+async function loadEdgeDashboard() {
+  const wrap = document.getElementById('edgeDashWrap');
+  let data;
+  try {
+    data = await fetch('/api/stationedge/edge-dashboard').then(r => r.json());
+  } catch (e) {
+    wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">Failed to load: ${e.message}</div>`;
+    return;
+  }
+  if (data.error) { wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">${data.error}</div>`; return; }
+
+  const rec = data.recommendedWatchCity;
+  const recHtml = rec
+    ? `<div style="border:1px solid var(--green);border-radius:2px;padding:10px 14px;margin-bottom:12px;">
+         <b style="color:var(--green);">Today's watch city: ${rec.city}${rec.code ? ' · '+rec.code : ''}</b>
+         <span style="color:var(--dim);font-size:11.5px;"> — +${rec.edgePct}pp edge over ${rec.n} resolved trades${rec.lowSample ? ' (below sample threshold, treat cautiously)' : ''}</span>
+       </div>`
+    : `<div class="empty" style="padding:8px 0;">No city currently clears a positive, sufficiently-sampled edge. Keep collecting data before sizing up on any one city.</div>`;
+
+  const cityRows = data.cities.map(c => `<tr${c.lowSample ? ' style="opacity:.55;"' : ''}>
+      <td>${c.city}${c.lowSample ? ' <span style="color:var(--dim);font-size:9.5px;">(n<'+data.minSampleForConfidence+')</span>' : ''}</td>
+      <td class="mono">${c.code || '—'}</td><td class="mono">${c.n}</td>
+      <td class="mono">${c.avgPriceCents}¢</td><td class="mono">${c.hitRatePct}%</td>
+      <td class="mono" style="color:${c.edgePct > 0 ? 'var(--green)' : 'var(--red)'};">${c.edgePct > 0 ? '+' : ''}${c.edgePct}pp</td>
+    </tr>`).join('');
+
+  const calibRows = data.priceCalibration.map(b => `<tr><td class="mono">${b.bucket}</td><td class="mono">${b.n}</td><td class="mono">${b.actualHitRatePct}%</td></tr>`).join('');
+
+  const dc = data.driftComparison;
+  const driftHtml = `<div style="display:flex;gap:24px;font-size:12px;margin-top:6px;">
+      <div>No drift: <b class="mono">${dc.withoutDrift.hitRatePct ?? '—'}%</b> <span style="color:var(--dim);">(n=${dc.withoutDrift.n})</span></div>
+      <div>With drift: <b class="mono">${dc.withDrift.hitRatePct ?? '—'}%</b> <span style="color:var(--dim);">(n=${dc.withDrift.n})</span></div>
+    </div>`;
+
+  wrap.innerHTML = `${recHtml}
+    <div style="overflow-x:auto;margin-bottom:14px;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>N</th><th>AVG PRICE</th><th>ACTUAL HIT</th><th>EDGE</th></tr></thead>
+    <tbody>${cityRows}</tbody></table></div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+      <div style="flex:1;min-width:220px;">
+        <div style="color:var(--dim);font-size:10px;letter-spacing:.05em;margin-bottom:6px;">MARKET PRICE → ACTUAL HIT RATE</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="text-align:left;color:var(--dim);font-size:10px;"><th>BUCKET</th><th>N</th><th>ACTUAL HIT</th></tr></thead>
+        <tbody>${calibRows}</tbody></table>
+      </div>
+      <div style="flex:1;min-width:220px;">
+        <div style="color:var(--dim);font-size:10px;letter-spacing:.05em;margin-bottom:6px;">DRIFT VS NO-DRIFT</div>
+        ${driftHtml}
+      </div>
+    </div>`;
 }
 
 // ── Forward Test (V3) ────────────────────────────────────────────────────
@@ -382,25 +443,50 @@ let RISK_SUMMARY = null;
 // against, nothing more.
 async function loadAdvanceScan() {
   const wrap = document.getElementById('advanceScanWrap');
+  const arbWrap = document.getElementById('arbFlagsWrap');
   const daysAhead = parseInt(document.getElementById('advDaysAhead').value) || 2;
+  const exposure = parseFloat(document.getElementById('advExposure').value) || 30;
   wrap.innerHTML = '<div class="empty" style="padding:14px 0;">Scanning all 50 cities — this hits Polymarket directly for each one, give it a moment…</div>';
+  arbWrap.innerHTML = '';
   let data;
   try {
-    data = await fetch(`/api/stationedge/advance-scan?daysAhead=${daysAhead}`).then(r => r.json());
+    data = await fetch(`/api/stationedge/advance-scan?daysAhead=${daysAhead}&exposure=${exposure}`).then(r => r.json());
   } catch (e) {
     wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">Scan failed: ${e.message}</div>`;
     return;
   }
   if (data.error) { wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">${data.error}</div>`; return; }
-  if (!data.matches.length) {
-    wrap.innerHTML = `<div class="empty" style="padding:14px 0;">No city ${daysAhead} day(s) ahead currently has 3 brackets each over ${data.minLegCents}¢ combining to ${data.maxCombinedCents}¢ or less. Try again later — this can change as the market fills in.</div>`;
+
+  // Arb flags first — this is the strategy you actually trade.
+  if (data.arbFlagsOnly && data.arbFlagsOnly.length) {
+    const cards = data.arbFlagsOnly.map(m => {
+      const legRows = m.arbFlag.legs.map(l => `<tr><td>${l.bracket}</td><td class="mono">${l.priceCents}¢</td><td class="mono">$${l.stake.toFixed(2)}</td></tr>`).join('');
+      return `<div class="riskPanel" style="border-color:var(--green);margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <b style="font-size:14px;">${m.city} ${m.code ? '· '+m.code : ''} — ${daysAhead}d ahead</b>
+          <span style="color:var(--green);font:700 13px var(--mono);">+${m.arbFlag.edgePct}% guaranteed edge</span>
+        </div>
+        <div style="color:var(--dim);font-size:11px;margin:4px 0 10px;">Full bracket sum ${m.arbFlag.sumCents}¢ · stake $${m.arbFlag.exposureDollars} → guaranteed payout $${m.arbFlag.guaranteedPayout.toFixed(2)} (profit $${m.arbFlag.guaranteedProfit.toFixed(2)}) no matter which bracket hits</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>BRACKET</th><th>PRICE</th><th>STAKE</th></tr></thead>
+        <tbody>${legRows}</tbody></table>
+      </div>`;
+    }).join('');
+    arbWrap.innerHTML = `<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px;">⚡ ${data.arbFlagsOnly.length} FULL-COVERAGE ARB FLAG(S) — sum under ${data.arbSumThresholdCents}¢</div>${cards}`;
+  } else {
+    arbWrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No full-coverage arb right now (need every bracket's price to sum under ${data.arbSumThresholdCents}¢). Normal — these are rare on a liquid book. Scan periodically through the day.</div>`;
+  }
+
+  const top3Matches = (data.matches || []).filter(m => m.top3Match);
+  if (!top3Matches.length) {
+    wrap.innerHTML = `<div class="empty" style="padding:14px 0;">No city ${daysAhead} day(s) ahead currently has 3 brackets each over ${data.minLegCents}¢ combining to ${data.maxCombinedCents}¢ or less.</div>`;
     return;
   }
-  const rows = data.matches.map(m => {
-    const bracketCells = m.brackets.map(b => `<td class="mono">${b.bracket}<br><span style="color:var(--dim);">${b.prob}¢</span></td>`).join('');
-    return `<tr><td>${m.city}</td><td class="mono">${m.code || '—'}</td>${bracketCells}<td class="mono">${m.combined}¢</td></tr>`;
+  const rows = top3Matches.map(m => {
+    const bracketCells = m.top3Match.brackets.map(b => `<td class="mono">${b.bracket}<br><span style="color:var(--dim);">${b.prob}¢</span></td>`).join('');
+    return `<tr><td>${m.city}</td><td class="mono">${m.code || '—'}</td>${bracketCells}<td class="mono">${m.top3Match.combined}¢</td></tr>`;
   }).join('');
-  wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">${data.matches.length} of ${data.citiesScanned} cities qualify, ${daysAhead} day(s) ahead:</div>
+  wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">${top3Matches.length} of ${data.citiesScanned} cities qualify (top-3 structure screen), ${daysAhead} day(s) ahead:</div>
     <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
     <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>BRACKET 1</th><th>BRACKET 2</th><th>BRACKET 3</th><th>COMBINED</th></tr></thead>
     <tbody>${rows}</tbody></table></div>`;

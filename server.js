@@ -1917,9 +1917,33 @@ function seProbabilityLadder(centre,scores,core) {
   // data instead of its own internal spread score.
   const base=scores.stability*.45+scores.pattern*.45; let sigma=base>=70?1.05:1.35;
   if(['RAIN','FOG/MIST'].includes(core.regime))sigma+=.25; if(Math.abs(core.rise)>2)sigma+=.15;
-  let ladder=[]; for(let t=Math.floor(centre)-3;t<=Math.ceil(centre)+3;t++)ladder.push({temperatureC:t,weight:Math.exp(-.5*Math.pow((t-centre)/sigma,2))});
+
+  // NOTE (2026-07-22): "highest temperature of the day" is a ONE-SIDED
+  // statistic — it can never resolve below what's already been observed
+  // today (core.observedMax). The old symmetric bell curve ignored this,
+  // so on a day still actively heating it handed real probability to
+  // brackets AT the current reading (e.g. Istanbul sitting at 27C while
+  // climbing toward a 28-29C forecast) purely because they were close to
+  // centre — flagging a "buy yes" on a bracket the model's own forecast
+  // and the live market had both already priced out. Fixed two ways:
+  //   1. Skew sigma by direction: still-rising days get a tight downside
+  //      (values at/below the current reading are unlikely to be final)
+  //      and a looser upside; a day past its peak and cooling gets the
+  //      mirror treatment (upside suppressed, since a fresh high is now
+  //      unlikely) — this is also what should flag a No on a bracket like
+  //      31C once the station is already past today's peak and falling.
+  //   2. Hard-zero anything below observedMax — physically impossible.
+  let sigmaDown = sigma, sigmaUp = sigma;
+  if (core.rise > 0.5) { sigmaDown = sigma * 0.4; sigmaUp = sigma * 1.15; }
+  else if (core.rise < -0.5) { sigmaDown = sigma * 1.15; sigmaUp = sigma * 0.4; }
+
+  let ladder=[]; for(let t=Math.floor(centre)-3;t<=Math.ceil(centre)+3;t++){
+    const s = t < centre ? sigmaDown : sigmaUp;
+    ladder.push({temperatureC:t,weight:Math.exp(-.5*Math.pow((t-centre)/s,2))});
+  }
+  ladder = ladder.map(x => x.temperatureC < core.observedMax - 0.25 ? {...x, weight:0} : x);
   const total=ladder.reduce((a,x)=>a+x.weight,0);
-  ladder=ladder.map(x=>({temperatureC:x.temperatureC,probability:Math.round(x.weight/total*100)}));
+  ladder=ladder.map(x=>({temperatureC:x.temperatureC,probability:total>0?Math.round(x.weight/total*100):0}));
   ladder.sort((a,b)=>b.probability-a.probability); ladder[0].probability+=100-ladder.reduce((a,x)=>a+x.probability,0); ladder.sort((a,b)=>a.temperatureC-b.temperatureC);
   let pair=null; for(let i=0;i<ladder.length-1;i++){const score=ladder[i].probability+ladder[i+1].probability;if(!pair||score>pair.score)pair={score,outcomes:[ladder[i].temperatureC,ladder[i+1].temperatureC]};}
   const primary=new Set(pair.outcomes);
@@ -2017,39 +2041,12 @@ function seBuildV3Outcomes(data) {
   let outcomeTwo = seToNative(c2, unit);
   if (outcomeOne === null || outcomeTwo === null) return null;
   if (outcomeOne === outcomeTwo) outcomeTwo += 1; // unit conversion collapsed two Celsius steps into one native step
-
-  // Third bracket: extend the existing pair by one Celsius step on whichever
-  // side of the ladder carries more residual probability — i.e. c1-1 vs c2+1,
-  // whichever has the higher model probability. Mirrors the pair-selection
-  // logic above (contiguous, probability-ranked) rather than guessing a side.
-  const lowC = Math.min(c1, c2), highC = Math.max(c1, c2);
-  const belowProb = findProb(lowC - 1);
-  const aboveProb = findProb(highC + 1);
-  let thirdC = null;
-  if (belowProb !== null || aboveProb !== null) {
-    thirdC = (aboveProb ?? -1) >= (belowProb ?? -1) ? highC + 1 : lowC - 1;
-  }
-  let outcomeThree = thirdC !== null ? seToNative(thirdC, unit) : null;
-  const outcomeThreeProbability = thirdC !== null ? findProb(thirdC) : null;
-  if (outcomeThree !== null && (outcomeThree === outcomeOne || outcomeThree === outcomeTwo)) {
-    // Unit conversion collapsed the third Celsius step onto an existing native
-    // bucket (rare, only near F/C boundary rounding) — drop it rather than
-    // record a duplicate bracket.
-    outcomeThree = null;
-  }
-  const pairProbability = hf.pairProbability ?? null;
-  const tripleProbability = (outcomeThree !== null && Number.isFinite(pairProbability) && Number.isFinite(outcomeThreeProbability))
-    ? pairProbability + outcomeThreeProbability
-    : null;
-
   return {
     unit,
-    outcomeOne, outcomeTwo, outcomeThree,
+    outcomeOne, outcomeTwo,
     outcomeOneProbability: findProb(c1),
     outcomeTwoProbability: findProb(c2),
-    outcomeThreeProbability,
-    pairProbability,
-    tripleProbability,
+    pairProbability: hf.pairProbability ?? null,
   };
 }
 
@@ -2094,22 +2091,13 @@ async function seLockV3Prediction(data) {
     city: data.city,
     forecast_date: data.localDay,
     local_signal_time: `${String(localHour).padStart(2, '0')}:00`,
-    // Exact moment this sweep cycle locked the row, independent of the
-    // hour-granularity local_signal_time above. This is what actually answers
-    // "when did the engine become accurate" — local_signal_time only tells you
-    // which hour bucket it fell into, not where inside the 15-minute sweep
-    // cadence the lock landed.
-    locked_at: new Date().toISOString(),
     model_version: SE_V3_MODEL_VERSION,
     display_unit: outcomes.unit,
     outcome_one: outcomes.outcomeOne,
     outcome_two: outcomes.outcomeTwo,
-    outcome_three: outcomes.outcomeThree,
     outcome_one_probability: outcomes.outcomeOneProbability,
     outcome_two_probability: outcomes.outcomeTwoProbability,
-    outcome_three_probability: outcomes.outcomeThreeProbability,
     pair_probability: outcomes.pairProbability,
-    triple_probability: outcomes.tripleProbability,
     stability_score: Number.isFinite(data.stability) ? Math.round(data.stability) : null,
     pattern_score: Number.isFinite(data.pattern) ? Math.round(data.pattern) : null,
     result: null,
@@ -2203,11 +2191,7 @@ function seDriftCoveredHit(row, actualNative, unit) {
 function seV3Result(row, actualNative, unit) {
   const directHit = seSameOutcome(actualNative, row.outcome_one, unit) || seSameOutcome(actualNative, row.outcome_two, unit);
   const driftHit = !directHit && seDriftCoveredHit(row, actualNative, unit);
-  // Tracked separately from `result` so the existing pair-based HIT/MISS
-  // history (and its stats) are never altered by adding a third bracket —
-  // this is purely an additional column answering "would 3 brackets have won".
-  const tripleHit = directHit || driftHit || (Number.isFinite(row.outcome_three) && seSameOutcome(actualNative, row.outcome_three, unit));
-  return { result: directHit || driftHit ? 'HIT' : 'MISS', driftHit, tripleHit };
+  return { result: directHit || driftHit ? 'HIT' : 'MISS', driftHit };
 }
 
 // Persist the first qualifying drift alert inside local_signal_time so no
@@ -2235,7 +2219,7 @@ async function seRecordV3DriftAlert(data) {
 async function seResolveV3Predictions() {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return;
   const pending = await seSupabaseRequest(
-    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=is.null&select=station_code,city,forecast_date,outcome_one,outcome_two,outcome_three,display_unit,stability_score,pattern_score,local_signal_time`
+    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=is.null&select=station_code,city,forecast_date,outcome_one,outcome_two,display_unit,stability_score,pattern_score,local_signal_time`
   );
   if (!Array.isArray(pending) || !pending.length) return;
 
@@ -2258,22 +2242,6 @@ async function seResolveV3Predictions() {
       const result = verdict.result;
       const error = Math.min(Math.abs(actualNative - row.outcome_one), Math.abs(actualNative - row.outcome_two));
 
-      // Pull the V2 barbell change-log for this station/day: the last row's
-      // timestamp is when the forecast stopped changing (it never changed
-      // again after that point, by construction of the change-point log).
-      let v2ConvergedAt = null, v2ConvergedCorrect = null;
-      const snapshots = await seSupabaseRequest(
-        `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(row.station_code)}&forecast_date=eq.${encodeURIComponent(row.forecast_date)}&select=snapshot_at,low_c,high_c&order=snapshot_at.desc&limit=1`
-      );
-      const lastSnapshot = Array.isArray(snapshots) ? snapshots[0] : null;
-      if (lastSnapshot) {
-        v2ConvergedAt = lastSnapshot.snapshot_at;
-        const finalLowNative = seToNative(Number(lastSnapshot.low_c), unit);
-        const finalHighNative = seToNative(Number(lastSnapshot.high_c), unit);
-        v2ConvergedCorrect = [finalLowNative, finalHighNative].every(Number.isFinite)
-          && (seSameOutcome(actualNative, finalLowNative, unit) || seSameOutcome(actualNative, finalHighNative, unit));
-      }
-
       await seSupabaseRequest(
         `stationedge_forecasts?station_code=eq.${encodeURIComponent(row.station_code)}&forecast_date=eq.${encodeURIComponent(row.forecast_date)}&model_version=eq.${SE_V3_MODEL_VERSION}`,
         {
@@ -2282,9 +2250,6 @@ async function seResolveV3Predictions() {
             actual_high: actualNative,
             result,
             forecast_error: error,
-            triple_hit: verdict.tripleHit,
-            v2_converged_at: v2ConvergedAt,
-            v2_converged_correct: v2ConvergedCorrect,
             resolved_at: new Date().toISOString(),
           }),
         }
@@ -2298,40 +2263,6 @@ async function seResolveV3Predictions() {
 
 // One pass over all 15 stations: track HKO's running daily high, then
 // attempt to lock a V3 prediction if we're in the signal window.
-// Logs a row to stationedge_v2_snapshots ONLY when today's V2 barbell
-// (primaryOutcomesC) differs from the last logged value for this station.
-// Because it's change-point logging rather than every-sweep logging, the
-// timestamp of the LAST row for a given station/day is, by construction,
-// the moment the forecast stopped changing for the rest of that day — i.e.
-// exactly the "when did it become final" answer, computed cheaply without
-// storing a full 15-min time series.
-async function seLogV2BarbellChange(data) {
-  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY || !data?.highForecast) return;
-  const hf = data.highForecast;
-  if (!Array.isArray(hf.primaryOutcomesC) || hf.primaryOutcomesC.length < 2) return;
-  const [lowC, highC] = [Math.min(...hf.primaryOutcomesC), Math.max(...hf.primaryOutcomesC)];
-  if (!Number.isFinite(lowC) || !Number.isFinite(highC)) return;
-
-  const last = await seSupabaseRequest(
-    `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(data.code)}&forecast_date=eq.${encodeURIComponent(data.localDay)}&select=low_c,high_c&order=snapshot_at.desc&limit=1`
-  );
-  const lastRow = Array.isArray(last) ? last[0] : null;
-  if (lastRow && Number(lastRow.low_c) === lowC && Number(lastRow.high_c) === highC) return; // unchanged — nothing to log
-
-  await seSupabaseRequest('stationedge_v2_snapshots', {
-    method: 'POST',
-    body: JSON.stringify({
-      station_code: data.code,
-      city: data.city,
-      forecast_date: data.localDay,
-      snapshot_at: new Date().toISOString(),
-      low_c: lowC,
-      high_c: highC,
-      confidence: Number.isFinite(hf.confidence) ? Math.round(hf.confidence) : null,
-    }),
-  });
-}
-
 async function seV3Sweep() {
   for (const code of Object.keys(STATIONEDGE_STATIONS)) {
     try {
@@ -2343,7 +2274,6 @@ async function seV3Sweep() {
         // Trim old days so this doesn't grow forever.
         for (const k of Object.keys(SE_HKO_DAILY)) if (k !== key) delete SE_HKO_DAILY[k];
       }
-      await seLogV2BarbellChange(data);
       await seLockV3Prediction(data);
       await seRecordV3DriftAlert(data);
     } catch (e) {
@@ -2427,13 +2357,6 @@ app.get('/api/stationedge/audit', async (req, res) => {
           signalWindow: data.highForecast.signalWindow,
         };
       }
-      const todayLocal = new Intl.DateTimeFormat('en-CA', { timeZone: STATIONEDGE_STATIONS[code]?.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
-      const lastChange = await seSupabaseRequest(
-        `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(code)}&forecast_date=eq.${encodeURIComponent(todayLocal)}&select=snapshot_at&order=snapshot_at.desc&limit=1`
-      );
-      if (Array.isArray(lastChange) && lastChange[0]) {
-        driftByCode[code] = { ...(driftByCode[code] || {}), v2LastChangedAt: lastChange[0].snapshot_at };
-      }
     } catch (e) { /* leave drift missing for this station rather than fail the whole response */ }
   }));
   for (const r of enrichedRows) {
@@ -2451,11 +2374,6 @@ app.get('/api/stationedge/audit', async (req, res) => {
   const misses = resolved.filter(r => r.result === 'MISS').length;
   const errors = resolved.map(r => r.forecast_error).filter(Number.isFinite);
   const avgError = errors.length ? errors.reduce((a, b) => a + b, 0) / errors.length : null;
-  // Only counted among rows that actually had a third bracket locked —
-  // rows with no outcome_three (ladder didn't support one) are excluded
-  // rather than counted against the rate.
-  const tripleEligible = resolved.filter(r => Number.isFinite(r.outcome_three));
-  const tripleHits = tripleEligible.filter(r => r.triple_hit === true).length;
 
   res.json({
     totalPredictions: rows.length,
@@ -2463,8 +2381,6 @@ app.get('/api/stationedge/audit', async (req, res) => {
     hits,
     misses,
     pairHitRate: resolved.length ? Math.round((hits / resolved.length) * 100) : null,
-    tripleHitRate: tripleEligible.length ? Math.round((tripleHits / tripleEligible.length) * 100) : null,
-    tripleEligibleCount: tripleEligible.length,
     averageError: avgError === null ? null : Math.round(avgError * 100) / 100,
     records: enrichedRows,
   });
@@ -2476,34 +2392,45 @@ app.get('/api/stationedge/audit', async (req, res) => {
 // confident), and drift-vs-no-drift comparison. Recomputed from whatever's
 // currently resolved in Supabase, not a point-in-time export.
 const EDGE_MIN_SAMPLE = 15; // below this, a city's edge is flagged low-confidence
-app.get('/api/stationedge/edge-dashboard', async (req, res) => {
-  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return res.status(503).json({ error: 'Supabase not configured' });
+
+// Shared per-city edge computation — used by both /edge-dashboard (display)
+// and /opportunities (to annotate live signals with how much we've actually
+// trusted this city historically, instead of trading every model signal blind).
+async function seCityEdgeStats() {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return null;
   const rows = await seSupabaseRequest(
     `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=not.is.null&select=city,station_code,pair_probability,stability_score,pattern_score,result,local_signal_time`
   );
-  if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load StationEdge forecast rows' });
-
+  if (!Array.isArray(rows)) return null;
   const isHit = r => r.result === 'HIT';
-  const hasDrift = r => String(r.local_signal_time || '').includes('|DRIFT:');
-
-  // Per-city
   const byCity = {};
   for (const r of rows) {
     if (!Number.isFinite(r.pair_probability)) continue;
     (byCity[r.city] ||= []).push(r);
   }
-  const cities = Object.entries(byCity).map(([city, rs]) => {
+  const byCityOut = {};
+  for (const [city, rs] of Object.entries(byCity)) {
     const n = rs.length;
     const avgPrice = rs.reduce((a,r) => a + r.pair_probability, 0) / n;
     const hitRate = rs.filter(isHit).length / n * 100;
-    return {
+    byCityOut[city] = {
       city, code: rs[0]?.station_code || null, n,
       avgPriceCents: Math.round(avgPrice * 10) / 10,
       hitRatePct: Math.round(hitRate * 10) / 10,
       edgePct: Math.round((hitRate - avgPrice) * 10) / 10,
       lowSample: n < EDGE_MIN_SAMPLE,
     };
-  }).sort((a,b) => b.edgePct - a.edgePct);
+  }
+  return { rows, byCity: byCityOut };
+}
+
+app.get('/api/stationedge/edge-dashboard', async (req, res) => {
+  const stats = await seCityEdgeStats();
+  if (!stats) return res.status(503).json({ error: 'Supabase not configured or unavailable' });
+  const { rows } = stats;
+  const isHit = r => r.result === 'HIT';
+  const hasDrift = r => String(r.local_signal_time || '').includes('|DRIFT:');
+  const cities = Object.values(stats.byCity).sort((a,b) => b.edgePct - a.edgePct);
 
   // Price-bucket calibration (does the market-price-vs-actual gap hold at every confidence level)
   const priceBuckets = {};
@@ -2542,40 +2469,132 @@ app.get('/api/stationedge/edge-dashboard', async (req, res) => {
   });
 });
 
+// ── Opportunities scanner ────────────────────────────────────────────────
+// The actual "what should I trade right now" feed. No hardcoded price
+// threshold anywhere — every signal here comes from comparing StationEdge's
+// own probability ladder (already computed per city, per bracket) against
+// Polymarket's live price for that same bracket. Covers BOTH directions:
+//   - Buy Yes where the model thinks a bracket is more likely than the market does
+//   - Buy No  where the model thinks a bracket is LESS likely than the market does
+//     (this is the "near-certain No" case — model rules a bracket out, and the
+//     market's No price still leaves room, i.e. hasn't already priced it to ~100c)
+// Full-coverage arb (the guaranteed-regardless-of-outcome play) doesn't need
+// a forecast at all — it stays in /advance-scan as its own, separate category.
+
+// Parses a Polymarket bracket label into a numeric range + unit.
+// Handles "88-89°F", "100°F or higher", "N°C or lower", and single-value
+// non-US brackets like "28°C".
+function seParseBracketRange(bracketText) {
+  const t = String(bracketText || '').replace(/°/g, '').trim();
+  const unit = /f\b/i.test(t) ? 'F' : (/c\b/i.test(t) ? 'C' : null);
+  if (!unit) return null;
+  const nums = (t.match(/-?\d+(\.\d+)?/g) || []).map(Number);
+  if (!nums.length) return null;
+  if (/or higher|or above|\+/i.test(t)) return { min: nums[0], max: Infinity, unit };
+  if (/or lower|or below|or less/i.test(t)) return { min: -Infinity, max: nums[0], unit };
+  if (nums.length >= 2) return { min: nums[0], max: nums[1], unit };
+  return { min: nums[0], max: nums[0], unit }; // single-degree non-US bracket
+}
+
+// Sums the model's ladder probability mass that falls inside a Polymarket
+// bracket's range. NOTE: this is an approximation — the ladder is built in
+// 1°C steps and US brackets are 2°F wide, so the boundary doesn't align
+// perfectly. Good enough to rank opportunities; not a substitute for reading
+// the actual bracket before sizing a trade.
+function seModelMassForRange(ladder, range) {
+  if (!range || !ladder) return 0;
+  let mass = 0;
+  for (const pt of ladder) {
+    const val = range.unit === 'F' ? (pt.temperatureC * 9 / 5 + 32) : pt.temperatureC;
+    if (val >= range.min - 0.5 && val <= range.max + 0.5) mass += pt.probability;
+  }
+  return Math.min(100, mass);
+}
+
+const OPPORTUNITY_MIN_EDGE_PCT = 8; // minimum modeled edge (%) before it's worth surfacing as an EDGE play
+// Separate from edge: a "FAIR VALUE" play is where model and market roughly
+// AGREE a side is very likely — no pricing disagreement, so no extra expected
+// value beyond the stated odds, but still a legitimate high-probability trade
+// (e.g. model and market both say 88% — take the 12c if you're fine with
+// those odds, it's a fair bet, just not a mispriced one). Requires the
+// model's own probability to be high AND the market not to be charging
+// meaningfully more than that (a small negative-edge tolerance for rounding).
+const FAIR_VALUE_MIN_MODEL_PCT = 85;
+const FAIR_VALUE_MIN_EDGE_PCT = -3;
+
+app.get('/api/stationedge/opportunities', async (req, res) => {
+  try {
+    const edgeStats = await seCityEdgeStats(); // may be null if Supabase unavailable — still runs without it
+    const codes = Object.keys(STATIONEDGE_STATIONS);
+
+    const perCity = await Promise.all(codes.map(async code => {
+      const meta = STATIONEDGE_STATIONS[code];
+      let station;
+      try { station = await seStation(code); } catch (e) { return null; }
+      const hf = station?.highForecast;
+      if (!hf || !hf.probabilityLadder) return null;
+      const polyData = await fetchPolymarketEvent(meta.city);
+      if (!polyData || !polyData.outcomes.length) return null;
+
+      const hist = edgeStats?.byCity?.[meta.city] || null;
+
+      const legs = [];
+      for (const o of polyData.outcomes) {
+        if (!Number.isFinite(o.prob) || o.prob <= 1 || o.prob >= 99) continue; // no real room to trade
+        const range = seParseBracketRange(o.bracket);
+        if (!range) continue;
+        const modelYesPct = seModelMassForRange(hf.probabilityLadder, range);
+        const marketYesCents = o.prob;
+
+        const yesEdgePct = Math.round((modelYesPct / marketYesCents - 1) * 1000) / 10;
+        let yesQualifies = null;
+        if (yesEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) yesQualifies = 'EDGE';
+        else if (modelYesPct >= FAIR_VALUE_MIN_MODEL_PCT && yesEdgePct >= FAIR_VALUE_MIN_EDGE_PCT) yesQualifies = 'FAIR VALUE';
+        if (yesQualifies) {
+          legs.push({ side: 'YES', bracket: o.bracket, priceCents: marketYesCents, modelProbPct: Math.round(modelYesPct * 10) / 10, edgePct: yesEdgePct, qualifies: yesQualifies, volume: o.volume });
+        }
+
+        const noMarketCents = 100 - marketYesCents, noModelPct = 100 - modelYesPct;
+        const noEdgePct = Math.round((noModelPct / noMarketCents - 1) * 1000) / 10;
+        let noQualifies = null;
+        if (noEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) noQualifies = 'EDGE';
+        else if (noModelPct >= FAIR_VALUE_MIN_MODEL_PCT && noEdgePct >= FAIR_VALUE_MIN_EDGE_PCT) noQualifies = 'FAIR VALUE';
+        if (noQualifies) {
+          legs.push({ side: 'NO', bracket: o.bracket, priceCents: noMarketCents, modelProbPct: Math.round(noModelPct * 10) / 10, edgePct: noEdgePct, qualifies: noQualifies, volume: o.volume });
+        }
+      }
+      if (!legs.length) return null;
+      return {
+        city: meta.city, code, confidence: hf.confidence, driftStatus: hf.driftStatus,
+        signalWindow: hf.signalWindow,
+        historicalEdgePct: hist?.edgePct ?? null, historicalN: hist?.n ?? null, historicalLowSample: hist?.lowSample ?? true,
+        // EDGE plays first, then FAIR VALUE, then by edge magnitude within each group
+        legs: legs.sort((a,b) => (a.qualifies === b.qualifies ? b.edgePct - a.edgePct : (a.qualifies === 'EDGE' ? -1 : 1))),
+      };
+    }));
+
+    const cities = perCity.filter(Boolean);
+    const flat = cities.flatMap(c => c.legs.map(l => ({
+      ...l, city: c.city, code: c.code, modelConfidence: c.confidence, driftStatus: c.driftStatus,
+      historicalEdgePct: c.historicalEdgePct, historicalN: c.historicalN, historicalLowSample: c.historicalLowSample,
+    }))).sort((a,b) => (a.qualifies === b.qualifies ? b.edgePct - a.edgePct : (a.qualifies === 'EDGE' ? -1 : 1)));
+
+    res.json({
+      minEdgePct: OPPORTUNITY_MIN_EDGE_PCT,
+      fairValueMinModelPct: FAIR_VALUE_MIN_MODEL_PCT,
+      citiesScanned: codes.length,
+      hasHistoricalEdgeData: !!edgeStats,
+      opportunities: flat,
+      note: 'qualifies=EDGE means the model disagrees favorably with the market\'s price — real expected-value advantage. qualifies=FAIR VALUE means model and market roughly agree on a high-probability side — no pricing edge, just a bet at fair odds. historicalEdgePct is that city\'s track record from Edge Dashboard, shown for context.',
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
 app.get('/stationedge', (req,res) => res.sendFile(path.join(__dirname,'public','stationedge.html')));
 app.get('/api/stationedge/stations', async (req,res) => {
   const codes=Object.keys(STATIONEDGE_STATIONS);
   const settled=await Promise.allSettled(codes.map(seStation));
-  const results = settled.map((x,i)=>x.status==='fulfilled'?x.value:{code:codes[i],...STATIONEDGE_STATIONS[codes[i]],error:x.reason?.message||'failed'});
-
-  // Attach today's lock/convergence timing per station, same data the
-  // Forward Test tab shows, so Live Monitor doesn't require switching tabs
-  // to see when today's prediction actually locked and when the forecast
-  // stopped moving.
-  if (SUPABASE_URL && SUPABASE_SECRET_KEY) {
-    await Promise.all(results.map(async (s) => {
-      if (!s.code || !s.localDay) return;
-      try {
-        const rows = await seSupabaseRequest(
-          `stationedge_forecasts?station_code=eq.${encodeURIComponent(s.code)}&forecast_date=eq.${encodeURIComponent(s.localDay)}&model_version=eq.${SE_V3_MODEL_VERSION}&select=locked_at,v2_converged_at,v2_converged_correct&limit=1`
-        );
-        const row = Array.isArray(rows) ? rows[0] : null;
-        if (row) {
-          s.lockedAt = row.locked_at;
-          s.v2ConvergedAt = row.v2_converged_at;
-          s.v2ConvergedCorrect = row.v2_converged_correct;
-        }
-        if (!row?.v2_converged_at) {
-          const snap = await seSupabaseRequest(
-            `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(s.code)}&forecast_date=eq.${encodeURIComponent(s.localDay)}&select=snapshot_at&order=snapshot_at.desc&limit=1`
-          );
-          if (Array.isArray(snap) && snap[0]) s.v2LastChangedAt = snap[0].snapshot_at;
-        }
-      } catch (e) { /* leave timing fields absent for this station rather than fail the whole response */ }
-    }));
-  }
-
-  res.json(results);
+  res.json(settled.map((x,i)=>x.status==='fulfilled'?x.value:{code:codes[i],...STATIONEDGE_STATIONS[codes[i]],error:x.reason?.message||'failed'}));
 });
 // Separate from fetchPolymarketEvent on purpose — that function and its cache
 // are keyed by city name only and used everywhere same-day trading depends
@@ -2623,7 +2642,6 @@ async function fetchPolymarketEventForDate(cityName, daysAhead) {
 // brackets, never turn a >=100c sum into a guaranteed profit, so this is
 // the one number that actually matters for the "cover everything" strategy.
 const ARB_SUM_THRESHOLD_CENTS = 99; // must clear ~1c of real edge before fees to bother flagging
-const POLYMARKET_MIN_ORDER_DOLLARS = 1; // Polymarket rejects orders under $1 — a leg below this can't actually be placed
 function seArbStakeSplit(outcomes, exposureDollars) {
   const sumCents = outcomes.reduce((s, o) => s + o.prob, 0);
   if (!sumCents) return null;
@@ -2633,26 +2651,9 @@ function seArbStakeSplit(outcomes, exposureDollars) {
     volume: o.volume,
     stake: Math.round((o.prob / sumCents) * exposureDollars * 100) / 100,
   }));
-  // BUG FIX: this used to round the dollar payout to a whole number and then
-  // divide by 100 again, turning e.g. $31.58 into $0.32. exposureDollars*100/sumCents
-  // is already dollars — round it to the nearest CENT, not to a whole unit.
-  const guaranteedPayout = Math.round((exposureDollars * 100 / sumCents) * 100) / 100;
+  const guaranteedPayout = Math.round((exposureDollars * 100 / sumCents)) / 100;
   const edgePct = Math.round(((100 / sumCents) - 1) * 10000) / 100; // 2dp %
-  const unexecutableLegs = legs.filter(l => l.stake > 0 && l.stake < POLYMARKET_MIN_ORDER_DOLLARS);
-  // The exposure that WOULD clear $1 on every leg, given this price split —
-  // i.e. what you'd actually need to stake for this arb to be tradeable at all.
-  const minPriceCents = Math.min(...legs.filter(l => l.priceCents > 0).map(l => l.priceCents));
-  const minExposureForExecutable = Number.isFinite(minPriceCents) && minPriceCents > 0
-    ? Math.ceil((POLYMARKET_MIN_ORDER_DOLLARS / (minPriceCents / sumCents)) * 100) / 100
-    : null;
-  return {
-    sumCents, legs, exposureDollars, guaranteedPayout,
-    guaranteedProfit: Math.round((guaranteedPayout - exposureDollars) * 100) / 100,
-    edgePct,
-    executable: unexecutableLegs.length === 0,
-    unexecutableLegCount: unexecutableLegs.length,
-    minExposureForExecutable,
-  };
+  return { sumCents, legs, exposureDollars, guaranteedPayout, guaranteedProfit: Math.round((guaranteedPayout - exposureDollars) * 100) / 100, edgePct };
 }
 
 app.get('/api/stationedge/advance-scan', async (req, res) => {
@@ -2696,21 +2697,15 @@ app.get('/api/stationedge/advance-scan', async (req, res) => {
     }));
 
     const matches = results.filter(Boolean);
-    const arbFlagsAll = matches.filter(m => m.arbFlag).sort((a,b) => b.arbFlag.edgePct - a.arbFlag.edgePct);
     res.json({
       daysAhead,
       exposureDollars,
       minLegCents: MIN_LEG_CENTS,
       maxCombinedCents: MAX_COMBINED_CENTS,
       arbSumThresholdCents: ARB_SUM_THRESHOLD_CENTS,
-      polymarketMinOrderDollars: POLYMARKET_MIN_ORDER_DOLLARS,
       citiesScanned: cities.length,
       matches,
-      // Only these are actually placeable at the stated exposure — every leg
-      // clears Polymarket's $1 order minimum. The rest are real arbs on paper
-      // but need minExposureForExecutable to become tradeable.
-      arbFlagsOnly: arbFlagsAll.filter(m => m.arbFlag.executable),
-      arbFlagsNeedMoreCapital: arbFlagsAll.filter(m => !m.arbFlag.executable),
+      arbFlagsOnly: matches.filter(m => m.arbFlag).sort((a,b) => b.arbFlag.edgePct - a.arbFlag.edgePct),
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

@@ -101,7 +101,7 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .status.hit{background:rgba(47,224,138,.14);color:var(--green)}
 .status.miss{background:rgba(255,84,104,.14);color:var(--red)}
 
-.quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:1px;background:var(--line);margin:10px 16px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.quotes{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin:10px 16px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
 .quote{background:var(--panel);padding:12px 10px;text-align:center}
 .quote .qlbl{color:var(--dim);font:700 9px var(--mono);letter-spacing:.12em}
 .quote .qval{font:800 22px var(--mono);margin:6px 0 3px;letter-spacing:-.01em}
@@ -114,6 +114,45 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 
 /* ── Risk calculator panel ─────────────────────────────────────────── */
 .riskPanel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;padding:16px 18px;margin-bottom:18px}
+.verdictPanel{border-radius:3px;padding:20px 22px;margin-bottom:18px;border:1px solid var(--line)}
+.verdictPanel.go{background:linear-gradient(180deg,rgba(47,224,138,.08),var(--panel));border-color:var(--green)}
+.verdictPanel.caution{background:linear-gradient(180deg,rgba(255,176,32,.08),var(--panel));border-color:var(--amber)}
+.verdictPanel.none{background:var(--panel);border-color:var(--line)}
+.verdictBadge{display:inline-block;font:800 12px var(--mono);letter-spacing:.1em;padding:4px 10px;border-radius:2px;margin-bottom:10px}
+.verdictBadge.go{background:var(--green);color:#04140c}
+.verdictBadge.caution{background:var(--amber);color:#1a1200}
+.verdictBadge.none{background:var(--line2);color:var(--text)}
+.verdictCity{font:800 22px var(--mono);letter-spacing:.02em;margin:2px 0 12px}
+.checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-top:4px}
+.checkItem{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;padding:8px 10px;background:var(--panel);border:1px solid var(--line);border-radius:2px}
+.checkItem .mark{font:800 13px var(--mono);flex-shrink:0}
+.checkItem .mark.pass{color:var(--green)}.checkItem .mark.warn{color:var(--amber)}.checkItem .mark.fail{color:var(--red)}
+.checkItem b{display:block;margin-bottom:2px}
+.checkItem span.detail{color:var(--dim);font-size:11px}
+details.collapsePanel{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;margin-bottom:14px;overflow:hidden}
+details.collapsePanel summary{cursor:pointer;padding:14px 18px;font:800 13px var(--mono);letter-spacing:.06em;list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none}
+details.collapsePanel summary::-webkit-details-marker{display:none}
+details.collapsePanel summary .chev{color:var(--dim);transition:transform .15s}
+details.collapsePanel[open] summary .chev{transform:rotate(90deg)}
+details.collapsePanel .collapseBody{padding:0 18px 18px}
+details.collapsePanel summary .subnote{font:400 11px var(--mono);letter-spacing:0;color:var(--dim);text-transform:none;margin-left:10px}
+.deskSection{background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line);border-radius:3px;padding:2px 18px;margin-bottom:10px}
+.deskSection summary{cursor:pointer;padding:14px 0;font:800 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);list-style:none}
+.deskSection summary::-webkit-details-marker{display:none}
+.deskSection summary:before{content:'▸ ';color:var(--dim)}
+.deskSection[open] summary:before{content:'▾ '}
+.deskSection[open] summary{color:var(--text);border-bottom:1px solid var(--line);margin-bottom:4px}
+.deskSection > div{padding-bottom:16px}
+.verdict{border-radius:3px;padding:20px 22px;margin-bottom:18px;border:1px solid var(--line)}
+.verdict.trade{border-color:var(--green);background:linear-gradient(180deg,rgba(47,224,138,.08),transparent)}
+.verdict.arb{border-color:var(--green);background:linear-gradient(180deg,rgba(47,224,138,.14),transparent)}
+.verdict.wait{border-color:var(--line2);background:var(--panel)}
+.verdict .vlabel{font:800 10px var(--mono);letter-spacing:.14em;color:var(--dim);text-transform:uppercase}
+.verdict .vheadline{font:800 22px var(--mono);letter-spacing:-.01em;margin:6px 0 10px}
+.verdict.trade .vheadline,.verdict.arb .vheadline{color:var(--green)}
+.verdict .vchecks{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;margin-top:10px}
+.verdict .vcheck{display:flex;align-items:center;gap:6px}
+.verdict .vcheck .ok{color:var(--green)}.verdict .vcheck .bad{color:var(--red)}
 .riskPanel h2{margin:0 0 12px;font:800 12px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
 .riskInputs{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:14px}
 .riskField{display:flex;flex-direction:column;gap:4px}
@@ -207,9 +246,47 @@ footer.term b{color:var(--amber)}
 
 <main>
   <div class="tabs">
-    <div class="tab active" id="tabV3" onclick="showTab('v3')">Forward Test</div>
+    <div class="tab active" id="tabDesk" onclick="showTab('desk')">Trade Desk</div>
+    <div class="tab" id="tabV3" onclick="showTab('v3')">Forward Test</div>
     <div class="tab" id="tabV2" onclick="showTab('v2')">Live Monitor</div>
     <a href="/" class="calcLink">📟 Calculator</a>
+  </div>
+
+  <!-- Trade Desk (default landing view) -->
+  <div id="viewDesk">
+    <div class="top">
+      <div><h1>Trade Desk</h1><p>One verdict, checked against your edge history. Everything else is one click away below.</p></div>
+      <div class="topActions"><button class="btn" onclick="loadTradeDesk()">↻ Refresh</button></div>
+    </div>
+    <div id="deskVerdict"><div class="empty" style="padding:14px 0;">Loading…</div></div>
+
+    <details class="deskSection" open>
+      <summary>Full city edge table</summary>
+      <div id="deskCityTable"></div>
+    </details>
+    <details class="deskSection">
+      <summary>Market price → actual hit rate</summary>
+      <div id="deskCalibTable"></div>
+    </details>
+    <details class="deskSection" open>
+      <summary>Opportunities — Yes/No signals from forecast vs. market</summary>
+      <p style="color:var(--dim);font-size:11.5px;margin:10px 0;">Every row compares StationEdge's own modeled probability for a bracket against Polymarket's live price for that same bracket — no fixed price cutoff. NO-side rows are the "near-certain No" tail fades; YES-side rows are directional plays where the model favors a bracket more than the market prices it.</p>
+      <div id="deskOppsWrap"><div class="empty" style="padding:14px 0;">Loading…</div></div>
+    </details>
+    <details class="deskSection">
+      <summary>Advance Scan — arb flags &amp; top-3 screen</summary>
+      <div class="riskInputs" style="margin-top:10px;">
+        <div class="riskField"><label>Days ahead</label><input id="deskDaysAhead" type="number" min="1" max="30" value="2" style="width:80px;"></div>
+        <div class="riskField"><label>Exposure ($)</label><input id="deskExposure" type="number" min="1" step="1" value="30" style="width:90px;"></div>
+        <button class="btn secondary" onclick="loadTradeDesk()">↻ Rescan</button>
+      </div>
+      <div id="deskArbWrap"></div>
+      <div id="deskTop3Wrap"></div>
+    </details>
+    <details class="deskSection">
+      <summary>Risk Calculator, Trade Structurer &amp; Trade Log</summary>
+      <p style="color:var(--dim);font-size:11.5px;margin-top:10px;">Full sizing tools live on the <a href="#" onclick="showTab('v2');return false;" style="color:var(--cyan);">Live Monitor</a> tab.</p>
+    </details>
   </div>
 
   <!-- Forward Test (V3) -->
@@ -224,63 +301,85 @@ footer.term b{color:var(--amber)}
 
   <!-- Live Monitor (V2) -->
   <div id="viewV2" class="hidden">
+    <div id="tradeDecisionWrap"><div class="verdictPanel none"><div class="empty" style="padding:4px 0;">Loading trade decision…</div></div></div>
+
     <div class="riskPanel">
-      <h2>Edge Dashboard <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— live version of the per-city edge analysis: actual hit rate vs. the market's own average price at lock time, updated from whatever's currently resolved.</span></h2>
-      <div class="riskInputs"><button class="btn secondary" onclick="loadEdgeDashboard()">↻ Refresh</button></div>
-      <div id="edgeDashWrap"><div class="empty" style="padding:14px 0;">Loading…</div></div>
-    </div>
-    <div class="riskPanel">
-      <h2>Risk Calculator</h2>
-      <div class="riskInputs">
-        <div class="riskField"><label>Bankroll ($)</label><input id="rcBankroll" type="number" step="0.01"></div>
-        <div class="riskField"><label>Exposure cap ($)</label><input id="rcExposure" type="number" step="0.01"></div>
-        <div class="riskField"><label>Daily target (%)</label><input id="rcTarget" type="number" step="0.1"></div>
-        <button class="btn" onclick="saveRiskSettings()">Save</button>
-      </div>
-      <div class="riskStats" id="riskStatsRow"></div>
-      <div id="sessionRow" style="margin-top:14px;"></div>
-    </div>
-    <div class="riskPanel">
-      <h2>Trade Structurer <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— proportional-stake spread calculator: guarantees the same profit no matter which leg hits</span></h2>
-      <div class="riskInputs">
-        <div class="riskField"><label>City</label><input id="tsCity" type="text" placeholder="Type or load from a card below" style="width:160px;"></div>
-        <div class="riskField"><label>Session</label>
-          <select id="tsSession" style="background:var(--panel);border:1px solid var(--line);border-radius:2px;color:var(--text);padding:8px 10px;font:700 13px var(--mono);width:130px;">
-            <option value="">— unassigned —</option>
-            <option value="asian">🌏 Asian</option>
-            <option value="eu">🇪🇺 EU</option>
-            <option value="us">🇺🇸 US</option>
-          </select>
-        </div>
-        <div class="riskField"><label>Total budget ($)</label><input id="tsBudget" type="number" step="0.01" value="10"></div>
-        <button class="btn secondary" onclick="solveForSessionGap()">Solve for session's remaining gap</button>
-      </div>
-      <div id="tsGapNote" style="color:var(--dim);font-size:11.5px;margin-bottom:10px;"></div>
-      <div id="tsLegs"></div>
-      <button class="btn secondary" onclick="addStructurerLeg()">+ Add Yes bracket</button>
-      <button class="btn secondary" onclick="addStructurerTail()">+ Add cheap tail (No)</button>
-      <div style="margin-top:12px;"><button class="btn" onclick="computeStructurer()">Calculate</button></div>
-      <div id="tsResult" style="margin-top:14px;"></div>
-    </div>
-    <div class="riskPanel">
-      <h2>Trade Log <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— auto-settles WIN/LOSS when a bracket price hits 99¢/1¢; Cash Out any time before then</span></h2>
-      <div id="tradeLogWrap"></div>
-    </div>
-    <div class="riskPanel">
-      <h2>Advance Scan <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— scans all 50 cities for two things: (1) real full-coverage arbitrage, where every bracket's Yes price sums under 100¢ so buying all of them guarantees the same profit regardless of outcome, and (2) the older top-3-bracket structure screen (observation only).</span></h2>
+      <h2>Arb Scanner <span style="text-transform:none;font-weight:400;color:var(--dim);font-size:11px;letter-spacing:0;">— checks all 50 cities for a full bracket-sum under 100¢. When it's green, it's a guaranteed-math trade — take it.</span></h2>
       <div class="riskInputs">
         <div class="riskField"><label>Days ahead</label><input id="advDaysAhead" type="number" min="1" max="30" value="2" style="width:80px;"></div>
         <div class="riskField"><label>Exposure ($)</label><input id="advExposure" type="number" min="1" step="1" value="30" style="width:90px;"></div>
         <button class="btn secondary" onclick="loadAdvanceScan()">↻ Scan</button>
       </div>
-      <div style="color:var(--dim);font-size:10.5px;margin-top:-8px;margin-bottom:10px;">Note: Polymarket doesn't open weather markets more than a few days out — a large "days ahead" number just means fewer or no matches, not an error. Arb flags need the full price sum under 99¢ (leaves ~1¢ of room before fees/slippage) — genuine flags will be rare and usually small; that's expected on a liquid book, not a bug.</div>
+      <div style="color:var(--dim);font-size:10.5px;margin-top:-8px;margin-bottom:10px;">Polymarket doesn't open weather markets far out — a large "days ahead" number just means fewer matches, not an error. Real flags are rare on a liquid book; that's expected, not a bug.</div>
       <div id="arbFlagsWrap"></div>
-      <div id="advanceScanWrap"><div class="empty" style="padding:14px 0;">Click Scan to check all 50 cities.</div></div>
     </div>
-    <div id="list">
-      <div class="top"><div><h1 id="v2count">Resolution Stations</h1><p>Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button class="btn" onclick="loadV2()">↻ Refresh</button></div>
-      <div id="grid" class="grid"></div>
-    </div>
+
+    <details class="collapsePanel">
+      <summary><span>📊 EDGE DASHBOARD — FULL DATA <span class="subnote">per-city table, price calibration, drift comparison</span></span><span class="chev">▸</span></summary>
+      <div class="collapseBody">
+        <div class="riskInputs" style="margin-top:10px;"><button class="btn secondary" onclick="loadEdgeDashboard()">↻ Refresh</button></div>
+        <div id="edgeDashWrap"><div class="empty" style="padding:14px 0;">Loading…</div></div>
+      </div>
+    </details>
+
+    <details class="collapsePanel">
+      <summary><span>🎯 TOP-3 BRACKET SCREEN <span class="subnote">observation only, no guaranteed math</span></span><span class="chev">▸</span></summary>
+      <div class="collapseBody"><div id="advanceScanWrap"><div class="empty" style="padding:14px 0;">Run the Arb Scanner above first.</div></div></div>
+    </details>
+
+    <details class="collapsePanel">
+      <summary><span>🧮 RISK CALCULATOR</span><span class="chev">▸</span></summary>
+      <div class="collapseBody">
+        <div class="riskInputs" style="margin-top:10px;">
+          <div class="riskField"><label>Bankroll ($)</label><input id="rcBankroll" type="number" step="0.01"></div>
+          <div class="riskField"><label>Exposure cap ($)</label><input id="rcExposure" type="number" step="0.01"></div>
+          <div class="riskField"><label>Daily target (%)</label><input id="rcTarget" type="number" step="0.1"></div>
+          <button class="btn" onclick="saveRiskSettings()">Save</button>
+        </div>
+        <div class="riskStats" id="riskStatsRow"></div>
+        <div id="sessionRow" style="margin-top:14px;"></div>
+      </div>
+    </details>
+
+    <details class="collapsePanel">
+      <summary><span>📐 TRADE STRUCTURER <span class="subnote">proportional-stake spread calculator</span></span><span class="chev">▸</span></summary>
+      <div class="collapseBody">
+        <div class="riskInputs" style="margin-top:10px;">
+          <div class="riskField"><label>City</label><input id="tsCity" type="text" placeholder="Type or load from a card below" style="width:160px;"></div>
+          <div class="riskField"><label>Session</label>
+            <select id="tsSession" style="background:var(--panel);border:1px solid var(--line);border-radius:2px;color:var(--text);padding:8px 10px;font:700 13px var(--mono);width:130px;">
+              <option value="">— unassigned —</option>
+              <option value="asian">🌏 Asian</option>
+              <option value="eu">🇪🇺 EU</option>
+              <option value="us">🇺🇸 US</option>
+            </select>
+          </div>
+          <div class="riskField"><label>Total budget ($)</label><input id="tsBudget" type="number" step="0.01" value="10"></div>
+          <button class="btn secondary" onclick="solveForSessionGap()">Solve for session's remaining gap</button>
+        </div>
+        <div id="tsGapNote" style="color:var(--dim);font-size:11.5px;margin-bottom:10px;"></div>
+        <div id="tsLegs"></div>
+        <button class="btn secondary" onclick="addStructurerLeg()">+ Add Yes bracket</button>
+        <button class="btn secondary" onclick="addStructurerTail()">+ Add cheap tail (No)</button>
+        <div style="margin-top:12px;"><button class="btn" onclick="computeStructurer()">Calculate</button></div>
+        <div id="tsResult" style="margin-top:14px;"></div>
+      </div>
+    </details>
+
+    <details class="collapsePanel">
+      <summary><span>📒 TRADE LOG</span><span class="chev">▸</span></summary>
+      <div class="collapseBody"><div id="tradeLogWrap"></div></div>
+    </details>
+
+    <details class="collapsePanel">
+      <summary><span>🗂️ ALL RESOLUTION STATIONS</span><span class="chev">▸</span></summary>
+      <div class="collapseBody">
+        <div id="list">
+          <div class="top"><div><p id="v2count">Stability Scanner and Pattern Day are separate. Both turn green at 70%.</p></div><button class="btn" onclick="loadV2()">↻ Refresh</button></div>
+          <div id="grid" class="grid"></div>
+        </div>
+      </div>
+    </details>
     <div id="detail" class="detail hidden"></div>
   </div>
 </main>
@@ -342,13 +441,257 @@ function sortByRegionAndSignal(items, getCode, getSignalWindow, getCity) {
 }
 
 function showTab(which) {
+  document.getElementById('tabDesk').classList.toggle('active', which === 'desk');
   document.getElementById('tabV3').classList.toggle('active', which === 'v3');
   document.getElementById('tabV2').classList.toggle('active', which === 'v2');
+  document.getElementById('viewDesk').classList.toggle('hidden', which !== 'desk');
   document.getElementById('viewV3').classList.toggle('hidden', which !== 'v3');
   document.getElementById('viewV2').classList.toggle('hidden', which !== 'v2');
+  if (which === 'desk') loadTradeDesk();
   if (which === 'v3' && !window.__v3Loaded) loadV3();
   if (which === 'v2' && !window.__v2Loaded) loadV2();
-  if (which === 'v2') loadEdgeDashboard();
+  if (which === 'v2') { loadTradeDecision(); loadEdgeDashboard(); }
+  if (which === 'v2' && !window.__advScanned) { window.__advScanned = true; loadAdvanceScan(); }
+}
+
+// ── Trade Decision (verdict card) ────────────────────────────────────────
+async function loadTradeDecision() {
+  const wrap = document.getElementById('tradeDecisionWrap');
+  let edge;
+  try {
+    edge = await fetch('/api/stationedge/edge-dashboard').then(r => r.json());
+  } catch (e) {
+    wrap.innerHTML = `<div class="verdictPanel none"><div class="empty" style="padding:4px 0;color:var(--red);">Could not load trade decision: ${e.message}</div></div>`;
+    return;
+  }
+  if (edge.error) {
+    wrap.innerHTML = `<div class="verdictPanel none"><div class="empty" style="padding:4px 0;color:var(--red);">${edge.error}</div></div>`;
+    return;
+  }
+  const rec = edge.recommendedWatchCity;
+  if (!rec) {
+    wrap.innerHTML = `<div class="verdictPanel none">
+      <div class="verdictBadge none">NO TRADE TODAY</div>
+      <div class="verdictCity" style="font-size:16px;">No city currently clears a positive, sufficiently-sampled edge</div>
+      <div style="color:var(--dim);font-size:12px;">Keep collecting data rather than forcing a pick. Check the Arb Scanner below instead — that's math-guaranteed regardless of edge.</div>
+    </div>`;
+    return;
+  }
+
+  let station = null;
+  if (rec.code) {
+    try { station = await fetch(`/api/stationedge/station/${rec.code}`).then(r => r.json()); } catch (e) {}
+  }
+  const hf = station?.highForecast || null;
+  const currentPrice = hf?.pairProbability ?? null;
+  const driftStatus = hf?.driftStatus || 'NO SIGNAL YET';
+  const isDrifting = driftStatus === 'UPWARD DRIFT' || driftStatus === 'DOWNWARD DRIFT';
+
+  let bucketHitRate = null, bucketLabel = null;
+  if (Number.isFinite(currentPrice)) {
+    const b = Math.floor(currentPrice / 10) * 10;
+    bucketLabel = `${b}-${b + 9}%`;
+    const match = (edge.priceCalibration || []).find(c => c.bucket === bucketLabel);
+    bucketHitRate = match ? match.actualHitRatePct : null;
+  }
+  const goodZone = bucketHitRate !== null && bucketHitRate >= 60;
+
+  const checks = [
+    { pass: rec.edgePct > 0, label: 'Edge', detail: `+${rec.edgePct}pp over ${rec.n} trades` },
+    { pass: !rec.lowSample, label: 'Sample size', detail: rec.lowSample ? `only ${rec.n} trades — treat cautiously` : `${rec.n} trades, above threshold` },
+    { pass: goodZone, label: 'Price zone', detail: currentPrice !== null ? `${currentPrice}¢ (${bucketLabel} bucket, historically ${bucketHitRate ?? '—'}% hit)` : 'No live price yet today' },
+    { pass: !isDrifting, label: 'Drift', detail: driftStatus },
+  ];
+  const passCount = checks.filter(c => c.pass).length;
+  const verdict = passCount === 4 ? 'go' : passCount >= 2 ? 'caution' : 'none';
+  const verdictLabel = verdict === 'go' ? '✓ GO' : verdict === 'caution' ? '⚠ CAUTION' : '✕ SKIP TODAY';
+
+  const checkHtml = checks.map(c => `<div class="checkItem"><span class="mark ${c.pass ? 'pass' : (verdict==='caution'?'warn':'fail')}">${c.pass ? '✓' : '✕'}</span><div><b>${c.label}</b><span class="detail">${c.detail}</span></div></div>`).join('');
+
+  wrap.innerHTML = `<div class="verdictPanel ${verdict}">
+    <div class="verdictBadge ${verdict}">${verdictLabel}</div>
+    <div class="verdictCity">${rec.city}${rec.code ? ' · ' + rec.code : ''}</div>
+    <div class="checklist">${checkHtml}</div>
+  </div>`;
+}
+
+// ── Trade Desk ───────────────────────────────────────────────────────────
+// One verdict, built from the same two endpoints Edge Dashboard and Advance
+// Scan already use — this just fuses them into a single read instead of
+// making you cross-reference two tabs by eye.
+async function loadTradeDesk() {
+  const verdictWrap = document.getElementById('deskVerdict');
+  verdictWrap.innerHTML = '<div class="empty" style="padding:14px 0;">Checking edge history and scanning markets…</div>';
+  const daysAhead = parseInt(document.getElementById('deskDaysAhead')?.value) || 2;
+  const exposure = parseFloat(document.getElementById('deskExposure')?.value) || 30;
+
+  const [edgeData, scanData, oppsData] = await Promise.all([
+    fetch('/api/stationedge/edge-dashboard').then(r => r.json()).catch(e => ({ error: e.message })),
+    fetch(`/api/stationedge/advance-scan?daysAhead=${daysAhead}&exposure=${exposure}`).then(r => r.json()).catch(e => ({ error: e.message })),
+    fetch('/api/stationedge/opportunities').then(r => r.json()).catch(e => ({ error: e.message })),
+  ]);
+
+  // Render supporting tables regardless of verdict outcome.
+  renderDeskCityTable(edgeData);
+  renderDeskCalibTable(edgeData);
+  renderDeskAdvanceScan(scanData, daysAhead);
+  renderDeskOpportunities(oppsData);
+
+  // Arb takes priority — it's guaranteed math, not a probability read.
+  if (scanData.arbFlagsOnly && scanData.arbFlagsOnly.length) {
+    const best = scanData.arbFlagsOnly[0];
+    verdictWrap.innerHTML = `<div class="verdict arb">
+        <div class="vlabel">⚡ GUARANTEED ARB AVAILABLE</div>
+        <div class="vheadline">${best.city}${best.code ? ' · '+best.code : ''} — +${best.arbFlag.edgePct}% guaranteed edge</div>
+        <div style="color:var(--muted);font-size:12.5px;">Full bracket sum ${best.arbFlag.sumCents}¢. Stake $${best.arbFlag.exposureDollars} across every bracket → guaranteed profit $${best.arbFlag.guaranteedProfit.toFixed(2)} regardless of outcome. Open Advance Scan below for the exact per-bracket stakes.</div>
+        ${scanData.arbFlagsOnly.length > 1 ? `<div style="color:var(--dim);font-size:11px;margin-top:8px;">+${scanData.arbFlagsOnly.length - 1} more city(ies) also flagged — see Advance Scan below.</div>` : ''}
+      </div>`;
+    return;
+  }
+
+  // Next: a live forecast-vs-market opportunity, weighted by that city's
+  // own historical track record — don't lead with a signal from a city
+  // that's been bleeding edge, even if today's number looks good.
+  const opp = (oppsData.opportunities || []).find(o => !o.historicalLowSample ? o.historicalEdgePct > 0 : true);
+  if (opp) {
+    const isEdge = opp.qualifies === 'EDGE';
+    const histNote = opp.historicalLowSample
+      ? `Historical track record for ${opp.city} is still thin (n=${opp.historicalN ?? 0}) — size cautiously.`
+      : `${opp.city}'s historical edge is +${opp.historicalEdgePct}pp over ${opp.historicalN} trades, backing this signal up.`;
+    verdictWrap.innerHTML = `<div class="verdict trade">
+        <div class="vlabel">🎯 LIVE ${isEdge ? 'OPPORTUNITY' : 'FAIR-VALUE PLAY'} — BUY ${opp.side}</div>
+        <div class="vheadline">${opp.city}${opp.code ? ' · '+opp.code : ''} — ${opp.bracket} — ${isEdge ? `+${opp.edgePct}% modeled edge` : `fair odds, model agrees at ${opp.modelProbPct}%`}</div>
+        <div style="color:var(--muted);font-size:12.5px;">Market price ${opp.priceCents}¢ vs StationEdge's own ${opp.modelProbPct}% probability for this bracket. ${histNote}</div>
+        <div class="vchecks">
+          <div class="vcheck"><span class="ok">✓</span> ${isEdge ? `Model probability exceeds market price by ${opp.edgePct}%` : 'Model and market roughly agree — no mispricing, just a high-probability bet at stated odds'}</div>
+          <div class="vcheck"><span class="${opp.driftStatus === 'STABLE' ? 'ok' : 'bad'}">${opp.driftStatus === 'STABLE' ? '✓' : '✕'}</span> Drift: ${opp.driftStatus}</div>
+          <div class="vcheck"><span class="${opp.historicalLowSample ? 'bad' : 'ok'}">${opp.historicalLowSample ? '✕' : '✓'}</span> Historical sample ${opp.historicalLowSample ? 'below' : 'above'} threshold</div>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (edgeData.error) {
+    verdictWrap.innerHTML = `<div class="verdict wait"><div class="vlabel">DATA UNAVAILABLE</div><div class="vheadline" style="color:var(--red);">${edgeData.error}</div></div>`;
+    return;
+  }
+
+  const rec = edgeData.recommendedWatchCity;
+  if (!rec) {
+    verdictWrap.innerHTML = `<div class="verdict wait">
+        <div class="vlabel">NO TRADE</div>
+        <div class="vheadline" style="color:var(--text);">No city currently clears a positive, sample-backed edge</div>
+        <div style="color:var(--muted);font-size:12.5px;">Keep collecting data — forcing a trade without edge here just pays the market's vig. Check back or watch for an Advance Scan arb flag instead.</div>
+      </div>`;
+    return;
+  }
+
+  // Cross-check the recommended city's current price bucket + drift status
+  // against the calibration data, so the verdict already answers "is today
+  // actually a good day for this city" — not just "this city is good historically."
+  const dc = edgeData.driftComparison;
+  const priceHealthy = true; // bucket-level live price for this city needs Live Monitor's card; flagged as a manual check below
+  verdictWrap.innerHTML = `<div class="verdict trade">
+      <div class="vlabel">TRADE CANDIDATE</div>
+      <div class="vheadline">${rec.city}${rec.code ? ' · '+rec.code : ''} — +${rec.edgePct}pp edge</div>
+      <div style="color:var(--muted);font-size:12.5px;">${rec.n} resolved trades, ${rec.hitRatePct}% actual hit rate vs ${rec.avgPriceCents}¢ average market price${rec.lowSample ? ' — below the 15-trade confidence threshold, size cautiously.' : '.'}</div>
+      <div class="vchecks">
+        <div class="vcheck"><span class="${rec.lowSample ? 'bad' : 'ok'}">${rec.lowSample ? '✕' : '✓'}</span> Sample size ${rec.lowSample ? 'below' : 'above'} threshold</div>
+        <div class="vcheck"><span class="ok">✓</span> Positive historical edge</div>
+        <div class="vcheck"><span class="amber" style="color:var(--amber);">→</span> Check today's price bucket &amp; drift flag on Live Monitor before sizing</div>
+      </div>
+    </div>`;
+}
+
+function renderDeskCityTable(data) {
+  const wrap = document.getElementById('deskCityTable');
+  if (data.error || !data.cities) { wrap.innerHTML = `<div class="empty">${data.error || 'No data yet'}</div>`; return; }
+  const rows = data.cities.map(c => `<tr${c.lowSample ? ' style="opacity:.55;"' : ''}>
+      <td>${c.city}${c.lowSample ? ` <span style="color:var(--dim);font-size:9.5px;">(n<${data.minSampleForConfidence})</span>` : ''}</td>
+      <td class="mono">${c.code || '—'}</td><td class="mono">${c.n}</td>
+      <td class="mono">${c.avgPriceCents}¢</td><td class="mono">${c.hitRatePct}%</td>
+      <td class="mono" style="color:${c.edgePct > 0 ? 'var(--green)' : 'var(--red)'};">${c.edgePct > 0 ? '+' : ''}${c.edgePct}pp</td>
+    </tr>`).join('');
+  wrap.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>N</th><th>AVG PRICE</th><th>ACTUAL HIT</th><th>EDGE</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function renderDeskCalibTable(data) {
+  const wrap = document.getElementById('deskCalibTable');
+  if (data.error || !data.priceCalibration) { wrap.innerHTML = `<div class="empty">${data.error || 'No data yet'}</div>`; return; }
+  const rows = data.priceCalibration.map(b => `<tr><td class="mono">${b.bucket}</td><td class="mono">${b.n}</td><td class="mono">${b.actualHitRatePct}%</td></tr>`).join('');
+  const dc = data.driftComparison;
+  wrap.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px;margin-bottom:14px;">
+    <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>MARKET PRICE BUCKET</th><th>N</th><th>ACTUAL HIT RATE</th></tr></thead>
+    <tbody>${rows}</tbody></table>
+    <div style="display:flex;gap:24px;font-size:12px;">
+      <div>No drift: <b class="mono">${dc.withoutDrift.hitRatePct ?? '—'}%</b> <span style="color:var(--dim);">(n=${dc.withoutDrift.n})</span></div>
+      <div>With drift: <b class="mono">${dc.withDrift.hitRatePct ?? '—'}%</b> <span style="color:var(--dim);">(n=${dc.withDrift.n})</span></div>
+    </div>`;
+}
+
+function renderDeskAdvanceScan(data, daysAhead) {
+  const arbWrap = document.getElementById('deskArbWrap');
+  const top3Wrap = document.getElementById('deskTop3Wrap');
+  if (data.error) { arbWrap.innerHTML = `<div class="empty">${data.error}</div>`; top3Wrap.innerHTML=''; return; }
+
+  if (data.arbFlagsOnly && data.arbFlagsOnly.length) {
+    const cards = data.arbFlagsOnly.map(m => {
+      const legRows = m.arbFlag.legs.map(l => `<tr><td>${l.bracket}</td><td class="mono">${l.priceCents}¢</td><td class="mono">$${l.stake.toFixed(2)}</td></tr>`).join('');
+      return `<div class="riskPanel" style="border-color:var(--green);margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;">
+          <b style="font-size:14px;">${m.city}${m.code ? ' · '+m.code : ''} — ${daysAhead}d ahead</b>
+          <span style="color:var(--green);font:700 13px var(--mono);">+${m.arbFlag.edgePct}%</span>
+        </div>
+        <div style="color:var(--dim);font-size:11px;margin:4px 0 10px;">Sum ${m.arbFlag.sumCents}¢ · $${m.arbFlag.exposureDollars} stake → $${m.arbFlag.guaranteedPayout.toFixed(2)} payout (profit $${m.arbFlag.guaranteedProfit.toFixed(2)})</div>
+        <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>BRACKET</th><th>PRICE</th><th>STAKE</th></tr></thead>
+        <tbody>${legRows}</tbody></table>
+      </div>`;
+    }).join('');
+    arbWrap.innerHTML = cards;
+  } else {
+    arbWrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No full-coverage arb right now (needs full bracket sum under ${data.arbSumThresholdCents}¢). Normal on a liquid book.</div>`;
+  }
+
+  const top3Matches = (data.matches || []).filter(m => m.top3Match);
+  if (!top3Matches.length) { top3Wrap.innerHTML = ''; return; }
+  const rows = top3Matches.map(m => {
+    const bracketCells = m.top3Match.brackets.map(b => `<td class="mono">${b.bracket}<br><span style="color:var(--dim);">${b.prob}¢</span></td>`).join('');
+    return `<tr><td>${m.city}</td><td class="mono">${m.code || '—'}</td>${bracketCells}<td class="mono">${m.top3Match.combined}¢</td></tr>`;
+  }).join('');
+  top3Wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin:14px 0 8px;">Top-3 structure screen — observation only:</div>
+    <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>BRACKET 1</th><th>BRACKET 2</th><th>BRACKET 3</th><th>COMBINED</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
+}
+
+function renderDeskOpportunities(data) {
+  const wrap = document.getElementById('deskOppsWrap');
+  if (data.error) { wrap.innerHTML = `<div class="empty">${data.error}</div>`; return; }
+  const opps = data.opportunities || [];
+  if (!opps.length) { wrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">Nothing qualifies right now — no edge above ${data.minEdgePct}%, and no fair-value side above ${data.fairValueMinModelPct}% model probability. Normal — check back through the day as prices move.</div>`; return; }
+  const rows = opps.slice(0, 25).map(o => {
+    const histBadge = o.historicalLowSample
+      ? `<span style="color:var(--amber);font-size:10.5px;">thin (n=${o.historicalN ?? 0})</span>`
+      : `<span style="color:${o.historicalEdgePct > 0 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;">${o.historicalEdgePct > 0 ? '+' : ''}${o.historicalEdgePct}pp (n=${o.historicalN})</span>`;
+    const isEdge = o.qualifies === 'EDGE';
+    const typeBadge = `<span style="font:700 9.5px var(--mono);padding:2px 6px;border-radius:2px;background:${isEdge ? 'rgba(47,224,138,.15)' : 'rgba(255,193,71,.15)'};color:${isEdge ? 'var(--green)' : 'var(--amber)'};">${o.qualifies}</span>`;
+    return `<tr>
+      <td>${o.city}</td><td class="mono">${o.code || '—'}</td>
+      <td><span style="font:700 10px var(--mono);padding:2px 6px;border-radius:2px;background:${o.side === 'YES' ? 'rgba(47,224,138,.15)' : 'rgba(255,84,104,.15)'};color:${o.side === 'YES' ? 'var(--green)' : 'var(--red)'};">${o.side}</span></td>
+      <td>${typeBadge}</td>
+      <td class="mono">${o.bracket}</td><td class="mono">${o.priceCents}¢</td><td class="mono">${o.modelProbPct}%</td>
+      <td class="mono" style="color:${isEdge ? 'var(--green)' : 'var(--dim)'};">${o.edgePct >= 0 ? '+' : ''}${o.edgePct}%</td>
+      <td class="mono">${o.driftStatus}</td><td>${histBadge}</td>
+    </tr>`;
+  }).join('');
+  wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">EDGE = model and market disagree, in your favor. FAIR VALUE = they agree on a high-probability side — a fair bet, not a mispriced one.</div>
+    <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>SIDE</th><th>TYPE</th><th>BRACKET</th><th>PRICE</th><th>MODEL</th><th>EDGE</th><th>DRIFT</th><th>CITY TRACK RECORD</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>
+    ${opps.length > 25 ? `<div style="color:var(--dim);font-size:11px;margin-top:8px;">+${opps.length - 25} more, ranked lower.</div>` : ''}`;
 }
 
 // ── Edge Dashboard ───────────────────────────────────────────────────────
@@ -457,10 +800,7 @@ async function loadAdvanceScan() {
   }
   if (data.error) { wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">${data.error}</div>`; return; }
 
-  // Arb flags first — this is the strategy you actually trade. Only ones
-  // where every leg clears Polymarket's $1 order minimum at this exposure —
-  // an arb that needs a 32c order isn't actually placeable, so it doesn't
-  // belong in the same list as ones you can trade right now.
+  // Arb flags first — this is the strategy you actually trade.
   if (data.arbFlagsOnly && data.arbFlagsOnly.length) {
     const cards = data.arbFlagsOnly.map(m => {
       const legRows = m.arbFlag.legs.map(l => `<tr><td>${l.bracket}</td><td class="mono">${l.priceCents}¢</td><td class="mono">$${l.stake.toFixed(2)}</td></tr>`).join('');
@@ -469,20 +809,15 @@ async function loadAdvanceScan() {
           <b style="font-size:14px;">${m.city} ${m.code ? '· '+m.code : ''} — ${daysAhead}d ahead</b>
           <span style="color:var(--green);font:700 13px var(--mono);">+${m.arbFlag.edgePct}% guaranteed edge</span>
         </div>
-        <div style="color:var(--dim);font-size:11px;margin:4px 0 10px;">Full bracket sum ${m.arbFlag.sumCents}¢ · stake $${m.arbFlag.exposureDollars} → guaranteed payout $${m.arbFlag.guaranteedPayout.toFixed(2)} (profit $${m.arbFlag.guaranteedProfit.toFixed(2)}) no matter which bracket hits · every leg ≥ $1, placeable as-is</div>
+        <div style="color:var(--dim);font-size:11px;margin:4px 0 10px;">Full bracket sum ${m.arbFlag.sumCents}¢ · stake $${m.arbFlag.exposureDollars} → guaranteed payout $${m.arbFlag.guaranteedPayout.toFixed(2)} (profit $${m.arbFlag.guaranteedProfit.toFixed(2)}) no matter which bracket hits</div>
         <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>BRACKET</th><th>PRICE</th><th>STAKE</th></tr></thead>
         <tbody>${legRows}</tbody></table>
       </div>`;
     }).join('');
-    arbWrap.innerHTML = `<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px;">⚡ ${data.arbFlagsOnly.length} FULL-COVERAGE ARB FLAG(S) — sum under ${data.arbSumThresholdCents}¢, every leg placeable at $${data.exposureDollars} stake</div>${cards}`;
+    arbWrap.innerHTML = `<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px;">⚡ ${data.arbFlagsOnly.length} FULL-COVERAGE ARB FLAG(S) — sum under ${data.arbSumThresholdCents}¢</div>${cards}`;
   } else {
-    arbWrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No PLACEABLE full-coverage arb right now at $${data.exposureDollars} stake (need every bracket's price to sum under ${data.arbSumThresholdCents}¢ AND every leg's stake to clear the $${data.polymarketMinOrderDollars} Polymarket minimum). Normal — these are rare on a liquid book. Scan periodically through the day.</div>`;
-  }
-
-  if (data.arbFlagsNeedMoreCapital && data.arbFlagsNeedMoreCapital.length) {
-    const needCards = data.arbFlagsNeedMoreCapital.map(m => `<div style="color:var(--dim);font-size:11.5px;padding:6px 0;border-bottom:1px solid var(--line);">${m.city}${m.code ? ' · '+m.code : ''} — real ${m.arbFlag.edgePct}% edge, sum ${m.arbFlag.sumCents}¢, but ${m.arbFlag.unexecutableLegCount} leg(s) fall under $${data.polymarketMinOrderDollars} at $${data.exposureDollars} stake. Needs ~$${m.arbFlag.minExposureForExecutable} total exposure to clear the minimum on every leg.</div>`).join('');
-    arbWrap.innerHTML += `<div style="margin-top:14px;color:var(--dim);font-size:11px;font-weight:700;">${data.arbFlagsNeedMoreCapital.length} more real arb(s) exist but need more capital than $${data.exposureDollars} to be placeable:</div>${needCards}`;
+    arbWrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No full-coverage arb right now (need every bracket's price to sum under ${data.arbSumThresholdCents}¢). Normal — these are rare on a liquid book. Scan periodically through the day.</div>`;
   }
 
   const top3Matches = (data.matches || []).filter(m => m.top3Match);
@@ -855,7 +1190,6 @@ async function loadV3() {
     <div class="card"><small>TOTAL PREDICTIONS</small><b>${data.totalPredictions}</b></div>
     <div class="card"><small>RESOLVED</small><b>${data.resolvedPredictions}</b></div>
     <div class="card"><small>PAIR HIT RATE</small><b>${data.pairHitRate === null ? '—' : data.pairHitRate + '%'}</b></div>
-    <div class="card"><small>3-BRACKET HIT RATE</small><b>${data.tripleHitRate === null ? '—' : data.tripleHitRate + '%'}</b>${data.tripleEligibleCount ? `<small style="display:block;opacity:.6;">n=${data.tripleEligibleCount}</small>` : ''}</div>
     <div class="card"><small>AVG ERROR</small><b>${data.averageError === null ? '—' : data.averageError + '°'}</b></div>
   `;
   if (!data.records || !data.records.length) {
@@ -932,8 +1266,6 @@ async function loadV3() {
           <div class="ticker-sym">${latest.station_code}</div>
           <div class="ticker-city">${latest.city}</div>
           <div class="ticker-time">${latest.forecast_date}${localNow ? ' · 🕐 ' + localNow + ' LOCAL' : ''}</div>
-          ${latest.locked_at ? `<div class="ticker-time" style="opacity:.75;">🔒 Locked ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.locked_at))} local</div>` : ''}
-          ${latest.v2_converged_at ? `<div class="ticker-time" style="opacity:.75;">⏱ Forecast final by ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.v2_converged_at))} local${latest.v2_converged_correct === false ? ' (settled wrong)' : ''}</div>` : (latest.v2LastChangedAt ? `<div class="ticker-time" style="opacity:.75;">⏱ No change since ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.v2LastChangedAt))} local</div>` : '')}
         </div>
         <span class="record ${recordClass}">${recordText}</span>
       </div>
@@ -942,9 +1274,8 @@ async function loadV3() {
       <div class="quotes">
         <div class="quote"><div class="qlbl">OUTCOME 1</div><div class="qval">${fmtTemp(latest.outcome_one, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_one_probability) ? latest.outcome_one_probability + '%' : '—'}</div>${liveQuoteBlock(latest.city, latest.outcome_one, latest.outcome_one_probability, unit)}</div>
         <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(latest.outcome_two, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_two_probability) ? latest.outcome_two_probability + '%' : '—'}</div>${liveQuoteBlock(latest.city, latest.outcome_two, latest.outcome_two_probability, unit)}</div>
-        ${Number.isFinite(latest.outcome_three) ? `<div class="quote"><div class="qlbl">OUTCOME 3</div><div class="qval">${fmtTemp(latest.outcome_three, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_three_probability) ? latest.outcome_three_probability + '%' : '—'}</div>${liveQuoteBlock(latest.city, latest.outcome_three, latest.outcome_three_probability, unit)}</div>` : ''}
       </div>
-      <div class="pairRow"><span>${Number.isFinite(latest.triple_probability) ? '3-Bracket Coverage' : 'Pair Coverage'}</span><b>${Number.isFinite(latest.triple_probability) ? latest.triple_probability + '%' : (Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—')}</b></div>
+      <div class="pairRow"><span>Pair Coverage</span><b>${Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—'}</b></div>
       <div class="badgeRow"><span>${stabEmoji} STAB ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'}</span><span>${patEmoji} PATT ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'}</span></div>
       ${driftBlock}
       ${resolvedBlock}
@@ -958,7 +1289,7 @@ function csvCell(v){ const s=v==null?'':String(v); return /[\",\n]/.test(s)?'\"'
 async function downloadV3Csv(){
   const r=await fetch('/api/stationedge/audit'); const data=await r.json();
   if(data.error||!Array.isArray(data.records)) return alert(data.error||'No StationEdge records available');
-  const cols=['forecast_date','station_code','city','local_signal_time','locked_at','v2_converged_at','v2_converged_correct','display_unit','outcome_one','outcome_two','outcome_three','outcome_one_probability','outcome_two_probability','outcome_three_probability','pair_probability','triple_probability','stability_score','pattern_score','actual_high','forecast_error','result','triple_hit','resolution_type','model_version'];
+  const cols=['forecast_date','station_code','city','local_signal_time','display_unit','outcome_one','outcome_two','outcome_one_probability','outcome_two_probability','pair_probability','stability_score','pattern_score','actual_high','forecast_error','result','resolution_type','model_version'];
   const lines=[cols.join(',')];
   for(const x of data.records){ const row={...x,resolution_type:isDriftCoveredHit(x)?'DRIFT_COVERED_HIT':(x.result||'PENDING')}; lines.push(cols.map(c=>csvCell(row[c])).join(',')); }
   const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='stationedge-forward-test-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
@@ -1001,9 +1332,8 @@ async function loadV2(){
         <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(o2, unit)}</div><div class="qprob">${Number.isFinite(p2) ? p2 + '%' : '—'}</div>${liveQuoteBlock(s.city, o2, p2, unit)}</div>
       </div>`;
     }
-    const timingHtml = `${s.lockedAt ? `<div class="localtime" style="opacity:.75;">🔒 Locked ${new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(s.lockedAt))} local</div>` : ''}${s.v2ConvergedAt ? `<div class="localtime" style="opacity:.75;">⏱ Forecast final by ${new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(s.v2ConvergedAt))} local${s.v2ConvergedCorrect === false ? ' (settled wrong)' : ''}</div>` : (s.v2LastChangedAt ? `<div class="localtime" style="opacity:.75;">⏱ No change since ${new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(s.v2LastChangedAt))} local</div>` : '')}`;
     const structBtn = `<button class="btn secondary" style="width:100%;margin-top:10px;" onclick="event.stopPropagation();loadIntoStructurer('${s.code}')">→ Load into Trade Structurer</button>`;
-    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${timingHtml}${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}${structBtn}`}</div>`);
+    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}${structBtn}`}</div>`);
   }
   document.getElementById('grid').innerHTML = cards.join('');
 }

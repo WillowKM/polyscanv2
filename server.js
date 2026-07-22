@@ -2451,6 +2451,11 @@ app.get('/api/stationedge/audit', async (req, res) => {
   const misses = resolved.filter(r => r.result === 'MISS').length;
   const errors = resolved.map(r => r.forecast_error).filter(Number.isFinite);
   const avgError = errors.length ? errors.reduce((a, b) => a + b, 0) / errors.length : null;
+  // Only counted among rows that actually had a third bracket locked —
+  // rows with no outcome_three (ladder didn't support one) are excluded
+  // rather than counted against the rate.
+  const tripleEligible = resolved.filter(r => Number.isFinite(r.outcome_three));
+  const tripleHits = tripleEligible.filter(r => r.triple_hit === true).length;
 
   res.json({
     totalPredictions: rows.length,
@@ -2458,6 +2463,8 @@ app.get('/api/stationedge/audit', async (req, res) => {
     hits,
     misses,
     pairHitRate: resolved.length ? Math.round((hits / resolved.length) * 100) : null,
+    tripleHitRate: tripleEligible.length ? Math.round((tripleHits / tripleEligible.length) * 100) : null,
+    tripleEligibleCount: tripleEligible.length,
     averageError: avgError === null ? null : Math.round(avgError * 100) / 100,
     records: enrichedRows,
   });

@@ -2368,34 +2368,45 @@ app.get('/api/stationedge/audit', async (req, res) => {
 // confident), and drift-vs-no-drift comparison. Recomputed from whatever's
 // currently resolved in Supabase, not a point-in-time export.
 const EDGE_MIN_SAMPLE = 15; // below this, a city's edge is flagged low-confidence
-app.get('/api/stationedge/edge-dashboard', async (req, res) => {
-  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return res.status(503).json({ error: 'Supabase not configured' });
+
+// Shared per-city edge computation — used by both /edge-dashboard (display)
+// and /opportunities (to annotate live signals with how much we've actually
+// trusted this city historically, instead of trading every model signal blind).
+async function seCityEdgeStats() {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) return null;
   const rows = await seSupabaseRequest(
     `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&result=not.is.null&select=city,station_code,pair_probability,stability_score,pattern_score,result,local_signal_time`
   );
-  if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load StationEdge forecast rows' });
-
+  if (!Array.isArray(rows)) return null;
   const isHit = r => r.result === 'HIT';
-  const hasDrift = r => String(r.local_signal_time || '').includes('|DRIFT:');
-
-  // Per-city
   const byCity = {};
   for (const r of rows) {
     if (!Number.isFinite(r.pair_probability)) continue;
     (byCity[r.city] ||= []).push(r);
   }
-  const cities = Object.entries(byCity).map(([city, rs]) => {
+  const byCityOut = {};
+  for (const [city, rs] of Object.entries(byCity)) {
     const n = rs.length;
     const avgPrice = rs.reduce((a,r) => a + r.pair_probability, 0) / n;
     const hitRate = rs.filter(isHit).length / n * 100;
-    return {
+    byCityOut[city] = {
       city, code: rs[0]?.station_code || null, n,
       avgPriceCents: Math.round(avgPrice * 10) / 10,
       hitRatePct: Math.round(hitRate * 10) / 10,
       edgePct: Math.round((hitRate - avgPrice) * 10) / 10,
       lowSample: n < EDGE_MIN_SAMPLE,
     };
-  }).sort((a,b) => b.edgePct - a.edgePct);
+  }
+  return { rows, byCity: byCityOut };
+}
+
+app.get('/api/stationedge/edge-dashboard', async (req, res) => {
+  const stats = await seCityEdgeStats();
+  if (!stats) return res.status(503).json({ error: 'Supabase not configured or unavailable' });
+  const { rows } = stats;
+  const isHit = r => r.result === 'HIT';
+  const hasDrift = r => String(r.local_signal_time || '').includes('|DRIFT:');
+  const cities = Object.values(stats.byCity).sort((a,b) => b.edgePct - a.edgePct);
 
   // Price-bucket calibration (does the market-price-vs-actual gap hold at every confidence level)
   const priceBuckets = {};
@@ -2432,6 +2443,109 @@ app.get('/api/stationedge/edge-dashboard', async (req, res) => {
     recommendedWatchCity,
     note: 'Edge = actual hit rate minus the market\'s own average price at lock time. Positive edge means StationEdge has been beating the market\'s price on that slice; cities/buckets below the sample threshold are shown but flagged low-confidence.',
   });
+});
+
+// ── Opportunities scanner ────────────────────────────────────────────────
+// The actual "what should I trade right now" feed. No hardcoded price
+// threshold anywhere — every signal here comes from comparing StationEdge's
+// own probability ladder (already computed per city, per bracket) against
+// Polymarket's live price for that same bracket. Covers BOTH directions:
+//   - Buy Yes where the model thinks a bracket is more likely than the market does
+//   - Buy No  where the model thinks a bracket is LESS likely than the market does
+//     (this is the "near-certain No" case — model rules a bracket out, and the
+//     market's No price still leaves room, i.e. hasn't already priced it to ~100c)
+// Full-coverage arb (the guaranteed-regardless-of-outcome play) doesn't need
+// a forecast at all — it stays in /advance-scan as its own, separate category.
+
+// Parses a Polymarket bracket label into a numeric range + unit.
+// Handles "88-89°F", "100°F or higher", "N°C or lower", and single-value
+// non-US brackets like "28°C".
+function seParseBracketRange(bracketText) {
+  const t = String(bracketText || '').replace(/°/g, '').trim();
+  const unit = /f\b/i.test(t) ? 'F' : (/c\b/i.test(t) ? 'C' : null);
+  if (!unit) return null;
+  const nums = (t.match(/-?\d+(\.\d+)?/g) || []).map(Number);
+  if (!nums.length) return null;
+  if (/or higher|or above|\+/i.test(t)) return { min: nums[0], max: Infinity, unit };
+  if (/or lower|or below|or less/i.test(t)) return { min: -Infinity, max: nums[0], unit };
+  if (nums.length >= 2) return { min: nums[0], max: nums[1], unit };
+  return { min: nums[0], max: nums[0], unit }; // single-degree non-US bracket
+}
+
+// Sums the model's ladder probability mass that falls inside a Polymarket
+// bracket's range. NOTE: this is an approximation — the ladder is built in
+// 1°C steps and US brackets are 2°F wide, so the boundary doesn't align
+// perfectly. Good enough to rank opportunities; not a substitute for reading
+// the actual bracket before sizing a trade.
+function seModelMassForRange(ladder, range) {
+  if (!range || !ladder) return 0;
+  let mass = 0;
+  for (const pt of ladder) {
+    const val = range.unit === 'F' ? (pt.temperatureC * 9 / 5 + 32) : pt.temperatureC;
+    if (val >= range.min - 0.5 && val <= range.max + 0.5) mass += pt.probability;
+  }
+  return Math.min(100, mass);
+}
+
+const OPPORTUNITY_MIN_EDGE_PCT = 8; // minimum modeled edge (%) before it's worth surfacing at all
+
+app.get('/api/stationedge/opportunities', async (req, res) => {
+  try {
+    const edgeStats = await seCityEdgeStats(); // may be null if Supabase unavailable — still runs without it
+    const codes = Object.keys(STATIONEDGE_STATIONS);
+
+    const perCity = await Promise.all(codes.map(async code => {
+      const meta = STATIONEDGE_STATIONS[code];
+      let station;
+      try { station = await seStation(code); } catch (e) { return null; }
+      const hf = station?.highForecast;
+      if (!hf || !hf.probabilityLadder) return null;
+      const polyData = await fetchPolymarketEvent(meta.city);
+      if (!polyData || !polyData.outcomes.length) return null;
+
+      const hist = edgeStats?.byCity?.[meta.city] || null;
+
+      const legs = [];
+      for (const o of polyData.outcomes) {
+        if (!Number.isFinite(o.prob) || o.prob <= 1 || o.prob >= 99) continue; // no real room to trade
+        const range = seParseBracketRange(o.bracket);
+        if (!range) continue;
+        const modelYesPct = seModelMassForRange(hf.probabilityLadder, range);
+        const marketYesCents = o.prob;
+
+        const yesEdgePct = Math.round((modelYesPct / marketYesCents - 1) * 1000) / 10;
+        if (yesEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) {
+          legs.push({ side: 'YES', bracket: o.bracket, priceCents: marketYesCents, modelProbPct: Math.round(modelYesPct * 10) / 10, edgePct: yesEdgePct, volume: o.volume });
+        }
+        const noMarketCents = 100 - marketYesCents, noModelPct = 100 - modelYesPct;
+        const noEdgePct = Math.round((noModelPct / noMarketCents - 1) * 1000) / 10;
+        if (noEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) {
+          legs.push({ side: 'NO', bracket: o.bracket, priceCents: noMarketCents, modelProbPct: Math.round(noModelPct * 10) / 10, edgePct: noEdgePct, volume: o.volume });
+        }
+      }
+      if (!legs.length) return null;
+      return {
+        city: meta.city, code, confidence: hf.confidence, driftStatus: hf.driftStatus,
+        signalWindow: hf.signalWindow,
+        historicalEdgePct: hist?.edgePct ?? null, historicalN: hist?.n ?? null, historicalLowSample: hist?.lowSample ?? true,
+        legs: legs.sort((a,b) => b.edgePct - a.edgePct),
+      };
+    }));
+
+    const cities = perCity.filter(Boolean);
+    const flat = cities.flatMap(c => c.legs.map(l => ({
+      ...l, city: c.city, code: c.code, modelConfidence: c.confidence, driftStatus: c.driftStatus,
+      historicalEdgePct: c.historicalEdgePct, historicalN: c.historicalN, historicalLowSample: c.historicalLowSample,
+    }))).sort((a,b) => b.edgePct - a.edgePct);
+
+    res.json({
+      minEdgePct: OPPORTUNITY_MIN_EDGE_PCT,
+      citiesScanned: codes.length,
+      hasHistoricalEdgeData: !!edgeStats,
+      opportunities: flat,
+      note: 'edgePct compares StationEdge\'s own modeled probability for that bracket against Polymarket\'s live price — not a fixed price cutoff. historicalEdgePct is that city\'s track record from Edge Dashboard, shown for context; a positive live edge in a historically negative-edge city should be trusted less, not more.',
+    });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 app.get('/stationedge', (req,res) => res.sendFile(path.join(__dirname,'public','stationedge.html')));

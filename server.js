@@ -2546,7 +2546,36 @@ app.get('/stationedge', (req,res) => res.sendFile(path.join(__dirname,'public','
 app.get('/api/stationedge/stations', async (req,res) => {
   const codes=Object.keys(STATIONEDGE_STATIONS);
   const settled=await Promise.allSettled(codes.map(seStation));
-  res.json(settled.map((x,i)=>x.status==='fulfilled'?x.value:{code:codes[i],...STATIONEDGE_STATIONS[codes[i]],error:x.reason?.message||'failed'}));
+  const results = settled.map((x,i)=>x.status==='fulfilled'?x.value:{code:codes[i],...STATIONEDGE_STATIONS[codes[i]],error:x.reason?.message||'failed'});
+
+  // Attach today's lock/convergence timing per station, same data the
+  // Forward Test tab shows, so Live Monitor doesn't require switching tabs
+  // to see when today's prediction actually locked and when the forecast
+  // stopped moving.
+  if (SUPABASE_URL && SUPABASE_SECRET_KEY) {
+    await Promise.all(results.map(async (s) => {
+      if (!s.code || !s.localDay) return;
+      try {
+        const rows = await seSupabaseRequest(
+          `stationedge_forecasts?station_code=eq.${encodeURIComponent(s.code)}&forecast_date=eq.${encodeURIComponent(s.localDay)}&model_version=eq.${SE_V3_MODEL_VERSION}&select=locked_at,v2_converged_at,v2_converged_correct&limit=1`
+        );
+        const row = Array.isArray(rows) ? rows[0] : null;
+        if (row) {
+          s.lockedAt = row.locked_at;
+          s.v2ConvergedAt = row.v2_converged_at;
+          s.v2ConvergedCorrect = row.v2_converged_correct;
+        }
+        if (!row?.v2_converged_at) {
+          const snap = await seSupabaseRequest(
+            `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(s.code)}&forecast_date=eq.${encodeURIComponent(s.localDay)}&select=snapshot_at&order=snapshot_at.desc&limit=1`
+          );
+          if (Array.isArray(snap) && snap[0]) s.v2LastChangedAt = snap[0].snapshot_at;
+        }
+      } catch (e) { /* leave timing fields absent for this station rather than fail the whole response */ }
+    }));
+  }
+
+  res.json(results);
 });
 // Separate from fetchPolymarketEvent on purpose — that function and its cache
 // are keyed by city name only and used everywhere same-day trading depends

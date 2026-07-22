@@ -457,7 +457,10 @@ async function loadAdvanceScan() {
   }
   if (data.error) { wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">${data.error}</div>`; return; }
 
-  // Arb flags first — this is the strategy you actually trade.
+  // Arb flags first — this is the strategy you actually trade. Only ones
+  // where every leg clears Polymarket's $1 order minimum at this exposure —
+  // an arb that needs a 32c order isn't actually placeable, so it doesn't
+  // belong in the same list as ones you can trade right now.
   if (data.arbFlagsOnly && data.arbFlagsOnly.length) {
     const cards = data.arbFlagsOnly.map(m => {
       const legRows = m.arbFlag.legs.map(l => `<tr><td>${l.bracket}</td><td class="mono">${l.priceCents}¢</td><td class="mono">$${l.stake.toFixed(2)}</td></tr>`).join('');
@@ -466,15 +469,20 @@ async function loadAdvanceScan() {
           <b style="font-size:14px;">${m.city} ${m.code ? '· '+m.code : ''} — ${daysAhead}d ahead</b>
           <span style="color:var(--green);font:700 13px var(--mono);">+${m.arbFlag.edgePct}% guaranteed edge</span>
         </div>
-        <div style="color:var(--dim);font-size:11px;margin:4px 0 10px;">Full bracket sum ${m.arbFlag.sumCents}¢ · stake $${m.arbFlag.exposureDollars} → guaranteed payout $${m.arbFlag.guaranteedPayout.toFixed(2)} (profit $${m.arbFlag.guaranteedProfit.toFixed(2)}) no matter which bracket hits</div>
+        <div style="color:var(--dim);font-size:11px;margin:4px 0 10px;">Full bracket sum ${m.arbFlag.sumCents}¢ · stake $${m.arbFlag.exposureDollars} → guaranteed payout $${m.arbFlag.guaranteedPayout.toFixed(2)} (profit $${m.arbFlag.guaranteedProfit.toFixed(2)}) no matter which bracket hits · every leg ≥ $1, placeable as-is</div>
         <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>BRACKET</th><th>PRICE</th><th>STAKE</th></tr></thead>
         <tbody>${legRows}</tbody></table>
       </div>`;
     }).join('');
-    arbWrap.innerHTML = `<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px;">⚡ ${data.arbFlagsOnly.length} FULL-COVERAGE ARB FLAG(S) — sum under ${data.arbSumThresholdCents}¢</div>${cards}`;
+    arbWrap.innerHTML = `<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px;">⚡ ${data.arbFlagsOnly.length} FULL-COVERAGE ARB FLAG(S) — sum under ${data.arbSumThresholdCents}¢, every leg placeable at $${data.exposureDollars} stake</div>${cards}`;
   } else {
-    arbWrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No full-coverage arb right now (need every bracket's price to sum under ${data.arbSumThresholdCents}¢). Normal — these are rare on a liquid book. Scan periodically through the day.</div>`;
+    arbWrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No PLACEABLE full-coverage arb right now at $${data.exposureDollars} stake (need every bracket's price to sum under ${data.arbSumThresholdCents}¢ AND every leg's stake to clear the $${data.polymarketMinOrderDollars} Polymarket minimum). Normal — these are rare on a liquid book. Scan periodically through the day.</div>`;
+  }
+
+  if (data.arbFlagsNeedMoreCapital && data.arbFlagsNeedMoreCapital.length) {
+    const needCards = data.arbFlagsNeedMoreCapital.map(m => `<div style="color:var(--dim);font-size:11.5px;padding:6px 0;border-bottom:1px solid var(--line);">${m.city}${m.code ? ' · '+m.code : ''} — real ${m.arbFlag.edgePct}% edge, sum ${m.arbFlag.sumCents}¢, but ${m.arbFlag.unexecutableLegCount} leg(s) fall under $${data.polymarketMinOrderDollars} at $${data.exposureDollars} stake. Needs ~$${m.arbFlag.minExposureForExecutable} total exposure to clear the minimum on every leg.</div>`).join('');
+    arbWrap.innerHTML += `<div style="margin-top:14px;color:var(--dim);font-size:11px;font-weight:700;">${data.arbFlagsNeedMoreCapital.length} more real arb(s) exist but need more capital than $${data.exposureDollars} to be placeable:</div>${needCards}`;
   }
 
   const top3Matches = (data.matches || []).filter(m => m.top3Match);

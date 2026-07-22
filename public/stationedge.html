@@ -847,6 +847,7 @@ async function loadV3() {
     <div class="card"><small>TOTAL PREDICTIONS</small><b>${data.totalPredictions}</b></div>
     <div class="card"><small>RESOLVED</small><b>${data.resolvedPredictions}</b></div>
     <div class="card"><small>PAIR HIT RATE</small><b>${data.pairHitRate === null ? '—' : data.pairHitRate + '%'}</b></div>
+    <div class="card"><small>3-BRACKET HIT RATE</small><b>${data.tripleHitRate === null ? '—' : data.tripleHitRate + '%'}</b>${data.tripleEligibleCount ? `<small style="display:block;opacity:.6;">n=${data.tripleEligibleCount}</small>` : ''}</div>
     <div class="card"><small>AVG ERROR</small><b>${data.averageError === null ? '—' : data.averageError + '°'}</b></div>
   `;
   if (!data.records || !data.records.length) {
@@ -924,6 +925,7 @@ async function loadV3() {
           <div class="ticker-city">${latest.city}</div>
           <div class="ticker-time">${latest.forecast_date}${localNow ? ' · 🕐 ' + localNow + ' LOCAL' : ''}</div>
           ${latest.locked_at ? `<div class="ticker-time" style="opacity:.75;">🔒 Locked ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.locked_at))} local</div>` : ''}
+          ${latest.v2_converged_at ? `<div class="ticker-time" style="opacity:.75;">⏱ Forecast final by ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.v2_converged_at))} local${latest.v2_converged_correct === false ? ' (settled wrong)' : ''}</div>` : (latest.v2LastChangedAt ? `<div class="ticker-time" style="opacity:.75;">⏱ No change since ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.v2LastChangedAt))} local</div>` : '')}
         </div>
         <span class="record ${recordClass}">${recordText}</span>
       </div>
@@ -948,7 +950,7 @@ function csvCell(v){ const s=v==null?'':String(v); return /[\",\n]/.test(s)?'\"'
 async function downloadV3Csv(){
   const r=await fetch('/api/stationedge/audit'); const data=await r.json();
   if(data.error||!Array.isArray(data.records)) return alert(data.error||'No StationEdge records available');
-  const cols=['forecast_date','station_code','city','local_signal_time','locked_at','display_unit','outcome_one','outcome_two','outcome_three','outcome_one_probability','outcome_two_probability','outcome_three_probability','pair_probability','triple_probability','stability_score','pattern_score','actual_high','forecast_error','result','triple_hit','resolution_type','model_version'];
+  const cols=['forecast_date','station_code','city','local_signal_time','locked_at','v2_converged_at','v2_converged_correct','display_unit','outcome_one','outcome_two','outcome_three','outcome_one_probability','outcome_two_probability','outcome_three_probability','pair_probability','triple_probability','stability_score','pattern_score','actual_high','forecast_error','result','triple_hit','resolution_type','model_version'];
   const lines=[cols.join(',')];
   for(const x of data.records){ const row={...x,resolution_type:isDriftCoveredHit(x)?'DRIFT_COVERED_HIT':(x.result||'PENDING')}; lines.push(cols.map(c=>csvCell(row[c])).join(',')); }
   const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='stationedge-forward-test-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);

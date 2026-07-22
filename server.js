@@ -2623,6 +2623,7 @@ async function fetchPolymarketEventForDate(cityName, daysAhead) {
 // brackets, never turn a >=100c sum into a guaranteed profit, so this is
 // the one number that actually matters for the "cover everything" strategy.
 const ARB_SUM_THRESHOLD_CENTS = 99; // must clear ~1c of real edge before fees to bother flagging
+const POLYMARKET_MIN_ORDER_DOLLARS = 1; // Polymarket rejects orders under $1 — a leg below this can't actually be placed
 function seArbStakeSplit(outcomes, exposureDollars) {
   const sumCents = outcomes.reduce((s, o) => s + o.prob, 0);
   if (!sumCents) return null;
@@ -2632,9 +2633,26 @@ function seArbStakeSplit(outcomes, exposureDollars) {
     volume: o.volume,
     stake: Math.round((o.prob / sumCents) * exposureDollars * 100) / 100,
   }));
-  const guaranteedPayout = Math.round((exposureDollars * 100 / sumCents)) / 100;
+  // BUG FIX: this used to round the dollar payout to a whole number and then
+  // divide by 100 again, turning e.g. $31.58 into $0.32. exposureDollars*100/sumCents
+  // is already dollars — round it to the nearest CENT, not to a whole unit.
+  const guaranteedPayout = Math.round((exposureDollars * 100 / sumCents) * 100) / 100;
   const edgePct = Math.round(((100 / sumCents) - 1) * 10000) / 100; // 2dp %
-  return { sumCents, legs, exposureDollars, guaranteedPayout, guaranteedProfit: Math.round((guaranteedPayout - exposureDollars) * 100) / 100, edgePct };
+  const unexecutableLegs = legs.filter(l => l.stake > 0 && l.stake < POLYMARKET_MIN_ORDER_DOLLARS);
+  // The exposure that WOULD clear $1 on every leg, given this price split —
+  // i.e. what you'd actually need to stake for this arb to be tradeable at all.
+  const minPriceCents = Math.min(...legs.filter(l => l.priceCents > 0).map(l => l.priceCents));
+  const minExposureForExecutable = Number.isFinite(minPriceCents) && minPriceCents > 0
+    ? Math.ceil((POLYMARKET_MIN_ORDER_DOLLARS / (minPriceCents / sumCents)) * 100) / 100
+    : null;
+  return {
+    sumCents, legs, exposureDollars, guaranteedPayout,
+    guaranteedProfit: Math.round((guaranteedPayout - exposureDollars) * 100) / 100,
+    edgePct,
+    executable: unexecutableLegs.length === 0,
+    unexecutableLegCount: unexecutableLegs.length,
+    minExposureForExecutable,
+  };
 }
 
 app.get('/api/stationedge/advance-scan', async (req, res) => {
@@ -2678,15 +2696,21 @@ app.get('/api/stationedge/advance-scan', async (req, res) => {
     }));
 
     const matches = results.filter(Boolean);
+    const arbFlagsAll = matches.filter(m => m.arbFlag).sort((a,b) => b.arbFlag.edgePct - a.arbFlag.edgePct);
     res.json({
       daysAhead,
       exposureDollars,
       minLegCents: MIN_LEG_CENTS,
       maxCombinedCents: MAX_COMBINED_CENTS,
       arbSumThresholdCents: ARB_SUM_THRESHOLD_CENTS,
+      polymarketMinOrderDollars: POLYMARKET_MIN_ORDER_DOLLARS,
       citiesScanned: cities.length,
       matches,
-      arbFlagsOnly: matches.filter(m => m.arbFlag).sort((a,b) => b.arbFlag.edgePct - a.arbFlag.edgePct),
+      // Only these are actually placeable at the stated exposure — every leg
+      // clears Polymarket's $1 order minimum. The rest are real arbs on paper
+      // but need minExposureForExecutable to become tradeable.
+      arbFlagsOnly: arbFlagsAll.filter(m => m.arbFlag.executable),
+      arbFlagsNeedMoreCapital: arbFlagsAll.filter(m => !m.arbFlag.executable),
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

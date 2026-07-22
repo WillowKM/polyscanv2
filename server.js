@@ -2502,13 +2502,20 @@ function seParseBracketRange(bracketText) {
 // perfectly. Good enough to rank opportunities; not a substitute for reading
 // the actual bracket before sizing a trade.
 function seModelMassForRange(ladder, range) {
-  if (!range || !ladder) return 0;
-  let mass = 0;
+  if (!range || !ladder) return null;
+  let mass = 0, overlapped = false;
   for (const pt of ladder) {
     const val = range.unit === 'F' ? (pt.temperatureC * 9 / 5 + 32) : pt.temperatureC;
-    if (val >= range.min - 0.5 && val <= range.max + 0.5) mass += pt.probability;
+    if (val >= range.min - 0.5 && val <= range.max + 0.5) { mass += pt.probability; overlapped = true; }
   }
-  return Math.min(100, mass);
+  // No overlap = the bracket sits entirely outside the model's evaluated
+  // window (centre +/- 3C). That's "no data," not "the model thinks this is
+  // impossible" — treating it as a genuine 0% previously manufactured false
+  // 100%-confidence No signals on brackets the model never actually looked
+  // at, drowning out real signals (2026-07-22, Willow's screenshot: every
+  // row was NO at MODEL 100%, including mid-priced brackets the market
+  // itself had near a coin flip).
+  return overlapped ? Math.min(100, mass) : null;
 }
 
 const OPPORTUNITY_MIN_EDGE_PCT = 8; // minimum modeled edge (%) before it's worth surfacing as an EDGE play
@@ -2544,6 +2551,7 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
         const range = seParseBracketRange(o.bracket);
         if (!range) continue;
         const modelYesPct = seModelMassForRange(hf.probabilityLadder, range);
+        if (modelYesPct === null) continue; // bracket falls outside the model's window entirely — no basis for a signal either way
         const marketYesCents = o.prob;
 
         const yesEdgePct = Math.round((modelYesPct / marketYesCents - 1) * 1000) / 10;

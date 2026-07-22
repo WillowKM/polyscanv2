@@ -2258,6 +2258,22 @@ async function seResolveV3Predictions() {
       const result = verdict.result;
       const error = Math.min(Math.abs(actualNative - row.outcome_one), Math.abs(actualNative - row.outcome_two));
 
+      // Pull the V2 barbell change-log for this station/day: the last row's
+      // timestamp is when the forecast stopped changing (it never changed
+      // again after that point, by construction of the change-point log).
+      let v2ConvergedAt = null, v2ConvergedCorrect = null;
+      const snapshots = await seSupabaseRequest(
+        `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(row.station_code)}&forecast_date=eq.${encodeURIComponent(row.forecast_date)}&select=snapshot_at,low_c,high_c&order=snapshot_at.desc&limit=1`
+      );
+      const lastSnapshot = Array.isArray(snapshots) ? snapshots[0] : null;
+      if (lastSnapshot) {
+        v2ConvergedAt = lastSnapshot.snapshot_at;
+        const finalLowNative = seToNative(Number(lastSnapshot.low_c), unit);
+        const finalHighNative = seToNative(Number(lastSnapshot.high_c), unit);
+        v2ConvergedCorrect = [finalLowNative, finalHighNative].every(Number.isFinite)
+          && (seSameOutcome(actualNative, finalLowNative, unit) || seSameOutcome(actualNative, finalHighNative, unit));
+      }
+
       await seSupabaseRequest(
         `stationedge_forecasts?station_code=eq.${encodeURIComponent(row.station_code)}&forecast_date=eq.${encodeURIComponent(row.forecast_date)}&model_version=eq.${SE_V3_MODEL_VERSION}`,
         {
@@ -2267,6 +2283,8 @@ async function seResolveV3Predictions() {
             result,
             forecast_error: error,
             triple_hit: verdict.tripleHit,
+            v2_converged_at: v2ConvergedAt,
+            v2_converged_correct: v2ConvergedCorrect,
             resolved_at: new Date().toISOString(),
           }),
         }
@@ -2280,6 +2298,40 @@ async function seResolveV3Predictions() {
 
 // One pass over all 15 stations: track HKO's running daily high, then
 // attempt to lock a V3 prediction if we're in the signal window.
+// Logs a row to stationedge_v2_snapshots ONLY when today's V2 barbell
+// (primaryOutcomesC) differs from the last logged value for this station.
+// Because it's change-point logging rather than every-sweep logging, the
+// timestamp of the LAST row for a given station/day is, by construction,
+// the moment the forecast stopped changing for the rest of that day — i.e.
+// exactly the "when did it become final" answer, computed cheaply without
+// storing a full 15-min time series.
+async function seLogV2BarbellChange(data) {
+  if (!SUPABASE_URL || !SUPABASE_SECRET_KEY || !data?.highForecast) return;
+  const hf = data.highForecast;
+  if (!Array.isArray(hf.primaryOutcomesC) || hf.primaryOutcomesC.length < 2) return;
+  const [lowC, highC] = [Math.min(...hf.primaryOutcomesC), Math.max(...hf.primaryOutcomesC)];
+  if (!Number.isFinite(lowC) || !Number.isFinite(highC)) return;
+
+  const last = await seSupabaseRequest(
+    `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(data.code)}&forecast_date=eq.${encodeURIComponent(data.localDay)}&select=low_c,high_c&order=snapshot_at.desc&limit=1`
+  );
+  const lastRow = Array.isArray(last) ? last[0] : null;
+  if (lastRow && Number(lastRow.low_c) === lowC && Number(lastRow.high_c) === highC) return; // unchanged — nothing to log
+
+  await seSupabaseRequest('stationedge_v2_snapshots', {
+    method: 'POST',
+    body: JSON.stringify({
+      station_code: data.code,
+      city: data.city,
+      forecast_date: data.localDay,
+      snapshot_at: new Date().toISOString(),
+      low_c: lowC,
+      high_c: highC,
+      confidence: Number.isFinite(hf.confidence) ? Math.round(hf.confidence) : null,
+    }),
+  });
+}
+
 async function seV3Sweep() {
   for (const code of Object.keys(STATIONEDGE_STATIONS)) {
     try {
@@ -2291,6 +2343,7 @@ async function seV3Sweep() {
         // Trim old days so this doesn't grow forever.
         for (const k of Object.keys(SE_HKO_DAILY)) if (k !== key) delete SE_HKO_DAILY[k];
       }
+      await seLogV2BarbellChange(data);
       await seLockV3Prediction(data);
       await seRecordV3DriftAlert(data);
     } catch (e) {
@@ -2373,6 +2426,13 @@ app.get('/api/stationedge/audit', async (req, res) => {
           heatingTrack: data.highForecast.heatingTrack,
           signalWindow: data.highForecast.signalWindow,
         };
+      }
+      const todayLocal = new Intl.DateTimeFormat('en-CA', { timeZone: STATIONEDGE_STATIONS[code]?.tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+      const lastChange = await seSupabaseRequest(
+        `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(code)}&forecast_date=eq.${encodeURIComponent(todayLocal)}&select=snapshot_at&order=snapshot_at.desc&limit=1`
+      );
+      if (Array.isArray(lastChange) && lastChange[0]) {
+        driftByCode[code] = { ...(driftByCode[code] || {}), v2LastChangedAt: lastChange[0].snapshot_at };
       }
     } catch (e) { /* leave drift missing for this station rather than fail the whole response */ }
   }));

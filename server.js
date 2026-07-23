@@ -542,7 +542,6 @@ async function fetchPolymarketEvent(cityName) {
       title:    event.title || '',
       outcomes,
       volume:   event.volume ? parseFloat(event.volume).toFixed(0) : '0',
-      fetchedAt: Date.now(), // real fetch time — a cache hit returns this unchanged, so callers always know true price age, not just request time
     };
 
     POLY_CACHE[cacheKey] = { data, ts: Date.now() };
@@ -2545,7 +2544,7 @@ app.get('/api/stationedge/edge-dashboard', async (req, res) => {
   // Today's recommended watch city: highest edge, enough sample size, market
   // still in the 40-59c coin-flip zone (where edge actually held up), and no
   // live drift flag on today's row if one exists yet.
-  const todayCandidates = cities.filter(c => !c.lowSample && c.edgePct > 0);
+  const todayCandidates = cities.filter(c => !c.lowSample && c.edgePct >= OPPORTUNITY_MIN_EDGE_PCT);
   const recommendedWatchCity = todayCandidates[0] || null;
 
   res.json({
@@ -2608,7 +2607,7 @@ function seModelMassForRange(ladder, range) {
   return overlapped ? Math.min(100, mass) : null;
 }
 
-const OPPORTUNITY_MIN_EDGE_PCT = 8; // minimum modeled edge (%) before it's worth surfacing as an EDGE play
+const OPPORTUNITY_MIN_EDGE_PCT = 10; // minimum modeled edge in PERCENTAGE POINTS (model% - market%) before it's worth surfacing as an EDGE play
 // Separate from edge: a "FAIR VALUE" play is where model and market roughly
 // AGREE a side is very likely — no pricing disagreement, so no extra expected
 // value beyond the stated odds, but still a legitimate high-probability trade
@@ -2657,7 +2656,7 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
           const val = range.unit === 'F' ? (c * 9 / 5 + 32) : c;
           return val >= range.min - 0.5 && val <= range.max + 0.5;
         });
-        const yesEdgePct = Math.round((modelYesPct / marketYesCents - 1) * 1000) / 10;
+        const yesEdgePct = Math.round((modelYesPct - marketYesCents) * 10) / 10;
         let yesQualifies = null;
         if (isBarbellBracket) {
           if (yesEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) yesQualifies = 'EDGE';
@@ -2668,7 +2667,7 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
         }
 
         const noMarketCents = 100 - marketYesCents, noModelPct = 100 - modelYesPct;
-        const noEdgePct = Math.round((noModelPct / noMarketCents - 1) * 1000) / 10;
+        const noEdgePct = Math.round((noModelPct - noMarketCents) * 10) / 10;
         let noQualifies = null;
         if (noEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) noQualifies = 'EDGE';
         else if (noModelPct >= FAIR_VALUE_MIN_MODEL_PCT && noEdgePct >= FAIR_VALUE_MIN_EDGE_PCT) noQualifies = 'FAIR VALUE';
@@ -2681,7 +2680,6 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
         city: meta.city, code, confidence: hf.confidence, driftStatus: hf.driftStatus,
         signalWindow: hf.signalWindow,
         historicalEdgePct: hist?.edgePct ?? null, historicalN: hist?.n ?? null, historicalLowSample: hist?.lowSample ?? true,
-        pricesFetchedAt: polyData.fetchedAt ?? null, // real Polymarket fetch time — may be up to POLY_CACHE_TTL old
         // EDGE plays first, then FAIR VALUE, then by edge magnitude within each group
         legs: legs.sort((a,b) => (a.qualifies === b.qualifies ? b.edgePct - a.edgePct : (a.qualifies === 'EDGE' ? -1 : 1))),
       };
@@ -2691,21 +2689,15 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
     const flat = cities.flatMap(c => c.legs.map(l => ({
       ...l, city: c.city, code: c.code, modelConfidence: c.confidence, driftStatus: c.driftStatus,
       historicalEdgePct: c.historicalEdgePct, historicalN: c.historicalN, historicalLowSample: c.historicalLowSample,
-      pricesFetchedAt: c.pricesFetchedAt,
     }))).sort((a,b) => (a.qualifies === b.qualifies ? b.edgePct - a.edgePct : (a.qualifies === 'EDGE' ? -1 : 1)));
-
-    const oldestPricesFetchedAt = cities.length
-      ? Math.min(...cities.map(c => c.pricesFetchedAt).filter(Number.isFinite))
-      : null;
 
     res.json({
       minEdgePct: OPPORTUNITY_MIN_EDGE_PCT,
       fairValueMinModelPct: FAIR_VALUE_MIN_MODEL_PCT,
       citiesScanned: codes.length,
       hasHistoricalEdgeData: !!edgeStats,
-      oldestPricesFetchedAt, // ms epoch — the staleness of the OLDEST price used across every row shown; check this before trusting a big edge number
       opportunities: flat,
-      note: 'YES signals only fire on the model\'s own barbell brackets (its actual stated forecast), never on a low-probability bracket just because the ratio math looks big against a cheap market price. NO has no such restriction since multiple simultaneous No bets on different brackets are not mutually exclusive. qualifies=EDGE means the model disagrees favorably with the market\'s price. qualifies=FAIR VALUE means model and market roughly agree on a high-probability side. historicalEdgePct is that city\'s track record from Edge Dashboard, shown for context. pricesFetchedAt on each row is when that city\'s Polymarket prices were actually fetched (server-cached up to 3 min) — refresh if it looks old, especially on a fast-moving market.',
+      note: 'edgePct is now a percentage-POINT gap (model% minus market%), not a ratio — a 15% model vs a 5c market is a 10pp edge, not the old 200% ratio blowup. YES signals only fire on the model\'s own barbell brackets (its actual stated forecast), never on a low-probability bracket just because the pp math looks big against a cheap market price. NO has no such restriction since multiple simultaneous No bets on different brackets are not mutually exclusive. qualifies=EDGE means the model disagrees favorably with the market\'s price by at least the pp threshold. qualifies=FAIR VALUE means model and market roughly agree on a high-probability side. historicalEdgePct is that city\'s track record from Edge Dashboard, shown for context.',
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

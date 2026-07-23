@@ -542,6 +542,7 @@ async function fetchPolymarketEvent(cityName) {
       title:    event.title || '',
       outcomes,
       volume:   event.volume ? parseFloat(event.volume).toFixed(0) : '0',
+      fetchedAt: Date.now(), // real fetch time — a cache hit returns this unchanged, so callers always know true price age, not just request time
     };
 
     POLY_CACHE[cacheKey] = { data, ts: Date.now() };
@@ -2680,6 +2681,7 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
         city: meta.city, code, confidence: hf.confidence, driftStatus: hf.driftStatus,
         signalWindow: hf.signalWindow,
         historicalEdgePct: hist?.edgePct ?? null, historicalN: hist?.n ?? null, historicalLowSample: hist?.lowSample ?? true,
+        pricesFetchedAt: polyData.fetchedAt ?? null, // real Polymarket fetch time — may be up to POLY_CACHE_TTL old
         // EDGE plays first, then FAIR VALUE, then by edge magnitude within each group
         legs: legs.sort((a,b) => (a.qualifies === b.qualifies ? b.edgePct - a.edgePct : (a.qualifies === 'EDGE' ? -1 : 1))),
       };
@@ -2689,15 +2691,21 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
     const flat = cities.flatMap(c => c.legs.map(l => ({
       ...l, city: c.city, code: c.code, modelConfidence: c.confidence, driftStatus: c.driftStatus,
       historicalEdgePct: c.historicalEdgePct, historicalN: c.historicalN, historicalLowSample: c.historicalLowSample,
+      pricesFetchedAt: c.pricesFetchedAt,
     }))).sort((a,b) => (a.qualifies === b.qualifies ? b.edgePct - a.edgePct : (a.qualifies === 'EDGE' ? -1 : 1)));
+
+    const oldestPricesFetchedAt = cities.length
+      ? Math.min(...cities.map(c => c.pricesFetchedAt).filter(Number.isFinite))
+      : null;
 
     res.json({
       minEdgePct: OPPORTUNITY_MIN_EDGE_PCT,
       fairValueMinModelPct: FAIR_VALUE_MIN_MODEL_PCT,
       citiesScanned: codes.length,
       hasHistoricalEdgeData: !!edgeStats,
+      oldestPricesFetchedAt, // ms epoch — the staleness of the OLDEST price used across every row shown; check this before trusting a big edge number
       opportunities: flat,
-      note: 'YES signals only fire on the model\'s own barbell brackets (its actual stated forecast), never on a low-probability bracket just because the ratio math looks big against a cheap market price. NO has no such restriction since multiple simultaneous No bets on different brackets are not mutually exclusive. qualifies=EDGE means the model disagrees favorably with the market\'s price. qualifies=FAIR VALUE means model and market roughly agree on a high-probability side. historicalEdgePct is that city\'s track record from Edge Dashboard, shown for context.',
+      note: 'YES signals only fire on the model\'s own barbell brackets (its actual stated forecast), never on a low-probability bracket just because the ratio math looks big against a cheap market price. NO has no such restriction since multiple simultaneous No bets on different brackets are not mutually exclusive. qualifies=EDGE means the model disagrees favorably with the market\'s price. qualifies=FAIR VALUE means model and market roughly agree on a high-probability side. historicalEdgePct is that city\'s track record from Edge Dashboard, shown for context. pricesFetchedAt on each row is when that city\'s Polymarket prices were actually fetched (server-cached up to 3 min) — refresh if it looks old, especially on a fast-moving market.',
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

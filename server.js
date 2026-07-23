@@ -2338,17 +2338,19 @@ async function seLogV2BarbellChange(data) {
   });
 }
 
-// One pass over all 15 stations: track HKO's running daily high, then
-// attempt to lock a V3 prediction if we're in the signal window.
+// One pass over all stations: track HKO's running daily high, then attempt
+// to lock a V3 prediction if we're in the signal window. Runs stations in
+// PARALLEL (was a serial for-loop — each station's external weather-API
+// calls waited on the previous one finishing, so a 23-station sweep took as
+// long as the sum of every station's fetch time instead of the slowest one).
 async function seV3Sweep() {
-  for (const code of Object.keys(STATIONEDGE_STATIONS)) {
+  await Promise.all(Object.keys(STATIONEDGE_STATIONS).map(async (code) => {
     try {
       const data = await seStation(code);
       if (STATIONEDGE_STATIONS[code].source === 'hko' && Number.isFinite(data.latest?.temperatureC)) {
         const key = data.localDay;
         const prev = SE_HKO_DAILY[key]?.maxC;
         SE_HKO_DAILY[key] = { maxC: prev === undefined ? data.latest.temperatureC : Math.max(prev, data.latest.temperatureC), lastObservedAt: data.latest.observedAt };
-        // Trim old days so this doesn't grow forever.
         for (const k of Object.keys(SE_HKO_DAILY)) if (k !== key) delete SE_HKO_DAILY[k];
       }
       await seLogV2BarbellChange(data);
@@ -2357,7 +2359,7 @@ async function seV3Sweep() {
     } catch (e) {
       console.error(`[StationEdge V3] Sweep failed for ${code}:`, e.message);
     }
-  }
+  }));
   await seResolveV3Predictions();
 }
 
@@ -2394,8 +2396,14 @@ app.get('/api/stationedge/audit', async (req, res) => {
   if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
     return res.status(503).json({ error: 'Supabase not configured' });
   }
+  // Was unbounded — grows every single day forever, and the Forward Test tab
+  // doesn't need the whole history to render current cards, only the CSV
+  // export does. Default to the most recent ~45 days (roughly 1000+ rows at
+  // your current ~23 stations); pass ?full=1 for a complete unbounded pull
+  // (used by the CSV download button).
+  const full = req.query.full === '1';
   const rows = await seSupabaseRequest(
-    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&select=*&order=forecast_date.desc,city.asc`
+    `stationedge_forecasts?model_version=eq.${SE_V3_MODEL_VERSION}&select=*&order=forecast_date.desc,city.asc${full ? '' : '&limit=1200'}`
   );
   if (!Array.isArray(rows)) return res.status(502).json({ error: 'Could not load StationEdge audit data' });
 
@@ -2608,6 +2616,15 @@ function seModelMassForRange(ladder, range) {
 }
 
 const OPPORTUNITY_MIN_EDGE_PCT = 10; // minimum modeled edge in PERCENTAGE POINTS (model% - market%) before it's worth surfacing as an EDGE play
+// A gap bigger than this against a LIQUID market is more likely the model
+// being overconfident on one bracket than the market being genuinely wrong
+// by that much — e.g. model 54% vs a 3c market isn't "51pp of free money,"
+// it's a signal to distrust the model's own probability on that bracket.
+// Same principle as the Austin arb bug: big disagreement with a liquid
+// price is a red flag on the model, not a gift. Capped rather than dropped
+// entirely — surfaced separately as OUTLIER so it's visible but not
+// recommended as a clean trade.
+const OPPORTUNITY_MAX_SANE_EDGE_PCT = 25;
 // Separate from edge: a "FAIR VALUE" play is where model and market roughly
 // AGREE a side is very likely — no pricing disagreement, so no extra expected
 // value beyond the stated odds, but still a legitimate high-probability trade
@@ -2617,6 +2634,73 @@ const OPPORTUNITY_MIN_EDGE_PCT = 10; // minimum modeled edge in PERCENTAGE POINT
 // meaningfully more than that (a small negative-edge tolerance for rounding).
 const FAIR_VALUE_MIN_MODEL_PCT = 85;
 const FAIR_VALUE_MIN_EDGE_PCT = -3;
+
+// ── Structural strategy scanner ──────────────────────────────────────────
+// Ported from calculator.html's original Strategy 1/2/3 logic — these are
+// PURE market-price plays, deliberately not dependent on StationEdge's own
+// probability model agreeing or disagreeing with the market (unlike the
+// EDGE/FAIR VALUE signals above, which can blow up when the model is
+// overconfident). Cross-referenced with StationEdge's stability/pattern-day
+// read for confidence context, same as calculator.html's GREEN/RED pill did,
+// just sourced from the newer engine instead of calculator.html's own.
+//
+// Strategy 1 — Tail No: brackets where the market's OWN No price already
+// sits 91-97c (i.e. Yes price/prob is 3-9c) — buying near-certainty cheaply.
+// Strategy 2 — Paired near-close: once a bracket's Yes is >=90c, the day's
+// basically decided; pairs that leader with a Strategy 1 tail-No bracket.
+// Strategy 3 — Barbell: Yes on the top-2 MID-probability brackets (20-50%
+// each) — "profit if either hits" — usually topped up with cheap tail-No
+// legs on the brackets outside that range (<=20%).
+function seStructuralStrategies(outcomes) {
+  const valid = (outcomes || []).filter(o => Number.isFinite(o.prob));
+  const s1 = valid.filter(o => o.prob >= 3 && o.prob <= 9)
+    .sort((a, b) => a.prob - b.prob); // closest to the 3c end = cheapest/most-certain No first
+  const s2yes = valid.filter(o => o.prob >= 90).sort((a, b) => b.prob - a.prob);
+  const s2 = (s1.length && s2yes.length) ? { no: s1[0], yes: s2yes[0] } : null;
+  const s3mid = valid.filter(o => o.prob >= 20 && o.prob <= 50).sort((a, b) => b.prob - a.prob).slice(0, 2);
+  const s3tail = valid.filter(o => o.prob <= 20).sort((a, b) => a.prob - b.prob);
+  let s3 = null;
+  if (s3mid.length === 2) {
+    const combinedCents = s3mid[0].prob + s3mid[1].prob;
+    s3 = {
+      legs: s3mid,
+      combinedCents,
+      profitIfEitherHits: Math.round((100 - combinedCents) * 100) / 100, // per $1 total staked across both legs, in cents
+      tailLegs: s3tail,
+    };
+  }
+  return { s1, s2, s3 };
+}
+
+app.get('/api/stationedge/structural-scan', async (req, res) => {
+  try {
+    const codes = Object.keys(STATIONEDGE_STATIONS);
+    const results = await Promise.all(codes.map(async code => {
+      const meta = STATIONEDGE_STATIONS[code];
+      let station;
+      try { station = await seStation(code); } catch (e) { return null; }
+      const poly = await fetchPolymarketEvent(meta.city);
+      if (!poly || !poly.outcomes.length) return null;
+      const strategies = seStructuralStrategies(poly.outcomes);
+      if (!strategies.s1.length && !strategies.s2 && !strategies.s3) return null;
+      return {
+        city: meta.city,
+        code,
+        stability: station.stability,
+        tradeable: station.tradeable,
+        pattern: station.pattern,
+        heatingTrack: station.highForecast?.heatingTrack ?? null,
+        confidence: station.highForecast?.confidence ?? null,
+        forecastedHighC: station.highForecast?.predictedHighC ?? null,
+        observedMaxC: station.observedMax ?? null,
+        unit: seNativeUnit(code),
+        strategies,
+      };
+    }));
+    const cities = results.filter(Boolean);
+    res.json({ citiesScanned: codes.length, citiesWithSignal: cities.length, cities });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
 
 app.get('/api/stationedge/opportunities', async (req, res) => {
   try {
@@ -2659,7 +2743,8 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
         const yesEdgePct = Math.round((modelYesPct - marketYesCents) * 10) / 10;
         let yesQualifies = null;
         if (isBarbellBracket) {
-          if (yesEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) yesQualifies = 'EDGE';
+          if (yesEdgePct >= OPPORTUNITY_MIN_EDGE_PCT && yesEdgePct <= OPPORTUNITY_MAX_SANE_EDGE_PCT) yesQualifies = 'EDGE';
+          else if (yesEdgePct > OPPORTUNITY_MAX_SANE_EDGE_PCT) yesQualifies = 'OUTLIER';
           else if (modelYesPct >= FAIR_VALUE_MIN_MODEL_PCT && yesEdgePct >= FAIR_VALUE_MIN_EDGE_PCT) yesQualifies = 'FAIR VALUE';
         }
         if (yesQualifies) {
@@ -2669,7 +2754,8 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
         const noMarketCents = 100 - marketYesCents, noModelPct = 100 - modelYesPct;
         const noEdgePct = Math.round((noModelPct - noMarketCents) * 10) / 10;
         let noQualifies = null;
-        if (noEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) noQualifies = 'EDGE';
+        if (noEdgePct >= OPPORTUNITY_MIN_EDGE_PCT && noEdgePct <= OPPORTUNITY_MAX_SANE_EDGE_PCT) noQualifies = 'EDGE';
+        else if (noEdgePct > OPPORTUNITY_MAX_SANE_EDGE_PCT) noQualifies = 'OUTLIER';
         else if (noModelPct >= FAIR_VALUE_MIN_MODEL_PCT && noEdgePct >= FAIR_VALUE_MIN_EDGE_PCT) noQualifies = 'FAIR VALUE';
         if (noQualifies) {
           legs.push({ side: 'NO', bracket: o.bracket, priceCents: noMarketCents, modelProbPct: Math.round(noModelPct * 10) / 10, edgePct: noEdgePct, qualifies: noQualifies, volume: o.volume });
@@ -2693,6 +2779,7 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
 
     res.json({
       minEdgePct: OPPORTUNITY_MIN_EDGE_PCT,
+      maxSaneEdgePct: OPPORTUNITY_MAX_SANE_EDGE_PCT,
       fairValueMinModelPct: FAIR_VALUE_MIN_MODEL_PCT,
       citiesScanned: codes.length,
       hasHistoricalEdgeData: !!edgeStats,
@@ -2708,26 +2795,40 @@ app.get('/api/stationedge/stations', async (req,res) => {
   const settled=await Promise.allSettled(codes.map(seStation));
   const results = settled.map((x,i)=>x.status==='fulfilled'?x.value:{code:codes[i],...STATIONEDGE_STATIONS[codes[i]],error:x.reason?.message||'failed'});
 
+  // BATCHED (was one Supabase round trip PER STATION — ~23+ sequential-ish
+  // calls on every Live Monitor load, the main cause of slow loads). Stations
+  // share a handful of distinct local calendar days (timezones cluster), so
+  // group by localDay and fetch each group in one query instead.
   if (SUPABASE_URL && SUPABASE_SECRET_KEY) {
-    await Promise.all(results.map(async (s) => {
-      if (!s.code || !s.localDay) return;
+    const byDay = {};
+    for (const s of results) { if (s.code && s.localDay) (byDay[s.localDay] ||= []).push(s); }
+    await Promise.all(Object.entries(byDay).map(async ([day, group]) => {
+      const codeList = group.map(s => s.code).join(',');
       try {
         const rows = await seSupabaseRequest(
-          `stationedge_forecasts?station_code=eq.${encodeURIComponent(s.code)}&forecast_date=eq.${encodeURIComponent(s.localDay)}&model_version=eq.${SE_V3_MODEL_VERSION}&select=locked_at,v2_converged_at,v2_converged_correct&limit=1`
+          `stationedge_forecasts?station_code=in.(${codeList})&forecast_date=eq.${encodeURIComponent(day)}&model_version=eq.${SE_V3_MODEL_VERSION}&select=station_code,locked_at,v2_converged_at,v2_converged_correct`
         );
-        const row = Array.isArray(rows) ? rows[0] : null;
-        if (row) {
-          s.lockedAt = row.locked_at;
-          s.v2ConvergedAt = row.v2_converged_at;
-          s.v2ConvergedCorrect = row.v2_converged_correct;
+        const byCode = {};
+        if (Array.isArray(rows)) for (const r of rows) byCode[r.station_code] = r;
+        const needSnapshot = [];
+        for (const s of group) {
+          const row = byCode[s.code];
+          if (row) {
+            s.lockedAt = row.locked_at;
+            s.v2ConvergedAt = row.v2_converged_at;
+            s.v2ConvergedCorrect = row.v2_converged_correct;
+          }
+          if (!row?.v2_converged_at) needSnapshot.push(s.code);
         }
-        if (!row?.v2_converged_at) {
-          const snap = await seSupabaseRequest(
-            `stationedge_v2_snapshots?station_code=eq.${encodeURIComponent(s.code)}&forecast_date=eq.${encodeURIComponent(s.localDay)}&select=snapshot_at&order=snapshot_at.desc&limit=1`
+        if (needSnapshot.length) {
+          const snaps = await seSupabaseRequest(
+            `stationedge_v2_snapshots?station_code=in.(${needSnapshot.join(',')})&forecast_date=eq.${encodeURIComponent(day)}&select=station_code,snapshot_at&order=snapshot_at.desc`
           );
-          if (Array.isArray(snap) && snap[0]) s.v2LastChangedAt = snap[0].snapshot_at;
+          const latestByCode = {};
+          if (Array.isArray(snaps)) for (const r of snaps) if (!latestByCode[r.station_code]) latestByCode[r.station_code] = r.snapshot_at; // first hit per code = most recent, since already ordered desc
+          for (const s of group) if (latestByCode[s.code]) s.v2LastChangedAt = latestByCode[s.code];
         }
-      } catch (e) { /* leave timing fields absent for this station rather than fail the whole response */ }
+      } catch (e) { /* leave timing fields absent for this day's stations rather than fail the whole response */ }
     }));
   }
 

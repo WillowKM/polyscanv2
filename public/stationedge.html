@@ -270,7 +270,7 @@ footer.term b{color:var(--amber)}
     </details>
     <details class="deskSection" open>
       <summary>Opportunities — Yes/No signals from forecast vs. market</summary>
-      <p style="color:var(--dim);font-size:11.5px;margin:10px 0;">Every row compares StationEdge's own modeled probability for a bracket against Polymarket's live price for that same bracket — no fixed price cutoff. NO-side rows are the "near-certain No" tail fades; YES-side rows are directional plays where the model favors a bracket more than the market prices it.</p>
+      <p style="color:var(--dim);font-size:11.5px;margin:10px 0;">Every row compares StationEdge's own modeled probability for a bracket against Polymarket's live price for that same bracket — no fixed price cutoff. YES only fires on the model's own barbell (its actual stated forecast) — never on a longshot bracket just because a tiny market price inflates the ratio. NO has no such restriction, since multiple simultaneous No bets on different brackets aren't mutually exclusive.</p>
       <div id="deskOppsWrap"><div class="empty" style="padding:14px 0;">Loading…</div></div>
     </details>
     <details class="deskSection">

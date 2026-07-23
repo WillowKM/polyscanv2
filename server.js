@@ -2554,10 +2554,25 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
         if (modelYesPct === null) continue; // bracket falls outside the model's window entirely — no basis for a signal either way
         const marketYesCents = o.prob;
 
+        // YES is gated to the model's own stated barbell — the same two
+        // brackets shown as "Primary Yes Barbell" on Live Monitor — not any
+        // bracket that happens to clear a ratio-edge threshold. A 15%-
+        // probability bracket priced at 2c can show a huge % edge purely
+        // because the denominator is tiny; that's a longshot, not "the
+        // forecast." Only one bracket can resolve true, so YES should never
+        // point at more brackets than the model's own barbell does.
+        // (2026-07-23, Willow's screenshot: London/Amsterdam/Istanbul each
+        // showing 2+ simultaneous YES rows from low-probability tail brackets.)
+        const isBarbellBracket = (hf.primaryOutcomesC || []).some(c => {
+          const val = range.unit === 'F' ? (c * 9 / 5 + 32) : c;
+          return val >= range.min - 0.5 && val <= range.max + 0.5;
+        });
         const yesEdgePct = Math.round((modelYesPct / marketYesCents - 1) * 1000) / 10;
         let yesQualifies = null;
-        if (yesEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) yesQualifies = 'EDGE';
-        else if (modelYesPct >= FAIR_VALUE_MIN_MODEL_PCT && yesEdgePct >= FAIR_VALUE_MIN_EDGE_PCT) yesQualifies = 'FAIR VALUE';
+        if (isBarbellBracket) {
+          if (yesEdgePct >= OPPORTUNITY_MIN_EDGE_PCT) yesQualifies = 'EDGE';
+          else if (modelYesPct >= FAIR_VALUE_MIN_MODEL_PCT && yesEdgePct >= FAIR_VALUE_MIN_EDGE_PCT) yesQualifies = 'FAIR VALUE';
+        }
         if (yesQualifies) {
           legs.push({ side: 'YES', bracket: o.bracket, priceCents: marketYesCents, modelProbPct: Math.round(modelYesPct * 10) / 10, edgePct: yesEdgePct, qualifies: yesQualifies, volume: o.volume });
         }
@@ -2593,7 +2608,7 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
       citiesScanned: codes.length,
       hasHistoricalEdgeData: !!edgeStats,
       opportunities: flat,
-      note: 'qualifies=EDGE means the model disagrees favorably with the market\'s price — real expected-value advantage. qualifies=FAIR VALUE means model and market roughly agree on a high-probability side — no pricing edge, just a bet at fair odds. historicalEdgePct is that city\'s track record from Edge Dashboard, shown for context.',
+      note: 'YES signals only fire on the model\'s own barbell brackets (its actual stated forecast), never on a low-probability bracket just because the ratio math looks big against a cheap market price. NO has no such restriction since multiple simultaneous No bets on different brackets are not mutually exclusive. qualifies=EDGE means the model disagrees favorably with the market\'s price. qualifies=FAIR VALUE means model and market roughly agree on a high-probability side. historicalEdgePct is that city\'s track record from Edge Dashboard, shown for context.',
     });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });

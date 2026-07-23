@@ -101,7 +101,7 @@ main{max-width:1680px;margin:auto;padding:24px 3% 60px}
 .status.hit{background:rgba(47,224,138,.14);color:var(--green)}
 .status.miss{background:rgba(255,84,104,.14);color:var(--red)}
 
-.quotes{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);margin:10px 16px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
+.quotes{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:1px;background:var(--line);margin:10px 16px;border:1px solid var(--line);border-radius:2px;overflow:hidden}
 .quote{background:var(--panel);padding:12px 10px;text-align:center}
 .quote .qlbl{color:var(--dim);font:700 9px var(--mono);letter-spacing:.12em}
 .quote .qval{font:800 22px var(--mono);margin:6px 0 3px;letter-spacing:-.01em}
@@ -800,7 +800,8 @@ async function loadAdvanceScan() {
   }
   if (data.error) { wrap.innerHTML = `<div class="empty" style="padding:14px 0;color:var(--red);">${data.error}</div>`; return; }
 
-  // Arb flags first — this is the strategy you actually trade.
+  // Arb flags first — this is the strategy you actually trade. Only ones
+  // where every leg clears Polymarket's $1 order minimum at this exposure.
   if (data.arbFlagsOnly && data.arbFlagsOnly.length) {
     const cards = data.arbFlagsOnly.map(m => {
       const legRows = m.arbFlag.legs.map(l => `<tr><td>${l.bracket}</td><td class="mono">${l.priceCents}¢</td><td class="mono">$${l.stake.toFixed(2)}</td></tr>`).join('');
@@ -809,15 +810,20 @@ async function loadAdvanceScan() {
           <b style="font-size:14px;">${m.city} ${m.code ? '· '+m.code : ''} — ${daysAhead}d ahead</b>
           <span style="color:var(--green);font:700 13px var(--mono);">+${m.arbFlag.edgePct}% guaranteed edge</span>
         </div>
-        <div style="color:var(--dim);font-size:11px;margin:4px 0 10px;">Full bracket sum ${m.arbFlag.sumCents}¢ · stake $${m.arbFlag.exposureDollars} → guaranteed payout $${m.arbFlag.guaranteedPayout.toFixed(2)} (profit $${m.arbFlag.guaranteedProfit.toFixed(2)}) no matter which bracket hits</div>
+        <div style="color:var(--dim);font-size:11px;margin:4px 0 10px;">Full bracket sum ${m.arbFlag.sumCents}¢ · stake $${m.arbFlag.exposureDollars} → guaranteed payout $${m.arbFlag.guaranteedPayout.toFixed(2)} (profit $${m.arbFlag.guaranteedProfit.toFixed(2)}) no matter which bracket hits · every leg ≥ $1, placeable as-is</div>
         <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>BRACKET</th><th>PRICE</th><th>STAKE</th></tr></thead>
         <tbody>${legRows}</tbody></table>
       </div>`;
     }).join('');
-    arbWrap.innerHTML = `<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px;">⚡ ${data.arbFlagsOnly.length} FULL-COVERAGE ARB FLAG(S) — sum under ${data.arbSumThresholdCents}¢</div>${cards}`;
+    arbWrap.innerHTML = `<div style="color:var(--green);font-size:11px;font-weight:700;margin-bottom:8px;">⚡ ${data.arbFlagsOnly.length} FULL-COVERAGE ARB FLAG(S) — sum under ${data.arbSumThresholdCents}¢, every leg placeable at $${data.exposureDollars} stake</div>${cards}`;
   } else {
-    arbWrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No full-coverage arb right now (need every bracket's price to sum under ${data.arbSumThresholdCents}¢). Normal — these are rare on a liquid book. Scan periodically through the day.</div>`;
+    arbWrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No PLACEABLE full-coverage arb right now at $${data.exposureDollars} stake (need every bracket's price to sum under ${data.arbSumThresholdCents}¢ AND every leg's stake to clear the $${data.polymarketMinOrderDollars} Polymarket minimum). Normal — these are rare on a liquid book. Scan periodically through the day.</div>`;
+  }
+
+  if (data.arbFlagsNeedMoreCapital && data.arbFlagsNeedMoreCapital.length) {
+    const needCards = data.arbFlagsNeedMoreCapital.map(m => `<div style="color:var(--dim);font-size:11.5px;padding:6px 0;border-bottom:1px solid var(--line);">${m.city}${m.code ? ' · '+m.code : ''} — real ${m.arbFlag.edgePct}% edge, sum ${m.arbFlag.sumCents}¢, but ${m.arbFlag.unexecutableLegCount} leg(s) fall under $${data.polymarketMinOrderDollars} at $${data.exposureDollars} stake. Needs ~$${m.arbFlag.minExposureForExecutable} total exposure to clear the minimum on every leg.</div>`).join('');
+    arbWrap.innerHTML += `<div style="margin-top:14px;color:var(--dim);font-size:11px;font-weight:700;">${data.arbFlagsNeedMoreCapital.length} more real arb(s) exist but need more capital than $${data.exposureDollars} to be placeable:</div>${needCards}`;
   }
 
   const top3Matches = (data.matches || []).filter(m => m.top3Match);
@@ -1190,6 +1196,7 @@ async function loadV3() {
     <div class="card"><small>TOTAL PREDICTIONS</small><b>${data.totalPredictions}</b></div>
     <div class="card"><small>RESOLVED</small><b>${data.resolvedPredictions}</b></div>
     <div class="card"><small>PAIR HIT RATE</small><b>${data.pairHitRate === null ? '—' : data.pairHitRate + '%'}</b></div>
+    <div class="card"><small>3-BRACKET HIT RATE</small><b>${data.tripleHitRate === null ? '—' : data.tripleHitRate + '%'}</b>${data.tripleEligibleCount ? `<small style="display:block;opacity:.6;">n=${data.tripleEligibleCount}</small>` : ''}</div>
     <div class="card"><small>AVG ERROR</small><b>${data.averageError === null ? '—' : data.averageError + '°'}</b></div>
   `;
   if (!data.records || !data.records.length) {
@@ -1266,6 +1273,8 @@ async function loadV3() {
           <div class="ticker-sym">${latest.station_code}</div>
           <div class="ticker-city">${latest.city}</div>
           <div class="ticker-time">${latest.forecast_date}${localNow ? ' · 🕐 ' + localNow + ' LOCAL' : ''}</div>
+          ${latest.locked_at ? `<div class="ticker-time" style="opacity:.75;">🔒 Locked ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.locked_at))} local</div>` : ''}
+          ${latest.v2_converged_at ? `<div class="ticker-time" style="opacity:.75;">⏱ Forecast final by ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.v2_converged_at))} local${latest.v2_converged_correct === false ? ' (settled wrong)' : ''}</div>` : (latest.v2LastChangedAt ? `<div class="ticker-time" style="opacity:.75;">⏱ No change since ${new Intl.DateTimeFormat('en-US',{timeZone:latest.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(latest.v2LastChangedAt))} local</div>` : '')}
         </div>
         <span class="record ${recordClass}">${recordText}</span>
       </div>
@@ -1274,8 +1283,9 @@ async function loadV3() {
       <div class="quotes">
         <div class="quote"><div class="qlbl">OUTCOME 1</div><div class="qval">${fmtTemp(latest.outcome_one, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_one_probability) ? latest.outcome_one_probability + '%' : '—'}</div>${liveQuoteBlock(latest.city, latest.outcome_one, latest.outcome_one_probability, unit)}</div>
         <div class="quote"><div class="qlbl">OUTCOME 2</div><div class="qval">${fmtTemp(latest.outcome_two, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_two_probability) ? latest.outcome_two_probability + '%' : '—'}</div>${liveQuoteBlock(latest.city, latest.outcome_two, latest.outcome_two_probability, unit)}</div>
+        ${Number.isFinite(latest.outcome_three) ? `<div class="quote"><div class="qlbl">OUTCOME 3</div><div class="qval">${fmtTemp(latest.outcome_three, unit)}</div><div class="qprob">${Number.isFinite(latest.outcome_three_probability) ? latest.outcome_three_probability + '%' : '—'}</div>${liveQuoteBlock(latest.city, latest.outcome_three, latest.outcome_three_probability, unit)}</div>` : ''}
       </div>
-      <div class="pairRow"><span>Pair Coverage</span><b>${Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—'}</b></div>
+      <div class="pairRow"><span>${Number.isFinite(latest.triple_probability) ? '3-Bracket Coverage' : 'Pair Coverage'}</span><b>${Number.isFinite(latest.triple_probability) ? latest.triple_probability + '%' : (Number.isFinite(latest.pair_probability) ? latest.pair_probability + '%' : '—')}</b></div>
       <div class="badgeRow"><span>${stabEmoji} STAB ${Number.isFinite(latest.stability_score)?latest.stability_score+'%':'—'}</span><span>${patEmoji} PATT ${Number.isFinite(latest.pattern_score)?latest.pattern_score+'%':'—'}</span></div>
       ${driftBlock}
       ${resolvedBlock}
@@ -1289,7 +1299,7 @@ function csvCell(v){ const s=v==null?'':String(v); return /[\",\n]/.test(s)?'\"'
 async function downloadV3Csv(){
   const r=await fetch('/api/stationedge/audit'); const data=await r.json();
   if(data.error||!Array.isArray(data.records)) return alert(data.error||'No StationEdge records available');
-  const cols=['forecast_date','station_code','city','local_signal_time','display_unit','outcome_one','outcome_two','outcome_one_probability','outcome_two_probability','pair_probability','stability_score','pattern_score','actual_high','forecast_error','result','resolution_type','model_version'];
+  const cols=['forecast_date','station_code','city','local_signal_time','locked_at','v2_converged_at','v2_converged_correct','display_unit','outcome_one','outcome_two','outcome_three','outcome_one_probability','outcome_two_probability','outcome_three_probability','pair_probability','triple_probability','stability_score','pattern_score','actual_high','forecast_error','result','triple_hit','resolution_type','model_version'];
   const lines=[cols.join(',')];
   for(const x of data.records){ const row={...x,resolution_type:isDriftCoveredHit(x)?'DRIFT_COVERED_HIT':(x.result||'PENDING')}; lines.push(cols.map(c=>csvCell(row[c])).join(',')); }
   const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8'}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='stationedge-forward-test-'+new Date().toISOString().slice(0,10)+'.csv'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),1000);
@@ -1333,7 +1343,8 @@ async function loadV2(){
       </div>`;
     }
     const structBtn = `<button class="btn secondary" style="width:100%;margin-top:10px;" onclick="event.stopPropagation();loadIntoStructurer('${s.code}')">→ Load into Trade Structurer</button>`;
-    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}${structBtn}`}</div>`);
+    const timingHtml = `${s.lockedAt ? `<div class="localtime" style="opacity:.75;">🔒 Locked ${new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(s.lockedAt))} local</div>` : ''}${s.v2ConvergedAt ? `<div class="localtime" style="opacity:.75;">⏱ Forecast final by ${new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(s.v2ConvergedAt))} local${s.v2ConvergedCorrect === false ? ' (settled wrong)' : ''}</div>` : (s.v2LastChangedAt ? `<div class="localtime" style="opacity:.75;">⏱ No change since ${new Intl.DateTimeFormat('en-US',{timeZone:s.tz,hour:'numeric',minute:'2-digit',hour12:true}).format(new Date(s.v2LastChangedAt))} local</div>` : '')}`;
+    cards.push(`<div class="card" onclick="openStation('${s.code}')"><div class="row"><div><h2>${s.city}</h2><b class="code">${s.code}</b></div><span class="state">${s.state||'ERROR'}</span></div><div class="localtime">🕐 ${localTime(s)} LOCAL</div>${timingHtml}${s.error?`<p class="red">${s.error}</p>`:`<div class="temp">${temp(s.latest?.temperatureC,s)}</div><div class="metrics"><div><small>OBS MAX</small><strong>${temp(s.observedMax,s)}</strong></div><div><small>STABILITY</small><strong class="${s.stability>=70?'green':'red'}">${s.stability}%</strong></div><div><small>PATTERN DAY</small><strong class="${s.pattern>=70?'green':'red'}">${s.pattern}%</strong></div></div><div class="eligible ${s.tradeable?'yes':'no'}">${s.tradeable?'GREEN / TRADEABLE':'FILTERED / WATCH'}</div>${quotesHtml}${structBtn}`}</div>`);
   }
   document.getElementById('grid').innerHTML = cards.join('');
 }

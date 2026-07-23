@@ -273,6 +273,11 @@ footer.term b{color:var(--amber)}
       <p style="color:var(--dim);font-size:11.5px;margin:10px 0;">Every row compares StationEdge's own modeled probability for a bracket against Polymarket's live price for that same bracket — no fixed price cutoff. YES only fires on the model's own barbell (its actual stated forecast) — never on a longshot bracket just because a tiny market price inflates the ratio. NO has no such restriction, since multiple simultaneous No bets on different brackets aren't mutually exclusive.</p>
       <div id="deskOppsWrap"><div class="empty" style="padding:14px 0;">Loading…</div></div>
     </details>
+    <details class="deskSection" open>
+      <summary>Strategy Scanner — Tail No / Paired / Barbell</summary>
+      <p style="color:var(--dim);font-size:11.5px;margin:10px 0;">Pure market-structure plays, ported from your original calculator — these read Polymarket's own prices directly and don't depend on StationEdge's model agreeing with the market (so they can't blow up the way a model-vs-market EDGE signal can). Strategy 1: buy No where the market itself already prices a bracket 91-97¢. Strategy 2: pairs a Strategy-1 tail No with a leading Yes ≥90¢, once the day's basically decided. Strategy 3 (Barbell): Yes on the top-2 mid-probability brackets (20-50% each) — profit if either one hits.</p>
+      <div id="deskStructuralWrap"><div class="empty" style="padding:14px 0;">Loading…</div></div>
+    </details>
     <details class="deskSection">
       <summary>Advance Scan — arb flags &amp; top-3 screen</summary>
       <div class="riskInputs" style="margin-top:10px;">
@@ -525,10 +530,11 @@ async function loadTradeDesk() {
   const daysAhead = parseInt(document.getElementById('deskDaysAhead')?.value) || 2;
   const exposure = parseFloat(document.getElementById('deskExposure')?.value) || 30;
 
-  const [edgeData, scanData, oppsData] = await Promise.all([
+  const [edgeData, scanData, oppsData, structData] = await Promise.all([
     fetch('/api/stationedge/edge-dashboard').then(r => r.json()).catch(e => ({ error: e.message })),
     fetch(`/api/stationedge/advance-scan?daysAhead=${daysAhead}&exposure=${exposure}`).then(r => r.json()).catch(e => ({ error: e.message })),
     fetch('/api/stationedge/opportunities').then(r => r.json()).catch(e => ({ error: e.message })),
+    fetch('/api/stationedge/structural-scan').then(r => r.json()).catch(e => ({ error: e.message })),
   ]);
 
   // Render supporting tables regardless of verdict outcome.
@@ -536,6 +542,7 @@ async function loadTradeDesk() {
   renderDeskCalibTable(edgeData);
   renderDeskAdvanceScan(scanData, daysAhead);
   renderDeskOpportunities(oppsData);
+  renderDeskStructural(structData);
 
   // Arb takes priority — it's guaranteed math, not a probability read.
   if (scanData.arbFlagsOnly && scanData.arbFlagsOnly.length) {
@@ -552,7 +559,7 @@ async function loadTradeDesk() {
   // Next: a live forecast-vs-market opportunity, weighted by that city's
   // own historical track record — don't lead with a signal from a city
   // that's been bleeding edge, even if today's number looks good.
-  const opp = (oppsData.opportunities || []).find(o => !o.historicalLowSample ? o.historicalEdgePct > 0 : true);
+  const opp = (oppsData.opportunities || []).find(o => o.qualifies !== 'OUTLIER' && (!o.historicalLowSample ? o.historicalEdgePct > 0 : true));
   if (opp) {
     const isEdge = opp.qualifies === 'EDGE';
     const histNote = opp.historicalLowSample
@@ -667,41 +674,75 @@ function renderDeskAdvanceScan(data, daysAhead) {
     <tbody>${rows}</tbody></table></div>`;
 }
 
-function seAgeLabel(fetchedAtMs) {
-  if (!Number.isFinite(fetchedAtMs)) return null;
-  const secs = Math.round((Date.now() - fetchedAtMs) / 1000);
-  if (secs < 60) return `${secs}s ago`;
-  return `${Math.round(secs / 60)}m ago`;
+function renderDeskStructural(data) {
+  const wrap = document.getElementById('deskStructuralWrap');
+  if (data.error) { wrap.innerHTML = `<div class="empty">${data.error}</div>`; return; }
+  const cities = data.cities || [];
+  if (!cities.length) { wrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">No structural candidates right now across ${data.citiesScanned || 0} cities — normal, these need specific price clusters (91-97¢ tail, 90¢+ leader, or a clean 20-50% mid pair) to show up.</div>`; return; }
+
+  const rows = cities.map(c => {
+    const stabPill = c.stability == null ? '<span style="color:var(--dim);">—</span>'
+      : `<span style="color:${c.tradeable ? 'var(--green)' : 'var(--red)'};font:700 10px var(--mono);">${c.tradeable ? 'GREEN' : 'WATCH'} ${c.stability}%</span>`;
+    const patternPill = c.pattern == null ? '<span style="color:var(--dim);">—</span>'
+      : `<span style="color:${c.pattern >= 70 ? 'var(--green)' : 'var(--dim)'};font:700 10px var(--mono);">${c.pattern}%</span>`;
+    const fHigh = Number.isFinite(c.forecastedHighC) ? fmtTemp(cToNative(c.forecastedHighC, c.unit), c.unit) : '—';
+
+    const s1cell = c.strategies.s1.length
+      ? c.strategies.s1.slice(0, 2).map(o => `<div style="font:700 11px var(--mono);color:var(--red);">NO ${o.bracket} · ${100 - o.prob}¢ <span style="color:var(--dim);font-weight:400;">(${o.prob}% Yes)</span></div>`).join('')
+      : '<span style="color:var(--dim);">none</span>';
+
+    const s2 = c.strategies.s2;
+    const s2cell = s2
+      ? `<div style="font:700 11px var(--mono);color:var(--green);">YES ${s2.yes.bracket} · ${s2.yes.prob}¢</div><div style="font:700 11px var(--mono);color:var(--red);">NO ${s2.no.bracket} · ${100 - s2.no.prob}¢</div>`
+      : '<span style="color:var(--dim);">none</span>';
+
+    const s3 = c.strategies.s3;
+    const s3cell = s3
+      ? `${s3.legs.map(o => `<div style="font:700 11px var(--mono);color:var(--purple,#a78bfa);">YES ${o.bracket} · ${o.prob}¢</div>`).join('')}
+         <div style="font-size:10.5px;color:${s3.profitIfEitherHits >= 0 ? 'var(--green)' : 'var(--red)'};margin-top:2px;">sum ${s3.combinedCents}¢ → ${s3.profitIfEitherHits >= 0 ? 'profit' : 'loss'} ${Math.abs(s3.profitIfEitherHits)}¢/$1 if either hits</div>
+         ${s3.tailLegs.length ? `<div style="font-size:10px;color:var(--dim);">+${s3.tailLegs.length} tail No leg(s) available</div>` : ''}`
+      : '<span style="color:var(--dim);">not enough brackets</span>';
+
+    return `<tr>
+      <td>${c.city}<div style="color:var(--dim);font-size:10px;">${c.code}</div></td>
+      <td>${stabPill}</td>
+      <td>${patternPill}</td>
+      <td class="mono">${fHigh}</td>
+      <td>${s1cell}</td>
+      <td>${s2cell}</td>
+      <td>${s3cell}</td>
+    </tr>`;
+  }).join('');
+
+  wrap.innerHTML = `<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>STABILITY</th><th>PATTERN DAY</th><th>FORECASTED HIGH</th><th>STRATEGY 1 (NO 91-97¢)</th><th>STRATEGY 2 (PAIRED 90¢+)</th><th>STRATEGY 3 (BARBELL)</th></tr></thead>
+    <tbody>${rows}</tbody></table></div>`;
 }
 
 function renderDeskOpportunities(data) {
   const wrap = document.getElementById('deskOppsWrap');
   if (data.error) { wrap.innerHTML = `<div class="empty">${data.error}</div>`; return; }
   const opps = data.opportunities || [];
-  const oldestSecs = Number.isFinite(data.oldestPricesFetchedAt) ? (Date.now() - data.oldestPricesFetchedAt) / 1000 : null;
-  const staleWarning = oldestSecs !== null && oldestSecs > 200
-    ? `<div style="color:var(--red);font-size:11.5px;margin-bottom:8px;">⚠ Oldest price shown is ${seAgeLabel(data.oldestPricesFetchedAt)} — click Rescan before trading, especially on any city near its peak or resolution time.</div>`
-    : '';
-  if (!opps.length) { wrap.innerHTML = `${staleWarning}<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">Nothing qualifies right now — no edge above ${data.minEdgePct}%, and no fair-value side above ${data.fairValueMinModelPct}% model probability. Normal — check back through the day as prices move.</div>`; return; }
+  if (!opps.length) { wrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">Nothing qualifies right now — no edge above ${data.minEdgePct}%, and no fair-value side above ${data.fairValueMinModelPct}% model probability. Normal — check back through the day as prices move.</div>`; return; }
   const rows = opps.slice(0, 25).map(o => {
     const histBadge = o.historicalLowSample
       ? `<span style="color:var(--amber);font-size:10.5px;">thin (n=${o.historicalN ?? 0})</span>`
       : `<span style="color:${o.historicalEdgePct > 0 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;">${o.historicalEdgePct > 0 ? '+' : ''}${o.historicalEdgePct}pp (n=${o.historicalN})</span>`;
     const isEdge = o.qualifies === 'EDGE';
-    const typeBadge = `<span style="font:700 9.5px var(--mono);padding:2px 6px;border-radius:2px;background:${isEdge ? 'rgba(47,224,138,.15)' : 'rgba(255,193,71,.15)'};color:${isEdge ? 'var(--green)' : 'var(--amber)'};">${o.qualifies}</span>`;
-    const age = seAgeLabel(o.pricesFetchedAt);
-    const ageStale = Number.isFinite(o.pricesFetchedAt) && (Date.now() - o.pricesFetchedAt) / 1000 > 200;
-    const ageBadge = age ? `<span style="font-size:10px;color:${ageStale ? 'var(--red)' : 'var(--dim)'};">${age}</span>` : '';
+    const isOutlier = o.qualifies === 'OUTLIER';
+    const typeColor = isEdge ? 'var(--green)' : isOutlier ? 'var(--red)' : 'var(--amber)';
+    const typeBg = isEdge ? 'rgba(47,224,138,.15)' : isOutlier ? 'rgba(255,84,104,.15)' : 'rgba(255,193,71,.15)';
+    const typeBadge = `<span style="font:700 9.5px var(--mono);padding:2px 6px;border-radius:2px;background:${typeBg};color:${typeColor};" title="${isOutlier ? 'Edge exceeds the sane ceiling ('+ (data.maxSaneEdgePct ?? 25) +'pp) against a liquid market — more likely the model is overconfident on this bracket than the market being this wrong. Verify before trading.' : ''}">${o.qualifies}</span>`;
     return `<tr>
       <td>${o.city}</td><td class="mono">${o.code || '—'}</td>
       <td><span style="font:700 10px var(--mono);padding:2px 6px;border-radius:2px;background:${o.side === 'YES' ? 'rgba(47,224,138,.15)' : 'rgba(255,84,104,.15)'};color:${o.side === 'YES' ? 'var(--green)' : 'var(--red)'};">${o.side}</span></td>
       <td>${typeBadge}</td>
-      <td class="mono">${o.bracket}</td><td class="mono">${o.priceCents}¢ ${ageBadge}</td><td class="mono">${o.modelProbPct}%</td>
-      <td class="mono" style="color:${isEdge ? 'var(--green)' : 'var(--dim)'};">${o.edgePct >= 0 ? '+' : ''}${o.edgePct}%</td>
+      <td class="mono">${o.bracket}</td><td class="mono">${o.priceCents}¢</td><td class="mono">${o.modelProbPct}%</td>
+      <td class="mono" style="color:${typeColor};">${o.edgePct >= 0 ? '+' : ''}${o.edgePct}%</td>
       <td class="mono">${o.driftStatus}</td><td>${histBadge}</td>
     </tr>`;
   }).join('');
-  wrap.innerHTML = `${staleWarning}<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">EDGE = model and market disagree, in your favor. FAIR VALUE = they agree on a high-probability side — a fair bet, not a mispriced one. Age next to price = how old that price actually is, not when the page loaded.</div>
+  wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">EDGE = model and market disagree, in your favor. FAIR VALUE = they agree on a high-probability side — a fair bet, not a mispriced one.</div>
     <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
     <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>SIDE</th><th>TYPE</th><th>BRACKET</th><th>PRICE</th><th>MODEL</th><th>EDGE</th><th>DRIFT</th><th>CITY TRACK RECORD</th></tr></thead>
     <tbody>${rows}</tbody></table></div>
@@ -1311,7 +1352,7 @@ async function loadV3() {
 
 function csvCell(v){ const s=v==null?'':String(v); return /[\",\n]/.test(s)?'\"'+s.replace(/\"/g,'\"\"')+'\"':s; }
 async function downloadV3Csv(){
-  const r=await fetch('/api/stationedge/audit'); const data=await r.json();
+  const r=await fetch('/api/stationedge/audit?full=1'); const data=await r.json();
   if(data.error||!Array.isArray(data.records)) return alert(data.error||'No StationEdge records available');
   const cols=['forecast_date','station_code','city','local_signal_time','locked_at','v2_converged_at','v2_converged_correct','display_unit','outcome_one','outcome_two','outcome_three','outcome_one_probability','outcome_two_probability','outcome_three_probability','pair_probability','triple_probability','stability_score','pattern_score','actual_high','forecast_error','result','triple_hit','resolution_type','model_version'];
   const lines=[cols.join(',')];

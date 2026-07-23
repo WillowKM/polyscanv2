@@ -667,27 +667,41 @@ function renderDeskAdvanceScan(data, daysAhead) {
     <tbody>${rows}</tbody></table></div>`;
 }
 
+function seAgeLabel(fetchedAtMs) {
+  if (!Number.isFinite(fetchedAtMs)) return null;
+  const secs = Math.round((Date.now() - fetchedAtMs) / 1000);
+  if (secs < 60) return `${secs}s ago`;
+  return `${Math.round(secs / 60)}m ago`;
+}
+
 function renderDeskOpportunities(data) {
   const wrap = document.getElementById('deskOppsWrap');
   if (data.error) { wrap.innerHTML = `<div class="empty">${data.error}</div>`; return; }
   const opps = data.opportunities || [];
-  if (!opps.length) { wrap.innerHTML = `<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">Nothing qualifies right now — no edge above ${data.minEdgePct}%, and no fair-value side above ${data.fairValueMinModelPct}% model probability. Normal — check back through the day as prices move.</div>`; return; }
+  const oldestSecs = Number.isFinite(data.oldestPricesFetchedAt) ? (Date.now() - data.oldestPricesFetchedAt) / 1000 : null;
+  const staleWarning = oldestSecs !== null && oldestSecs > 200
+    ? `<div style="color:var(--red);font-size:11.5px;margin-bottom:8px;">⚠ Oldest price shown is ${seAgeLabel(data.oldestPricesFetchedAt)} — click Rescan before trading, especially on any city near its peak or resolution time.</div>`
+    : '';
+  if (!opps.length) { wrap.innerHTML = `${staleWarning}<div class="empty" style="padding:10px 0;color:var(--dim);font-size:11.5px;">Nothing qualifies right now — no edge above ${data.minEdgePct}%, and no fair-value side above ${data.fairValueMinModelPct}% model probability. Normal — check back through the day as prices move.</div>`; return; }
   const rows = opps.slice(0, 25).map(o => {
     const histBadge = o.historicalLowSample
       ? `<span style="color:var(--amber);font-size:10.5px;">thin (n=${o.historicalN ?? 0})</span>`
       : `<span style="color:${o.historicalEdgePct > 0 ? 'var(--green)' : 'var(--red)'};font-size:10.5px;">${o.historicalEdgePct > 0 ? '+' : ''}${o.historicalEdgePct}pp (n=${o.historicalN})</span>`;
     const isEdge = o.qualifies === 'EDGE';
     const typeBadge = `<span style="font:700 9.5px var(--mono);padding:2px 6px;border-radius:2px;background:${isEdge ? 'rgba(47,224,138,.15)' : 'rgba(255,193,71,.15)'};color:${isEdge ? 'var(--green)' : 'var(--amber)'};">${o.qualifies}</span>`;
+    const age = seAgeLabel(o.pricesFetchedAt);
+    const ageStale = Number.isFinite(o.pricesFetchedAt) && (Date.now() - o.pricesFetchedAt) / 1000 > 200;
+    const ageBadge = age ? `<span style="font-size:10px;color:${ageStale ? 'var(--red)' : 'var(--dim)'};">${age}</span>` : '';
     return `<tr>
       <td>${o.city}</td><td class="mono">${o.code || '—'}</td>
       <td><span style="font:700 10px var(--mono);padding:2px 6px;border-radius:2px;background:${o.side === 'YES' ? 'rgba(47,224,138,.15)' : 'rgba(255,84,104,.15)'};color:${o.side === 'YES' ? 'var(--green)' : 'var(--red)'};">${o.side}</span></td>
       <td>${typeBadge}</td>
-      <td class="mono">${o.bracket}</td><td class="mono">${o.priceCents}¢</td><td class="mono">${o.modelProbPct}%</td>
+      <td class="mono">${o.bracket}</td><td class="mono">${o.priceCents}¢ ${ageBadge}</td><td class="mono">${o.modelProbPct}%</td>
       <td class="mono" style="color:${isEdge ? 'var(--green)' : 'var(--dim)'};">${o.edgePct >= 0 ? '+' : ''}${o.edgePct}%</td>
       <td class="mono">${o.driftStatus}</td><td>${histBadge}</td>
     </tr>`;
   }).join('');
-  wrap.innerHTML = `<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">EDGE = model and market disagree, in your favor. FAIR VALUE = they agree on a high-probability side — a fair bet, not a mispriced one.</div>
+  wrap.innerHTML = `${staleWarning}<div style="color:var(--dim);font-size:11px;margin-bottom:8px;">EDGE = model and market disagree, in your favor. FAIR VALUE = they agree on a high-probability side — a fair bet, not a mispriced one. Age next to price = how old that price actually is, not when the page loaded.</div>
     <div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;">
     <thead><tr style="text-align:left;color:var(--dim);font-size:10px;letter-spacing:.05em;"><th>CITY</th><th>CODE</th><th>SIDE</th><th>TYPE</th><th>BRACKET</th><th>PRICE</th><th>MODEL</th><th>EDGE</th><th>DRIFT</th><th>CITY TRACK RECORD</th></tr></thead>
     <tbody>${rows}</tbody></table></div>

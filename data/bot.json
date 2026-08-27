@@ -730,6 +730,43 @@
           "autoResolved": true
         }
       ]
+    },
+    "acc_1787844884007_8vwuo": {
+      "id": "acc_1787844884007_8vwuo",
+      "name": "90c No All Cities",
+      "startingBalance": 1000,
+      "createdAt": "2026-08-27T15:34:44.007Z",
+      "settings": {
+        "strategy": "3",
+        "cities": [],
+        "minTradeAmount": 5,
+        "maxOpenOrders": 10,
+        "maxSpreadCents": 3,
+        "minVolumeFallback": 500,
+        "noBuyMinCents": 90,
+        "noBuyMaxCents": 97,
+        "yesBuyMinCents": 90,
+        "yesBuyMaxCents": 99,
+        "minEdgePct": 10,
+        "qualifyTiers": [
+          "EDGE",
+          "FAIR VALUE"
+        ],
+        "requireStableDrift": false,
+        "minHistoricalN": 0,
+        "alignedYesMinCents": 60,
+        "exitMode": "hold",
+        "targetUnit": "cents",
+        "targetValue": 5,
+        "scalpUnit": "cents",
+        "scalpStep": 10,
+        "reBuyAfterScalp": true,
+        "stopLossEnabled": false,
+        "stopLossUnit": "cents",
+        "stopLossValue": 10,
+        "autoTradeEnabled": false
+      },
+      "trades": []
     }
   }
 }

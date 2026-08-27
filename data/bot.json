@@ -24,15 +24,15 @@
         "requireStableDrift": false,
         "minHistoricalN": 0,
         "alignedYesMinCents": 60,
-        "exitMode": "hold",
+        "exitMode": "target",
         "targetUnit": "cents",
-        "targetValue": 5,
+        "targetValue": 99,
         "scalpUnit": "cents",
         "scalpStep": 10,
         "reBuyAfterScalp": true,
         "stopLossEnabled": false,
         "stopLossUnit": "cents",
-        "stopLossValue": 10,
+        "stopLossValue": 0,
         "autoTradeEnabled": false
       },
       "trades": []

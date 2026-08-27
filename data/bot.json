@@ -146,14 +146,15 @@
           "bracketLabel": "98-99°F",
           "stake": 5,
           "entryPriceCents": 85,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-27T16:26:32.577Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-27T23:02:00.692Z",
+          "profit": 0.8824,
+          "autoResolved": true
         },
         {
           "id": "1787846924912-ddjhi",
@@ -1080,14 +1081,15 @@
           "bracketLabel": "98-99°F",
           "stake": 5,
           "entryPriceCents": 92,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-27T18:03:21.023Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-27T23:02:01.473Z",
+          "profit": 0.4348,
+          "autoResolved": true
         },
         {
           "id": "1787850126599-gvtim",

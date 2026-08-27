@@ -20,6 +20,8 @@ const PREV_TEMPS = {};
 const DAILY_HIGHS = {}; // tracks highest observed temp per station per day — resets on server restart
 const CACHE_TTL     = 30 * 60 * 1000; // 30 min — was 10. Reduces Open-Meteo call volume; forecasts don't swing enough in 30 min to matter for the stability signal.
 const POLY_CACHE_TTL = 3 * 60 * 1000; // refresh Polymarket odds every 3 min
+const CLOB_CACHE = {};
+const CLOB_CACHE_TTL = 60 * 1000; // orderbook moves faster than last-trade price — short TTL
 
 // ── PERSISTENT STORAGE ───────────────────────────────────────────────────────
 // Render's filesystem is EPHEMERAL by default — any file written to a plain
@@ -41,6 +43,7 @@ const MARKETS_FILE     = path.join(DATA_DIR, 'markets.json');
 const RECORD_FILE      = path.join(DATA_DIR, 'record.json');      // permanent trade W/L tally — never auto-cleaned, survives deploys/updates
 const PREDICTIONS_FILE = path.join(DATA_DIR, 'predictions.json'); // PolyScan's own estimate accuracy — separate from trade record
 const CALC_FILE         = path.join(DATA_DIR, 'calc.json');       // Calculator: settings + daily trade log for the target tracker
+const BOT_FILE           = path.join(DATA_DIR, 'bot.json');        // Nyamcoder x MBE: paper-trading bot accounts, settings, and trade logs
 
 console.log(`[storage] Using DATA_DIR = ${DATA_DIR}${process.env.DATA_DIR ? ' (persistent disk)' : ' (⚠️ EPHEMERAL — set DATA_DIR env var to a mounted disk path to persist across restarts)'}`);
 
@@ -534,6 +537,7 @@ async function fetchPolymarketEvent(cityName) {
         slug:    m.slug || '',
         prob:    yesProb,
         volume:  m.volume ? parseFloat(m.volume).toFixed(0) : '0',
+        clobTokenIds: parseClobTokenIds(m.clobTokenIds),
       };
     }).filter(o => o.prob !== null);
 
@@ -549,6 +553,55 @@ async function fetchPolymarketEvent(cityName) {
   } catch(e) {
     return null;
   }
+}
+
+// ── CLOB ORDERBOOK / SPREAD (Nyamcoder x MBE bot) ────────────────────────────
+// gamma-api's outcomePrices is last-traded price only — not enough to judge
+// whether a bracket is actually tradeable at that price. The CLOB book gives
+// real bid/ask so the bot can skip brackets too thin to fill without slippage.
+// clobTokenIds on a gamma market is a JSON string of two token ids: index 0
+// is the YES/Up token, index 1 is NO — this matches Polymarket's documented
+// convention, but hasn't been confirmed against a live response from this
+// environment (no outbound network access to polymarket domains in the build
+// sandbox). Defensive fallback below means a wrong assumption here degrades
+// to "spread unknown" rather than breaking anything.
+function parseClobTokenIds(raw) {
+  if (!raw) return null;
+  try {
+    const ids = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return Array.isArray(ids) && ids.length ? ids : null;
+  } catch (e) { return null; }
+}
+
+async function fetchClobBook(tokenId) {
+  if (!tokenId) return null;
+  const cached = CLOB_CACHE[tokenId];
+  if (cached && (Date.now() - cached.ts) < CLOB_CACHE_TTL) return cached.data;
+  try {
+    const res = await fetch(`https://clob.polymarket.com/book?token_id=${tokenId}`, {
+      headers: { 'Accept': 'application/json' }, timeout: 8000,
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    const bids = Array.isArray(json.bids) ? json.bids : [];
+    const asks = Array.isArray(json.asks) ? json.asks : [];
+    const bestBid = bids.length ? Math.max(...bids.map(b => parseFloat(b.price))) : null;
+    const bestAsk = asks.length ? Math.min(...asks.map(a => parseFloat(a.price))) : null;
+    const data = { bestBid, bestAsk, spreadCents: (bestBid !== null && bestAsk !== null) ? Math.round((bestAsk - bestBid) * 1000) / 10 : null };
+    CLOB_CACHE[tokenId] = { data, ts: Date.now() };
+    return data;
+  } catch (e) { return null; }
+}
+
+// Returns spread in cents for a given outcome (bracket), or null if the
+// CLOB book isn't reachable/available — callers should treat null as
+// "unknown" and fall back to a volume-based liquidity check instead of
+// blocking the trade outright on missing data.
+async function getBracketSpreadCents(outcome) {
+  const tokenId = outcome?.clobTokenIds?.[0];
+  if (!tokenId) return null;
+  const book = await fetchClobBook(tokenId);
+  return book?.spreadCents ?? null;
 }
 
 // Find the probability for a specific temperature bracket.
@@ -2702,12 +2755,10 @@ app.get('/api/stationedge/structural-scan', async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/stationedge/opportunities', async (req, res) => {
-  try {
-    const edgeStats = await seCityEdgeStats(); // may be null if Supabase unavailable — still runs without it
-    const codes = Object.keys(STATIONEDGE_STATIONS);
-
-    const perCity = await Promise.all(codes.map(async code => {
+// Pulled out of the /opportunities route so the bot (Strategy 5) can call
+// the exact same per-city logic without duplicating it or hitting the route
+// over HTTP internally. Behavior is unchanged from the inline version.
+async function seCityOpportunity(code, edgeStats) {
       const meta = STATIONEDGE_STATIONS[code];
       let station;
       try { station = await seStation(code); } catch (e) { return null; }
@@ -2769,7 +2820,13 @@ app.get('/api/stationedge/opportunities', async (req, res) => {
         // EDGE plays first, then FAIR VALUE, then by edge magnitude within each group
         legs: legs.sort((a,b) => (a.qualifies === b.qualifies ? b.edgePct - a.edgePct : (a.qualifies === 'EDGE' ? -1 : 1))),
       };
-    }));
+}
+
+app.get('/api/stationedge/opportunities', async (req, res) => {
+  try {
+    const edgeStats = await seCityEdgeStats(); // may be null if Supabase unavailable — still runs without it
+    const codes = Object.keys(STATIONEDGE_STATIONS);
+    const perCity = await Promise.all(codes.map(code => seCityOpportunity(code, edgeStats)));
 
     const cities = perCity.filter(Boolean);
     const flat = cities.flatMap(c => c.legs.map(l => ({
@@ -3009,6 +3066,472 @@ setTimeout(() => seV3Sweep().catch(e =>
 setInterval(() => seV3Sweep().catch(e =>
   console.error('[StationEdge V3] Scheduled sweep failed:', e.message)
 ), 15 * 60 * 1000);
+
+// ══════════════════════════════════════════════════════════════════════════
+// NYAMCODER x MBE — paper-trading bot
+// Reuses StationEdge's own signal functions (seStructuralStrategies,
+// seCityOpportunity, seArbStakeSplit) rather than re-deriving them, so the
+// bot's "what counts as a signal" logic can never drift from what the
+// dashboard shows you. Everything below is paper-only: no wallet, no CLOB
+// order placement, just a logged trade + P&L math on the same formula as
+// the existing Calculator (computeProfit).
+// ══════════════════════════════════════════════════════════════════════════
+
+const GITHUB_DATA_PATH_BOT = process.env.GITHUB_DATA_PATH_BOT || 'data/bot.json';
+let BOT_CACHE = null;
+let BOT_SHA   = null;
+
+async function botGithubGetFile() {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH_BOT}`;
+  const res = await fetch(url, {
+    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json', 'User-Agent': 'PolyScan24-7' },
+  });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`GitHub GET failed: HTTP ${res.status}`);
+  const json = await res.json();
+  BOT_SHA = json.sha;
+  return JSON.parse(Buffer.from(json.content, 'base64').toString('utf8'));
+}
+async function botGithubPutFile(data) {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH_BOT}`;
+  const body = {
+    message: `Update bot data — ${new Date().toISOString()}`,
+    content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'),
+    ...(BOT_SHA ? { sha: BOT_SHA } : {}),
+  };
+  const res = await fetch(url, {
+    method: 'PUT',
+    headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'PolyScan24-7' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) { const t = await res.text().catch(()=>''); throw new Error(`GitHub PUT failed: HTTP ${res.status} ${t}`); }
+  const json = await res.json();
+  BOT_SHA = json.content?.sha || BOT_SHA;
+}
+async function loadBot() {
+  if (BOT_CACHE) return BOT_CACHE;
+  if (GITHUB_TOKEN) {
+    try {
+      const data = await botGithubGetFile();
+      if (data) { if (!data.accounts) data.accounts = {}; BOT_CACHE = data; return BOT_CACHE; }
+    } catch (e) { console.error('[Bot GitHub storage] load failed, falling back to local disk:', e.message); }
+  }
+  try {
+    const raw = fs.readFileSync(BOT_FILE, 'utf8');
+    const data = JSON.parse(raw);
+    if (!data.accounts) data.accounts = {};
+    BOT_CACHE = data;
+  } catch (e) {
+    BOT_CACHE = { accounts: {} };
+  }
+  return BOT_CACHE;
+}
+async function saveBot(data) {
+  BOT_CACHE = data;
+  try { fs.writeFileSync(BOT_FILE, JSON.stringify(data, null, 2)); } catch (e) { console.error('[Bot local storage] write failed:', e.message); }
+  if (GITHUB_TOKEN) {
+    try { await botGithubPutFile(data); } catch (e) { console.error('[Bot GitHub storage] save failed (data still safe locally):', e.message); }
+  }
+}
+
+function defaultBotSettings() {
+  return {
+    strategy: '3',              // '1'..'7' — see STRATEGY LIST below
+    cities: [],                 // empty = every StationEdge-mapped city
+    minTradeAmount: 5,          // $ stake per leg (also the per-leg cap for arb splits, see Strategy 6)
+    maxOpenOrders: 10,
+    maxSpreadCents: 3,          // CLOB bid/ask spread cap; set 0/null to disable and rely on volume only
+    minVolumeFallback: 500,     // used whenever the CLOB book isn't reachable for a bracket
+    noBuyMinCents: 90, noBuyMaxCents: 97,
+    yesBuyMinCents: 90, yesBuyMaxCents: 99,
+    minEdgePct: 10,             // Strategy 5 only
+    qualifyTiers: ['EDGE', 'FAIR VALUE'], // Strategy 5 only — which opportunities tags to act on
+    requireStableDrift: false,  // Strategy 5 only
+    minHistoricalN: 0,          // Strategy 5 only — skip cities with too few logged trades to trust
+    alignedYesMinCents: 60,     // Strategy 7 only — how "aligned" the market must already be
+    exitMode: 'hold',           // 'hold' | 'target' | 'scalp'
+    targetUnit: 'cents', targetValue: 5,     // single cashout once hit
+    scalpUnit: 'cents', scalpStep: 10, reBuyAfterScalp: true, // repeat cashout+rebuy every step
+    stopLossEnabled: false, stopLossUnit: 'cents', stopLossValue: 10,
+    autoTradeEnabled: false,    // master switch — off by default, always opt-in
+  };
+}
+
+function botAccountBalance(acc) {
+  const settled = acc.trades.filter(t => t.status !== 'open');
+  const open    = acc.trades.filter(t => t.status === 'open');
+  const settledProfit = settled.reduce((s, t) => s + (Number.isFinite(t.profit) ? t.profit : computeProfit(t)), 0);
+  const openExposure  = open.reduce((s, t) => s + t.stake, 0);
+  return {
+    startingBalance: acc.startingBalance,
+    balance:       parseFloat((acc.startingBalance + settledProfit - openExposure).toFixed(2)), // cash free to open new trades
+    equity:        parseFloat((acc.startingBalance + settledProfit).toFixed(2)),                // net worth at cost basis (open trades marked at stake, not live price)
+    settledProfit: parseFloat(settledProfit.toFixed(2)),
+    openExposure:  parseFloat(openExposure.toFixed(2)),
+    openCount: open.length, settledCount: settled.length,
+    wins: settled.filter(t => t.status === 'WIN').length,
+    losses: settled.filter(t => t.status === 'LOSS').length,
+    cashouts: settled.filter(t => t.status === 'CASHOUT').length,
+  };
+}
+
+// ── STRATEGY LIST ─────────────────────────────────────────────────────────
+// 1 — Tail No 90c+ (calculator's Strategy 1: No price 91-97c)
+// 2 — Paired Yes+No 90c+ near close (calculator's Strategy 2)
+// 3 — Barbell: 2 mid Yes legs + tail No legs (calculator's Strategy 3)
+// 4 — No 90c+ outside the barbell (does NOT require a full 2-leg barbell to exist)
+// 5 — StationEdge Opportunities: model vs market, EDGE/FAIR VALUE/OUTLIER
+// 6 — StationEdge Advance Scan: full-bracket arbitrage only (top-3 screen is informational, not auto-traded)
+// 7 — Aligned Yes: model's own barbell bracket where market price already confirms it
+
+async function botCandidatesStrategy1to3(strategyNum, codes) {
+  const out = [];
+  for (const code of codes) {
+    const meta = STATIONEDGE_STATIONS[code];
+    const poly = await fetchPolymarketEvent(meta.city);
+    if (!poly || !poly.outcomes.length) continue;
+    const s = seStructuralStrategies(poly.outcomes);
+    if (strategyNum === '1') {
+      for (const o of s.s1) out.push({ city: meta.city, code, strategy: '1', side: 'NO', bracket: o.bracket, priceCents: 100 - o.prob, volume: o.volume, outcome: o });
+    } else if (strategyNum === '2') {
+      if (s.s2) {
+        out.push({ city: meta.city, code, strategy: '2', side: 'NO',  bracket: s.s2.no.bracket,  priceCents: 100 - s.s2.no.prob, volume: s.s2.no.volume,  outcome: s.s2.no });
+        out.push({ city: meta.city, code, strategy: '2', side: 'YES', bracket: s.s2.yes.bracket, priceCents: s.s2.yes.prob,      volume: s.s2.yes.volume, outcome: s.s2.yes });
+      }
+    } else if (strategyNum === '3') {
+      if (s.s3) {
+        for (const o of s.s3.legs)     out.push({ city: meta.city, code, strategy: '3', side: 'YES', bracket: o.bracket, priceCents: o.prob,       volume: o.volume, outcome: o });
+        for (const o of s.s3.tailLegs) out.push({ city: meta.city, code, strategy: '3', side: 'NO',  bracket: o.bracket, priceCents: 100 - o.prob, volume: o.volume, outcome: o });
+      }
+    }
+  }
+  return out;
+}
+
+function seIsBarbellBracket(hf, range) {
+  if (!hf || !range) return false;
+  return (hf.primaryOutcomesC || []).some(c => {
+    const val = range.unit === 'F' ? (c * 9 / 5 + 32) : c;
+    return val >= range.min - 0.5 && val <= range.max + 0.5;
+  });
+}
+
+async function botCandidatesStrategy4(codes) {
+  const out = [];
+  for (const code of codes) {
+    const meta = STATIONEDGE_STATIONS[code];
+    let station; try { station = await seStation(code); } catch (e) { continue; }
+    const hf = station?.highForecast;
+    const poly = await fetchPolymarketEvent(meta.city);
+    if (!poly || !poly.outcomes.length) continue;
+    for (const o of poly.outcomes) {
+      if (!Number.isFinite(o.prob)) continue;
+      const noCents = 100 - o.prob;
+      if (noCents < 90) continue;
+      const range = seParseBracketRange(o.bracket);
+      if (seIsBarbellBracket(hf, range)) continue; // must sit OUTSIDE the model's own barbell brackets
+      out.push({ city: meta.city, code, strategy: '4', side: 'NO', bracket: o.bracket, priceCents: noCents, volume: o.volume, outcome: o });
+    }
+  }
+  return out;
+}
+
+async function botCandidatesStrategy5(codes, settings) {
+  const edgeStats = await seCityEdgeStats();
+  const out = [];
+  for (const code of codes) {
+    const cityOpp = await seCityOpportunity(code, edgeStats);
+    if (!cityOpp) continue;
+    if (settings.requireStableDrift && cityOpp.driftStatus && cityOpp.driftStatus !== 'stable') continue;
+    if (settings.minHistoricalN && (cityOpp.historicalN || 0) < settings.minHistoricalN) continue;
+    for (const leg of cityOpp.legs) {
+      if (settings.qualifyTiers?.length && !settings.qualifyTiers.includes(leg.qualifies)) continue;
+      if (settings.minEdgePct != null && leg.edgePct < settings.minEdgePct) continue;
+      out.push({ city: cityOpp.city, code, strategy: '5', side: leg.side, bracket: leg.bracket, priceCents: leg.priceCents, volume: leg.volume, edgePct: leg.edgePct, qualifies: leg.qualifies, confidence: cityOpp.confidence, driftStatus: cityOpp.driftStatus, outcome: leg });
+    }
+  }
+  return out;
+}
+
+async function botCandidatesStrategy6(codes, settings) {
+  const out = [];
+  const cityNames = codes.map(c => STATIONEDGE_STATIONS[c]?.city).filter(Boolean);
+  for (const city of cityNames) {
+    const data = await fetchPolymarketEventForDate(city, 0);
+    if (!data || !data.outcomes.length) continue;
+    const sorted = data.outcomes.filter(o => Number.isFinite(o.prob)).sort((a, b) => b.prob - a.prob);
+    if (sorted.length < 2) continue;
+    const fullSumCents = sorted.reduce((s, o) => s + o.prob, 0);
+    if (!(fullSumCents > 0 && fullSumCents < ARB_SUM_THRESHOLD_CENTS)) continue;
+    const split = seArbStakeSplit(sorted, settings.minTradeAmount * sorted.length);
+    if (!split || !split.executable) continue;
+    for (const leg of split.legs) {
+      if (leg.stake <= 0) continue;
+      out.push({ city, code: null, strategy: '6', side: 'YES', bracket: leg.bracket, priceCents: leg.priceCents, volume: leg.volume, arbStakeOverride: leg.stake });
+    }
+  }
+  return out;
+}
+
+async function botCandidatesStrategy7(codes, settings) {
+  const out = [];
+  for (const code of codes) {
+    const meta = STATIONEDGE_STATIONS[code];
+    let station; try { station = await seStation(code); } catch (e) { continue; }
+    const hf = station?.highForecast;
+    if (!hf) continue;
+    const poly = await fetchPolymarketEvent(meta.city);
+    if (!poly || !poly.outcomes.length) continue;
+    for (const o of poly.outcomes) {
+      if (!Number.isFinite(o.prob)) continue;
+      const range = seParseBracketRange(o.bracket);
+      if (!seIsBarbellBracket(hf, range)) continue;             // model's own stated forecast bracket
+      if (o.prob < (settings.alignedYesMinCents ?? 60)) continue; // market price also confirms it
+      out.push({ city: meta.city, code, strategy: '7', side: 'YES', bracket: o.bracket, priceCents: o.prob, volume: o.volume, outcome: o });
+    }
+  }
+  return out;
+}
+
+async function botScanCandidates(settings) {
+  const allCodes = Object.keys(STATIONEDGE_STATIONS);
+  const cityFilter = (settings.cities && settings.cities.length) ? new Set(settings.cities) : null;
+  const codes = cityFilter ? allCodes.filter(c => cityFilter.has(STATIONEDGE_STATIONS[c].city)) : allCodes;
+
+  let candidates = [];
+  if (['1', '2', '3'].includes(settings.strategy)) candidates = await botCandidatesStrategy1to3(settings.strategy, codes);
+  else if (settings.strategy === '4') candidates = await botCandidatesStrategy4(codes);
+  else if (settings.strategy === '5') candidates = await botCandidatesStrategy5(codes, settings);
+  else if (settings.strategy === '6') candidates = await botCandidatesStrategy6(codes, settings);
+  else if (settings.strategy === '7') candidates = await botCandidatesStrategy7(codes, settings);
+
+  // Price-window filters apply to the price-cutoff strategies only — 5 is
+  // already gated by edge%/qualify tier, 6 by the arb-sum threshold, so
+  // forcing a No/Yes price window onto those would just fight their own logic.
+  if (!['5', '6'].includes(settings.strategy)) {
+    candidates = candidates.filter(c => c.side === 'NO'
+      ? (settings.noBuyMinCents == null || c.priceCents >= settings.noBuyMinCents) && (settings.noBuyMaxCents == null || c.priceCents <= settings.noBuyMaxCents)
+      : (settings.yesBuyMinCents == null || c.priceCents >= settings.yesBuyMinCents) && (settings.yesBuyMaxCents == null || c.priceCents <= settings.yesBuyMaxCents));
+  }
+
+  // Liquidity: real CLOB spread when we can get it, volume as the fallback
+  // when the book isn't reachable (thin/new markets, or the token-id
+  // assumption in parseClobTokenIds not matching — see note above it).
+  const out = [];
+  for (const c of candidates) {
+    let ok = true;
+    if (settings.maxSpreadCents && c.outcome) {
+      const spread = await getBracketSpreadCents(c.outcome);
+      ok = spread !== null ? spread <= settings.maxSpreadCents
+        : (!settings.minVolumeFallback || parseFloat(c.volume || 0) >= settings.minVolumeFallback);
+    } else if (settings.minVolumeFallback) {
+      ok = parseFloat(c.volume || 0) >= settings.minVolumeFallback;
+    }
+    if (ok) out.push(c);
+  }
+  return out;
+}
+
+function findOpenDuplicate(acc, cand) {
+  return acc.trades.find(t => t.status === 'open' && t.city === cand.city && t.bracketLabel === cand.bracket && t.side === cand.side);
+}
+
+async function processAccountEntries(accountId, acc) {
+  const settings = acc.settings;
+  if (!settings.autoTradeEnabled) return;
+  let slotsLeft = settings.maxOpenOrders - acc.trades.filter(t => t.status === 'open').length;
+  let cashLeft  = botAccountBalance(acc).balance;
+  if (slotsLeft <= 0 || cashLeft < 1) return;
+
+  const candidates = await botScanCandidates(settings);
+  for (const cand of candidates) {
+    if (slotsLeft <= 0 || cashLeft < 1) break;
+    if (findOpenDuplicate(acc, cand)) continue;
+    const stake = Math.min(cand.arbStakeOverride || settings.minTradeAmount, cashLeft);
+    if (stake < 1) continue; // Polymarket's own $1 order floor — kept here so paper mirrors live constraints
+    acc.trades.unshift({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      accountId, city: cand.city, code: cand.code, strategy: cand.strategy, side: cand.side,
+      bracketLabel: cand.bracket, stake: parseFloat(stake.toFixed(2)), entryPriceCents: cand.priceCents,
+      status: 'open', cashoutPriceCents: null, scalpChainId: null,
+      qualifies: cand.qualifies || null, edgePct: cand.edgePct ?? null,
+      openedAt: new Date().toISOString(), settledAt: null, profit: 0,
+    });
+    slotsLeft--; cashLeft -= stake;
+  }
+}
+
+async function processAccountExits(accountId, acc) {
+  const settings = acc.settings;
+  const open = acc.trades.filter(t => t.status === 'open');
+  const newTrades = [];
+  for (const trade of open) {
+    const polyData = await fetchPolymarketEvent(trade.city);
+    const match = polyData?.outcomes?.find(o => o.bracket === trade.bracketLabel);
+    if (!match || match.prob === null) continue;
+    const currentSideCents = trade.side === 'YES' ? match.prob : (100 - match.prob);
+
+    // Resolution first — a bracket at the settle extremes is effectively decided regardless of exit mode.
+    if (match.prob >= 99.1 || match.prob <= 0.9) {
+      const yesWon = match.prob >= 99.1;
+      trade.status = (yesWon === (trade.side === 'YES')) ? 'WIN' : 'LOSS';
+      trade.settledAt = new Date().toISOString();
+      trade.profit = computeProfit(trade);
+      trade.autoResolved = true;
+      continue;
+    }
+
+    const gainCents = currentSideCents - trade.entryPriceCents;
+    const gainPct   = trade.entryPriceCents > 0 ? (gainCents / trade.entryPriceCents) * 100 : 0;
+
+    // Stop-loss can combine with any exit mode — checked first so it always wins over a target/scalp still waiting to hit.
+    if (settings.stopLossEnabled) {
+      const hit = settings.stopLossUnit === 'pct' ? gainPct <= -settings.stopLossValue : gainCents <= -settings.stopLossValue;
+      if (hit) {
+        trade.status = 'CASHOUT'; trade.cashoutPriceCents = currentSideCents;
+        trade.settledAt = new Date().toISOString(); trade.profit = computeProfit(trade); trade.exitReason = 'stop_loss';
+        continue;
+      }
+    }
+
+    if (settings.exitMode === 'target') {
+      const hit = settings.targetUnit === 'pct' ? gainPct >= settings.targetValue : gainCents >= settings.targetValue;
+      if (hit) {
+        trade.status = 'CASHOUT'; trade.cashoutPriceCents = currentSideCents;
+        trade.settledAt = new Date().toISOString(); trade.profit = computeProfit(trade); trade.exitReason = 'target';
+      }
+    } else if (settings.exitMode === 'scalp') {
+      const hit = settings.scalpUnit === 'pct' ? gainPct >= settings.scalpStep : gainCents >= settings.scalpStep;
+      if (hit) {
+        trade.status = 'CASHOUT'; trade.cashoutPriceCents = currentSideCents;
+        trade.settledAt = new Date().toISOString(); trade.profit = computeProfit(trade); trade.exitReason = 'scalp';
+        if (settings.reBuyAfterScalp) {
+          newTrades.push({
+            id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+            accountId, city: trade.city, code: trade.code, strategy: trade.strategy, side: trade.side,
+            bracketLabel: trade.bracketLabel, stake: trade.stake, entryPriceCents: currentSideCents,
+            status: 'open', cashoutPriceCents: null, scalpChainId: trade.scalpChainId || trade.id,
+            openedAt: new Date().toISOString(), settledAt: null, profit: 0,
+          });
+        }
+      }
+    }
+    // exitMode 'hold' — no action; waits for the resolution check above.
+  }
+  if (newTrades.length) acc.trades.unshift(...newTrades);
+}
+
+async function runBotTick() {
+  try {
+    const bot = await loadBot();
+    const ids = Object.keys(bot.accounts);
+    if (!ids.length) return;
+    for (const id of ids) {
+      const acc = bot.accounts[id];
+      await processAccountExits(id, acc);
+      await processAccountEntries(id, acc);
+    }
+    await saveBot(bot);
+  } catch (e) { console.error('[Nyamcoder x MBE] tick failed:', e.message); }
+}
+
+// ── BOT ROUTES ────────────────────────────────────────────────────────────
+app.get('/api/bot/cities', (req, res) => {
+  res.json({ cities: Object.values(STATIONEDGE_STATIONS).map(m => m.city).sort() });
+});
+
+app.get('/api/bot/accounts', async (req, res) => {
+  try {
+    const bot = await loadBot();
+    const accounts = Object.values(bot.accounts).map(acc => ({ id: acc.id, name: acc.name, createdAt: acc.createdAt, settings: acc.settings, ...botAccountBalance(acc) }));
+    res.json({ accounts });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/bot/accounts', async (req, res) => {
+  try {
+    const { name, startingBalance } = req.body;
+    const bal = parseFloat(startingBalance);
+    if (!name || !Number.isFinite(bal)) return res.status(400).json({ error: 'name and startingBalance required' });
+    const bot = await loadBot();
+    const id = `acc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+    bot.accounts[id] = { id, name, startingBalance: bal, createdAt: new Date().toISOString(), settings: defaultBotSettings(), trades: [] };
+    await saveBot(bot);
+    res.json({ ok: true, id, account: bot.accounts[id] });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/bot/accounts/:id', async (req, res) => {
+  try {
+    const bot = await loadBot();
+    const acc = bot.accounts[req.params.id];
+    if (!acc) return res.status(404).json({ error: 'account not found' });
+    res.json({ id: acc.id, name: acc.name, settings: acc.settings, trades: acc.trades, ...botAccountBalance(acc) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/bot/accounts/:id', async (req, res) => {
+  try {
+    const bot = await loadBot();
+    if (!bot.accounts[req.params.id]) return res.status(404).json({ error: 'account not found' });
+    delete bot.accounts[req.params.id];
+    await saveBot(bot);
+    res.json({ ok: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/bot/accounts/:id/settings', async (req, res) => {
+  try {
+    const bot = await loadBot();
+    const acc = bot.accounts[req.params.id];
+    if (!acc) return res.status(404).json({ error: 'account not found' });
+    acc.settings = { ...acc.settings, ...req.body };
+    await saveBot(bot);
+    res.json({ ok: true, settings: acc.settings });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Manual override: cash out one open paper trade right now at the live price.
+app.post('/api/bot/accounts/:id/trades/:tradeId/close', async (req, res) => {
+  try {
+    const bot = await loadBot();
+    const acc = bot.accounts[req.params.id];
+    if (!acc) return res.status(404).json({ error: 'account not found' });
+    const trade = acc.trades.find(t => t.id === req.params.tradeId && t.status === 'open');
+    if (!trade) return res.status(404).json({ error: 'open trade not found' });
+    const polyData = await fetchPolymarketEvent(trade.city);
+    const match = polyData?.outcomes?.find(o => o.bracket === trade.bracketLabel);
+    const currentSideCents = match ? (trade.side === 'YES' ? match.prob : (100 - match.prob)) : trade.entryPriceCents;
+    trade.status = 'CASHOUT'; trade.cashoutPriceCents = currentSideCents;
+    trade.settledAt = new Date().toISOString(); trade.profit = computeProfit(trade); trade.exitReason = 'manual';
+    await saveBot(bot);
+    res.json({ ok: true, trade, ...botAccountBalance(acc) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/bot/accounts/:id/trades/:tradeId', async (req, res) => {
+  try {
+    const bot = await loadBot();
+    const acc = bot.accounts[req.params.id];
+    if (!acc) return res.status(404).json({ error: 'account not found' });
+    acc.trades = acc.trades.filter(t => t.id !== req.params.tradeId);
+    await saveBot(bot);
+    res.json({ ok: true, ...botAccountBalance(acc) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Dry run — shows what would be traded right now under the given settings,
+// without touching any account. Check this before flipping autoTradeEnabled on.
+app.post('/api/bot/scan-preview', async (req, res) => {
+  try {
+    const settings = { ...defaultBotSettings(), ...req.body };
+    const candidates = await botScanCandidates(settings);
+    res.json({ ok: true, count: candidates.length, candidates });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+setTimeout(() => runBotTick().catch(e => console.error('[Nyamcoder x MBE] Initial tick failed:', e.message)), 20 * 1000);
+setInterval(() => runBotTick().catch(e => console.error('[Nyamcoder x MBE] Scheduled tick failed:', e.message)), 5 * 60 * 1000);
 
 app.get('/health', (req, res) => {
   res.json({ status:'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length, polyCached: Object.keys(POLY_CACHE).length });

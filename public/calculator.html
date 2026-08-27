@@ -123,6 +123,13 @@ tr:hover td { background:rgba(255,255,255,0.02); }
 
 <div class="hdr">
   <div class="logo"><span class="g">POLY</span>SCAN <span class="sub">CALCULATOR · by Willow</span></div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <span class="muted" style="font-size:11px;" id="modeSubLabel"></span>
+    <div style="display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:7px;overflow:hidden;">
+      <button id="modeBtnManual" class="btn small" style="border-radius:0;" onclick="setMode('manual')">Manual</button>
+      <button id="modeBtnBot" class="btn secondary small" style="border-radius:0;" onclick="setMode('bot')">Bot — Nyamcoder x MBE</button>
+    </div>
+  </div>
 </div>
 
 <!-- TICKER -->
@@ -146,7 +153,7 @@ tr:hover td { background:rgba(255,255,255,0.02); }
   <div id="sessionRow" style="margin-top:12px;"></div>
 
   <!-- TRADE STRUCTURER — right under session cards, not at the bottom -->
-  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+  <div class="manual-only" style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
     <h2>Trade Structurer <span class="note">— proportional-stake spread calculator: guarantees the same profit no matter which leg hits</span></h2>
     <div class="grid-inputs">
       <div class="field"><label>City</label>
@@ -185,9 +192,123 @@ tr:hover td { background:rgba(255,255,255,0.02); }
 </div>
 
 <!-- TRADE LOG -->
-<div class="panel">
+<div class="panel manual-only">
   <h2>Trade Log <span class="note">— today's SAST trading day</span></h2>
   <div id="tradeLogWrap"></div>
+</div>
+
+<!-- ═══════════════ NYAMCODER x MBE — BOT PANEL ═══════════════ -->
+<div class="panel bot-only" style="display:none;">
+  <h2>Nyamcoder x MBE <span class="note">— paper-trading bot, scans + trades every 5 minutes. Off by default per account.</span></h2>
+
+  <div class="grid-inputs" style="margin-bottom:16px;">
+    <div class="field"><label>Account</label>
+      <select id="botAccountSelect" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:220px;" onchange="onBotAccountChange()"></select>
+    </div>
+    <button class="btn secondary small" onclick="openNewAccountModal()">+ New account</button>
+    <button class="btn secondary small" id="botDeleteAccBtn" onclick="deleteCurrentBotAccount()">Delete account</button>
+  </div>
+
+  <div class="stat-row" id="botStatRow"></div>
+
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+    <h2 style="margin-bottom:10px;">Strategy &amp; Filters</h2>
+    <div class="grid-inputs">
+      <div class="field"><label>Strategy</label>
+        <select id="botStrategy" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:280px;">
+          <option value="1">1 — Tail No 90c+</option>
+          <option value="2">2 — Paired Yes+No 90c+ near close</option>
+          <option value="3">3 — Barbell</option>
+          <option value="4">4 — No 90c+ outside the barbell</option>
+          <option value="5">5 — StationEdge Opportunities (model vs market)</option>
+          <option value="6">6 — StationEdge Advance Scan (arbitrage)</option>
+          <option value="7">7 — Aligned Yes (forecast confirms market)</option>
+        </select>
+      </div>
+      <div class="field" style="width:260px;"><label>Cities (empty = all)</label>
+        <select id="botCities" multiple size="4" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px;font-size:12.5px;width:260px;"></select>
+      </div>
+    </div>
+    <div class="grid-inputs">
+      <div class="field"><label>Min trade amount ($)</label><input id="botMinTrade" type="number" step="0.5"></div>
+      <div class="field"><label>Max open orders</label><input id="botMaxOpen" type="number" step="1"></div>
+      <div class="field"><label>Max spread (¢)</label><input id="botMaxSpread" type="number" step="0.1"></div>
+      <div class="field"><label>Min volume fallback ($)</label><input id="botMinVolume" type="number" step="10"></div>
+    </div>
+    <div class="grid-inputs">
+      <div class="field"><label>No buy min (¢)</label><input id="botNoMin" type="number" step="1"></div>
+      <div class="field"><label>No buy max (¢)</label><input id="botNoMax" type="number" step="1"></div>
+      <div class="field"><label>Yes buy min (¢)</label><input id="botYesMin" type="number" step="1"></div>
+      <div class="field"><label>Yes buy max (¢)</label><input id="botYesMax" type="number" step="1"></div>
+    </div>
+    <div class="grid-inputs">
+      <div class="field"><label>Min edge % <span class="muted">(Strategy 5)</span></label><input id="botMinEdge" type="number" step="1"></div>
+      <div class="field"><label>Qualify tiers <span class="muted">(Strategy 5)</span></label>
+        <div style="display:flex;gap:10px;padding:8px 0;font-size:12.5px;">
+          <label><input type="checkbox" id="botTierEdge"> EDGE</label>
+          <label><input type="checkbox" id="botTierFair"> FAIR VALUE</label>
+          <label><input type="checkbox" id="botTierOutlier"> OUTLIER</label>
+        </div>
+      </div>
+      <div class="field"><label>Min historical N <span class="muted">(Strategy 5)</span></label><input id="botMinHistN" type="number" step="1"></div>
+      <div class="field"><label>&nbsp;</label><label style="font-size:12.5px;padding:8px 0;"><input type="checkbox" id="botRequireDrift"> Require stable drift (Str. 5)</label></div>
+      <div class="field"><label>Aligned Yes min (¢) <span class="muted">(Strategy 7)</span></label><input id="botAlignedYesMin" type="number" step="1"></div>
+    </div>
+  </div>
+
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+    <h2 style="margin-bottom:10px;">Exit Strategy <span class="note">— applies to every open bot trade on this account</span></h2>
+    <div class="grid-inputs">
+      <div class="field"><label>Exit mode</label>
+        <select id="botExitMode" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:200px;">
+          <option value="hold">Hold to resolution</option>
+          <option value="target">Cashout at target</option>
+          <option value="scalp">Scalp (repeat cashout + rebuy)</option>
+        </select>
+      </div>
+      <div class="field"><label>Target unit</label>
+        <select id="botTargetUnit" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:100px;"><option value="cents">¢</option><option value="pct">%</option></select>
+      </div>
+      <div class="field"><label>Target value</label><input id="botTargetValue" type="number" step="1"></div>
+      <div class="field"><label>Scalp unit</label>
+        <select id="botScalpUnit" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:100px;"><option value="cents">¢</option><option value="pct">%</option></select>
+      </div>
+      <div class="field"><label>Scalp step</label><input id="botScalpStep" type="number" step="1"></div>
+      <div class="field"><label>&nbsp;</label><label style="font-size:12.5px;padding:8px 0;"><input type="checkbox" id="botRebuyAfterScalp"> Re-buy after each scalp</label></div>
+    </div>
+    <div class="grid-inputs">
+      <div class="field"><label>&nbsp;</label><label style="font-size:12.5px;padding:8px 0;"><input type="checkbox" id="botStopLossEnabled"> Enable stop-loss</label></div>
+      <div class="field"><label>Stop-loss unit</label>
+        <select id="botStopLossUnit" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:100px;"><option value="cents">¢</option><option value="pct">%</option></select>
+      </div>
+      <div class="field"><label>Stop-loss value</label><input id="botStopLossValue" type="number" step="1"></div>
+    </div>
+  </div>
+
+  <div class="grid-inputs" style="margin-top:16px;">
+    <label style="font-size:13px;display:flex;align-items:center;gap:6px;"><input type="checkbox" id="botAutoTradeEnabled" style="width:16px;height:16px;"> <b>Auto-trade enabled</b> — off means settings save but nothing trades</label>
+    <button class="btn" onclick="saveBotSettings()">Save settings</button>
+    <button class="btn secondary" onclick="scanPreview()">Scan now (preview, no trades placed)</button>
+  </div>
+  <div id="botPreviewWrap" style="margin-top:10px;"></div>
+
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+    <h2 style="margin-bottom:10px;">Paper Trades</h2>
+    <div id="botTradesWrap"></div>
+  </div>
+</div>
+
+<!-- NEW BOT ACCOUNT MODAL -->
+<div class="modal-overlay" id="newAccModalOverlay" onclick="if(event.target===this) closeNewAccountModal()">
+  <div class="modal">
+    <h3>New paper account</h3>
+    <div class="field"><label>Name</label><input id="newAccName" type="text" placeholder="e.g. Aggressive No-only"></div>
+    <div class="field"><label>Starting balance ($)</label><input id="newAccBalance" type="number" step="1" value="1000"></div>
+    <div class="modal-actions">
+      <button class="btn secondary" onclick="closeNewAccountModal()">Cancel</button>
+      <button class="btn" onclick="submitNewAccount()">Create</button>
+    </div>
+  </div>
 </div>
 
 <!-- FOOTER -->
@@ -940,12 +1061,227 @@ function fillLastLeg(bracket, priceCents) {
   last.querySelector('.ts-price').value = priceCents;
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// NYAMCODER x MBE — BOT PANEL
+// ══════════════════════════════════════════════════════════════════════════
+let BOT_CURRENT_ACCOUNT_ID = null;
+let BOT_REFRESH_TIMER = null;
+
+function setMode(mode) {
+  localStorage.setItem('polyscanMode', mode);
+  const isBot = mode === 'bot';
+  document.querySelectorAll('.manual-only').forEach(el => el.style.display = isBot ? 'none' : '');
+  document.querySelectorAll('.bot-only').forEach(el => el.style.display = isBot ? '' : 'none');
+  document.getElementById('modeBtnManual').className = isBot ? 'btn secondary small' : 'btn small';
+  document.getElementById('modeBtnBot').className = isBot ? 'btn small' : 'btn secondary small';
+  document.getElementById('modeSubLabel').textContent = isBot ? 'Paper trading — no real orders are ever placed' : '';
+  if (isBot) {
+    if (BOT_REFRESH_TIMER) clearInterval(BOT_REFRESH_TIMER);
+    initBotPanel();
+    BOT_REFRESH_TIMER = setInterval(refreshBotAccount, 60000);
+  } else if (BOT_REFRESH_TIMER) {
+    clearInterval(BOT_REFRESH_TIMER);
+    BOT_REFRESH_TIMER = null;
+  }
+}
+
+async function initBotPanel() {
+  if (!document.getElementById('botCities').options.length) {
+    const { cities } = await fetch('/api/bot/cities').then(r => r.json());
+    const sel = document.getElementById('botCities');
+    sel.innerHTML = cities.map(c => `<option value="${c}">${c}</option>`).join('');
+  }
+  await loadBotAccounts();
+}
+
+async function loadBotAccounts() {
+  const { accounts } = await fetch('/api/bot/accounts').then(r => r.json());
+  const sel = document.getElementById('botAccountSelect');
+  sel.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} — $${a.balance.toFixed(2)}</option>`).join('');
+  if (!accounts.length) {
+    BOT_CURRENT_ACCOUNT_ID = null;
+    document.getElementById('botStatRow').innerHTML = `<div class="empty-note">No paper accounts yet — click "+ New account" to start.</div>`;
+    document.getElementById('botTradesWrap').innerHTML = '';
+    return;
+  }
+  if (!BOT_CURRENT_ACCOUNT_ID || !accounts.find(a => a.id === BOT_CURRENT_ACCOUNT_ID)) {
+    BOT_CURRENT_ACCOUNT_ID = accounts[0].id;
+  }
+  sel.value = BOT_CURRENT_ACCOUNT_ID;
+  await refreshBotAccount();
+}
+
+function onBotAccountChange() {
+  BOT_CURRENT_ACCOUNT_ID = document.getElementById('botAccountSelect').value;
+  refreshBotAccount();
+}
+
+async function refreshBotAccount() {
+  if (!BOT_CURRENT_ACCOUNT_ID) return;
+  const acc = await fetch(`/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}`).then(r => r.json());
+  if (acc.error) return;
+  renderBotStats(acc);
+  renderBotSettingsForm(acc.settings);
+  renderBotTrades(acc.trades);
+}
+
+function renderBotStats(acc) {
+  const pnlClass = acc.settledProfit > 0 ? 'hi' : acc.settledProfit < 0 ? 'lo' : '';
+  document.getElementById('botStatRow').innerHTML = `
+    <div class="stat"><div class="lbl">Balance (free cash)</div><div class="val">$${acc.balance.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Equity (starting + settled)</div><div class="val">$${acc.equity.toFixed(2)}</div></div>
+    <div class="stat ${pnlClass}"><div class="lbl">Settled P&amp;L</div><div class="val">${acc.settledProfit >= 0 ? '+' : ''}$${acc.settledProfit.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Open / Exposure</div><div class="val">${acc.openCount} · $${acc.openExposure.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">W / L / Cashout</div><div class="val" style="font-size:16px;">${acc.wins} / ${acc.losses} / ${acc.cashouts}</div></div>
+  `;
+}
+
+function renderBotSettingsForm(s) {
+  document.getElementById('botStrategy').value = s.strategy;
+  Array.from(document.getElementById('botCities').options).forEach(o => o.selected = s.cities.includes(o.value));
+  document.getElementById('botMinTrade').value = s.minTradeAmount;
+  document.getElementById('botMaxOpen').value = s.maxOpenOrders;
+  document.getElementById('botMaxSpread').value = s.maxSpreadCents;
+  document.getElementById('botMinVolume').value = s.minVolumeFallback;
+  document.getElementById('botNoMin').value = s.noBuyMinCents;
+  document.getElementById('botNoMax').value = s.noBuyMaxCents;
+  document.getElementById('botYesMin').value = s.yesBuyMinCents;
+  document.getElementById('botYesMax').value = s.yesBuyMaxCents;
+  document.getElementById('botMinEdge').value = s.minEdgePct;
+  document.getElementById('botTierEdge').checked = s.qualifyTiers.includes('EDGE');
+  document.getElementById('botTierFair').checked = s.qualifyTiers.includes('FAIR VALUE');
+  document.getElementById('botTierOutlier').checked = s.qualifyTiers.includes('OUTLIER');
+  document.getElementById('botMinHistN').value = s.minHistoricalN;
+  document.getElementById('botRequireDrift').checked = s.requireStableDrift;
+  document.getElementById('botAlignedYesMin').value = s.alignedYesMinCents;
+  document.getElementById('botExitMode').value = s.exitMode;
+  document.getElementById('botTargetUnit').value = s.targetUnit;
+  document.getElementById('botTargetValue').value = s.targetValue;
+  document.getElementById('botScalpUnit').value = s.scalpUnit;
+  document.getElementById('botScalpStep').value = s.scalpStep;
+  document.getElementById('botRebuyAfterScalp').checked = s.reBuyAfterScalp;
+  document.getElementById('botStopLossEnabled').checked = s.stopLossEnabled;
+  document.getElementById('botStopLossUnit').value = s.stopLossUnit;
+  document.getElementById('botStopLossValue').value = s.stopLossValue;
+  document.getElementById('botAutoTradeEnabled').checked = s.autoTradeEnabled;
+}
+
+function collectBotSettingsForm() {
+  const tiers = [];
+  if (document.getElementById('botTierEdge').checked) tiers.push('EDGE');
+  if (document.getElementById('botTierFair').checked) tiers.push('FAIR VALUE');
+  if (document.getElementById('botTierOutlier').checked) tiers.push('OUTLIER');
+  return {
+    strategy: document.getElementById('botStrategy').value,
+    cities: Array.from(document.getElementById('botCities').selectedOptions).map(o => o.value),
+    minTradeAmount: parseFloat(document.getElementById('botMinTrade').value) || 0,
+    maxOpenOrders: parseInt(document.getElementById('botMaxOpen').value) || 0,
+    maxSpreadCents: parseFloat(document.getElementById('botMaxSpread').value) || 0,
+    minVolumeFallback: parseFloat(document.getElementById('botMinVolume').value) || 0,
+    noBuyMinCents: parseFloat(document.getElementById('botNoMin').value),
+    noBuyMaxCents: parseFloat(document.getElementById('botNoMax').value),
+    yesBuyMinCents: parseFloat(document.getElementById('botYesMin').value),
+    yesBuyMaxCents: parseFloat(document.getElementById('botYesMax').value),
+    minEdgePct: parseFloat(document.getElementById('botMinEdge').value) || 0,
+    qualifyTiers: tiers,
+    minHistoricalN: parseInt(document.getElementById('botMinHistN').value) || 0,
+    requireStableDrift: document.getElementById('botRequireDrift').checked,
+    alignedYesMinCents: parseFloat(document.getElementById('botAlignedYesMin').value) || 0,
+    exitMode: document.getElementById('botExitMode').value,
+    targetUnit: document.getElementById('botTargetUnit').value,
+    targetValue: parseFloat(document.getElementById('botTargetValue').value) || 0,
+    scalpUnit: document.getElementById('botScalpUnit').value,
+    scalpStep: parseFloat(document.getElementById('botScalpStep').value) || 0,
+    reBuyAfterScalp: document.getElementById('botRebuyAfterScalp').checked,
+    stopLossEnabled: document.getElementById('botStopLossEnabled').checked,
+    stopLossUnit: document.getElementById('botStopLossUnit').value,
+    stopLossValue: parseFloat(document.getElementById('botStopLossValue').value) || 0,
+    autoTradeEnabled: document.getElementById('botAutoTradeEnabled').checked,
+  };
+}
+
+async function saveBotSettings() {
+  if (!BOT_CURRENT_ACCOUNT_ID) return alert('Create an account first.');
+  const body = collectBotSettingsForm();
+  await fetch(`/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}/settings`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  refreshBotAccount();
+}
+
+async function scanPreview() {
+  const body = collectBotSettingsForm();
+  document.getElementById('botPreviewWrap').innerHTML = '<div class="section-loading">Scanning…</div>';
+  const res = await fetch('/api/bot/scan-preview', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }).then(r => r.json());
+  if (!res.ok) { document.getElementById('botPreviewWrap').innerHTML = `<div class="empty-note">Scan failed: ${res.error}</div>`; return; }
+  if (!res.count) { document.getElementById('botPreviewWrap').innerHTML = `<div class="empty-note">No candidates match these settings right now. Nothing would be traded this tick.</div>`; return; }
+  document.getElementById('botPreviewWrap').innerHTML = `
+    <table><thead><tr><th>City</th><th>Side</th><th>Bracket</th><th>Price</th><th>Edge</th><th>Qualifies</th></tr></thead>
+    <tbody>${res.candidates.map(c => `<tr><td>${c.city}</td><td><span class="pill ${c.side==='YES'?'green':'red'}">${c.side}</span></td><td>${c.bracket}</td><td class="mono">${c.priceCents}¢</td><td class="mono">${c.edgePct ?? '—'}</td><td>${c.qualifies ?? '—'}</td></tr>`).join('')}</tbody></table>
+    <div class="empty-note">${res.count} candidate${res.count>1?'s':''} found — this is a preview only, no trades were placed.</div>`;
+}
+
+function renderBotTrades(trades) {
+  if (!trades.length) { document.getElementById('botTradesWrap').innerHTML = '<div class="empty-note">No paper trades logged yet for this account.</div>'; return; }
+  const statusPill = t => t.status === 'open' ? '<span class="pill grey">OPEN</span>'
+    : t.status === 'WIN' ? '<span class="pill green">WIN</span>'
+    : t.status === 'LOSS' ? '<span class="pill red">LOSS</span>'
+    : `<span class="pill orange">CASHOUT${t.exitReason ? ' · '+t.exitReason : ''}</span>`;
+  const rows = trades.map(t => `
+    <tr>
+      <td>${t.city}</td>
+      <td><span class="pill grey">S${t.strategy}</span></td>
+      <td><span class="pill ${t.side==='YES'?'green':'red'}">${t.side}</span></td>
+      <td>${t.bracketLabel}</td>
+      <td class="mono">$${t.stake.toFixed(2)}</td>
+      <td class="mono">${t.entryPriceCents}¢${t.cashoutPriceCents!=null ? ' → '+t.cashoutPriceCents+'¢' : ''}</td>
+      <td class="mono">${t.status==='open' ? '—' : (t.profit>=0?'+':'')+'$'+t.profit.toFixed(2)}</td>
+      <td>${statusPill(t)}</td>
+      <td>${t.status==='open' ? `<button class="btn secondary small" onclick="closeBotTrade('${t.id}')">Cash out now</button>` : ''}
+          <button class="btn secondary small" onclick="deleteBotTrade('${t.id}')">Delete</button></td>
+    </tr>`).join('');
+  document.getElementById('botTradesWrap').innerHTML = `
+    <table><thead><tr><th>City</th><th>Str.</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry→Exit</th><th>P&amp;L</th><th>Status</th><th></th></tr></thead>
+    <tbody>${rows}</tbody></table>`;
+}
+
+async function closeBotTrade(tradeId) {
+  await fetch(`/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades/${tradeId}/close`, { method: 'POST' });
+  refreshBotAccount();
+}
+async function deleteBotTrade(tradeId) {
+  await fetch(`/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades/${tradeId}`, { method: 'DELETE' });
+  refreshBotAccount();
+}
+
+function openNewAccountModal() {
+  document.getElementById('newAccName').value = '';
+  document.getElementById('newAccBalance').value = 1000;
+  document.getElementById('newAccModalOverlay').classList.add('open');
+}
+function closeNewAccountModal() { document.getElementById('newAccModalOverlay').classList.remove('open'); }
+async function submitNewAccount() {
+  const name = document.getElementById('newAccName').value.trim();
+  const startingBalance = parseFloat(document.getElementById('newAccBalance').value);
+  if (!name || !Number.isFinite(startingBalance)) return alert('Name and starting balance required.');
+  const res = await fetch('/api/bot/accounts', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ name, startingBalance }) }).then(r => r.json());
+  closeNewAccountModal();
+  BOT_CURRENT_ACCOUNT_ID = res.id;
+  await loadBotAccounts();
+}
+async function deleteCurrentBotAccount() {
+  if (!BOT_CURRENT_ACCOUNT_ID) return;
+  if (!confirm('Delete this paper account and all its trade history? This cannot be undone.')) return;
+  await fetch(`/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}`, { method: 'DELETE' });
+  BOT_CURRENT_ACCOUNT_ID = null;
+  await loadBotAccounts();
+}
+
 // ── INIT ─────────────────────────────────────────────────────────────────
 populateCityDatalist();
 loadCalcState();
 loadScanner();
 setInterval(loadCalcState, 30000);
 setInterval(loadScanner, 5*60*1000); // Polymarket prices aren't rate-limited like weather — weather itself stays server-cached for 30min regardless of how often this fires, so this is safe to run more often for fresher prices/auto-resolve/gap tracking
+setMode(localStorage.getItem('polyscanMode') === 'bot' ? 'bot' : 'manual');
 </script>
 </body>
 </html>

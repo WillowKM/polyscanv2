@@ -776,7 +776,7 @@
       "settings": {
         "strategy": "3",
         "cities": [],
-        "minTradeAmount": 10,
+        "minTradeAmount": 5,
         "maxOpenOrders": 10,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
@@ -801,7 +801,7 @@
         "stopLossEnabled": false,
         "stopLossUnit": "cents",
         "stopLossValue": 10,
-        "autoTradeEnabled": true
+        "autoTradeEnabled": false
       },
       "trades": []
     }

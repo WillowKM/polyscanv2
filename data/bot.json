@@ -768,14 +768,15 @@
           "bracketLabel": "33°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T00:00:26.609Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T03:14:40.671Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1787875226609-1jh7x",
@@ -1831,6 +1832,25 @@
       },
       "trades": [
         {
+          "id": "1787886885463-1xc3r",
+          "accountId": "acc_1787844885562_4bkhp",
+          "city": "Munich",
+          "code": "EDDM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T03:14:45.463Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787886674433-5rvw5",
           "accountId": "acc_1787844885562_4bkhp",
           "city": "Tokyo",
@@ -1973,14 +1993,15 @@
           "bracketLabel": "33°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T00:00:26.653Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T03:14:45.440Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1787875226653-hiosm",
@@ -2459,6 +2480,25 @@
       },
       "trades": [
         {
+          "id": "1787886885486-cmhed",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Munich",
+          "code": "EDDM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T03:14:45.486Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787886674460-lc0wl",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Busan",
@@ -2582,14 +2622,15 @@
           "bracketLabel": "33°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T00:00:26.672Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T03:14:45.463Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1787875226672-0um17",

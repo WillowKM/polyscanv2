@@ -84,14 +84,15 @@
           "bracketLabel": "22°C",
           "stake": 5,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T10:38:41.191Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T14:22:49.142Z",
+          "profit": 0.2083,
+          "autoResolved": true
         },
         {
           "id": "1787909767498-llgjh",
@@ -2029,6 +2030,25 @@
       },
       "trades": [
         {
+          "id": "1787926971177-3drhg",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "98-99°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T14:22:51.178Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787924405889-vyv81",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Houston",
@@ -2133,14 +2153,15 @@
           "bracketLabel": "22°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T10:45:37.796Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T14:22:51.154Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1787912771218-ag27v",

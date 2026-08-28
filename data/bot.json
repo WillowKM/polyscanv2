@@ -200,14 +200,15 @@
           "bracketLabel": "26°C",
           "stake": 5,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T01:51:15.804Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T09:26:06.959Z",
+          "profit": 0.2083,
+          "autoResolved": true
         },
         {
           "id": "1787881335243-lv46p",
@@ -1938,6 +1939,25 @@
       },
       "trades": [
         {
+          "id": "1787909170077-dcrmn",
+          "accountId": "acc_1787844885562_4bkhp",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 5,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T09:26:10.077Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787907729042-tncl9",
           "accountId": "acc_1787844885562_4bkhp",
           "city": "Munich",
@@ -2061,14 +2081,15 @@
           "bracketLabel": "26°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T03:14:45.463Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T09:26:10.053Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1787886674433-5rvw5",
@@ -2706,6 +2727,25 @@
       },
       "trades": [
         {
+          "id": "1787909170103-rexp6",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 5,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T09:26:10.103Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787907729059-oblim",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Munich",
@@ -2848,14 +2888,15 @@
           "bracketLabel": "26°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T03:14:45.486Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T09:26:10.077Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1787886674460-lc0wl",

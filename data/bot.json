@@ -394,14 +394,15 @@
           "bracketLabel": "23°C",
           "stake": 5,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T00:17:40.161Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T10:59:33.174Z",
+          "profit": 0.3763,
+          "autoResolved": true
         },
         {
           "id": "1787876154302-za0cu",
@@ -1983,6 +1984,25 @@
       },
       "trades": [
         {
+          "id": "1787914775018-g694h",
+          "accountId": "acc_1787844885562_4bkhp",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "72-73°F",
+          "stake": 5,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T10:59:35.018Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787913937781-24djp",
           "accountId": "acc_1787844885562_4bkhp",
           "city": "Helsinki",
@@ -2106,14 +2126,15 @@
           "bracketLabel": "23°C",
           "stake": 5,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T06:06:54.810Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T10:59:35.000Z",
+          "profit": 0.5556,
+          "autoResolved": true
         },
         {
           "id": "1787893017280-19iy6",
@@ -2851,6 +2872,25 @@
       },
       "trades": [
         {
+          "id": "1787914775035-nsptm",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "64-65°F",
+          "stake": 5,
+          "entryPriceCents": 92,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T10:59:35.035Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787913937796-4gdhw",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Helsinki",
@@ -2993,14 +3033,15 @@
           "bracketLabel": "23°C",
           "stake": 5,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T06:06:54.831Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T10:59:35.018Z",
+          "profit": 0.5556,
+          "autoResolved": true
         },
         {
           "id": "1787896197664-4rcum",

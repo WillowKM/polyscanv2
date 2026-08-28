@@ -2711,7 +2711,7 @@
         "strategy": "3",
         "cities": [],
         "minTradeAmount": 10,
-        "maxOpenOrders": 50,
+        "maxOpenOrders": 10,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
         "noBuyMinCents": 90,
@@ -2738,6 +2738,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1787932956068-o6kty",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "102-103°F",
+          "stake": 10,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T16:02:36.068Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1787932913231-ts9q3",
           "accountId": "acc_1787932846731_gxbwz",

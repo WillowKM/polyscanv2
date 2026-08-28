@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1787890436013-vcljo",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "94-95°F",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T04:13:56.013Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787884207364-4zrnr",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Busan",

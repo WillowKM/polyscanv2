@@ -1558,14 +1558,15 @@
           "bracketLabel": "76-77°F",
           "stake": 5,
           "entryPriceCents": 89,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 89,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-27T08:45:52.979Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T12:19:12.242Z",
+          "profit": 0,
+          "exitReason": "manual"
         },
         {
           "id": "1787819311395-vrz4g",

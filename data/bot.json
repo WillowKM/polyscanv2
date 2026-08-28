@@ -2711,7 +2711,7 @@
         "strategy": "3",
         "cities": [],
         "minTradeAmount": 10,
-        "maxOpenOrders": 10,
+        "maxOpenOrders": 50,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
         "noBuyMinCents": 90,

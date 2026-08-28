@@ -776,14 +776,15 @@
           "bracketLabel": "20°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T00:00:26.609Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T09:54:57.633Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1787875226609-b8asl",
@@ -1959,6 +1960,25 @@
       },
       "trades": [
         {
+          "id": "1787910899730-qk8bj",
+          "accountId": "acc_1787844885562_4bkhp",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 5,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T09:54:59.730Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787909170077-dcrmn",
           "accountId": "acc_1787844885562_4bkhp",
           "city": "Los Angeles",
@@ -2063,14 +2083,15 @@
           "bracketLabel": "20°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T04:27:06.727Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T09:54:59.709Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1787890335051-41ppx",
@@ -2747,6 +2768,25 @@
       },
       "trades": [
         {
+          "id": "1787910899749-58p47",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 5,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-28T09:54:59.750Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787909170103-rexp6",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Los Angeles",
@@ -2851,14 +2891,15 @@
           "bracketLabel": "20°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T04:29:40.731Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T09:54:59.730Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1787891226743-6pk2c",

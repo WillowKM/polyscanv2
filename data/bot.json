@@ -930,14 +930,15 @@
           "bracketLabel": "33°C",
           "stake": 5,
           "entryPriceCents": 86,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-28T00:00:26.609Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-28T06:26:31.311Z",
+          "profit": 0.814,
+          "autoResolved": true
         },
         {
           "id": "1787875226609-mhrr7",

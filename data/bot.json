@@ -4422,7 +4422,7 @@
       "settings": {
         "strategy": "3",
         "cities": [],
-        "minTradeAmount": 10,
+        "minTradeAmount": 50,
         "maxOpenOrders": 20,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,

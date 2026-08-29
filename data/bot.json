@@ -3762,7 +3762,7 @@
         "maxOpenOrders": 10,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
-        "noBuyMinCents": 90,
+        "noBuyMinCents": 93,
         "noBuyMaxCents": 97,
         "yesBuyMinCents": 90,
         "yesBuyMaxCents": 99,

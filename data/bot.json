@@ -714,14 +714,15 @@
           "bracketLabel": "34°C",
           "stake": 5,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-29T00:03:57.665Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-29T05:28:47.699Z",
+          "profit": 0.2083,
+          "autoResolved": true
         },
         {
           "id": "1787961837665-gfhi1",
@@ -2898,6 +2899,25 @@
       },
       "trades": [
         {
+          "id": "1787981332052-589i5",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 5,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-29T05:28:52.052Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787976532371-y94z9",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Amsterdam",
@@ -3023,14 +3043,15 @@
           "bracketLabel": "34°C",
           "stake": 5,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-29T00:03:57.716Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-29T05:28:52.033Z",
+          "profit": 0.2083,
+          "autoResolved": true
         },
         {
           "id": "1787961837716-wf81a",
@@ -3906,6 +3927,25 @@
       },
       "trades": [
         {
+          "id": "1787981332070-jpssk",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Seattle",
+          "code": "KSEA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "62-63°F",
+          "stake": 10,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-29T05:28:52.070Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787976532391-ab14q",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Amsterdam",
@@ -4030,14 +4070,15 @@
           "bracketLabel": "34°C",
           "stake": 10,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-29T00:03:57.744Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-29T05:28:52.052Z",
+          "profit": 0.4167,
+          "autoResolved": true
         },
         {
           "id": "1787961837744-jhwea",

@@ -4423,7 +4423,7 @@
         "strategy": "3",
         "cities": [],
         "minTradeAmount": 10,
-        "maxOpenOrders": 10,
+        "maxOpenOrders": 20,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
         "noBuyMinCents": 93,

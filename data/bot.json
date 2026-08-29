@@ -4775,6 +4775,43 @@
         "autoTradeEnabled": true
       },
       "trades": []
+    },
+    "acc_1788012088722_dimvg": {
+      "id": "acc_1788012088722_dimvg",
+      "name": "Yes Strategy",
+      "startingBalance": 1000,
+      "createdAt": "2026-08-29T14:01:28.722Z",
+      "settings": {
+        "strategy": "3",
+        "cities": [],
+        "minTradeAmount": 5,
+        "maxOpenOrders": 10,
+        "maxSpreadCents": 3,
+        "minVolumeFallback": 500,
+        "noBuyMinCents": 90,
+        "noBuyMaxCents": 97,
+        "yesBuyMinCents": 90,
+        "yesBuyMaxCents": 99,
+        "minEdgePct": 10,
+        "qualifyTiers": [
+          "EDGE",
+          "FAIR VALUE"
+        ],
+        "requireStableDrift": false,
+        "minHistoricalN": 0,
+        "alignedYesMinCents": 60,
+        "exitMode": "hold",
+        "targetUnit": "cents",
+        "targetValue": 5,
+        "scalpUnit": "cents",
+        "scalpStep": 10,
+        "reBuyAfterScalp": true,
+        "stopLossEnabled": false,
+        "stopLossUnit": "cents",
+        "stopLossValue": 10,
+        "autoTradeEnabled": false
+      },
+      "trades": []
     }
   }
 }

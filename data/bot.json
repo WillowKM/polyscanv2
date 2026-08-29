@@ -853,14 +853,15 @@
           "bracketLabel": "34°C",
           "stake": 5,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-29T00:03:57.665Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-29T06:28:48.170Z",
+          "profit": 0.5556,
+          "autoResolved": true
         },
         {
           "id": "1787936136721-5rji6",
@@ -2938,6 +2939,25 @@
       },
       "trades": [
         {
+          "id": "1787984931571-s6xh3",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "70-71°F",
+          "stake": 5,
+          "entryPriceCents": 91,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-29T06:28:51.571Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787981332052-589i5",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Los Angeles",
@@ -3182,14 +3202,15 @@
           "bracketLabel": "34°C",
           "stake": 5,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-29T00:03:57.716Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-29T06:28:51.548Z",
+          "profit": 0.5556,
+          "autoResolved": true
         },
         {
           "id": "1787954928569-t32wk",
@@ -3966,6 +3987,25 @@
       },
       "trades": [
         {
+          "id": "1787984931593-itvpc",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 10,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-29T06:28:51.593Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1787981332070-jpssk",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Seattle",
@@ -4189,14 +4229,15 @@
           "bracketLabel": "34°C",
           "stake": 10,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-29T00:03:57.744Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-29T06:28:51.571Z",
+          "profit": 1.1111,
+          "autoResolved": true
         },
         {
           "id": "1787953731557-0mpuf",

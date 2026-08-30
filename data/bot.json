@@ -522,14 +522,15 @@
           "bracketLabel": "30°C",
           "stake": 5,
           "entryPriceCents": 91,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T00:04:40.771Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T01:09:33.501Z",
+          "profit": 0.4945,
+          "autoResolved": true
         },
         {
           "id": "1788048280771-nngiv",
@@ -3781,6 +3782,25 @@
       },
       "trades": [
         {
+          "id": "1788052178765-4r1ss",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Seoul",
+          "code": "RKSI",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T01:09:38.765Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788048280788-wcv36",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "San Francisco",
@@ -3866,14 +3886,15 @@
           "bracketLabel": "30°C",
           "stake": 5,
           "entryPriceCents": 91,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T00:04:40.788Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T01:09:38.746Z",
+          "profit": 0.4945,
+          "autoResolved": true
         },
         {
           "id": "1788048280788-dc6kw",
@@ -5249,6 +5270,25 @@
       },
       "trades": [
         {
+          "id": "1788052178786-fe6mn",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Seoul",
+          "code": "RKSI",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T01:09:38.786Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788050679709-7g3pm",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Tokyo",
@@ -5277,14 +5317,15 @@
           "bracketLabel": "30°C",
           "stake": 50,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T00:39:39.272Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T01:09:38.765Z",
+          "profit": 3.1915,
+          "autoResolved": true
         },
         {
           "id": "1788050379272-tosey",

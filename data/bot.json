@@ -721,14 +721,15 @@
           "bracketLabel": "34°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T00:04:40.771Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T07:09:34.222Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788048280771-x7hzo",
@@ -3965,6 +3966,25 @@
       },
       "trades": [
         {
+          "id": "1788073777243-kcc08",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T07:09:37.243Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788072877303-u19sh",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Helsinki",
@@ -4206,14 +4226,15 @@
           "bracketLabel": "34°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T00:04:40.788Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T07:09:37.225Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788048280788-ghsvg",
@@ -5573,6 +5594,25 @@
       },
       "trades": [
         {
+          "id": "1788073777260-12c46",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Denver",
+          "code": "KBKF",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 50,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T07:09:37.260Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788072877323-pev32",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Helsinki",
@@ -6064,14 +6104,15 @@
           "bracketLabel": "34°C",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T00:04:40.806Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T07:09:37.243Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788048280806-iebkr",
@@ -6830,6 +6871,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788073780916-r8auv",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T07:09:40.916Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788072290686-ilxl1",
           "accountId": "acc_1788031591418_zvi4y",

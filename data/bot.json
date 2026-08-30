@@ -219,14 +219,15 @@
           "bracketLabel": "21°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T06:34:40.349Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T14:30:27.867Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788071077247-j4n9j",
@@ -4147,6 +4148,25 @@
       },
       "trades": [
         {
+          "id": "1788100230944-ja6s9",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T14:30:30.944Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788074976660-vo0ip",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "San Francisco",
@@ -4194,14 +4214,15 @@
           "bracketLabel": "21°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T06:54:37.303Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T14:30:30.922Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788066877322-hnaeo",
@@ -5795,6 +5816,25 @@
       },
       "trades": [
         {
+          "id": "1788100230962-q3ilb",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 50,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T14:30:30.962Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788098730156-qxdke",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Chicago",
@@ -5938,14 +5978,15 @@
           "bracketLabel": "21°C",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T06:54:37.323Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T14:30:30.944Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788066877354-dw9k4",

@@ -5731,6 +5731,25 @@
       },
       "trades": [
         {
+          "id": "1788079176318-r6r0i",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Seattle",
+          "code": "KSEA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "74-75°F",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T08:39:36.318Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788075279079-7pe7i",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "London",
@@ -5740,14 +5759,15 @@
           "bracketLabel": "25°C",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T07:34:39.079Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T08:39:36.292Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788074076839-fhrzx",
@@ -7049,6 +7069,25 @@
       },
       "trades": [
         {
+          "id": "1788079176494-pmygf",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 25,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T08:39:36.494Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788077978410-giiq2",
           "accountId": "acc_1788031591418_zvi4y",
           "city": "London",
@@ -7115,14 +7154,15 @@
           "bracketLabel": "25°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T07:29:37.486Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T08:39:36.318Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1788074378072-mblli",

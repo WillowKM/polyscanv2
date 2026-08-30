@@ -7070,6 +7070,25 @@
       },
       "trades": [
         {
+          "id": "1788082529715-u0ifh",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 25,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T09:35:29.715Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788080983870-8mdav",
           "accountId": "acc_1788031591418_zvi4y",
           "city": "Seattle",

@@ -6788,7 +6788,46 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1788072290686-ilxl1",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "Seattle",
+          "code": "KSEA",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "66-67°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T06:44:50.686Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1788072290686-x4k60",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "72-73°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T06:44:50.686Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     }
   }
 }

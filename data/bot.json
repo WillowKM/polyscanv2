@@ -141,14 +141,15 @@
           "bracketLabel": "25°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T01:04:41.379Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T02:04:36.121Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788050679658-8ytuw",
@@ -3858,6 +3859,25 @@
       },
       "trades": [
         {
+          "id": "1788055481589-20jxs",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Hong Kong",
+          "code": "HKO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 5,
+          "entryPriceCents": 92,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T02:04:41.589Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788052178765-4r1ss",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Seoul",
@@ -3867,14 +3887,15 @@
           "bracketLabel": "25°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T01:09:38.765Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T02:04:41.569Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788048280788-wcv36",
@@ -5346,6 +5367,25 @@
       },
       "trades": [
         {
+          "id": "1788055481605-asdsg",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Seoul",
+          "code": "RKSI",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 50,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-30T02:04:41.605Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788052178786-fe6mn",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Seoul",
@@ -5355,14 +5395,15 @@
           "bracketLabel": "25°C",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T01:09:38.786Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T02:04:41.589Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788050679709-7g3pm",

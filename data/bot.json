@@ -122,14 +122,15 @@
           "bracketLabel": "25°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-30T07:34:39.058Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-30T08:39:34.157Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788074076822-6fzi0",
@@ -7019,7 +7020,7 @@
       "settings": {
         "strategy": "4",
         "cities": [],
-        "minTradeAmount": 5,
+        "minTradeAmount": 25,
         "maxOpenOrders": 50,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,

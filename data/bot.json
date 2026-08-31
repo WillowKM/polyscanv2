@@ -180,14 +180,15 @@
           "bracketLabel": "29°C",
           "stake": 5,
           "entryPriceCents": 86,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T03:05:44.234Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T06:34:25.471Z",
+          "profit": 0.814,
+          "autoResolved": true
         },
         {
           "id": "1788140145243-exnys",

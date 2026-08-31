@@ -256,14 +256,15 @@
           "bracketLabel": "74-75°F",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T10:49:29.858Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T17:04:26.440Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788157767526-6lv63",
@@ -7473,6 +7474,25 @@
       },
       "trades": [
         {
+          "id": "1788195869509-4dlzs",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T17:04:29.509Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788192269579-hua27",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Atlanta",
@@ -7616,14 +7636,15 @@
           "bracketLabel": "74-75°F",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T10:49:29.893Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T17:04:29.464Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788157767542-6x4mg",

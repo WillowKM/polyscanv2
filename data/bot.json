@@ -9310,6 +9310,25 @@
       },
       "trades": [
         {
+          "id": "1788180294479-qebok",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "94-95°F",
+          "stake": 25,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T12:44:54.479Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788179388542-67x71",
           "accountId": "acc_1788031591418_zvi4y",
           "city": "Dallas",

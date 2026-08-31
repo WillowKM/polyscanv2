@@ -7414,6 +7414,25 @@
       },
       "trades": [
         {
+          "id": "1788191968923-xpg92",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 50,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T15:59:28.923Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788190768962-t6e1e",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Chicago",
@@ -9473,6 +9492,25 @@
       },
       "trades": [
         {
+          "id": "1788191992193-b9i09",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 25,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T15:59:52.193Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788191087689-4k1ra",
           "accountId": "acc_1788031591418_zvi4y",
           "city": "Chicago",
@@ -9597,14 +9635,15 @@
           "bracketLabel": "26°C",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T10:49:42.971Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T15:59:28.923Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788173084703-iyb92",

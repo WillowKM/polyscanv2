@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1788211468899-tunj5",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T21:24:28.899Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788206671637-3m2yx",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Dallas",
@@ -5442,6 +5461,25 @@
       },
       "trades": [
         {
+          "id": "1788211468922-whdg9",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T21:24:28.922Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788207269354-tnlo9",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Austin",
@@ -7813,6 +7851,25 @@
       },
       "trades": [
         {
+          "id": "1788211468950-dyrcf",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T21:24:28.950Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788206671694-fwbw6",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Tel Aviv",
@@ -10120,6 +10177,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788211470922-gs6qq",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 25,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T21:24:30.922Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788209968896-i3f0t",
           "accountId": "acc_1788031591418_zvi4y",

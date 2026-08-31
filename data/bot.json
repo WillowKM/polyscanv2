@@ -184,14 +184,15 @@
           "bracketLabel": "80-81°F",
           "stake": 5,
           "entryPriceCents": 91,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T19:59:29.394Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T20:19:28.938Z",
+          "profit": 0.4945,
+          "autoResolved": true
         },
         {
           "id": "1788200967820-kbkub",

@@ -46,14 +46,15 @@
           "bracketLabel": "90-91°F",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T21:24:28.899Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T22:24:27.418Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788206671637-3m2yx",
@@ -343,14 +344,15 @@
           "bracketLabel": "102-103°F",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T11:54:29.071Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T22:24:27.561Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788177269071-hblmv",
@@ -5493,14 +5495,15 @@
           "bracketLabel": "90-91°F",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T21:24:28.922Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T22:24:29.064Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788207269354-tnlo9",
@@ -7885,14 +7888,15 @@
           "bracketLabel": "90-91°F",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T21:24:28.950Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T22:24:29.090Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788206671694-fwbw6",
@@ -10235,14 +10239,15 @@
           "bracketLabel": "94-95°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T21:39:32.143Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T22:24:29.114Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788211470922-gs6qq",
@@ -10334,14 +10339,15 @@
           "bracketLabel": "90-91°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T19:34:31.368Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T22:24:29.114Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788201270883-ekeqw",
@@ -10890,14 +10896,15 @@
           "bracketLabel": "102-103°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T00:01:09.562Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T22:24:29.114Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788134469562-shgcx",

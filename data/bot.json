@@ -733,14 +733,15 @@
           "bracketLabel": "31°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T00:00:44.308Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T04:59:25.952Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788134444308-jeb6p",
@@ -4917,6 +4918,25 @@
       },
       "trades": [
         {
+          "id": "1788152368779-c0nsv",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T04:59:28.779Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788147642835-s1hm0",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Seoul",
@@ -5080,14 +5100,15 @@
           "bracketLabel": "31°C",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T00:00:44.350Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T04:59:28.760Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788134444350-5s3ye",
@@ -6945,6 +6966,25 @@
       },
       "trades": [
         {
+          "id": "1788152368797-penli",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Dallas",
+          "code": "KDAL",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "102-103°F",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-08-31T04:59:28.797Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788147642855-1q0jy",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Denver",
@@ -7298,14 +7338,15 @@
           "bracketLabel": "31°C",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-08-31T00:00:44.368Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-08-31T04:59:28.779Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788134444367-6ggqm",

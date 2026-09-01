@@ -12795,7 +12795,7 @@
       "settings": {
         "strategy": "9",
         "cities": [
-          "Amsterdam"
+          "Helsinki"
         ],
         "minTradeAmount": 10,
         "maxOpenOrders": 10,

@@ -229,8 +229,8 @@ tr:hover td { background:rgba(255,255,255,0.02); }
         </select>
         <div class="muted" id="strategyHint" style="font-size:11px;margin-top:4px;"></div>
       </div>
-      <div class="field" style="width:260px;"><label>Cities (empty = all)</label>
-        <select id="botCities" multiple size="4" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px;font-size:12.5px;width:260px;"></select>
+      <div class="field" style="width:280px;"><label>Cities <span class="muted">(empty = all, except Str. 9 which requires picks)</span></label>
+        <div id="botCitiesBox" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;max-height:150px;overflow-y:auto;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:4px;"></div>
       </div>
     </div>
     <div class="grid-inputs">
@@ -1090,7 +1090,7 @@ function setMode(mode) {
   if (isBot) {
     if (BOT_REFRESH_TIMER) clearInterval(BOT_REFRESH_TIMER);
     initBotPanel();
-    BOT_REFRESH_TIMER = setInterval(refreshBotAccount, 60000);
+    BOT_REFRESH_TIMER = setInterval(refreshBotAccount, 20000);
   } else if (BOT_REFRESH_TIMER) {
     clearInterval(BOT_REFRESH_TIMER);
     BOT_REFRESH_TIMER = null;
@@ -1098,10 +1098,11 @@ function setMode(mode) {
 }
 
 async function initBotPanel() {
-  if (!document.getElementById('botCities').options.length) {
+  if (!document.getElementById('botCitiesBox').children.length) {
     const { cities } = await fetch('/api/bot/cities').then(r => r.json());
-    const sel = document.getElementById('botCities');
-    sel.innerHTML = cities.map(c => `<option value="${c}">${c}</option>`).join('');
+    document.getElementById('botCitiesBox').innerHTML = cities.map(c =>
+      `<label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" class="botCityChk" value="${c}"> ${c}</label>`
+    ).join('');
   }
   await loadBotAccounts();
 }
@@ -1196,13 +1197,13 @@ function applyStrategyDefaults() {
   if (d.stopLossEnabled !== undefined) document.getElementById('botStopLossEnabled').checked = d.stopLossEnabled;
   if (d.stopLossUnit !== undefined) document.getElementById('botStopLossUnit').value = d.stopLossUnit;
   if (d.stopLossValue !== undefined) document.getElementById('botStopLossValue').value = d.stopLossValue;
-  if (d.cities !== undefined) Array.from(document.getElementById('botCities').options).forEach(o => o.selected = false);
+  if (d.cities !== undefined) document.querySelectorAll('.botCityChk').forEach(el => el.checked = false);
 }
 
 function renderBotSettingsForm(s) {
   document.getElementById('botStrategy').value = s.strategy;
   document.getElementById('strategyHint').textContent = STRATEGY_HINTS[s.strategy] || '';
-  Array.from(document.getElementById('botCities').options).forEach(o => o.selected = s.cities.includes(o.value));
+  document.querySelectorAll('.botCityChk').forEach(el => el.checked = s.cities.includes(el.value));
   document.getElementById('botMinTrade').value = s.minTradeAmount;
   document.getElementById('botMaxOpen').value = s.maxOpenOrders;
   document.getElementById('botMaxSpread').value = s.maxSpreadCents;
@@ -1237,7 +1238,7 @@ function collectBotSettingsForm() {
   if (document.getElementById('botTierOutlier').checked) tiers.push('OUTLIER');
   return {
     strategy: document.getElementById('botStrategy').value,
-    cities: Array.from(document.getElementById('botCities').selectedOptions).map(o => o.value),
+    cities: Array.from(document.querySelectorAll('.botCityChk:checked')).map(el => el.value),
     minTradeAmount: parseFloat(document.getElementById('botMinTrade').value) || 0,
     maxOpenOrders: parseInt(document.getElementById('botMaxOpen').value) || 0,
     maxSpreadCents: parseFloat(document.getElementById('botMaxSpread').value) || 0,
@@ -1283,11 +1284,23 @@ async function scanPreview() {
     <div class="empty-note">${res.count} candidate${res.count>1?'s':''} found — this is a preview only, no trades were placed.</div>`;
 }
 
+function fmtTs(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return '—';
+  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
 function botTradeRow(t) {
   const statusPill = t.status === 'open' ? '<span class="pill grey">OPEN</span>'
     : t.status === 'WIN' ? '<span class="pill green">WIN</span>'
     : t.status === 'LOSS' ? '<span class="pill red">LOSS</span>'
     : `<span class="pill orange">CASHOUT${t.exitReason ? ' · '+t.exitReason : ''}</span>`;
+  const pnlCell = t.status === 'open'
+    ? (t.currentPriceCents != null
+        ? `${t.currentPriceCents.toFixed(1)}¢ <span class="${t.unrealizedProfit>=0?'hi':'lo'}" style="font-size:11px;">(${t.unrealizedProfit>=0?'+':''}$${t.unrealizedProfit.toFixed(2)})</span>`
+        : '<span class="muted">live price unavailable</span>')
+    : `${t.profit>=0?'+':''}$${t.profit.toFixed(2)}`;
   return `
     <tr>
       <td>${t.city}</td>
@@ -1296,8 +1309,9 @@ function botTradeRow(t) {
       <td>${t.bracketLabel}</td>
       <td class="mono">$${t.stake.toFixed(2)}</td>
       <td class="mono">${t.entryPriceCents}¢${t.cashoutPriceCents!=null ? ' → '+t.cashoutPriceCents+'¢' : ''}</td>
-      <td class="mono">${t.status==='open' ? '—' : (t.profit>=0?'+':'')+'$'+t.profit.toFixed(2)}</td>
+      <td class="mono">${pnlCell}</td>
       <td>${statusPill}</td>
+      <td style="font-size:11px;white-space:nowrap;">${fmtTs(t.openedAt)}</td>
       <td>${t.status==='open' ? `<button class="btn secondary small" onclick="closeBotTrade('${t.id}')">Cash out now</button>` : ''}
           <button class="btn secondary small" onclick="deleteBotTrade('${t.id}')">Delete</button></td>
     </tr>`;
@@ -1306,14 +1320,15 @@ function botTradeRow(t) {
 function renderBotTrades(trades) {
   const open = trades.filter(t => t.status === 'open');
   const closed = trades.filter(t => t.status !== 'open');
+  const head = `<thead><tr><th>City</th><th>Str.</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry→Exit</th><th>Live / P&amp;L</th><th>Status</th><th>Opened</th><th></th></tr></thead>`;
 
   document.getElementById('botOpenTradesWrap').innerHTML = open.length
-    ? `<table><thead><tr><th>City</th><th>Str.</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry→Exit</th><th>P&amp;L</th><th>Status</th><th></th></tr></thead><tbody>${open.map(botTradeRow).join('')}</tbody></table>`
+    ? `<table>${head}<tbody>${open.map(botTradeRow).join('')}</tbody></table>`
     : '<div class="empty-note">No open trades right now.</div>';
 
   document.getElementById('botClosedCount').textContent = `(${closed.length})`;
   document.getElementById('botClosedTradesWrap').innerHTML = closed.length
-    ? `<table><thead><tr><th>City</th><th>Str.</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry→Exit</th><th>P&amp;L</th><th>Status</th><th></th></tr></thead><tbody>${closed.map(botTradeRow).join('')}</tbody></table>`
+    ? `<table>${head}<tbody>${closed.map(botTradeRow).join('')}</tbody></table>`
     : '<div class="empty-note">Nothing closed yet.</div>';
 
   renderBotEquityChart(closed);
@@ -1324,30 +1339,65 @@ function downloadBotTradesCsv() {
   window.location.href = `/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades.csv`;
 }
 
-// Simple inline SVG equity curve — cumulative settled P&L over time, oldest
-// first. No charting library added; this is just a polyline over a handful
-// of points, which is all a paper account's win/loss shape needs.
+// Catmull-Rom → cubic Bezier conversion so the curve reads as a smooth trend
+// rather than a jagged trade-by-trade zigzag, while still passing exactly
+// through every real data point (no data is invented or smoothed away).
+function catmullRomToBezierPath(points) {
+  let d = `M${points[0][0].toFixed(1)},${points[0][1].toFixed(1)}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i - 1] || points[i];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2] || p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+
 function renderBotEquityChart(closedTrades) {
   const wrap = document.getElementById('botChartWrap');
   if (closedTrades.length < 2) { wrap.innerHTML = '<div class="empty-note">Equity curve appears once a couple of trades have settled.</div>'; return; }
   const ordered = [...closedTrades].sort((a,b) => new Date(a.settledAt) - new Date(b.settledAt));
   let running = 0;
-  const points = ordered.map(t => (running += t.profit));
-  const w = 720, h = 140, pad = 8;
-  const min = Math.min(0, ...points), max = Math.max(0, ...points);
+  const vals = ordered.map(t => (running += t.profit));
+
+  const w = 760, h = 220, padL = 56, padR = 16, padT = 18, padB = 30;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const min = Math.min(0, ...vals), max = Math.max(0, ...vals);
   const range = (max - min) || 1;
-  const x = i => pad + (i / (points.length - 1)) * (w - pad*2);
-  const y = v => h - pad - ((v - min) / range) * (h - pad*2);
-  const zeroY = y(0);
-  const path = points.map((v,i) => `${i===0?'M':'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
-  const last = points[points.length-1];
+  const x = i => padL + (vals.length === 1 ? 0 : (i / (vals.length - 1)) * plotW);
+  const y = v => padT + plotH - ((v - min) / range) * plotH;
+  const pts = vals.map((v,i) => [x(i), y(v)]);
+  const path = catmullRomToBezierPath(pts);
+  const last = vals[vals.length - 1];
   const stroke = last >= 0 ? '#3fd67a' : '#ff5c5c';
+
+  // Y-axis: 4 evenly spaced ticks across the actual range, always including 0.
+  const yTicks = Array.from(new Set([min, min + range/2, max, 0].map(v => Math.round(v * 100) / 100))).sort((a,b) => a - b);
+  const yGrid = yTicks.map(v => `
+    <line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${w-padR}" y2="${y(v).toFixed(1)}" stroke="var(--border)" stroke-width="${v===0?1.4:1}" stroke-dasharray="${v===0?'0':'4,3'}"/>
+    <text x="${padL-8}" y="${(y(v)+3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)">$${v.toFixed(0)}</text>`).join('');
+
+  // X-axis: date labels at first, middle, last point — enough to read the timeframe without crowding.
+  const idxs = vals.length <= 3 ? vals.map((_,i)=>i) : [0, Math.floor((vals.length-1)/2), vals.length-1];
+  const xLabels = idxs.map(i => {
+    const d = new Date(ordered[i].settledAt);
+    const label = isNaN(d) ? `#${i+1}` : d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+    return `<text x="${x(i).toFixed(1)}" y="${h-8}" text-anchor="middle" font-size="10" fill="var(--muted)">${label}</text>`;
+  }).join('');
+
   wrap.innerHTML = `
-    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:140px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
-      <line x1="${pad}" y1="${zeroY.toFixed(1)}" x2="${w-pad}" y2="${zeroY.toFixed(1)}" stroke="var(--border)" stroke-dasharray="4,3"/>
-      <path d="${path}" fill="none" stroke="${stroke}" stroke-width="2"/>
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:220px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+      ${yGrid}
+      <path d="${path}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map(([px,py]) => `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.5" fill="${stroke}"/>`).join('')}
+      <text x="${padL}" y="12" font-size="10" fill="var(--muted)">Cumulative P&amp;L ($) — y axis</text>
+      ${xLabels}
+      <text x="${w-padR}" y="${h-8}" text-anchor="end" font-size="9" fill="var(--muted)" opacity="0.7">date settled — x axis</text>
     </svg>
-    <div class="muted" style="font-size:11px;margin-top:4px;">Equity curve — cumulative settled P&amp;L across ${points.length} closed trade${points.length>1?'s':''}, oldest to newest.</div>`;
+    <div class="muted" style="font-size:11px;margin-top:4px;">Equity curve — cumulative settled P&amp;L across ${vals.length} closed trades, oldest (left) to newest (right).</div>`;
 }
 
 async function closeBotTrade(tradeId) {

@@ -13384,14 +13384,15 @@
           "bracketLabel": "22°C",
           "stake": 10,
           "entryPriceCents": 0,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T10:27:25.254Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T10:28:33.236Z",
+          "profit": -10,
+          "autoResolved": true
         },
         {
           "id": "1788258367884-n800x",

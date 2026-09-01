@@ -3183,6 +3183,8 @@ function botAccountBalance(acc) {
 // 5 — StationEdge Opportunities: model vs market, EDGE/FAIR VALUE/OUTLIER
 // 6 — StationEdge Advance Scan: full-bracket arbitrage only (top-3 screen is informational, not auto-traded)
 // 7 — Aligned Yes: model's own barbell bracket where market price already confirms it
+// 8 — No 90c+ below the predicted high only (excludes the outlier-upside brackets that caused past losses)
+// 9 — Double Yes x SE: YES only, both StationEdge forecast-pair brackets, manual-pick cities only
 
 async function botCandidatesStrategy1to3(strategyNum, codes) {
   const out = [];
@@ -3293,10 +3295,75 @@ async function botCandidatesStrategy7(codes, settings) {
   return out;
 }
 
+// Strategy 8 — No 90c+ but ONLY below the predicted high. The losing pattern
+// this was built to avoid: a cheap No bracket sitting AT or ABOVE the day's
+// forecasted high is a bet against a heat spike that hasn't happened yet —
+// exactly the outlier-upside risk that caused Willow's past No losses.
+// Brackets whose entire range sits below the forecast are a much safer
+// "the actual max won't dip down there" bet instead of "it won't spike up there."
+async function botCandidatesStrategy8(codes) {
+  const out = [];
+  for (const code of codes) {
+    const meta = STATIONEDGE_STATIONS[code];
+    let station; try { station = await seStation(code); } catch (e) { continue; }
+    const hf = station?.highForecast;
+    if (!hf || !Number.isFinite(hf.predictedHighC)) continue;
+    const poly = await fetchPolymarketEvent(meta.city);
+    if (!poly || !poly.outcomes.length) continue;
+    for (const o of poly.outcomes) {
+      if (!Number.isFinite(o.prob)) continue;
+      const noCents = 100 - o.prob;
+      if (noCents < 90) continue;
+      const range = seParseBracketRange(o.bracket);
+      if (!range) continue;
+      const predHighInUnit = range.unit === 'F' ? (hf.predictedHighC * 9 / 5 + 32) : hf.predictedHighC;
+      if (range.max >= predHighInUnit) continue; // exclude anything at/above the forecast
+      out.push({ city: meta.city, code, strategy: '8', side: 'NO', bracket: o.bracket, priceCents: noCents, volume: o.volume, outcome: o });
+    }
+  }
+  return out;
+}
+
+// Strategy 9 — Double Yes x SE. YES-only, sourced directly from StationEdge's
+// own stated forecast pair (primaryOutcomesC = [predictedLowC, predictedHighC],
+// the exact two values shown as "Primary Yes Barbell" on Live Monitor) rather
+// than any market-price cutoff. Deliberately requires the cities to be
+// hand-picked (settings.cities) — this only makes sense on cities Willow has
+// already vetted as StationEdge's strongest performers, never a blanket scan.
+async function botCandidatesStrategy9(codes) {
+  const out = [];
+  for (const code of codes) {
+    const meta = STATIONEDGE_STATIONS[code];
+    let station; try { station = await seStation(code); } catch (e) { continue; }
+    const hf = station?.highForecast;
+    if (!hf || !Array.isArray(hf.primaryOutcomesC) || hf.primaryOutcomesC.length < 2) continue;
+    const poly = await fetchPolymarketEvent(meta.city);
+    if (!poly || !poly.outcomes.length) continue;
+    const seen = new Set();
+    for (const cVal of hf.primaryOutcomesC) {
+      for (const o of poly.outcomes) {
+        if (!Number.isFinite(o.prob) || seen.has(o.bracket)) continue;
+        const range = seParseBracketRange(o.bracket);
+        if (!range) continue;
+        const val = range.unit === 'F' ? (cVal * 9 / 5 + 32) : cVal;
+        if (val >= range.min - 0.5 && val <= range.max + 0.5) {
+          seen.add(o.bracket);
+          out.push({ city: meta.city, code, strategy: '9', side: 'YES', bracket: o.bracket, priceCents: o.prob, volume: o.volume, outcome: o });
+        }
+      }
+    }
+  }
+  return out;
+}
+
 async function botScanCandidates(settings) {
   const allCodes = Object.keys(STATIONEDGE_STATIONS);
   const cityFilter = (settings.cities && settings.cities.length) ? new Set(settings.cities) : null;
   const codes = cityFilter ? allCodes.filter(c => cityFilter.has(STATIONEDGE_STATIONS[c].city)) : allCodes;
+
+  // Strategy 9 is deliberately manual-pick-only — never falls back to a
+  // blanket scan of all 23 cities even if the city list is left empty.
+  if (settings.strategy === '9' && !codes.length) return [];
 
   let candidates = [];
   if (['1', '2', '3'].includes(settings.strategy)) candidates = await botCandidatesStrategy1to3(settings.strategy, codes);
@@ -3304,11 +3371,14 @@ async function botScanCandidates(settings) {
   else if (settings.strategy === '5') candidates = await botCandidatesStrategy5(codes, settings);
   else if (settings.strategy === '6') candidates = await botCandidatesStrategy6(codes, settings);
   else if (settings.strategy === '7') candidates = await botCandidatesStrategy7(codes, settings);
+  else if (settings.strategy === '8') candidates = await botCandidatesStrategy8(codes);
+  else if (settings.strategy === '9') candidates = await botCandidatesStrategy9(codes);
 
   // Price-window filters apply to the price-cutoff strategies only — 5 is
-  // already gated by edge%/qualify tier, 6 by the arb-sum threshold, so
-  // forcing a No/Yes price window onto those would just fight their own logic.
-  if (!['5', '6'].includes(settings.strategy)) {
+  // already gated by edge%/qualify tier, 6 by the arb-sum threshold, 9 by
+  // StationEdge's own forecast pair — forcing a No/Yes price window onto
+  // those would just fight their own logic.
+  if (!['5', '6', '9'].includes(settings.strategy)) {
     candidates = candidates.filter(c => c.side === 'NO'
       ? (settings.noBuyMinCents == null || c.priceCents >= settings.noBuyMinCents) && (settings.noBuyMaxCents == null || c.priceCents <= settings.noBuyMaxCents)
       : (settings.yesBuyMinCents == null || c.priceCents >= settings.yesBuyMinCents) && (settings.yesBuyMaxCents == null || c.priceCents <= settings.yesBuyMaxCents));
@@ -3517,6 +3587,26 @@ app.delete('/api/bot/accounts/:id/trades/:tradeId', async (req, res) => {
     acc.trades = acc.trades.filter(t => t.id !== req.params.tradeId);
     await saveBot(bot);
     res.json({ ok: true, ...botAccountBalance(acc) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// CSV export for backtesting — every trade (open + closed), one row each.
+// Closed trades are what backtest analysis actually needs; open ones are
+// included too so an in-progress export still shows what's currently live.
+app.get('/api/bot/accounts/:id/trades.csv', async (req, res) => {
+  try {
+    const bot = await loadBot();
+    const acc = bot.accounts[req.params.id];
+    if (!acc) return res.status(404).json({ error: 'account not found' });
+    const cols = ['id','city','strategy','side','bracketLabel','stake','entryPriceCents','cashoutPriceCents','status','exitReason','qualifies','edgePct','profit','openedAt','settledAt'];
+    const esc = v => { const s = v === null || v === undefined ? '' : String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g,'""')}"` : s; };
+    const lines = [cols.join(',')];
+    for (const t of acc.trades) lines.push(cols.map(c => esc(t[c])).join(','));
+    const csv = lines.join('\n');
+    const filename = `nyamcoder-${acc.name.replace(/[^a-z0-9]+/gi,'-').toLowerCase()}-trades.csv`;
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send(csv);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

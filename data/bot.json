@@ -13185,14 +13185,14 @@
       "startingBalance": 1000,
       "createdAt": "2026-09-01T07:48:12.150Z",
       "settings": {
-        "strategy": "3",
+        "strategy": "8",
         "cities": [],
-        "minTradeAmount": 5,
-        "maxOpenOrders": 10,
+        "minTradeAmount": 20,
+        "maxOpenOrders": 15,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
         "noBuyMinCents": 90,
-        "noBuyMaxCents": 97,
+        "noBuyMaxCents": 90,
         "yesBuyMinCents": 90,
         "yesBuyMaxCents": 99,
         "minEdgePct": 10,
@@ -13209,10 +13209,10 @@
         "scalpUnit": "cents",
         "scalpStep": 10,
         "reBuyAfterScalp": true,
-        "stopLossEnabled": false,
+        "stopLossEnabled": true,
         "stopLossUnit": "cents",
-        "stopLossValue": 10,
-        "autoTradeEnabled": false
+        "stopLossValue": 70,
+        "autoTradeEnabled": true
       },
       "trades": []
     }

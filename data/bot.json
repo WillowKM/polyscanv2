@@ -12824,7 +12824,46 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1788238046651-jys4n",
+          "accountId": "acc_1788237774173_0c9el",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "strategy": "9",
+          "side": "YES",
+          "bracketLabel": "27°C",
+          "stake": 10,
+          "entryPriceCents": 69,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T04:47:26.651Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1788238046651-zvign",
+          "accountId": "acc_1788237774173_0c9el",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "strategy": "9",
+          "side": "YES",
+          "bracketLabel": "26°C",
+          "stake": 10,
+          "entryPriceCents": 32,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T04:47:26.651Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     }
   }
 }

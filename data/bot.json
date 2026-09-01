@@ -12276,14 +12276,15 @@
           "bracketLabel": "25°C",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T06:27:41.682Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T15:07:48.883Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788241477329-kefoh",

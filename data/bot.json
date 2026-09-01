@@ -12469,14 +12469,15 @@
           "bracketLabel": "90-91°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T19:02:54.566Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T20:52:28.907Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788287390160-eppv4",
@@ -14313,7 +14314,7 @@
       },
       "trades": [
         {
-          "id": "1788295897141-yw581",
+          "id": "1788295972246-stla8",
           "accountId": "acc_1788237774173_0c9el",
           "city": "Helsinki",
           "code": "EFHK",
@@ -14327,9 +14328,29 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-01T20:51:37.141Z",
+          "openedAt": "2026-09-01T20:52:52.246Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1788295897141-yw581",
+          "accountId": "acc_1788237774173_0c9el",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "9",
+          "side": "YES",
+          "bracketLabel": "20°C",
+          "stake": 20,
+          "entryPriceCents": 100,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T20:51:37.141Z",
+          "settledAt": "2026-09-01T20:52:51.933Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788295808735-vep5l",
@@ -19398,14 +19419,15 @@
           "bracketLabel": "92-93°F",
           "stake": 20,
           "entryPriceCents": 90,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 18,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T19:33:33.584Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T20:52:52.246Z",
+          "profit": -16,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788285774361-dbwe6",

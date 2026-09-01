@@ -3330,7 +3330,10 @@ async function botCandidatesStrategy8(codes) {
 // than any market-price cutoff. Deliberately requires the cities to be
 // hand-picked (settings.cities) — this only makes sense on cities Willow has
 // already vetted as StationEdge's strongest performers, never a blanket scan.
-async function botCandidatesStrategy9(codes) {
+// Stake is split proportionally by price across the pair (same math as the
+// Trade Structurer / Strategy 3 barbell) so profit comes out equal regardless
+// of which of the two legs actually hits.
+async function botCandidatesStrategy9(codes, settings) {
   const out = [];
   for (const code of codes) {
     const meta = STATIONEDGE_STATIONS[code];
@@ -3340,6 +3343,7 @@ async function botCandidatesStrategy9(codes) {
     const poly = await fetchPolymarketEvent(meta.city);
     if (!poly || !poly.outcomes.length) continue;
     const seen = new Set();
+    const legs = [];
     for (const cVal of hf.primaryOutcomesC) {
       for (const o of poly.outcomes) {
         if (!Number.isFinite(o.prob) || seen.has(o.bracket)) continue;
@@ -3348,9 +3352,18 @@ async function botCandidatesStrategy9(codes) {
         const val = range.unit === 'F' ? (cVal * 9 / 5 + 32) : cVal;
         if (val >= range.min - 0.5 && val <= range.max + 0.5) {
           seen.add(o.bracket);
-          out.push({ city: meta.city, code, strategy: '9', side: 'YES', bracket: o.bracket, priceCents: o.prob, volume: o.volume, outcome: o });
+          legs.push({ bracket: o.bracket, priceCents: o.prob, volume: o.volume, outcome: o });
         }
       }
+    }
+    if (!legs.length) continue;
+    // Barbell split: stake_i proportional to price_i so shares_i (=stake_i/price_i)
+    // come out equal across legs — same payout whichever leg resolves true.
+    const sumCents = legs.reduce((s, l) => s + l.priceCents, 0);
+    const totalBudget = (settings.minTradeAmount || 5) * legs.length;
+    for (const leg of legs) {
+      const stake = sumCents > 0 ? Math.round((totalBudget * leg.priceCents / sumCents) * 100) / 100 : totalBudget / legs.length;
+      out.push({ city: meta.city, code, strategy: '9', side: 'YES', bracket: leg.bracket, priceCents: leg.priceCents, volume: leg.volume, outcome: leg.outcome, arbStakeOverride: stake });
     }
   }
   return out;
@@ -3372,7 +3385,7 @@ async function botScanCandidates(settings) {
   else if (settings.strategy === '6') candidates = await botCandidatesStrategy6(codes, settings);
   else if (settings.strategy === '7') candidates = await botCandidatesStrategy7(codes, settings);
   else if (settings.strategy === '8') candidates = await botCandidatesStrategy8(codes);
-  else if (settings.strategy === '9') candidates = await botCandidatesStrategy9(codes);
+  else if (settings.strategy === '9') candidates = await botCandidatesStrategy9(codes, settings);
 
   // Price-window filters apply to the price-cutoff strategies only — 5 is
   // already gated by edge%/qualify tier, 6 by the arb-sum threshold, 9 by
@@ -3536,7 +3549,21 @@ app.get('/api/bot/accounts/:id', async (req, res) => {
     const bot = await loadBot();
     const acc = bot.accounts[req.params.id];
     if (!acc) return res.status(404).json({ error: 'account not found' });
-    res.json({ id: acc.id, name: acc.name, settings: acc.settings, trades: acc.trades, ...botAccountBalance(acc) });
+    // Enrich open trades with a live mark so Willow can see whether a trade
+    // is going the wrong way before deciding to cash it out manually. Uses
+    // the same 3-min Polymarket cache as the rest of the app, so this is as
+    // fresh as everything else on the dashboard, not a separate live feed.
+    const trades = await Promise.all(acc.trades.map(async t => {
+      if (t.status !== 'open') return t;
+      const polyData = await fetchPolymarketEvent(t.city);
+      const match = polyData?.outcomes?.find(o => o.bracket === t.bracketLabel);
+      if (!match || match.prob === null) return { ...t, currentPriceCents: null, unrealizedProfit: null };
+      const currentSideCents = t.side === 'YES' ? match.prob : (100 - match.prob);
+      const shares = t.stake / (t.entryPriceCents / 100);
+      const unrealizedProfit = parseFloat((shares * (currentSideCents / 100) - t.stake).toFixed(4));
+      return { ...t, currentPriceCents: currentSideCents, unrealizedProfit };
+    }));
+    res.json({ id: acc.id, name: acc.name, settings: acc.settings, trades, ...botAccountBalance(acc) });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 

@@ -741,14 +741,15 @@
           "bracketLabel": "24°C",
           "stake": 5,
           "entryPriceCents": 92,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T00:04:35.667Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T16:58:36.329Z",
+          "profit": 0.4348,
+          "autoResolved": true
         },
         {
           "id": "1788221075667-8wn34",
@@ -6386,6 +6387,25 @@
       },
       "trades": [
         {
+          "id": "1788281917395-qiiq9",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T16:58:37.395Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788273629875-cjm08",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Houston",
@@ -6588,14 +6608,15 @@
           "bracketLabel": "24°C",
           "stake": 5,
           "entryPriceCents": 92,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T03:58:30.619Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T16:58:37.370Z",
+          "profit": 0.4348,
+          "autoResolved": true
         },
         {
           "id": "1788235110619-mt6hm",
@@ -9154,6 +9175,25 @@
       },
       "trades": [
         {
+          "id": "1788281917425-gsqda",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T16:58:37.425Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788279095780-u0wkp",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Los Angeles",
@@ -9416,14 +9456,15 @@
           "bracketLabel": "24°C",
           "stake": 50,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T04:55:55.801Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T16:58:37.395Z",
+          "profit": 3.1915,
+          "autoResolved": true
         },
         {
           "id": "1788235487207-ts8pu",
@@ -12492,14 +12533,15 @@
           "bracketLabel": "24°C",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T04:58:26.922Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T16:58:37.425Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788236693369-inpqv",
@@ -13916,7 +13958,7 @@
       },
       "trades": [
         {
-          "id": "1788281865738-bhgym",
+          "id": "1788281943182-6em3d",
           "accountId": "acc_1788237774173_0c9el",
           "city": "Helsinki",
           "code": "EFHK",
@@ -13930,9 +13972,29 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-01T16:57:45.738Z",
+          "openedAt": "2026-09-01T16:59:03.182Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1788281865738-bhgym",
+          "accountId": "acc_1788237774173_0c9el",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "9",
+          "side": "YES",
+          "bracketLabel": "20°C",
+          "stake": 20,
+          "entryPriceCents": 100,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T16:57:45.738Z",
+          "settledAt": "2026-09-01T16:59:02.826Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788281759464-7ohvr",

@@ -13292,6 +13292,25 @@
       },
       "trades": [
         {
+          "id": "1788249737049-r1woh",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T08:02:17.049Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788249058501-r8oo2",
           "accountId": "acc_1788248892150_624ke",
           "city": "Miami",

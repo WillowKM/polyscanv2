@@ -13214,7 +13214,46 @@
         "stopLossValue": 70,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1788249058501-r8oo2",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "92-93°F",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T07:50:58.501Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1788249058501-yt4y9",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Dallas",
+          "code": "KDAL",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T07:50:58.501Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     }
   }
 }

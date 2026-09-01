@@ -13907,14 +13907,15 @@
           "bracketLabel": "20°C",
           "stake": 10,
           "entryPriceCents": 63,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T04:54:48.011Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T15:10:51.342Z",
+          "profit": 5.873,
+          "autoResolved": true
         },
         {
           "id": "1788238488011-bbcow",

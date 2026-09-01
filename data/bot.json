@@ -12581,14 +12581,15 @@
           "bracketLabel": "100-101°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T21:47:59.998Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T23:42:44.429Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788298322897-efsbo",

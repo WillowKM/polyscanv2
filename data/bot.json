@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1788250832668-749mw",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T08:20:32.668Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788249229276-x9px9",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Seattle",
@@ -8775,6 +8794,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788250832690-5ir3x",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T08:20:32.690Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788249229299-mrr8t",
           "accountId": "acc_1787932846731_gxbwz",

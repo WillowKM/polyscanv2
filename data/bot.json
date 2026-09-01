@@ -637,14 +637,15 @@
           "bracketLabel": "94-95°F",
           "stake": 5,
           "entryPriceCents": 87,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T00:04:35.667Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T21:36:38.630Z",
+          "profit": -5,
+          "autoResolved": true
         },
         {
           "id": "1788221075667-bl2un",
@@ -695,14 +696,15 @@
           "bracketLabel": "92-93°F",
           "stake": 5,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T00:04:35.667Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T21:36:38.682Z",
+          "profit": -5,
+          "autoResolved": true
         },
         {
           "id": "1788221075667-vd2ej",
@@ -9955,14 +9957,15 @@
           "bracketLabel": "92-93°F",
           "stake": 50,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T00:04:35.768Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T21:36:39.469Z",
+          "profit": -50,
+          "autoResolved": true
         },
         {
           "id": "1788221075768-382g5",
@@ -12608,14 +12611,15 @@
           "bracketLabel": "92-93°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T18:17:50.875Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T21:36:39.497Z",
+          "profit": -25,
+          "autoResolved": true
         },
         {
           "id": "1788285958782-vypcc",

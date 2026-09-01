@@ -210,12 +210,13 @@ tr:hover td { background:rgba(255,255,255,0.02); }
   </div>
 
   <div class="stat-row" id="botStatRow"></div>
+  <div id="botChartWrap" style="margin-top:14px;"></div>
 
   <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
     <h2 style="margin-bottom:10px;">Strategy &amp; Filters</h2>
     <div class="grid-inputs">
       <div class="field"><label>Strategy</label>
-        <select id="botStrategy" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:280px;">
+        <select id="botStrategy" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:280px;" onchange="applyStrategyDefaults()">
           <option value="1">1 — Tail No 90c+</option>
           <option value="2">2 — Paired Yes+No 90c+ near close</option>
           <option value="3">3 — Barbell</option>
@@ -223,7 +224,10 @@ tr:hover td { background:rgba(255,255,255,0.02); }
           <option value="5">5 — StationEdge Opportunities (model vs market)</option>
           <option value="6">6 — StationEdge Advance Scan (arbitrage)</option>
           <option value="7">7 — Aligned Yes (forecast confirms market)</option>
+          <option value="8">8 — No 90c+ below predicted high only</option>
+          <option value="9">9 — Double Yes x SE (manual cities only)</option>
         </select>
+        <div class="muted" id="strategyHint" style="font-size:11px;margin-top:4px;"></div>
       </div>
       <div class="field" style="width:260px;"><label>Cities (empty = all)</label>
         <select id="botCities" multiple size="4" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px;font-size:12.5px;width:260px;"></select>
@@ -293,8 +297,16 @@ tr:hover td { background:rgba(255,255,255,0.02); }
   <div id="botPreviewWrap" style="margin-top:10px;"></div>
 
   <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
-    <h2 style="margin-bottom:10px;">Paper Trades</h2>
-    <div id="botTradesWrap"></div>
+    <h2 style="margin-bottom:10px;">Open Trades</h2>
+    <div id="botOpenTradesWrap"></div>
+  </div>
+
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+    <details id="botClosedDetails">
+      <summary style="cursor:pointer;font-weight:600;font-size:14px;padding:4px 0;">Closed Trades <span id="botClosedCount" class="muted"></span></summary>
+      <div style="margin:10px 0;"><button class="btn secondary small" onclick="downloadBotTradesCsv()">Download CSV (backtest)</button></div>
+      <div id="botClosedTradesWrap"></div>
+    </details>
   </div>
 </div>
 
@@ -1136,8 +1148,60 @@ function renderBotStats(acc) {
   `;
 }
 
+const STRATEGY_HINTS = {
+  '1': 'Tail No 90c+ — buys No wherever the market already prices it 91-97c.',
+  '2': 'Paired Yes+No 90c+ — once a city has a tail-No bracket, also takes Yes on any bracket ≥90c.',
+  '3': 'Barbell — Yes on the top-2 mid-probability brackets (20-50%), No on the cheap tails.',
+  '4': 'No 90c+ outside the barbell — broader tail-No net, no barbell required to exist.',
+  '5': 'StationEdge Opportunities — trades wherever the model disagrees (or strongly agrees) with the market.',
+  '6': 'Advance Scan arbitrage — Yes on every bracket when the full sum prices under 99c, guaranteed payout.',
+  '7': 'Aligned Yes — Yes only on the model\'s own forecast bracket once the market price confirms it.',
+  '8': 'No 90c+ below predicted high — skips any bracket at/above the forecast, avoiding the outlier-spike losses.',
+  '9': 'Double Yes x SE — Yes on both of StationEdge\'s forecast-pair brackets. Pick your cities below; it will not scan all 23 automatically.',
+};
+
+const STRATEGY_DEFAULTS = {
+  '1': { noBuyMinCents: 91, noBuyMaxCents: 97, exitMode: 'hold', maxSpreadCents: 3, minTradeAmount: 10 },
+  '2': { noBuyMinCents: 91, noBuyMaxCents: 97, yesBuyMinCents: 90, yesBuyMaxCents: 99, exitMode: 'hold', minTradeAmount: 10 },
+  '3': { yesBuyMinCents: 20, yesBuyMaxCents: 50, noBuyMinCents: 1, noBuyMaxCents: 20, exitMode: 'hold', minTradeAmount: 5 },
+  '4': { noBuyMinCents: 90, noBuyMaxCents: 99, exitMode: 'hold', minTradeAmount: 10 },
+  '5': { minEdgePct: 10, qualifyTiersOverride: ['EDGE','FAIR VALUE'], exitMode: 'hold', minTradeAmount: 5 },
+  '6': { exitMode: 'hold', minTradeAmount: 5, maxSpreadCents: 0 },
+  '7': { alignedYesMinCents: 60, exitMode: 'hold', minTradeAmount: 5 },
+  '8': { noBuyMinCents: 90, noBuyMaxCents: 99, exitMode: 'hold', minTradeAmount: 10, stopLossEnabled: true, stopLossUnit: 'cents', stopLossValue: 15 },
+  '9': { cities: [], exitMode: 'target', targetUnit: 'cents', targetValue: 8, minTradeAmount: 10 },
+};
+
+function applyStrategyDefaults() {
+  const s = document.getElementById('botStrategy').value;
+  document.getElementById('strategyHint').textContent = STRATEGY_HINTS[s] || '';
+  const d = STRATEGY_DEFAULTS[s];
+  if (!d) return;
+  if (d.noBuyMinCents !== undefined) document.getElementById('botNoMin').value = d.noBuyMinCents;
+  if (d.noBuyMaxCents !== undefined) document.getElementById('botNoMax').value = d.noBuyMaxCents;
+  if (d.yesBuyMinCents !== undefined) document.getElementById('botYesMin').value = d.yesBuyMinCents;
+  if (d.yesBuyMaxCents !== undefined) document.getElementById('botYesMax').value = d.yesBuyMaxCents;
+  if (d.minEdgePct !== undefined) document.getElementById('botMinEdge').value = d.minEdgePct;
+  if (d.qualifyTiersOverride) {
+    document.getElementById('botTierEdge').checked = d.qualifyTiersOverride.includes('EDGE');
+    document.getElementById('botTierFair').checked = d.qualifyTiersOverride.includes('FAIR VALUE');
+    document.getElementById('botTierOutlier').checked = d.qualifyTiersOverride.includes('OUTLIER');
+  }
+  if (d.alignedYesMinCents !== undefined) document.getElementById('botAlignedYesMin').value = d.alignedYesMinCents;
+  if (d.exitMode !== undefined) document.getElementById('botExitMode').value = d.exitMode;
+  if (d.targetUnit !== undefined) document.getElementById('botTargetUnit').value = d.targetUnit;
+  if (d.targetValue !== undefined) document.getElementById('botTargetValue').value = d.targetValue;
+  if (d.maxSpreadCents !== undefined) document.getElementById('botMaxSpread').value = d.maxSpreadCents;
+  if (d.minTradeAmount !== undefined) document.getElementById('botMinTrade').value = d.minTradeAmount;
+  if (d.stopLossEnabled !== undefined) document.getElementById('botStopLossEnabled').checked = d.stopLossEnabled;
+  if (d.stopLossUnit !== undefined) document.getElementById('botStopLossUnit').value = d.stopLossUnit;
+  if (d.stopLossValue !== undefined) document.getElementById('botStopLossValue').value = d.stopLossValue;
+  if (d.cities !== undefined) Array.from(document.getElementById('botCities').options).forEach(o => o.selected = false);
+}
+
 function renderBotSettingsForm(s) {
   document.getElementById('botStrategy').value = s.strategy;
+  document.getElementById('strategyHint').textContent = STRATEGY_HINTS[s.strategy] || '';
   Array.from(document.getElementById('botCities').options).forEach(o => o.selected = s.cities.includes(o.value));
   document.getElementById('botMinTrade').value = s.minTradeAmount;
   document.getElementById('botMaxOpen').value = s.maxOpenOrders;
@@ -1219,13 +1283,12 @@ async function scanPreview() {
     <div class="empty-note">${res.count} candidate${res.count>1?'s':''} found — this is a preview only, no trades were placed.</div>`;
 }
 
-function renderBotTrades(trades) {
-  if (!trades.length) { document.getElementById('botTradesWrap').innerHTML = '<div class="empty-note">No paper trades logged yet for this account.</div>'; return; }
-  const statusPill = t => t.status === 'open' ? '<span class="pill grey">OPEN</span>'
+function botTradeRow(t) {
+  const statusPill = t.status === 'open' ? '<span class="pill grey">OPEN</span>'
     : t.status === 'WIN' ? '<span class="pill green">WIN</span>'
     : t.status === 'LOSS' ? '<span class="pill red">LOSS</span>'
     : `<span class="pill orange">CASHOUT${t.exitReason ? ' · '+t.exitReason : ''}</span>`;
-  const rows = trades.map(t => `
+  return `
     <tr>
       <td>${t.city}</td>
       <td><span class="pill grey">S${t.strategy}</span></td>
@@ -1234,13 +1297,57 @@ function renderBotTrades(trades) {
       <td class="mono">$${t.stake.toFixed(2)}</td>
       <td class="mono">${t.entryPriceCents}¢${t.cashoutPriceCents!=null ? ' → '+t.cashoutPriceCents+'¢' : ''}</td>
       <td class="mono">${t.status==='open' ? '—' : (t.profit>=0?'+':'')+'$'+t.profit.toFixed(2)}</td>
-      <td>${statusPill(t)}</td>
+      <td>${statusPill}</td>
       <td>${t.status==='open' ? `<button class="btn secondary small" onclick="closeBotTrade('${t.id}')">Cash out now</button>` : ''}
           <button class="btn secondary small" onclick="deleteBotTrade('${t.id}')">Delete</button></td>
-    </tr>`).join('');
-  document.getElementById('botTradesWrap').innerHTML = `
-    <table><thead><tr><th>City</th><th>Str.</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry→Exit</th><th>P&amp;L</th><th>Status</th><th></th></tr></thead>
-    <tbody>${rows}</tbody></table>`;
+    </tr>`;
+}
+
+function renderBotTrades(trades) {
+  const open = trades.filter(t => t.status === 'open');
+  const closed = trades.filter(t => t.status !== 'open');
+
+  document.getElementById('botOpenTradesWrap').innerHTML = open.length
+    ? `<table><thead><tr><th>City</th><th>Str.</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry→Exit</th><th>P&amp;L</th><th>Status</th><th></th></tr></thead><tbody>${open.map(botTradeRow).join('')}</tbody></table>`
+    : '<div class="empty-note">No open trades right now.</div>';
+
+  document.getElementById('botClosedCount').textContent = `(${closed.length})`;
+  document.getElementById('botClosedTradesWrap').innerHTML = closed.length
+    ? `<table><thead><tr><th>City</th><th>Str.</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry→Exit</th><th>P&amp;L</th><th>Status</th><th></th></tr></thead><tbody>${closed.map(botTradeRow).join('')}</tbody></table>`
+    : '<div class="empty-note">Nothing closed yet.</div>';
+
+  renderBotEquityChart(closed);
+}
+
+function downloadBotTradesCsv() {
+  if (!BOT_CURRENT_ACCOUNT_ID) return;
+  window.location.href = `/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades.csv`;
+}
+
+// Simple inline SVG equity curve — cumulative settled P&L over time, oldest
+// first. No charting library added; this is just a polyline over a handful
+// of points, which is all a paper account's win/loss shape needs.
+function renderBotEquityChart(closedTrades) {
+  const wrap = document.getElementById('botChartWrap');
+  if (closedTrades.length < 2) { wrap.innerHTML = '<div class="empty-note">Equity curve appears once a couple of trades have settled.</div>'; return; }
+  const ordered = [...closedTrades].sort((a,b) => new Date(a.settledAt) - new Date(b.settledAt));
+  let running = 0;
+  const points = ordered.map(t => (running += t.profit));
+  const w = 720, h = 140, pad = 8;
+  const min = Math.min(0, ...points), max = Math.max(0, ...points);
+  const range = (max - min) || 1;
+  const x = i => pad + (i / (points.length - 1)) * (w - pad*2);
+  const y = v => h - pad - ((v - min) / range) * (h - pad*2);
+  const zeroY = y(0);
+  const path = points.map((v,i) => `${i===0?'M':'L'}${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+  const last = points[points.length-1];
+  const stroke = last >= 0 ? '#3fd67a' : '#ff5c5c';
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:140px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+      <line x1="${pad}" y1="${zeroY.toFixed(1)}" x2="${w-pad}" y2="${zeroY.toFixed(1)}" stroke="var(--border)" stroke-dasharray="4,3"/>
+      <path d="${path}" fill="none" stroke="${stroke}" stroke-width="2"/>
+    </svg>
+    <div class="muted" style="font-size:11px;margin-top:4px;">Equity curve — cumulative settled P&amp;L across ${points.length} closed trade${points.length>1?'s':''}, oldest to newest.</div>`;
 }
 
 async function closeBotTrade(tradeId) {

@@ -13772,6 +13772,25 @@
       },
       "trades": [
         {
+          "id": "1788266466955-b6wm1",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "82-83°F",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T12:41:06.955Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788254592958-dpq7d",
           "accountId": "acc_1788248892150_624ke",
           "city": "Munich",
@@ -13965,7 +13984,7 @@
       },
       "trades": [
         {
-          "id": "1788266395259-ta46i",
+          "id": "1788266467246-7t5mq",
           "accountId": "acc_1788253274300_b7eyr",
           "city": "London",
           "code": "EGLC",
@@ -13979,9 +13998,29 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-01T12:39:55.259Z",
+          "openedAt": "2026-09-01T12:41:07.246Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1788266395259-ta46i",
+          "accountId": "acc_1788253274300_b7eyr",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "7",
+          "side": "YES",
+          "bracketLabel": "23°C",
+          "stake": 250,
+          "entryPriceCents": 63,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 63,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T12:39:55.259Z",
+          "settledAt": "2026-09-01T12:41:06.955Z",
+          "profit": 0,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788266326491-8l52q",

@@ -640,14 +640,15 @@
           "bracketLabel": "21°C",
           "stake": 5,
           "entryPriceCents": 92,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T00:04:35.667Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T12:03:43.660Z",
+          "profit": 0.4348,
+          "autoResolved": true
         },
         {
           "id": "1788221075667-ljak0",
@@ -6265,6 +6266,25 @@
       },
       "trades": [
         {
+          "id": "1788264225522-cfiq8",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "78-79°F",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T12:03:45.522Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788260123375-wisiq",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Istanbul",
@@ -6427,14 +6447,15 @@
           "bracketLabel": "21°C",
           "stake": 5,
           "entryPriceCents": 92,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T03:58:30.619Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T12:03:45.499Z",
+          "profit": 0.4348,
+          "autoResolved": true
         },
         {
           "id": "1788221075735-cx1p2",
@@ -8973,6 +8994,25 @@
       },
       "trades": [
         {
+          "id": "1788264225544-koctz",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "92-93°F",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-01T12:03:45.544Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788260718134-imehy",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Los Angeles",
@@ -9058,14 +9098,15 @@
           "bracketLabel": "21°C",
           "stake": 50,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T08:26:09.477Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T12:03:45.522Z",
+          "profit": 3.1915,
+          "autoResolved": true
         },
         {
           "id": "1788250832690-5ir3x",

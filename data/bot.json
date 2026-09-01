@@ -11899,14 +11899,15 @@
           "bracketLabel": "22°C",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T08:09:16.932Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T11:58:23.686Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788249481753-kuom5",

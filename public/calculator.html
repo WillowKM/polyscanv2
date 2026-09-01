@@ -1090,7 +1090,7 @@ function setMode(mode) {
   if (isBot) {
     if (BOT_REFRESH_TIMER) clearInterval(BOT_REFRESH_TIMER);
     initBotPanel();
-    BOT_REFRESH_TIMER = setInterval(refreshBotAccount, 20000);
+    BOT_REFRESH_TIMER = setInterval(() => refreshBotAccount(false), 20000);
   } else if (BOT_REFRESH_TIMER) {
     clearInterval(BOT_REFRESH_TIMER);
     BOT_REFRESH_TIMER = null;
@@ -1129,12 +1129,16 @@ function onBotAccountChange() {
   refreshBotAccount();
 }
 
-async function refreshBotAccount() {
+async function refreshBotAccount(full = true) {
   if (!BOT_CURRENT_ACCOUNT_ID) return;
   const acc = await fetch(`/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}`).then(r => r.json());
   if (acc.error) return;
   renderBotStats(acc);
-  renderBotSettingsForm(acc.settings);
+  // Only repaint the settings form (including city checkboxes) on an actual
+  // account load/switch — NOT on the periodic live-price poll below. Doing
+  // it on every poll was snapping any unsaved tick back to the last-saved
+  // value, which looked like checkboxes "disappearing" mid-click.
+  if (full) renderBotSettingsForm(acc.settings);
   renderBotTrades(acc.trades);
 }
 

@@ -204,14 +204,15 @@
           "bracketLabel": "86-87°F",
           "stake": 5,
           "entryPriceCents": 86,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T14:12:11.055Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-01T23:56:13.388Z",
+          "profit": -5,
+          "autoResolved": true
         },
         {
           "id": "1788270730650-qlto4",

@@ -12793,9 +12793,11 @@
       "startingBalance": 100,
       "createdAt": "2026-09-01T04:42:54.173Z",
       "settings": {
-        "strategy": "3",
-        "cities": [],
-        "minTradeAmount": 5,
+        "strategy": "9",
+        "cities": [
+          "Istanbul"
+        ],
+        "minTradeAmount": 10,
         "maxOpenOrders": 10,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
@@ -12811,9 +12813,9 @@
         "requireStableDrift": false,
         "minHistoricalN": 0,
         "alignedYesMinCents": 60,
-        "exitMode": "hold",
+        "exitMode": "target",
         "targetUnit": "cents",
-        "targetValue": 5,
+        "targetValue": 8,
         "scalpUnit": "cents",
         "scalpStep": 10,
         "reBuyAfterScalp": true,

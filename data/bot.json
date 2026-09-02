@@ -16945,7 +16945,7 @@
       },
       "trades": [
         {
-          "id": "1788338276538-y33mg",
+          "id": "1788338347639-sgfby",
           "accountId": "acc_1788249084824_cn02z",
           "city": "Helsinki",
           "code": "EFHK",
@@ -16959,9 +16959,29 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-02T08:37:56.538Z",
+          "openedAt": "2026-09-02T08:39:07.639Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1788338276538-y33mg",
+          "accountId": "acc_1788249084824_cn02z",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "14°C or below",
+          "stake": 50,
+          "entryPriceCents": 100,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-02T08:37:56.538Z",
+          "settledAt": "2026-09-02T08:39:04.761Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788338210926-micxr",

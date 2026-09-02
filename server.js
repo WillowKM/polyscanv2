@@ -3357,9 +3357,18 @@ async function botCandidatesStrategy9(codes, settings) {
       }
     }
     if (!legs.length) continue;
-    // Barbell split: stake_i proportional to price_i so shares_i (=stake_i/price_i)
-    // come out equal across legs — same payout whichever leg resolves true.
+    // Once the pair's combined price hits 80c+, one leg is already the clear
+    // favorite (or effectively decided) — hedging the other, near-dead leg
+    // just bleeds stake for no real protection (this is exactly the pattern
+    // in Willow's Sep 1 log: 21-22°C bought at 0-12c while 20°C sat at 100c).
+    // Below 80c combined, keep the barbell: stake_i proportional to price_i
+    // so shares_i come out equal across legs — same payout whichever leg hits.
     const sumCents = legs.reduce((s, l) => s + l.priceCents, 0);
+    if (legs.length >= 2 && sumCents >= 80) {
+      const leader = legs.reduce((a, b) => (b.priceCents > a.priceCents ? b : a));
+      out.push({ city: meta.city, code, strategy: '9', side: 'YES', bracket: leader.bracket, priceCents: leader.priceCents, volume: leader.volume, outcome: leader.outcome });
+      continue;
+    }
     const totalBudget = (settings.minTradeAmount || 5) * legs.length;
     for (const leg of legs) {
       const stake = sumCents > 0 ? Math.round((totalBudget * leg.priceCents / sumCents) * 100) / 100 : totalBudget / legs.length;
@@ -3419,17 +3428,39 @@ function findOpenDuplicate(acc, cand) {
   return acc.trades.find(t => t.status === 'open' && t.city === cand.city && t.bracketLabel === cand.bracket && t.side === cand.side);
 }
 
+// SAST = UTC+2, no DST — shifting the timestamp forward 2 hours before
+// reading UTC fields gives the correct SAST clock/calendar reading without
+// needing a timezone library.
+function sastNow() { return new Date(Date.now() + 2 * 60 * 60 * 1000); }
+function sastDateKey(iso) {
+  const d = iso ? new Date(new Date(iso).getTime() + 2 * 60 * 60 * 1000) : sastNow();
+  return d.toISOString().slice(0, 10); // YYYY-MM-DD in SAST
+}
+
 async function processAccountEntries(accountId, acc) {
   const settings = acc.settings;
   if (!settings.autoTradeEnabled) return;
+  // Strategy 9 only enters once the day's forecast/pricing has settled down,
+  // and only once per city+bracket per SAST day — this is the direct fix for
+  // the Helsinki repeat-buy: previously a resolved (no-longer-open) trade
+  // left nothing blocking the very next tick from re-entering the same
+  // already-decided bracket every 5 minutes for the rest of the day.
+  if (settings.strategy === '9') {
+    if (sastNow().getUTCHours() < 9) return;
+  }
   let slotsLeft = settings.maxOpenOrders - acc.trades.filter(t => t.status === 'open').length;
   let cashLeft  = botAccountBalance(acc).balance;
   if (slotsLeft <= 0 || cashLeft < 1) return;
 
   const candidates = await botScanCandidates(settings);
+  const todayKey = sastDateKey();
   for (const cand of candidates) {
     if (slotsLeft <= 0 || cashLeft < 1) break;
     if (findOpenDuplicate(acc, cand)) continue;
+    if (settings.strategy === '9') {
+      const alreadyToday = acc.trades.some(t => t.strategy === '9' && t.city === cand.city && t.bracketLabel === cand.bracket && t.side === cand.side && sastDateKey(t.openedAt) === todayKey);
+      if (alreadyToday) continue;
+    }
     const stake = Math.min(cand.arbStakeOverride || settings.minTradeAmount, cashLeft);
     if (stake < 1) continue; // Polymarket's own $1 order floor — kept here so paper mirrors live constraints
     acc.trades.unshift({

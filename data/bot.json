@@ -16588,7 +16588,7 @@
       },
       "trades": [
         {
-          "id": "1788326438090-70oev",
+          "id": "1788326514285-vs5j5",
           "accountId": "acc_1788249084824_cn02z",
           "city": "Istanbul",
           "code": "LTFM",
@@ -16602,9 +16602,29 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-02T05:20:38.090Z",
+          "openedAt": "2026-09-02T05:21:54.285Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1788326438090-70oev",
+          "accountId": "acc_1788249084824_cn02z",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "30°C",
+          "stake": 50,
+          "entryPriceCents": 100,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-02T05:20:38.090Z",
+          "settledAt": "2026-09-02T05:21:52.720Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788326365783-dnr1f",

@@ -17250,14 +17250,15 @@
           "bracketLabel": "74-75°F",
           "stake": 20,
           "entryPriceCents": 90,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 68,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-02T08:55:27.456Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-02T19:12:32.031Z",
+          "profit": -4.8889,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788334784705-aigrj",

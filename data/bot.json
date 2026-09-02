@@ -20991,6 +20991,25 @@
       },
       "trades": [
         {
+          "id": "1788309782418-t71gk",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "102-103°F",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-02T00:43:02.418Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788307279796-zmzre",
           "accountId": "acc_1788248892150_624ke",
           "city": "Dallas",

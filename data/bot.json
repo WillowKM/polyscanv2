@@ -16464,7 +16464,7 @@
         "reBuyAfterScalp": true,
         "stopLossEnabled": true,
         "stopLossUnit": "cents",
-        "stopLossValue": 70,
+        "stopLossValue": 20,
         "autoTradeEnabled": true
       },
       "trades": [

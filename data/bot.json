@@ -13645,6 +13645,25 @@
       },
       "trades": [
         {
+          "id": "1788308740576-mz49f",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 25,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-02T00:25:40.576Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788308044730-oymow",
           "accountId": "acc_1788031591418_zvi4y",
           "city": "Houston",

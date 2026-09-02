@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1788338196471-umuhj",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "Dallas",
+          "code": "KDAL",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "94-95°F",
+          "stake": 15,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-02T08:36:36.471Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788337019191-rglbr",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Helsinki",
@@ -16907,7 +16926,7 @@
       },
       "trades": [
         {
-          "id": "1788338143522-vxggg",
+          "id": "1788338210926-micxr",
           "accountId": "acc_1788249084824_cn02z",
           "city": "Helsinki",
           "code": "EFHK",
@@ -16921,9 +16940,29 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-02T08:35:43.522Z",
+          "openedAt": "2026-09-02T08:36:50.926Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1788338143522-vxggg",
+          "accountId": "acc_1788249084824_cn02z",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "14°C or below",
+          "stake": 50,
+          "entryPriceCents": 100,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-02T08:35:43.522Z",
+          "settledAt": "2026-09-02T08:36:49.453Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788338143522-2vp7d",

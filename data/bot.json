@@ -16887,7 +16887,7 @@
       },
       "trades": [
         {
-          "id": "1788337337142-cbc58",
+          "id": "1788337415659-jgw3h",
           "accountId": "acc_1788249084824_cn02z",
           "city": "London",
           "code": "EGLC",
@@ -16901,9 +16901,29 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-02T08:22:17.142Z",
+          "openedAt": "2026-09-02T08:23:35.659Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1788337337142-cbc58",
+          "accountId": "acc_1788249084824_cn02z",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "17°C or below",
+          "stake": 50,
+          "entryPriceCents": 100,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-02T08:22:17.142Z",
+          "settledAt": "2026-09-02T08:23:33.014Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788337267797-4ta9j",

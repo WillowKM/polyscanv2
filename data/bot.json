@@ -14191,14 +14191,15 @@
           "bracketLabel": "19°C",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 69,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-02T05:16:58.708Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-02T08:55:09.986Z",
+          "profit": -6.8421,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788325912601-jzbzl",
@@ -14562,14 +14563,15 @@
           "bracketLabel": "76-77°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 35,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T21:03:28.858Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-02T08:55:09.986Z",
+          "profit": -15.7895,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788296132782-kskl3",
@@ -14881,14 +14883,15 @@
           "bracketLabel": "72-73°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 55,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T07:58:01.753Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-02T08:55:09.986Z",
+          "profit": -10.5263,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788249244317-olr3c",
@@ -16469,6 +16472,25 @@
       },
       "trades": [
         {
+          "id": "1788339327456-vw0za",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "74-75°F",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-02T08:55:27.456Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788334784705-aigrj",
           "accountId": "acc_1788248892150_624ke",
           "city": "Atlanta",
@@ -16650,14 +16672,15 @@
           "bracketLabel": "72-73°F",
           "stake": 20,
           "entryPriceCents": 90,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 55,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-01T21:08:37.418Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-02T08:55:27.105Z",
+          "profit": -7.7778,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788296759257-c6w6g",

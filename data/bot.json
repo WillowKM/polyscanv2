@@ -84,14 +84,15 @@
           "bracketLabel": "24°C",
           "stake": 15,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T10:31:38.083Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T13:13:00.582Z",
+          "profit": 0.9574,
+          "autoResolved": true
         },
         {
           "id": "1788431498083-3f9kt",
@@ -966,14 +967,15 @@
           "bracketLabel": "64-65°F",
           "stake": 15,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T00:01:12.988Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T13:13:00.582Z",
+          "profit": 0.4639,
+          "autoResolved": true
         },
         {
           "id": "1788393672988-cw302",
@@ -8472,6 +8474,25 @@
       },
       "trades": [
         {
+          "id": "1788441184230-yz75e",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 5,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-03T13:13:04.230Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788435054186-8vjn9",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Munich",
@@ -8654,14 +8675,15 @@
           "bracketLabel": "64-65°F",
           "stake": 5,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T00:01:13.028Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T13:13:04.206Z",
+          "profit": 0.1546,
+          "autoResolved": true
         },
         {
           "id": "1788393673028-pqiks",
@@ -12153,6 +12175,25 @@
       },
       "trades": [
         {
+          "id": "1788441184276-7xsaa",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 50,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-03T13:13:04.276Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788437729653-watx7",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Chicago",
@@ -12584,14 +12625,15 @@
           "bracketLabel": "64-65°F",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T00:01:13.045Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T13:13:04.230Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788393673045-g4tzx",
@@ -20764,14 +20806,15 @@
           "bracketLabel": "20°C",
           "stake": 50,
           "entryPriceCents": 100,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T12:32:22.557Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T13:13:38.004Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788438742557-bai3c",
@@ -20783,14 +20826,15 @@
           "bracketLabel": "19°C or below",
           "stake": 50,
           "entryPriceCents": 100,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T12:32:22.557Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T13:13:38.004Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788438655554-ubqp0",

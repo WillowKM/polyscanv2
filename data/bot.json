@@ -16578,6 +16578,25 @@
       },
       "trades": [
         {
+          "id": "1788452144772-vmpxp",
+          "accountId": "acc_1788031591418_zvi4y",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "94-95°F",
+          "stake": 25,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-03T16:15:44.772Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788450349173-d8oew",
           "accountId": "acc_1788031591418_zvi4y",
           "city": "Atlanta",
@@ -20034,6 +20053,25 @@
       },
       "trades": [
         {
+          "id": "1788452144806-yuv1m",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-03T16:15:44.806Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788449436347-rq168",
           "accountId": "acc_1788248892150_624ke",
           "city": "Atlanta",
@@ -20138,14 +20176,15 @@
           "bracketLabel": "90-91°F",
           "stake": 20,
           "entryPriceCents": 90,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 68,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T08:54:55.086Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T16:15:44.772Z",
+          "profit": -4.8889,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788425094286-ik2jx",

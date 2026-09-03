@@ -12089,7 +12089,20 @@
       "createdAt": "2026-08-28T16:00:46.731Z",
       "settings": {
         "strategy": "3",
-        "cities": [],
+        "cities": [
+          "Atlanta",
+          "Austin",
+          "Chicago",
+          "Dallas",
+          "Denver",
+          "Houston",
+          "London",
+          "Los Angeles",
+          "Miami",
+          "New York",
+          "San Francisco",
+          "Seattle"
+        ],
         "minTradeAmount": 50,
         "maxOpenOrders": 20,
         "maxSpreadCents": 3,

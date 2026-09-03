@@ -20692,7 +20692,7 @@
       },
       "trades": [
         {
-          "id": "1788436744477-swn1r",
+          "id": "1788436829435-2wwzp",
           "accountId": "acc_1788249084824_cn02z",
           "city": "Munich",
           "code": "EDDM",
@@ -20706,9 +20706,29 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-03T11:59:04.477Z",
+          "openedAt": "2026-09-03T12:00:29.435Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1788436744477-swn1r",
+          "accountId": "acc_1788249084824_cn02z",
+          "city": "Munich",
+          "code": "EDDM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 50,
+          "entryPriceCents": 100,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-03T11:59:04.477Z",
+          "settledAt": "2026-09-03T12:00:25.879Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788436665291-p58at",

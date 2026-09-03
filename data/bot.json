@@ -20260,14 +20260,15 @@
           "bracketLabel": "21°C",
           "stake": 50,
           "entryPriceCents": 100,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T09:17:06.938Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T09:18:17.573Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788427026938-74p8o",
@@ -20279,14 +20280,15 @@
           "bracketLabel": "20°C",
           "stake": 50,
           "entryPriceCents": 100,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T09:17:06.938Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T09:18:17.573Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788427026938-raeca",
@@ -20298,14 +20300,15 @@
           "bracketLabel": "19°C or below",
           "stake": 50,
           "entryPriceCents": 100,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T09:17:06.938Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T09:18:17.573Z",
+          "profit": 0,
+          "autoResolved": true
         },
         {
           "id": "1788426936407-yds9g",

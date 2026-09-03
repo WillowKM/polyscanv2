@@ -65,14 +65,15 @@
           "bracketLabel": "27°C",
           "stake": 15,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T11:42:44.801Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T14:17:21.136Z",
+          "profit": 0.4639,
+          "autoResolved": true
         },
         {
           "id": "1788431498083-rmix9",
@@ -586,14 +587,15 @@
           "bracketLabel": "86-87°F",
           "stake": 15,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T00:01:12.988Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T14:17:21.136Z",
+          "profit": 0.625,
+          "autoResolved": true
         },
         {
           "id": "1788393672988-1602u",
@@ -16675,14 +16677,15 @@
           "bracketLabel": "27°C",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T10:27:52.350Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T14:17:23.866Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788429927946-n115h",
@@ -16732,14 +16735,15 @@
           "bracketLabel": "90-91°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 75,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T09:54:56.573Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T14:17:23.866Z",
+          "profit": -5.2632,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788423641544-izuc6",
@@ -16885,14 +16889,15 @@
           "bracketLabel": "86-87°F",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T06:53:10.849Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T14:17:23.866Z",
+          "profit": 1.3158,
+          "autoResolved": true
         },
         {
           "id": "1788412110379-02gkr",
@@ -17003,14 +17008,15 @@
           "bracketLabel": "27°C",
           "stake": 25,
           "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 73,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T04:35:34.895Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T14:17:23.866Z",
+          "profit": -5.7895,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788395298675-q2wj6",
@@ -28201,14 +28207,15 @@
           "bracketLabel": "25°C",
           "stake": 50,
           "entryPriceCents": 49,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T00:08:44.551Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T14:17:47.339Z",
+          "profit": -50,
+          "autoResolved": true
         },
         {
           "id": "1788394045993-wk6ey",

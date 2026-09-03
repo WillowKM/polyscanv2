@@ -415,14 +415,15 @@
           "bracketLabel": "98°F or higher",
           "stake": 15,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T04:50:28.466Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T16:35:03.125Z",
+          "profit": 0.4639,
+          "autoResolved": true
         },
         {
           "id": "1788410132730-wvia4",
@@ -12260,6 +12261,25 @@
       },
       "trades": [
         {
+          "id": "1788453307314-bg47l",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "102-103°F",
+          "stake": 50,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-03T16:35:07.314Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788445933091-npzdc",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Seattle",
@@ -12307,14 +12327,15 @@
           "bracketLabel": "98°F or higher",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T12:15:29.653Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-03T16:35:07.287Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788435054206-bqobf",

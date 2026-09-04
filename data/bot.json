@@ -2762,14 +2762,15 @@
           "bracketLabel": "74-75°F",
           "stake": 15,
           "entryPriceCents": 87,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-02T00:01:01.424Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-04T23:19:42.201Z",
+          "profit": 2.2414,
+          "autoResolved": true
         },
         {
           "id": "1788307261424-1a411",
@@ -10934,14 +10935,15 @@
           "bracketLabel": "74-75°F",
           "stake": 5,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-02T07:17:33.555Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-04T23:19:43.064Z",
+          "profit": 0.5556,
+          "autoResolved": true
         },
         {
           "id": "1788326565200-eargo",
@@ -15199,14 +15201,15 @@
           "bracketLabel": "74-75°F",
           "stake": 50,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-03T00:01:13.045Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-04T23:19:43.081Z",
+          "profit": 1.5464,
+          "autoResolved": true
         },
         {
           "id": "1788393673045-3jyqz",

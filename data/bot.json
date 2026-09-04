@@ -18321,6 +18321,25 @@
       },
       "trades": [
         {
+          "id": "1788488999699-v7cvy",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Tel Aviv",
+          "code": "LLBG",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "31°C",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-04T02:29:59.699Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788486292316-sveld",
           "accountId": "acc_1788248892150_624ke",
           "city": "Chicago",
@@ -19539,6 +19558,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788488999699-y7qyh",
+          "accountId": "acc_1788448978851_8ir9j",
+          "city": "Hong Kong",
+          "code": "HKO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 100,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-04T02:29:59.699Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788480293849-2k79j",
           "accountId": "acc_1788448978851_8ir9j",

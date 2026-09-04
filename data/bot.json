@@ -18370,14 +18370,15 @@
           "bracketLabel": "28°C",
           "stake": 20,
           "entryPriceCents": 90,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 33,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-04T03:34:43.726Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-04T04:09:43.913Z",
+          "profit": -12.6667,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788492591604-srkfp",

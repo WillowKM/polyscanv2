@@ -13676,7 +13676,7 @@
           "San Francisco",
           "Seattle"
         ],
-        "minTradeAmount": 50,
+        "minTradeAmount": 25,
         "maxOpenOrders": 20,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,

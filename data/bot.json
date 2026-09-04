@@ -18361,6 +18361,25 @@
       },
       "trades": [
         {
+          "id": "1788491987385-9euh0",
+          "accountId": "acc_1788248892150_624ke",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "strategy": "8",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 20,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-04T03:19:47.385Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788488999699-v7cvy",
           "accountId": "acc_1788248892150_624ke",
           "city": "Tel Aviv",

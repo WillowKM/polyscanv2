@@ -3149,6 +3149,8 @@ function defaultBotSettings() {
     requireStableDrift: false,  // Strategy 5 only
     minHistoricalN: 0,          // Strategy 5 only — skip cities with too few logged trades to trust
     alignedYesMinCents: 60,     // Strategy 7 only — how "aligned" the market must already be
+    leadDays: 0,                // Strategy 10 only — 0/1/2 days ahead, tests which lead time performs best
+    executionTimeSAST: '09:00', // Strategy 10 only — entries wait for this SAST time each day, then recur daily
     exitMode: 'hold',           // 'hold' | 'target' | 'scalp'
     targetUnit: 'cents', targetValue: 5,     // single cashout once hit
     scalpUnit: 'cents', scalpStep: 10, reBuyAfterScalp: true, // repeat cashout+rebuy every step
@@ -3185,6 +3187,8 @@ function botAccountBalance(acc) {
 // 7 — Aligned Yes: model's own barbell bracket where market price already confirms it
 // 8 — No 90c+ below the predicted high only (excludes the outlier-upside brackets that caused past losses)
 // 9 — Double Yes x SE: YES only, both StationEdge forecast-pair brackets, manual-pick cities only
+// 10 — Single Runs Barbell: YES only, Open-Meteo median-barbell (independent of StationEdge),
+//      fixed execution time (SAST), configurable lead days (0/1/2), same 8 cities as backtest_platform.html
 
 async function botCandidatesStrategy1to3(strategyNum, codes) {
   const out = [];
@@ -3378,6 +3382,122 @@ async function botCandidatesStrategy9(codes, settings) {
   return out;
 }
 
+// Strategy 10 — Single Runs Barbell. Completely independent of StationEdge —
+// pulls straight from Open-Meteo per Willow's backtest_platform.html
+// (same 8 cities, same per-city model sets and 1deg/2deg barbell style),
+// median across the configured models, barbell around that median, matched
+// against live Polymarket brackets. This is the fix for Strategy 9's late-day
+// convergence problem: it never looks at StationEdge's live-updating
+// forecast, so there's nothing for it to converge toward.
+// Uses Open-Meteo's LIVE forecast endpoint, not the Single Runs archive —
+// the archive can lag for very recently issued runs (documented in Willow's
+// own tool), which is a real problem for a bot deciding "right now" even
+// though it's the correct choice for backtesting fixed historical runs.
+const SINGLE_RUNS_CITIES = {
+  EHAM: { city: 'Amsterdam', lat: 52.3105, lon: 4.7683,  models: ['icon_d2','icon_eu','ecmwf_ifs'], barbell: '1deg', unit: 'celsius' },
+  LLBG: { city: 'Tel Aviv',  lat: 32.0055, lon: 34.8854, models: ['icon_eu','gfs_global','ecmwf_ifs'], barbell: '1deg', unit: 'celsius' },
+  LTFM: { city: 'Istanbul',  lat: 41.2753, lon: 28.7519, models: ['icon_eu','ecmwf_ifs'], barbell: '1deg', unit: 'celsius' },
+  KMIA: { city: 'Miami',     lat: 25.7645, lon: -80.2941, models: ['ncep_hrrr_conus','ncep_nam_conus','ecmwf_ifs','gfs_global'], barbell: '2deg', unit: 'fahrenheit' },
+  KAUS: { city: 'Austin',    lat: 30.1933, lon: -97.6842, models: ['ecmwf_ifs','ukmo_seamless','ncep_nam_conus'], barbell: '2deg', unit: 'fahrenheit' },
+  RKSI: { city: 'Seoul',     lat: 37.4602, lon: 126.4407, models: ['gfs_global','ecmwf_ifs'], barbell: '1deg', unit: 'celsius' },
+  WSSS: { city: 'Singapore', lat: 1.3644,  lon: 103.9915, models: ['gfs_global','ecmwf_ifs'], barbell: '1deg', unit: 'celsius' },
+};
+
+async function fetchOpenMeteoLiveDayMax(lat, lon, model, targetDate, unit) {
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m&models=${model}&temperature_unit=${unit}&timezone=auto&forecast_days=3&format=json`;
+  try {
+    const res = await fetch(url, { timeout: 10000 });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const times = data.hourly?.time || [];
+    const temps = data.hourly?.temperature_2m || [];
+    let maxVal = null;
+    for (let i = 0; i < times.length; i++) {
+      if (times[i].startsWith(targetDate) && temps[i] !== null) {
+        if (maxVal === null || temps[i] > maxVal) maxVal = temps[i];
+      }
+    }
+    return maxVal;
+  } catch (e) { return null; }
+}
+
+// Ported 1:1 from backtest_platform.html's computeBarbell — 1deg for
+// single-degree EU/Asia brackets, 2deg for US markets' paired-degree brackets.
+function srComputeBarbell(median, style) {
+  if (median === null || median === undefined) return null;
+  if (style === '2deg') {
+    const idx = median / 2;
+    let loIdx = Math.floor(idx), hiIdx = Math.ceil(idx);
+    if (loIdx === hiIdx) hiIdx = loIdx + 1;
+    const loStart = loIdx * 2, hiStart = hiIdx * 2;
+    return { label: `${loStart}/${loStart+1} - ${hiStart}/${hiStart+1}`, ranges: [[loStart, loStart+1], [hiStart, hiStart+1]] };
+  }
+  let lo = Math.floor(median), hi = Math.ceil(median);
+  if (lo === hi) hi = lo + 1;
+  return { label: `${lo}/${hi}`, ranges: [[lo, lo], [hi, hi]] };
+}
+
+function srFindOutcomeForRange(outcomes, rangeAB, unit) {
+  const targetUnit = unit === 'fahrenheit' ? 'F' : 'C';
+  const mid = (rangeAB[0] + rangeAB[1]) / 2;
+  for (const o of outcomes) {
+    if (!Number.isFinite(o.prob)) continue;
+    const r = seParseBracketRange(o.bracket);
+    if (!r) continue;
+    const val = r.unit === targetUnit ? mid : (targetUnit === 'C' ? mid * 9 / 5 + 32 : (mid - 32) * 5 / 9);
+    if (val >= r.min - 0.5 && val <= r.max + 0.5) return o;
+  }
+  return null;
+}
+
+async function botCandidatesStrategy10(settings) {
+  const out = [];
+  const leadDays = settings.leadDays ?? 0;
+  const targetDateObj = new Date(sastNow().getTime());
+  targetDateObj.setUTCDate(targetDateObj.getUTCDate() + leadDays);
+  const targetDate = targetDateObj.toISOString().slice(0, 10);
+
+  for (const [code, cfg] of Object.entries(SINGLE_RUNS_CITIES)) {
+    const vals = [];
+    for (const model of cfg.models) {
+      const v = await fetchOpenMeteoLiveDayMax(cfg.lat, cfg.lon, model, targetDate, cfg.unit);
+      if (v !== null) vals.push(v);
+    }
+    if (!vals.length) continue;
+    vals.sort((a, b) => a - b);
+    const median = vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2;
+    const barbell = srComputeBarbell(median, cfg.barbell);
+    if (!barbell) continue;
+
+    const poly = leadDays === 0 ? await fetchPolymarketEvent(cfg.city) : await fetchPolymarketEventForDate(cfg.city, leadDays);
+    if (!poly || !poly.outcomes.length) continue;
+
+    const legs = [];
+    const seen = new Set();
+    for (const range of barbell.ranges) {
+      const o = srFindOutcomeForRange(poly.outcomes, range, cfg.unit);
+      if (o && !seen.has(o.bracket)) { seen.add(o.bracket); legs.push({ bracket: o.bracket, priceCents: o.prob, volume: o.volume, outcome: o }); }
+    }
+    if (!legs.length) continue;
+
+    // Same 80c-combined rule as Strategy 9: below it, barbell both legs
+    // proportionally for equal payout; at/above it, one leg is already
+    // dominant — trade the leader only, full stake.
+    const sumCents = legs.reduce((s, l) => s + l.priceCents, 0);
+    if (legs.length >= 2 && sumCents >= 80) {
+      const leader = legs.reduce((a, b) => (b.priceCents > a.priceCents ? b : a));
+      out.push({ city: cfg.city, code, strategy: '10', side: 'YES', bracket: leader.bracket, priceCents: leader.priceCents, volume: leader.volume, outcome: leader.outcome });
+      continue;
+    }
+    const totalBudget = (settings.minTradeAmount || 5) * legs.length;
+    for (const leg of legs) {
+      const stake = sumCents > 0 ? Math.round((totalBudget * leg.priceCents / sumCents) * 100) / 100 : totalBudget / legs.length;
+      out.push({ city: cfg.city, code, strategy: '10', side: 'YES', bracket: leg.bracket, priceCents: leg.priceCents, volume: leg.volume, outcome: leg.outcome, arbStakeOverride: stake });
+    }
+  }
+  return out;
+}
+
 async function botScanCandidates(settings) {
   const allCodes = Object.keys(STATIONEDGE_STATIONS);
   const cityFilter = (settings.cities && settings.cities.length) ? new Set(settings.cities) : null;
@@ -3395,12 +3515,13 @@ async function botScanCandidates(settings) {
   else if (settings.strategy === '7') candidates = await botCandidatesStrategy7(codes, settings);
   else if (settings.strategy === '8') candidates = await botCandidatesStrategy8(codes);
   else if (settings.strategy === '9') candidates = await botCandidatesStrategy9(codes, settings);
+  else if (settings.strategy === '10') candidates = await botCandidatesStrategy10(settings);
 
   // Price-window filters apply to the price-cutoff strategies only — 5 is
-  // already gated by edge%/qualify tier, 6 by the arb-sum threshold, 9 by
-  // StationEdge's own forecast pair — forcing a No/Yes price window onto
-  // those would just fight their own logic.
-  if (!['5', '6', '9'].includes(settings.strategy)) {
+  // already gated by edge%/qualify tier, 6 by the arb-sum threshold, 9 and 10
+  // by their own forecast pair + 80c-combined rule — forcing a No/Yes price
+  // window onto those would just fight their own logic.
+  if (!['5', '6', '9', '10'].includes(settings.strategy)) {
     candidates = candidates.filter(c => c.side === 'NO'
       ? (settings.noBuyMinCents == null || c.priceCents >= settings.noBuyMinCents) && (settings.noBuyMaxCents == null || c.priceCents <= settings.noBuyMaxCents)
       : (settings.yesBuyMinCents == null || c.priceCents >= settings.yesBuyMinCents) && (settings.yesBuyMaxCents == null || c.priceCents <= settings.yesBuyMaxCents));
@@ -3448,6 +3569,16 @@ async function processAccountEntries(accountId, acc) {
   if (settings.strategy === '9') {
     if (sastNow().getUTCHours() < 9) return;
   }
+  // Strategy 10's whole point is a configurable execution time per your own
+  // researched accurate windows — waits for it, then (being on the same 5-min
+  // tick as everything else) naturally recurs every day without re-triggering.
+  if (settings.strategy === '10') {
+    const [exH, exM] = (settings.executionTimeSAST || '09:00').split(':').map(Number);
+    const now = sastNow();
+    const nowMinutes = now.getUTCHours() * 60 + now.getUTCMinutes();
+    const targetMinutes = (exH || 0) * 60 + (exM || 0);
+    if (nowMinutes < targetMinutes) return;
+  }
   let slotsLeft = settings.maxOpenOrders - acc.trades.filter(t => t.status === 'open').length;
   let cashLeft  = botAccountBalance(acc).balance;
   if (slotsLeft <= 0 || cashLeft < 1) return;
@@ -3457,8 +3588,8 @@ async function processAccountEntries(accountId, acc) {
   for (const cand of candidates) {
     if (slotsLeft <= 0 || cashLeft < 1) break;
     if (findOpenDuplicate(acc, cand)) continue;
-    if (settings.strategy === '9') {
-      const alreadyToday = acc.trades.some(t => t.strategy === '9' && t.city === cand.city && t.bracketLabel === cand.bracket && t.side === cand.side && sastDateKey(t.openedAt) === todayKey);
+    if (settings.strategy === '9' || settings.strategy === '10') {
+      const alreadyToday = acc.trades.some(t => t.strategy === settings.strategy && t.city === cand.city && t.bracketLabel === cand.bracket && t.side === cand.side && sastDateKey(t.openedAt) === todayKey);
       if (alreadyToday) continue;
     }
     const stake = Math.min(cand.arbStakeOverride || settings.minTradeAmount, cashLeft);

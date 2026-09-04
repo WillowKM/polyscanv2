@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1788515083090-jf9ld",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "Denver",
+          "code": "KBKF",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 15,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-04T09:44:43.090Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788509385773-emi64",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Houston",
@@ -9223,6 +9242,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788515083111-9vex8",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 10,
+          "entryPriceCents": 91,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-04T09:44:43.111Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788506383298-qxycw",
           "accountId": "acc_1787862946166_t1sfj",

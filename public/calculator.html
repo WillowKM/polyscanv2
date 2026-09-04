@@ -226,6 +226,7 @@ tr:hover td { background:rgba(255,255,255,0.02); }
           <option value="7">7 — Aligned Yes (forecast confirms market)</option>
           <option value="8">8 — No 90c+ below predicted high only</option>
           <option value="9">9 — Double Yes x SE (manual cities only)</option>
+          <option value="10">10 — Single Runs Barbell (Open-Meteo, independent of SE)</option>
         </select>
         <div class="muted" id="strategyHint" style="font-size:11px;margin-top:4px;"></div>
       </div>
@@ -257,6 +258,14 @@ tr:hover td { background:rgba(255,255,255,0.02); }
       <div class="field"><label>Min historical N <span class="muted">(Strategy 5)</span></label><input id="botMinHistN" type="number" step="1"></div>
       <div class="field"><label>&nbsp;</label><label style="font-size:12.5px;padding:8px 0;"><input type="checkbox" id="botRequireDrift"> Require stable drift (Str. 5)</label></div>
       <div class="field"><label>Aligned Yes min (¢) <span class="muted">(Strategy 7)</span></label><input id="botAlignedYesMin" type="number" step="1"></div>
+      <div class="field"><label>Lead days <span class="muted">(Strategy 10)</span></label>
+        <select id="botLeadDays" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:140px;">
+          <option value="0">Same day</option>
+          <option value="1">1 day ahead</option>
+          <option value="2">2 days ahead</option>
+        </select>
+      </div>
+      <div class="field"><label>Execution time SAST <span class="muted">(Strategy 10)</span></label><input id="botExecTime" type="time"></div>
     </div>
   </div>
 
@@ -1163,6 +1172,7 @@ const STRATEGY_HINTS = {
   '7': 'Aligned Yes — Yes only on the model\'s own forecast bracket once the market price confirms it.',
   '8': 'No 90c+ below predicted high — skips any bracket at/above the forecast, avoiding the outlier-spike losses.',
   '9': 'Double Yes x SE — Yes on both of StationEdge\'s forecast-pair brackets. Pick your cities below; it will not scan all 23 automatically.',
+  '10': 'Single Runs Barbell — Open-Meteo median across your backtest-validated models, independent of StationEdge. Fixed 8 cities, waits for your execution time, recurs daily.',
 };
 
 const STRATEGY_DEFAULTS = {
@@ -1175,6 +1185,7 @@ const STRATEGY_DEFAULTS = {
   '7': { alignedYesMinCents: 60, exitMode: 'hold', minTradeAmount: 5 },
   '8': { noBuyMinCents: 90, noBuyMaxCents: 99, exitMode: 'hold', minTradeAmount: 10, stopLossEnabled: true, stopLossUnit: 'cents', stopLossValue: 15 },
   '9': { cities: [], exitMode: 'target', targetUnit: 'cents', targetValue: 8, minTradeAmount: 10 },
+  '10': { exitMode: 'hold', minTradeAmount: 10, leadDays: 0, executionTimeSAST: '09:00' },
 };
 
 function applyStrategyDefaults() {
@@ -1201,6 +1212,8 @@ function applyStrategyDefaults() {
   if (d.stopLossEnabled !== undefined) document.getElementById('botStopLossEnabled').checked = d.stopLossEnabled;
   if (d.stopLossUnit !== undefined) document.getElementById('botStopLossUnit').value = d.stopLossUnit;
   if (d.stopLossValue !== undefined) document.getElementById('botStopLossValue').value = d.stopLossValue;
+  if (d.leadDays !== undefined) document.getElementById('botLeadDays').value = d.leadDays;
+  if (d.executionTimeSAST !== undefined) document.getElementById('botExecTime').value = d.executionTimeSAST;
   if (d.cities !== undefined) document.querySelectorAll('.botCityChk').forEach(el => el.checked = false);
 }
 
@@ -1223,6 +1236,8 @@ function renderBotSettingsForm(s) {
   document.getElementById('botMinHistN').value = s.minHistoricalN;
   document.getElementById('botRequireDrift').checked = s.requireStableDrift;
   document.getElementById('botAlignedYesMin').value = s.alignedYesMinCents;
+  document.getElementById('botLeadDays').value = s.leadDays;
+  document.getElementById('botExecTime').value = s.executionTimeSAST;
   document.getElementById('botExitMode').value = s.exitMode;
   document.getElementById('botTargetUnit').value = s.targetUnit;
   document.getElementById('botTargetValue').value = s.targetValue;
@@ -1256,6 +1271,8 @@ function collectBotSettingsForm() {
     minHistoricalN: parseInt(document.getElementById('botMinHistN').value) || 0,
     requireStableDrift: document.getElementById('botRequireDrift').checked,
     alignedYesMinCents: parseFloat(document.getElementById('botAlignedYesMin').value) || 0,
+    leadDays: parseInt(document.getElementById('botLeadDays').value) || 0,
+    executionTimeSAST: document.getElementById('botExecTime').value || '09:00',
     exitMode: document.getElementById('botExitMode').value,
     targetUnit: document.getElementById('botTargetUnit').value,
     targetValue: parseFloat(document.getElementById('botTargetValue').value) || 0,

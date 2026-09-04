@@ -9174,7 +9174,7 @@
       "settings": {
         "strategy": "3",
         "cities": [],
-        "minTradeAmount": 5,
+        "minTradeAmount": 10,
         "maxOpenOrders": 30,
         "maxSpreadCents": 5,
         "minVolumeFallback": 500,

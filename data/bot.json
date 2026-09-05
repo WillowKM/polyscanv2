@@ -15745,6 +15745,25 @@
       },
       "trades": [
         {
+          "id": "1788581988858-kk6s2",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Denver",
+          "code": "KBKF",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 25,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-05T04:19:48.858Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788577789486-0aauf",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "London",

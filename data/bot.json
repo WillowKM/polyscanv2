@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1788589186360-nluv5",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "76-77°F",
+          "stake": 15,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-05T06:19:46.360Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788582288165-u6oqq",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Dallas",
@@ -10276,6 +10295,25 @@
       },
       "trades": [
         {
+          "id": "1788589186380-vrctk",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "76-77°F",
+          "stake": 10,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-05T06:19:46.380Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788588886435-a1eha",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Seattle",
@@ -15813,6 +15851,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788589186399-lsoeg",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "76-77°F",
+          "stake": 25,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-05T06:19:46.399Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788585588062-50qte",
           "accountId": "acc_1787932846731_gxbwz",

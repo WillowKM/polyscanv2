@@ -10297,6 +10297,25 @@
       },
       "trades": [
         {
+          "id": "1788593684978-a56lt",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "94-95°F",
+          "stake": 10,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-05T07:34:44.978Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788589786877-n1lv8",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Atlanta",
@@ -15874,6 +15893,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788593684995-8cnio",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "94-95°F",
+          "stake": 25,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-05T07:34:44.995Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788589786896-0vnwh",
           "accountId": "acc_1787932846731_gxbwz",

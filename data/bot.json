@@ -10133,6 +10133,25 @@
       },
       "trades": [
         {
+          "id": "1788569389451-22fmn",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Hong Kong",
+          "code": "HKO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "30°C",
+          "stake": 10,
+          "entryPriceCents": 91,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-05T00:49:49.451Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788568789175-cml2c",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Los Angeles",

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1788674608568-zlyk4",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 15,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-06T06:03:28.568Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788673488863-ebtib",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Houston",
@@ -11253,6 +11272,25 @@
       },
       "trades": [
         {
+          "id": "1788674608589-e0fsh",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 10,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-06T06:03:28.589Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788673488889-qfvna",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Houston",
@@ -17728,6 +17766,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788674608607-obnyq",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 25,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-06T06:03:28.607Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788673488913-x98vm",
           "accountId": "acc_1787932846731_gxbwz",

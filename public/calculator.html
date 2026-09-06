@@ -124,6 +124,7 @@ tr:hover td { background:rgba(255,255,255,0.02); }
 <div class="hdr">
   <div class="logo"><span class="g">POLY</span>SCAN <span class="sub">CALCULATOR · by Willow</span></div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <a href="/backtest.html" style="color:var(--muted);text-decoration:none;font-size:11px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;white-space:nowrap;">🌡️ Single Runs Bot ↗</a>
     <span class="muted" style="font-size:11px;" id="modeSubLabel"></span>
     <div style="display:flex;background:var(--bg3);border:1px solid var(--border);border-radius:7px;overflow:hidden;">
       <button id="modeBtnManual" class="btn small" style="border-radius:0;" onclick="setMode('manual')">Manual</button>
@@ -229,9 +230,16 @@ tr:hover td { background:rgba(255,255,255,0.02); }
         </select>
         <div class="muted" id="strategyHint" style="font-size:11px;margin-top:4px;"></div>
       </div>
-      <div class="field" style="width:280px;"><label>Cities <span class="muted">(empty = all)</span></label>
-        <div id="botCitiesBox" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;max-height:150px;overflow-y:auto;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:4px;"></div>
-        <div class="muted" style="font-size:10px;margin-top:3px;">●SE = StationEdge-approved (works with every strategy). Cities without it only work with Strategies 1, 2, 3, and 6 — the rest need a forecast model. Str. 9 always requires manual picks.</div>
+      <div class="field" style="width:320px;"><label>Cities <span class="muted">(empty = all)</span> <span class="muted" id="botCitiesCount" style="float:right;font-weight:400;"></span></label>
+        <input type="text" id="botCitiesSearch" placeholder="Search cities…" oninput="filterBotCities()"
+               style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-size:12.5px;margin-bottom:6px;box-sizing:border-box;">
+        <div style="display:flex;gap:6px;margin-bottom:6px;">
+          <button type="button" class="btn secondary small" style="padding:4px 8px;font-size:10.5px;" onclick="setBotCitiesChecked(true)">All</button>
+          <button type="button" class="btn secondary small" style="padding:4px 8px;font-size:10.5px;" onclick="setBotCitiesChecked(false)">None</button>
+          <button type="button" class="btn secondary small" style="padding:4px 8px;font-size:10.5px;" onclick="setBotCitiesStationEdgeOnly()">StationEdge only</button>
+        </div>
+        <div id="botCitiesBox" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px;max-height:180px;overflow-y:auto;font-size:12.5px;"></div>
+        <div class="muted" style="font-size:10px;margin-top:4px;">●SE = StationEdge-approved (works with every strategy). Cities without it only work with Strategies 1, 2, 3, and 6 — the rest need a forecast model. Str. 9 always requires manual picks.</div>
       </div>
     </div>
     <div class="grid-inputs">
@@ -1101,13 +1109,47 @@ function setMode(mode) {
 async function initBotPanel() {
   if (!document.getElementById('botCitiesBox').children.length) {
     const { cities } = await fetch('/api/bot/cities').then(r => r.json());
-    document.getElementById('botCitiesBox').innerHTML = cities.map(c =>
-      `<label style="display:flex;align-items:center;gap:5px;cursor:pointer;" title="${c.stationEdge ? 'StationEdge-approved — works with all strategies' : 'Price-only — Strategies 1, 2, 3, 6 only (no forecast model for this city yet)'}">
-        <input type="checkbox" class="botCityChk" value="${c.city}"> ${c.city}${c.stationEdge ? ' <span class="muted" style="font-size:9px;">●SE</span>' : ''}
-      </label>`
-    ).join('');
+    document.getElementById('botCitiesBox').innerHTML = cities.map(c => `
+      <label class="bot-city-row" data-city="${c.city.toLowerCase()}"
+             style="display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:5px;cursor:pointer;">
+        <input type="checkbox" class="botCityChk" value="${c.city}" onchange="updateBotCitiesCount()" style="flex:none;">
+        <span style="flex:1;">${c.city}</span>
+        ${c.stationEdge ? '<span class="muted" style="font-size:9px;flex:none;">●SE</span>' : ''}
+      </label>`).join('');
+    document.querySelectorAll('.bot-city-row').forEach(row => {
+      row.addEventListener('mouseenter', () => row.style.background = 'var(--bg2)');
+      row.addEventListener('mouseleave', () => row.style.background = '');
+    });
   }
+  updateBotCitiesCount();
   await loadBotAccounts();
+}
+
+function filterBotCities() {
+  const q = document.getElementById('botCitiesSearch').value.trim().toLowerCase();
+  document.querySelectorAll('.bot-city-row').forEach(row => {
+    row.style.display = row.dataset.city.includes(q) ? '' : 'none';
+  });
+}
+
+function setBotCitiesChecked(checked) {
+  document.querySelectorAll('.bot-city-row').forEach(row => {
+    if (row.style.display === 'none') return; // respect current search filter
+    row.querySelector('.botCityChk').checked = checked;
+  });
+  updateBotCitiesCount();
+}
+
+function setBotCitiesStationEdgeOnly() {
+  document.querySelectorAll('.bot-city-row').forEach(row => {
+    row.querySelector('.botCityChk').checked = !!row.querySelector('.muted');
+  });
+  updateBotCitiesCount();
+}
+
+function updateBotCitiesCount() {
+  const n = document.querySelectorAll('.botCityChk:checked').length;
+  document.getElementById('botCitiesCount').textContent = n ? `${n} selected` : '';
 }
 
 async function loadBotAccounts() {
@@ -1204,13 +1246,14 @@ function applyStrategyDefaults() {
   if (d.stopLossEnabled !== undefined) document.getElementById('botStopLossEnabled').checked = d.stopLossEnabled;
   if (d.stopLossUnit !== undefined) document.getElementById('botStopLossUnit').value = d.stopLossUnit;
   if (d.stopLossValue !== undefined) document.getElementById('botStopLossValue').value = d.stopLossValue;
-  if (d.cities !== undefined) document.querySelectorAll('.botCityChk').forEach(el => el.checked = false);
+  if (d.cities !== undefined) { document.querySelectorAll('.botCityChk').forEach(el => el.checked = false); updateBotCitiesCount(); }
 }
 
 function renderBotSettingsForm(s) {
   document.getElementById('botStrategy').value = s.strategy;
   document.getElementById('strategyHint').textContent = STRATEGY_HINTS[s.strategy] || '';
   document.querySelectorAll('.botCityChk').forEach(el => el.checked = s.cities.includes(el.value));
+  updateBotCitiesCount();
   document.getElementById('botMinTrade').value = s.minTradeAmount;
   document.getElementById('botMaxOpen').value = s.maxOpenOrders;
   document.getElementById('botMaxSpread').value = s.maxSpreadCents;

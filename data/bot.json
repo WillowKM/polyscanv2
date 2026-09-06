@@ -24564,7 +24564,7 @@
         "stopLossEnabled": true,
         "stopLossUnit": "cents",
         "stopLossValue": 50,
-        "autoTradeEnabled": false
+        "autoTradeEnabled": true
       },
       "trades": []
     }

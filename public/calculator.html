@@ -229,8 +229,9 @@ tr:hover td { background:rgba(255,255,255,0.02); }
         </select>
         <div class="muted" id="strategyHint" style="font-size:11px;margin-top:4px;"></div>
       </div>
-      <div class="field" style="width:280px;"><label>Cities <span class="muted">(empty = all, except Str. 9 which requires picks)</span></label>
+      <div class="field" style="width:280px;"><label>Cities <span class="muted">(empty = all)</span></label>
         <div id="botCitiesBox" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:8px;max-height:150px;overflow-y:auto;font-size:12px;display:grid;grid-template-columns:1fr 1fr;gap:4px;"></div>
+        <div class="muted" style="font-size:10px;margin-top:3px;">●SE = StationEdge-approved (works with every strategy). Cities without it only work with Strategies 1, 2, 3, and 6 — the rest need a forecast model. Str. 9 always requires manual picks.</div>
       </div>
     </div>
     <div class="grid-inputs">
@@ -1101,7 +1102,9 @@ async function initBotPanel() {
   if (!document.getElementById('botCitiesBox').children.length) {
     const { cities } = await fetch('/api/bot/cities').then(r => r.json());
     document.getElementById('botCitiesBox').innerHTML = cities.map(c =>
-      `<label style="display:flex;align-items:center;gap:5px;cursor:pointer;"><input type="checkbox" class="botCityChk" value="${c}"> ${c}</label>`
+      `<label style="display:flex;align-items:center;gap:5px;cursor:pointer;" title="${c.stationEdge ? 'StationEdge-approved — works with all strategies' : 'Price-only — Strategies 1, 2, 3, 6 only (no forecast model for this city yet)'}">
+        <input type="checkbox" class="botCityChk" value="${c.city}"> ${c.city}${c.stationEdge ? ' <span class="muted" style="font-size:9px;">●SE</span>' : ''}
+      </label>`
     ).join('');
   }
   await loadBotAccounts();

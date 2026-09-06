@@ -11273,6 +11273,25 @@
       },
       "trades": [
         {
+          "id": "1788676108439-2ftja",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Atlanta",
+          "code": "KATL",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "98-99°F",
+          "stake": 10,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-06T06:28:28.439Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788674608589-e0fsh",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Miami",

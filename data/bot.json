@@ -25027,14 +25027,15 @@
           "bracketLabel": "76-77°F",
           "stake": 1,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-06T21:03:26.466Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-06T23:18:28.061Z",
+          "profit": 0.0753,
+          "autoResolved": true
         },
         {
           "id": "1788726806344-1b7z5",

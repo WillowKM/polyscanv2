@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1788681807676-hv72h",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "Tokyo",
+          "code": "RJTT",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 15,
+          "entryPriceCents": 91,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-06T08:03:27.676Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788676408128-luazy",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Istanbul",
@@ -11295,6 +11314,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788681807703-4ast5",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Tokyo",
+          "code": "RJTT",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 10,
+          "entryPriceCents": 91,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-06T08:03:27.703Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788681507616-1z3p7",
           "accountId": "acc_1787862946166_t1sfj",

@@ -217,14 +217,15 @@
           "bracketLabel": "30°C",
           "stake": 15,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-06T03:34:48.511Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-06T07:23:27.456Z",
+          "profit": 1.6667,
+          "autoResolved": true
         },
         {
           "id": "1788663888490-vtjam",
@@ -11512,14 +11513,15 @@
           "bracketLabel": "30°C",
           "stake": 10,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-06T03:34:48.530Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-06T07:23:31.633Z",
+          "profit": 1.1111,
+          "autoResolved": true
         },
         {
           "id": "1788660888750-8dg2h",

@@ -3186,24 +3186,23 @@ function botAccountBalance(acc) {
 // 8 — No 90c+ below the predicted high only (excludes the outlier-upside brackets that caused past losses)
 // 9 — Double Yes x SE: YES only, both StationEdge forecast-pair brackets, manual-pick cities only
 
-async function botCandidatesStrategy1to3(strategyNum, codes) {
+async function botCandidatesStrategy1to3(strategyNum, cityNames) {
   const out = [];
-  for (const code of codes) {
-    const meta = STATIONEDGE_STATIONS[code];
-    const poly = await fetchPolymarketEvent(meta.city);
+  for (const city of cityNames) {
+    const poly = await fetchPolymarketEvent(city);
     if (!poly || !poly.outcomes.length) continue;
     const s = seStructuralStrategies(poly.outcomes);
     if (strategyNum === '1') {
-      for (const o of s.s1) out.push({ city: meta.city, code, strategy: '1', side: 'NO', bracket: o.bracket, priceCents: 100 - o.prob, volume: o.volume, outcome: o });
+      for (const o of s.s1) out.push({ city, code: null, strategy: '1', side: 'NO', bracket: o.bracket, priceCents: 100 - o.prob, volume: o.volume, outcome: o });
     } else if (strategyNum === '2') {
       if (s.s2) {
-        out.push({ city: meta.city, code, strategy: '2', side: 'NO',  bracket: s.s2.no.bracket,  priceCents: 100 - s.s2.no.prob, volume: s.s2.no.volume,  outcome: s.s2.no });
-        out.push({ city: meta.city, code, strategy: '2', side: 'YES', bracket: s.s2.yes.bracket, priceCents: s.s2.yes.prob,      volume: s.s2.yes.volume, outcome: s.s2.yes });
+        out.push({ city, code: null, strategy: '2', side: 'NO',  bracket: s.s2.no.bracket,  priceCents: 100 - s.s2.no.prob, volume: s.s2.no.volume,  outcome: s.s2.no });
+        out.push({ city, code: null, strategy: '2', side: 'YES', bracket: s.s2.yes.bracket, priceCents: s.s2.yes.prob,      volume: s.s2.yes.volume, outcome: s.s2.yes });
       }
     } else if (strategyNum === '3') {
       if (s.s3) {
-        for (const o of s.s3.legs)     out.push({ city: meta.city, code, strategy: '3', side: 'YES', bracket: o.bracket, priceCents: o.prob,       volume: o.volume, outcome: o });
-        for (const o of s.s3.tailLegs) out.push({ city: meta.city, code, strategy: '3', side: 'NO',  bracket: o.bracket, priceCents: 100 - o.prob, volume: o.volume, outcome: o });
+        for (const o of s.s3.legs)     out.push({ city, code: null, strategy: '3', side: 'YES', bracket: o.bracket, priceCents: o.prob,       volume: o.volume, outcome: o });
+        for (const o of s.s3.tailLegs) out.push({ city, code: null, strategy: '3', side: 'NO',  bracket: o.bracket, priceCents: 100 - o.prob, volume: o.volume, outcome: o });
       }
     }
   }
@@ -3255,9 +3254,8 @@ async function botCandidatesStrategy5(codes, settings) {
   return out;
 }
 
-async function botCandidatesStrategy6(codes, settings) {
+async function botCandidatesStrategy6(cityNames, settings) {
   const out = [];
-  const cityNames = codes.map(c => STATIONEDGE_STATIONS[c]?.city).filter(Boolean);
   for (const city of cityNames) {
     const data = await fetchPolymarketEventForDate(city, 0);
     if (!data || !data.outcomes.length) continue;
@@ -3383,15 +3381,23 @@ async function botScanCandidates(settings) {
   const cityFilter = (settings.cities && settings.cities.length) ? new Set(settings.cities) : null;
   const codes = cityFilter ? allCodes.filter(c => cityFilter.has(STATIONEDGE_STATIONS[c].city)) : allCodes;
 
+  // Strategies 1/2/3/6 are pure price-cutoff/arbitrage logic — no forecast
+  // data needed — so they scan every PolyScan city (~49), not just the 23
+  // with StationEdge models. Strategies 4/5/7/8/9 call seStation() for a
+  // forecast, which only exists for the StationEdge-approved 23, so those
+  // stay scoped to `codes` above regardless of a wider city selection.
+  const allCityNames = Object.keys(CITY_SLUGS);
+  const cityNames = cityFilter ? allCityNames.filter(c => cityFilter.has(c)) : allCityNames;
+
   // Strategy 9 is deliberately manual-pick-only — never falls back to a
   // blanket scan of all 23 cities even if the city list is left empty.
   if (settings.strategy === '9' && !codes.length) return [];
 
   let candidates = [];
-  if (['1', '2', '3'].includes(settings.strategy)) candidates = await botCandidatesStrategy1to3(settings.strategy, codes);
+  if (['1', '2', '3'].includes(settings.strategy)) candidates = await botCandidatesStrategy1to3(settings.strategy, cityNames);
   else if (settings.strategy === '4') candidates = await botCandidatesStrategy4(codes);
   else if (settings.strategy === '5') candidates = await botCandidatesStrategy5(codes, settings);
-  else if (settings.strategy === '6') candidates = await botCandidatesStrategy6(codes, settings);
+  else if (settings.strategy === '6') candidates = await botCandidatesStrategy6(cityNames, settings);
   else if (settings.strategy === '7') candidates = await botCandidatesStrategy7(codes, settings);
   else if (settings.strategy === '8') candidates = await botCandidatesStrategy8(codes);
   else if (settings.strategy === '9') candidates = await botCandidatesStrategy9(codes, settings);
@@ -3551,7 +3557,9 @@ async function runBotTick() {
 
 // ── BOT ROUTES ────────────────────────────────────────────────────────────
 app.get('/api/bot/cities', (req, res) => {
-  res.json({ cities: Object.values(STATIONEDGE_STATIONS).map(m => m.city).sort() });
+  const stationEdgeCities = new Set(Object.values(STATIONEDGE_STATIONS).map(m => m.city));
+  const cities = Object.keys(CITY_SLUGS).sort().map(city => ({ city, stationEdge: stationEdgeCities.has(city) }));
+  res.json({ cities });
 });
 
 app.get('/api/bot/accounts', async (req, res) => {

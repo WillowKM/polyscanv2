@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Barbell Weather Backtest</title>
+<style>
+  :root{
+    --bg:#0f1115; --panel:#171a21; --border:#2a2e38; --border-strong:#3a3f4c;
+    --text:#e6e8ec; --muted:#9aa0ab; --accent:#4f8cff; --green:#2fbf71; --red:#e5484d;
+    --input-bg:#12141a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    margin:0; padding:2rem; line-height:1.5;
+  }
+  .wrap{max-width:1100px; margin:0 auto;}
+  h1{font-size:20px; font-weight:600; margin:0 0 4px;}
+  .sub{color:var(--muted); font-size:13px; margin:0 0 24px;}
+  .panel{background:var(--panel); border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:20px;}
+  .row{display:flex; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .field{flex:1; min-width:140px;}
+  label{display:block; font-size:12px; color:var(--muted); margin-bottom:5px;}
+  input[type=text], input[type=number], input[type=date], textarea, select{
+    width:100%; background:var(--input-bg); border:1px solid var(--border-strong); color:var(--text);
+    padding:8px 10px; border-radius:6px; font-size:13px; font-family:inherit;
+  }
+  textarea{resize:vertical; min-height:70px;}
+  .models{display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:10px; margin-bottom:14px;}
+  .model-card{border:1px solid var(--border-strong); border-radius:8px; padding:10px; background:var(--input-bg);}
+  .model-card label.chk{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); margin-bottom:8px; cursor:pointer;}
+  .model-card input[type=checkbox]{width:15px; height:15px;}
+  .runhour{display:flex; align-items:center; gap:6px; font-size:11px; color:var(--muted);}
+  .runhour input{width:60px; padding:4px 6px; font-size:12px;}
+  button{
+    background:var(--accent); color:white; border:none; padding:10px 18px; border-radius:6px;
+    font-size:13px; font-weight:600; cursor:pointer;
+  }
+  button:hover{filter:brightness(1.1);}
+  button.secondary{background:transparent; border:1px solid var(--border-strong); color:var(--text);}
+  #status{font-size:12px; color:var(--muted); margin-left:12px;}
+  table{width:100%; border-collapse:collapse; font-size:12.5px; margin-top:6px;}
+  th,td{padding:6px 8px; border-bottom:1px solid var(--border); text-align:center;}
+  th{color:var(--muted); font-weight:600; text-align:center; white-space:nowrap;}
+  td:first-child, th:first-child{text-align:left;}
+  .hit{color:var(--green); font-weight:700;}
+  .miss{color:var(--red); font-weight:700;}
+  .summary{display:flex; gap:20px; margin:14px 0; flex-wrap:wrap;}
+  .metric{background:var(--input-bg); border:1px solid var(--border); border-radius:8px; padding:12px 18px;}
+  .metric .n{font-size:22px; font-weight:700;}
+  .metric .l{font-size:11px; color:var(--muted); margin-top:2px;}
+  .actions{display:flex; gap:10px; align-items:center; margin-top:10px;}
+  .hint{font-size:11px; color:var(--muted); margin-top:4px;}
+  .badge{display:inline-block; padding:2px 8px; border-radius:12px; font-size:11px; font-weight:600;}
+  .b-clear{background:#1e3a2a; color:#4ade80;}
+  .b-partly{background:#2a3348; color:#93c5fd;}
+  .b-cloudy{background:#33363f; color:#c7cbd4;}
+  .b-fog{background:#3a3a3a; color:#b0b0b0;}
+  .b-rain{background:#1e3350; color:#60a5fa;}
+  .b-storm{background:#3d1f1f; color:#f87171;}
+  .b-snow{background:#2a3648; color:#e0f2fe;}
+  /* ── Bot page additions ── */
+  .tabs{display:flex;gap:0;margin-bottom:18px;background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content;}
+  .tabs button{background:transparent;color:var(--text);border-radius:0;padding:9px 16px;}
+  .tabs button.active{background:var(--accent);}
+  .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
+  .stat{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:10px 16px;min-width:130px;}
+  .stat .lbl{font-size:11px;color:var(--muted);}
+  .stat .val{font-size:18px;font-weight:700;margin-top:2px;}
+  .stat.hi .val{color:var(--green);}
+  .stat.lo .val{color:var(--red);}
+  .pill{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600;}
+  .pill.green{background:#1e3a2a;color:#4ade80;}
+  .pill.red{background:#3d1f1f;color:#f87171;}
+  .pill.grey{background:#2a2e38;color:#c7cbd4;}
+  .pill.orange{background:#3d2e1f;color:#fbbf24;}
+  .empty-note{color:var(--muted);font-size:12.5px;padding:10px 0;}
+  .mono{font-variant-numeric:tabular-nums;}
+  details summary::-webkit-details-marker{color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tabs">
+    <button id="tabForecastBtn" class="active" onclick="setPage('forecast')">Forecast tool</button>
+    <button id="tabBotBtn" onclick="setPage('bot')">Bot (standalone — own accounts, own storage)</button>
+  </div>
+
+<div id="forecastPage">
+  <h1>Barbell weather backtest</h1>
+  <p class="sub">Pulls each model's Single Runs API forecast for the run guaranteed live at your trade window, computes the median-barbell, and checks it against actuals you paste in.</p>
+
+  <div class="panel">
+    <div class="row">
+      <div class="field">
+        <label>City</label>
+        <select id="citySelect"></select>
+      </div>
+      <div class="field">
+        <label>Latitude</label>
+        <input type="number" step="0.0001" id="lat" placeholder="52.3105">
+      </div>
+      <div class="field">
+        <label>Longitude</label>
+        <input type="number" step="0.0001" id="lon" placeholder="4.7683">
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label>Start date</label>
+        <input type="date" id="startDate">
+      </div>
+      <div class="field">
+        <label>End date</label>
+        <input type="date" id="endDate">
+      </div>
+      <div class="field">
+        <label>Temperature unit</label>
+        <select id="unit">
+          <option value="celsius">Celsius</option>
+          <option value="fahrenheit">Fahrenheit</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Barbell style</label>
+        <select id="barbellStyle">
+          <option value="1deg">1-degree (e.g. 90/91)</option>
+          <option value="2deg">2-degree paired, US markets (e.g. 90/91 - 92/93)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Forecast lead</label>
+        <select id="leadDays">
+          <option value="0">Same day (current trade-window lead)</option>
+          <option value="1">1 day ahead</option>
+          <option value="2">2 days ahead</option>
+        </select>
+      </div>
+    </div>
+
+    <label style="margin-bottom:8px;">Models (city selection auto-checks the models that actually cover it)</label>
+    <div class="models" id="modelGrid"></div>
+
+    <div class="actions">
+      <button id="runBtn">Run backtest</button>
+      <button class="secondary" id="csvBtn">Download CSV</button>
+      <span id="status"></span>
+    </div>
+    <p class="hint">Run hour UTC = the model run guaranteed published before your trade window. Defaults reflect a 0700 UTC (0900 SAST) window &mdash; edit per city/timezone as needed.</p>
+  </div>
+
+  <div class="panel">
+    <label style="margin-bottom:8px;">Today's forecast</label>
+    <p class="hint" style="margin-bottom:10px;">Uses the same city coordinates and models checked above, pulled live (not the pinned run-hour used for backtests) - so it always has data, unlike the archival Single Runs API.</p>
+    <div class="actions">
+      <button id="todayBtn">Get today's forecast</button>
+      <button class="secondary" id="nextDayBtn">Get next day's forecast</button>
+      <button class="secondary" id="twoDayBtn">Get 2-day forecast</button>
+      <span id="todayStatus"></span>
+    </div>
+    <div id="todayResult"></div>
+  </div>
+
+  <div class="panel">
+    <label>Actual daily highs (optional, one per line: YYYY-MM-DD,temp in the unit selected above)</label>
+    <textarea id="actuals" placeholder="2026-07-16,32&#10;2026-07-17,32&#10;2026-07-18,35"></textarea>
+  </div>
+
+  <div class="panel" id="resultsPanel" style="display:none;">
+    <div class="summary" id="summaryCards"></div>
+    <div style="overflow-x:auto;">
+      <table id="resultsTable"></table>
+    </div>
+  </div>
+</div><!-- /forecastPage -->
+
+<div id="botPage" style="display:none;">
+  <div class="panel">
+    <h1 style="margin-bottom:4px;">Single Runs Bot</h1>
+    <p class="sub">Standalone paper-trading bot — its own accounts, its own storage, connected live to Polymarket. Nothing here is shared with PolyScan's Nyamcoder x MBE bot. Trades the same 7 cities and models configured in the Forecast tab.</p>
+
+    <div class="row" style="align-items:flex-end;">
+      <div class="field" style="max-width:260px;"><label>Account</label>
+        <select id="botAccountSelect" onchange="onBotAccountChange()"></select>
+      </div>
+      <button class="secondary" onclick="openNewAccountModal()">+ New account</button>
+      <button class="secondary" onclick="deleteCurrentBotAccount()">Delete account</button>
+    </div>
+
+    <div class="stat-row" id="botStatRow"></div>
+    <div id="botChartWrap"></div>
+  </div>
+
+  <div class="panel">
+    <label style="margin-bottom:10px;">Inputs</label>
+    <div class="row">
+      <div class="field"><label>Execution time (SAST)</label><input type="time" id="botExecTime" value="09:00"></div>
+      <div class="field"><label>Stake per leg ($)</label><input type="number" step="0.5" id="botMinTrade" value="10"></div>
+      <div class="field"><label>Lead days</label>
+        <select id="botLeadDays">
+          <option value="0">Same day</option>
+          <option value="1">1 day ahead</option>
+          <option value="2">2 days ahead</option>
+        </select>
+      </div>
+      <div class="field"><label>Recurring</label>
+        <label style="display:flex;align-items:center;gap:6px;padding:8px 0;font-size:13px;"><input type="checkbox" id="botAutoTradeEnabled" style="width:16px;height:16px;"> Keep buying daily</label>
+      </div>
+    </div>
+    <p class="hint">Waits for your execution time each day, then scans the 7 cities: barbells both legs under 80c combined, or the leading leg alone at/above it. Held to resolution — no scalp/target/stop-loss on this tool. Runs on its own 5-min cycle; "recurring" just means leaving this switch on.</p>
+    <div class="actions">
+      <button onclick="saveBotSettings()">Save settings</button>
+      <button class="secondary" onclick="scanPreview()">Scan now (preview, no trades placed)</button>
+    </div>
+    <div id="botPreviewWrap" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="panel">
+    <label style="margin-bottom:8px;">Open Trades</label>
+    <div id="botOpenTradesWrap"></div>
+  </div>
+
+  <div class="panel">
+    <details id="botClosedDetails">
+      <summary style="cursor:pointer;font-weight:600;font-size:14px;padding:4px 0;">Closed Trades <span id="botClosedCount" class="muted"></span></summary>
+      <div style="margin:10px 0;"><button class="secondary" onclick="downloadBotTradesCsv()">Download CSV (backtest)</button></div>
+      <div id="botClosedTradesWrap"></div>
+    </details>
+  </div>
+</div><!-- /botPage -->
+
+<div class="modal-overlay" id="newAccModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:50;" onclick="if(event.target===this) closeNewAccountModal()">
+  <div class="panel" style="width:320px;">
+    <h3 style="margin-top:0;">New paper account</h3>
+    <div class="field"><label>Name</label><input id="newAccName" type="text" placeholder="e.g. Single Runs Test"></div>
+    <div class="field"><label>Starting balance ($)</label><input id="newAccBalance" type="number" step="1" value="1000"></div>
+    <div class="actions">
+      <button class="secondary" onclick="closeNewAccountModal()">Cancel</button>
+      <button onclick="submitNewAccount()">Create</button>
+    </div>
+  </div>
+</div>
+</div><!-- /wrap -->
+
+<script>
+const MODEL_DEFS = [
+  {id:'icon_d2', label:'DWD ICON-D2', runHour:3},
+  {id:'icon_eu', label:'DWD ICON-EU', runHour:0},
+  {id:'icon_seamless', label:'DWD ICON Seamless', runHour:0},
+  {id:'ecmwf_ifs', label:'ECMWF IFS 9km', runHour:0},
+  {id:'gfs_global', label:'NCEP GFS Global', runHour:0},
+  {id:'ukmo_seamless', label:'UKMO Seamless', runHour:0},
+  {id:'ncep_hrrr_conus', label:'NCEP HRRR (US only)', runHour:6},
+  {id:'ncep_nam_conus', label:'NCEP NAM (US only)', runHour:6},
+];
+
+// One entry per eligible city: coordinates + which models actually cover it.
+// "Custom" lets you type coordinates manually for anywhere not listed yet.
+const CITY_DEFS = [
+  {code:'custom', name:'Custom (enter coordinates manually)', lat:null, lon:null, models:[], barbell:'1deg'},
+  {code:'EHAM', name:'Amsterdam Schiphol (EHAM)', lat:52.3105, lon:4.7683, models:['icon_d2','icon_eu','ecmwf_ifs'], barbell:'1deg'},
+  {code:'LLBG', name:'Tel Aviv Ben Gurion (LLBG)', lat:32.0055, lon:34.8854, models:['icon_eu','gfs_global','ecmwf_ifs'], barbell:'1deg'},
+  {code:'LTFM', name:'Istanbul Airport (LTFM)', lat:41.2753, lon:28.7519, models:['icon_eu','ecmwf_ifs'], barbell:'1deg'},
+  {code:'KMIA', name:'Miami Intl (KMIA)', lat:25.7645, lon:-80.2941, models:['ncep_hrrr_conus','ncep_nam_conus','ecmwf_ifs','gfs_global'], barbell:'2deg'},
+  {code:'KAUS', name:'Austin Bergstrom (KAUS)', lat:30.1933, lon:-97.6842, models:['ecmwf_ifs','ukmo_seamless','ncep_nam_conus'], barbell:'2deg'},
+  {code:'RKSI', name:'Seoul Incheon (RKSI)', lat:37.4602, lon:126.4407, models:['gfs_global','ecmwf_ifs'], barbell:'1deg'},
+  {code:'WSSS', name:'Singapore Changi (WSSS)', lat:1.3644, lon:103.9915, models:['gfs_global','ecmwf_ifs'], barbell:'1deg'},
+];
+
+// WMO weather codes collapsed into simple categories for the trader's-eye warning badge.
+function weatherCategory(code){
+  if (code === 0) return {label:'Clear', cls:'b-clear'};
+  if (code === 1 || code === 2) return {label:'Partly Cloudy', cls:'b-partly'};
+  if (code === 3) return {label:'Cloudy', cls:'b-cloudy'};
+  if (code === 45 || code === 48) return {label:'Fog', cls:'b-fog'};
+  if ([51,53,55,56,57,61,63,65,66,67,80,81,82].includes(code)) return {label:'Rain', cls:'b-rain'};
+  if ([71,73,75,77,85,86].includes(code)) return {label:'Snow', cls:'b-snow'};
+  if ([95,96,99].includes(code)) return {label:'Storm', cls:'b-storm'};
+  return {label:'Mixed', cls:'b-cloudy'};
+}
+function modeCategory(codes){
+  const valid = codes.filter(c => c !== null && c !== undefined);
+  if (!valid.length) return null;
+  const counts = {};
+  valid.forEach(c => counts[c] = (counts[c]||0)+1);
+  let best = valid[0];
+  Object.keys(counts).forEach(c => { if (counts[c] > counts[best]) best = parseInt(c,10); });
+  return weatherCategory(best);
+}
+
+const citySelect = document.getElementById('citySelect');
+CITY_DEFS.forEach(c => {
+  const opt = document.createElement('option');
+  opt.value = c.code;
+  opt.textContent = c.name;
+  citySelect.appendChild(opt);
+});
+
+const grid = document.getElementById('modelGrid');
+MODEL_DEFS.forEach(m => {
+  const div = document.createElement('div');
+  div.className = 'model-card';
+  div.innerHTML = `
+    <label class="chk"><input type="checkbox" id="chk_${m.id}" ${['icon_eu','icon_d2','ecmwf_ifs'].includes(m.id) ? 'checked':''}> ${m.label}</label>
+    <div class="runhour">Run hour UTC <input type="number" min="0" max="23" id="rh_${m.id}" value="${m.runHour}"></div>
+  `;
+  grid.appendChild(div);
+});
+
+citySelect.addEventListener('change', () => {
+  const city = CITY_DEFS.find(c => c.code === citySelect.value);
+  if (!city || city.code === 'custom') return;
+  document.getElementById('lat').value = city.lat;
+  document.getElementById('lon').value = city.lon;
+  document.getElementById('barbellStyle').value = city.barbell;
+  MODEL_DEFS.forEach(m => {
+    document.getElementById(`chk_${m.id}`).checked = city.models.includes(m.id);
+  });
+});
+
+function fmtDate(d){ return d.toISOString().slice(0,10); }
+
+function dateRange(start, end){
+  const dates = [];
+  let d = new Date(start + 'T00:00:00Z');
+  const e = new Date(end + 'T00:00:00Z');
+  while (d <= e){
+    dates.push(fmtDate(d));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return dates;
+}
+
+function addDays(dateStr, n){
+  const d = new Date(dateStr + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return fmtDate(d);
+}
+
+// Two bracket styles:
+// 1deg: EU/Asia markets settle on single-degree brackets, e.g. median 26.7 -> barbell 26/27.
+// 2deg: US markets pair degrees into one bracket (e.g. "90/91" is ONE bracket), so the barbell
+// needs to straddle two adjacent PAIRS, e.g. median 91.5 -> barbell "90/91 - 92/93", not "91/92".
+function computeBarbell(median, style){
+  if (median === null || median === undefined) return null;
+  if (style === '2deg'){
+    const idx = median / 2;
+    let loIdx = Math.floor(idx);
+    let hiIdx = Math.ceil(idx);
+    if (loIdx === hiIdx) hiIdx = loIdx + 1;
+    const loStart = loIdx * 2, hiStart = hiIdx * 2;
+    return {
+      label: `${loStart}/${loStart+1} - ${hiStart}/${hiStart+1}`,
+      ranges: [[loStart, loStart+1], [hiStart, hiStart+1]],
+    };
+  }
+  let lo = Math.floor(median);
+  let hi = Math.ceil(median);
+  if (lo === hi) hi = lo + 1;
+  return {
+    label: `${lo}/${hi}`,
+    ranges: [[lo, lo], [hi, hi]],
+  };
+}
+function barbellHit(actual, barbell){
+  if (!barbell || actual === undefined || actual === null) return false;
+  return barbell.ranges.some(([a,b]) => actual >= a && actual <= b);
+}
+
+// runDate = when the model run was initialized (usually "today", the run available
+// at your trade window). targetDate = the calendar day whose max you actually want
+// (same as runDate for "today's forecast", runDate+1 for "next day forecast").
+// Live forecast API - always serves the current best-available run with no
+// archival delay. Used for the on-demand Today/Next day/2-day panel, since
+// pinning an exact frozen run (Single Runs API, below) only matters for
+// backtest integrity against past dates, not for "what's the model saying
+// right now."
+async function fetchLiveDayData(lat, lon, model, targetDate, unit){
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&hourly=temperature_2m,weather_code&models=${model}&temperature_unit=${unit}&timezone=auto&forecast_days=3&format=json`;
+  let res;
+  try {
+    res = await fetch(url);
+  } catch(networkErr) {
+    throw new Error(`NETWORK: ${networkErr.message}`);
+  }
+  if (!res.ok){
+    let bodyText = '';
+    try { bodyText = (await res.text()).slice(0,150); } catch(e){}
+    throw new Error(`HTTP ${res.status}: ${bodyText || res.statusText}`);
+  }
+  const data = await res.json();
+  const times = data.hourly.time;
+  const temps = data.hourly.temperature_2m;
+  const codes = data.hourly.weather_code || [];
+  let maxVal = null, maxCode = null;
+  for (let i=0;i<times.length;i++){
+    if (times[i].startsWith(targetDate) && temps[i] !== null){
+      if (maxVal === null || temps[i] > maxVal){
+        maxVal = temps[i];
+        maxCode = codes[i] !== undefined ? codes[i] : null;
+      }
+    }
+  }
+  return { value: maxVal, code: maxCode };
+}
+
+// Single Runs API - archival storage of a SPECIFIC past run, selected by
+// initialisation time. Correct tool for backtesting (frozen, no look-ahead
+// bias), but recently-issued runs may not be archived here yet - don't use
+// this for "right now" live checks, use fetchLiveDayData above instead.
+async function fetchDayData(lat, lon, model, runHour, runDate, targetDate, unit){
+  const runDt = `${runDate}T${String(runHour).padStart(2,'0')}:00`;
+  const url = `https://single-runs-api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&run=${runDt}&hourly=temperature_2m,weather_code&models=${model}&temperature_unit=${unit}&timezone=auto&format=json`;
+  let res;
+  try {
+    res = await fetch(url);
+  } catch(networkErr) {
+    throw new Error(`NETWORK: ${networkErr.message} (likely CORS or connectivity, not a bad request)`);
+  }
+  if (!res.ok){
+    let bodyText = '';
+    try { bodyText = (await res.text()).slice(0,150); } catch(e){}
+    throw new Error(`HTTP ${res.status}: ${bodyText || res.statusText}`);
+  }
+  const data = await res.json();
+  const times = data.hourly.time;
+  const temps = data.hourly.temperature_2m;
+  const codes = data.hourly.weather_code || [];
+  let maxVal = null, maxCode = null;
+  for (let i=0;i<times.length;i++){
+    if (times[i].startsWith(targetDate) && temps[i] !== null){
+      if (maxVal === null || temps[i] > maxVal){
+        maxVal = temps[i];
+        maxCode = codes[i] !== undefined ? codes[i] : null;
+      }
+    }
+  }
+  return { value: maxVal, code: maxCode };
+}
+
+let lastResults = null;
+
+document.getElementById('runBtn').addEventListener('click', async () => {
+  const lat = document.getElementById('lat').value;
+  const lon = document.getElementById('lon').value;
+  const start = document.getElementById('startDate').value;
+  const end = document.getElementById('endDate').value;
+  const unit = document.getElementById('unit').value;
+  const status = document.getElementById('status');
+
+  if (!lat || !lon || !start || !end){
+    status.textContent = 'Fill in latitude, longitude, and both dates.';
+    return;
+  }
+
+  const activeModels = MODEL_DEFS.filter(m => document.getElementById(`chk_${m.id}`).checked)
+    .map(m => ({ id:m.id, label:m.label, runHour: parseInt(document.getElementById(`rh_${m.id}`).value, 10) }));
+
+  if (activeModels.length === 0){
+    status.textContent = 'Select at least one model.';
+    return;
+  }
+
+  const leadDays = parseInt(document.getElementById('leadDays').value, 10);
+  const dates = dateRange(start, end);
+  const results = {};
+  const errors = [];
+
+  let done = 0;
+  const total = dates.length * activeModels.length;
+
+  for (const date of dates){
+    const runDate = addDays(date, -leadDays);
+    results[date] = {};
+    for (const m of activeModels){
+      status.textContent = `Fetching ${date} (run ${runDate}) / ${m.label} (${done}/${total})`;
+      try {
+        results[date][m.id] = await fetchDayData(lat, lon, m.id, m.runHour, runDate, date, unit);
+      } catch(e) {
+        results[date][m.id] = { value: null, code: null };
+        if (errors.length < 5) errors.push(`${date}/${m.label}: ${e.message}`);
+      }
+      done++;
+    }
+  }
+
+  if (errors.length){
+    status.innerHTML = `Done: ${total} calls, ${errors.length}+ errors. First: <span style="color:var(--red)">${errors[0]}</span>`;
+  } else {
+    status.textContent = `Done: ${total} calls (${leadDays === 0 ? 'same-day' : leadDays + '-day-ahead'} lead).`;
+  }
+  lastResults = { dates, activeModels, results, unit };
+  renderResults();
+});
+
+function parseActuals(){
+  const raw = document.getElementById('actuals').value.trim();
+  const map = {};
+  if (!raw) return map;
+  raw.split('\n').forEach(line => {
+    const parts = line.split(',');
+    if (parts.length >= 2){
+      const d = parts[0].trim();
+      const v = parseFloat(parts[1].trim());
+      if (d && !isNaN(v)) map[d] = v;
+    }
+  });
+  return map;
+}
+
+function renderResults(){
+  if (!lastResults) return;
+  const { dates, activeModels, results, unit } = lastResults;
+  const barbellStyle = document.getElementById('barbellStyle').value;
+  const actuals = parseActuals();
+  const panel = document.getElementById('resultsPanel');
+  panel.style.display = 'block';
+
+  const table = document.getElementById('resultsTable');
+  let head = '<tr><th>Date</th>' + activeModels.map(m => `<th>${m.label}</th>`).join('') + '<th>Median</th><th>Barbell</th><th>Conditions</th><th>Actual</th><th>Result</th></tr>';
+  let rows = '';
+  let hits = 0, evaluated = 0;
+
+  dates.forEach(date => {
+    const row = results[date];
+    const vals = activeModels.map(m => row[m.id] && row[m.id].value).filter(v => v !== null && v !== undefined);
+    const codes = activeModels.map(m => row[m.id] && row[m.id].code);
+    let median = null;
+    if (vals.length){
+      const sorted = [...vals].sort((a,b)=>a-b);
+      const n = sorted.length;
+      median = n % 2 === 1 ? sorted[(n-1)/2] : (sorted[n/2-1]+sorted[n/2])/2;
+    }
+    const barbell = computeBarbell(median, barbellStyle);
+    const cat = modeCategory(codes);
+    const catCell = cat ? `<td><span class="badge ${cat.cls}">${cat.label}</span></td>` : '<td>-</td>';
+
+    const actual = actuals[date];
+    let resultCell = '<td>-</td>';
+    let actualCell = '<td>-</td>';
+    if (actual !== undefined){
+      actualCell = `<td>${actual}</td>`;
+      const hit = barbellHit(actual, barbell);
+      if (barbell){
+        evaluated++;
+        if (hit) hits++;
+      }
+      resultCell = `<td class="${hit ? 'hit' : 'miss'}">${hit ? 'HIT' : 'MISS'}</td>`;
+    }
+    rows += `<tr><td>${date}</td>` +
+      activeModels.map(m => `<td>${row[m.id] && row[m.id].value !== null && row[m.id].value !== undefined ? row[m.id].value.toFixed(1) : '-'}</td>`).join('') +
+      `<td>${median !== null ? median.toFixed(1) : '-'}</td>` +
+      `<td>${barbell ? barbell.label : '-'}</td>` +
+      catCell + actualCell + resultCell + '</tr>';
+  });
+
+  table.innerHTML = head + rows;
+
+  const summary = document.getElementById('summaryCards');
+  const unitLabel = unit === 'celsius' ? 'deg C' : 'deg F';
+  summary.innerHTML = evaluated > 0 ? `
+    <div class="metric"><div class="n">${hits}/${evaluated}</div><div class="l">Hit rate</div></div>
+    <div class="metric"><div class="n">${((hits/evaluated)*100).toFixed(0)}%</div><div class="l">Percent</div></div>
+    <div class="metric"><div class="n">${unitLabel}</div><div class="l">Unit</div></div>
+  ` : `<div class="metric"><div class="n">-</div><div class="l">Paste actuals below to score hits</div></div>`;
+}
+
+document.getElementById('actuals').addEventListener('input', () => { if (lastResults) renderResults(); });
+document.getElementById('barbellStyle').addEventListener('change', () => { if (lastResults) renderResults(); });
+
+async function runQuickForecast(dayOffset){
+  const lat = document.getElementById('lat').value;
+  const lon = document.getElementById('lon').value;
+  const unit = document.getElementById('unit').value;
+  const status = document.getElementById('todayStatus');
+  const resultBox = document.getElementById('todayResult');
+
+  if (!lat || !lon){
+    status.textContent = 'Fill in latitude and longitude first.';
+    return;
+  }
+
+  const activeModels = MODEL_DEFS.filter(m => document.getElementById(`chk_${m.id}`).checked)
+    .map(m => ({ id:m.id, label:m.label, runHour: parseInt(document.getElementById(`rh_${m.id}`).value, 10) }));
+
+  if (activeModels.length === 0){
+    status.textContent = 'Select at least one model above.';
+    return;
+  }
+
+  // The run is always initialized "today" (the freshest run live at your trade
+  // window) - dayOffset only changes which day's max we read out of that run.
+  const runDate = fmtDate(new Date());
+  const targetDate = addDays(runDate, dayOffset);
+  const rows = [];
+  const errors = [];
+
+  for (const m of activeModels){
+    status.textContent = `Fetching ${m.label}...`;
+    try {
+      const d = await fetchLiveDayData(lat, lon, m.id, targetDate, unit);
+      rows.push({ label: m.label, runHour: m.runHour, value: d.value, code: d.code });
+    } catch(e) {
+      rows.push({ label: m.label, runHour: m.runHour, value: null, code: null });
+      errors.push(`${m.label}: ${e.message}`);
+    }
+  }
+
+  const dayLabel = dayOffset === 0 ? 'Today' : dayOffset === 1 ? 'Next day' : `${dayOffset} days ahead`;
+  if (errors.length){
+    status.innerHTML = `${dayLabel} (${targetDate}) - <span style="color:var(--red)">${errors[0]}</span>`;
+  } else {
+    status.textContent = `${dayLabel} (${targetDate}), live forecast as of now`;
+  }
+
+  const vals = rows.map(r => r.value).filter(v => v !== null && v !== undefined);
+  const unitLabel = unit === 'celsius' ? 'deg C' : 'deg F';
+  let median = null;
+  if (vals.length){
+    const sorted = [...vals].sort((a,b)=>a-b);
+    const n = sorted.length;
+    median = n % 2 === 1 ? sorted[(n-1)/2] : (sorted[n/2-1]+sorted[n/2])/2;
+  }
+  const barbellStyle = document.getElementById('barbellStyle').value;
+  const barbell = computeBarbell(median, barbellStyle);
+  const cat = modeCategory(rows.map(r => r.code));
+
+  const perModel = rows.map(r => `<div class="metric"><div class="n">${r.value !== null && r.value !== undefined ? r.value.toFixed(1) : '-'}</div><div class="l">${r.label} (latest live run)</div></div>`).join('');
+
+  resultBox.innerHTML = `
+    <div class="summary" style="margin-top:12px;">
+      <div class="metric"><div class="n">${median !== null ? median.toFixed(1)+' '+unitLabel : '-'}</div><div class="l">Median</div></div>
+      <div class="metric"><div class="n">${barbell ? barbell.label : '-'}</div><div class="l">Suggested barbell</div></div>
+      <div class="metric"><div class="n">${cat ? `<span class="badge ${cat.cls}">${cat.label}</span>` : '-'}</div><div class="l">Conditions</div></div>
+    </div>
+    <div class="summary">${perModel}</div>
+  `;
+}
+
+document.getElementById('todayBtn').addEventListener('click', () => runQuickForecast(0));
+document.getElementById('nextDayBtn').addEventListener('click', () => runQuickForecast(1));
+document.getElementById('twoDayBtn').addEventListener('click', () => runQuickForecast(2));
+
+document.getElementById('csvBtn').addEventListener('click', () => {
+  if (!lastResults){ document.getElementById('status').textContent = 'Run a backtest first.'; return; }
+  const { dates, activeModels, results } = lastResults;
+  const barbellStyle = document.getElementById('barbellStyle').value;
+  const actuals = parseActuals();
+  let csv = 'date,' + activeModels.map(m=>m.id).join(',') + ',median,barbell,conditions,actual,result\n';
+  dates.forEach(date => {
+    const row = results[date];
+    const vals = activeModels.map(m => row[m.id] && row[m.id].value).filter(v => v !== null && v !== undefined);
+    const codes = activeModels.map(m => row[m.id] && row[m.id].code);
+    let median = null;
+    if (vals.length){
+      const sorted=[...vals].sort((a,b)=>a-b); const n=sorted.length;
+      median = n%2===1 ? sorted[(n-1)/2] : (sorted[n/2-1]+sorted[n/2])/2;
+    }
+    const barbell = computeBarbell(median, barbellStyle);
+    const cat = modeCategory(codes);
+    const actual = actuals[date] !== undefined ? actuals[date] : '';
+    const result = (actual !== '' && barbell) ? (barbellHit(actual, barbell) ? 'HIT':'MISS') : '';
+    csv += `${date},` + activeModels.map(m=> (row[m.id] && row[m.id].value !== null ? row[m.id].value : '')).join(',') + `,${median !== null ? median.toFixed(1) : ''},${barbell ? barbell.label : ''},${cat ? cat.label : ''},${actual},${result}\n`;
+  });
+  const blob = new Blob([csv], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `backtest_${citySelect.value}.csv`;
+  a.click();
+});
+
+// ══════════════════════════════════════════════════════════════════════════
+// BOT PAGE — fully standalone. Talks only to /api/srbot/*, which has its own
+// storage and accounts, entirely separate from PolyScan's Nyamcoder x MBE bot.
+// ══════════════════════════════════════════════════════════════════════════
+let BOT_CURRENT_ACCOUNT_ID = null;
+let BOT_REFRESH_TIMER = null;
+
+function setPage(page) {
+  localStorage.setItem('backtestPage', page);
+  const isBot = page === 'bot';
+  document.getElementById('forecastPage').style.display = isBot ? 'none' : '';
+  document.getElementById('botPage').style.display = isBot ? '' : 'none';
+  document.getElementById('tabForecastBtn').classList.toggle('active', !isBot);
+  document.getElementById('tabBotBtn').classList.toggle('active', isBot);
+  if (isBot) {
+    if (BOT_REFRESH_TIMER) clearInterval(BOT_REFRESH_TIMER);
+    loadBotAccounts();
+    BOT_REFRESH_TIMER = setInterval(() => refreshBotAccount(false), 20000);
+  } else if (BOT_REFRESH_TIMER) {
+    clearInterval(BOT_REFRESH_TIMER);
+    BOT_REFRESH_TIMER = null;
+  }
+}
+
+async function loadBotAccounts() {
+  const { accounts } = await fetch('/api/srbot/accounts').then(r => r.json());
+  const sel = document.getElementById('botAccountSelect');
+  sel.innerHTML = accounts.map(a => `<option value="${a.id}">${a.name} — $${a.balance.toFixed(2)}</option>`).join('');
+  if (!accounts.length) {
+    BOT_CURRENT_ACCOUNT_ID = null;
+    document.getElementById('botStatRow').innerHTML = `<div class="empty-note">No paper accounts yet — click "+ New account" to start.</div>`;
+    document.getElementById('botOpenTradesWrap').innerHTML = '';
+    document.getElementById('botClosedTradesWrap').innerHTML = '';
+    return;
+  }
+  if (!BOT_CURRENT_ACCOUNT_ID || !accounts.find(a => a.id === BOT_CURRENT_ACCOUNT_ID)) BOT_CURRENT_ACCOUNT_ID = accounts[0].id;
+  sel.value = BOT_CURRENT_ACCOUNT_ID;
+  await refreshBotAccount(true);
+}
+
+function onBotAccountChange() {
+  BOT_CURRENT_ACCOUNT_ID = document.getElementById('botAccountSelect').value;
+  refreshBotAccount(true);
+}
+
+async function refreshBotAccount(full = true) {
+  if (!BOT_CURRENT_ACCOUNT_ID) return;
+  const acc = await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}`).then(r => r.json());
+  if (acc.error) return;
+  renderBotStats(acc);
+  if (full) renderBotSettingsForm(acc.settings);
+  renderBotTrades(acc.trades);
+}
+
+function renderBotStats(acc) {
+  const pnlClass = acc.settledProfit > 0 ? 'hi' : acc.settledProfit < 0 ? 'lo' : '';
+  document.getElementById('botStatRow').innerHTML = `
+    <div class="stat"><div class="lbl">Balance (free cash)</div><div class="val">$${acc.balance.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Equity</div><div class="val">$${acc.equity.toFixed(2)}</div></div>
+    <div class="stat ${pnlClass}"><div class="lbl">Settled P&amp;L</div><div class="val">${acc.settledProfit >= 0 ? '+' : ''}$${acc.settledProfit.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Open / Exposure</div><div class="val">${acc.openCount} · $${acc.openExposure.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">W / L / Cashout</div><div class="val" style="font-size:16px;">${acc.wins} / ${acc.losses} / ${acc.cashouts}</div></div>`;
+}
+
+function renderBotSettingsForm(s) {
+  document.getElementById('botExecTime').value = s.executionTimeSAST || '09:00';
+  document.getElementById('botMinTrade').value = s.minTradeAmount ?? 10;
+  document.getElementById('botLeadDays').value = s.leadDays ?? 0;
+  document.getElementById('botAutoTradeEnabled').checked = !!s.autoTradeEnabled;
+}
+
+async function saveBotSettings() {
+  if (!BOT_CURRENT_ACCOUNT_ID) return alert('Create an account first.');
+  const body = {
+    executionTimeSAST: document.getElementById('botExecTime').value || '09:00',
+    minTradeAmount: parseFloat(document.getElementById('botMinTrade').value) || 10,
+    leadDays: parseInt(document.getElementById('botLeadDays').value) || 0,
+    autoTradeEnabled: document.getElementById('botAutoTradeEnabled').checked,
+  };
+  await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/settings`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  refreshBotAccount(true);
+}
+
+async function scanPreview() {
+  const body = {
+    executionTimeSAST: document.getElementById('botExecTime').value || '09:00',
+    minTradeAmount: parseFloat(document.getElementById('botMinTrade').value) || 10,
+    leadDays: parseInt(document.getElementById('botLeadDays').value) || 0,
+  };
+  document.getElementById('botPreviewWrap').innerHTML = '<div class="empty-note">Scanning…</div>';
+  const res = await fetch('/api/srbot/scan-preview', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }).then(r => r.json());
+  if (!res.ok) { document.getElementById('botPreviewWrap').innerHTML = `<div class="empty-note">Scan failed: ${res.error}</div>`; return; }
+  if (!res.count) { document.getElementById('botPreviewWrap').innerHTML = `<div class="empty-note">No candidates right now — nothing would trade this tick. (Preview ignores the execution-time gate, so this shows what's available regardless of the clock.)</div>`; return; }
+  document.getElementById('botPreviewWrap').innerHTML = `
+    <table><thead><tr><th>City</th><th>Bracket</th><th>Price</th></tr></thead>
+    <tbody>${res.candidates.map(c => `<tr><td>${c.city}</td><td>${c.bracket}</td><td class="mono">${c.priceCents}¢</td></tr>`).join('')}</tbody></table>
+    <div class="empty-note">${res.count} candidate${res.count>1?'s':''} found — preview only, no trades placed.</div>`;
+}
+
+function fmtTs(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return '—';
+  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function botTradeRow(t) {
+  const statusPill = t.status === 'open' ? '<span class="pill grey">OPEN</span>'
+    : t.status === 'WIN' ? '<span class="pill green">WIN</span>'
+    : t.status === 'LOSS' ? '<span class="pill red">LOSS</span>'
+    : `<span class="pill orange">CASHOUT${t.exitReason ? ' · '+t.exitReason : ''}</span>`;
+  const pnlCell = t.status === 'open'
+    ? (t.currentPriceCents != null ? `${t.currentPriceCents.toFixed(1)}¢ <span style="font-size:11px;color:${t.unrealizedProfit>=0?'var(--green)':'var(--red)'};">(${t.unrealizedProfit>=0?'+':''}$${t.unrealizedProfit.toFixed(2)})</span>` : '<span class="muted">—</span>')
+    : `${t.profit>=0?'+':''}$${t.profit.toFixed(2)}`;
+  return `<tr>
+    <td>${t.city}</td><td>${t.bracketLabel}</td><td class="mono">$${t.stake.toFixed(2)}</td>
+    <td class="mono">${t.entryPriceCents}¢${t.cashoutPriceCents!=null?' → '+t.cashoutPriceCents+'¢':''}</td>
+    <td class="mono">${pnlCell}</td><td>${statusPill}</td><td style="font-size:11px;white-space:nowrap;">${fmtTs(t.openedAt)}</td>
+    <td>${t.status==='open' ? `<button class="secondary" style="padding:5px 10px;font-size:11px;" onclick="closeBotTrade('${t.id}')">Cash out</button>` : ''}
+        <button class="secondary" style="padding:5px 10px;font-size:11px;" onclick="deleteBotTrade('${t.id}')">Delete</button></td>
+  </tr>`;
+}
+
+function renderBotTrades(trades) {
+  const open = trades.filter(t => t.status === 'open');
+  const closed = trades.filter(t => t.status !== 'open');
+  const head = `<thead><tr><th>City</th><th>Bracket</th><th>Stake</th><th>Entry→Exit</th><th>Live / P&amp;L</th><th>Status</th><th>Opened</th><th></th></tr></thead>`;
+  document.getElementById('botOpenTradesWrap').innerHTML = open.length
+    ? `<table>${head}<tbody>${open.map(botTradeRow).join('')}</tbody></table>` : '<div class="empty-note">No open trades right now.</div>';
+  document.getElementById('botClosedCount').textContent = `(${closed.length})`;
+  document.getElementById('botClosedTradesWrap').innerHTML = closed.length
+    ? `<table>${head}<tbody>${closed.map(botTradeRow).join('')}</tbody></table>` : '<div class="empty-note">Nothing closed yet.</div>';
+  renderBotEquityChart(closed);
+}
+
+function downloadBotTradesCsv() {
+  if (!BOT_CURRENT_ACCOUNT_ID) return;
+  window.location.href = `/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades.csv`;
+}
+
+async function closeBotTrade(tradeId) { await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades/${tradeId}/close`, { method: 'POST' }); refreshBotAccount(false); }
+async function deleteBotTrade(tradeId) { await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades/${tradeId}`, { method: 'DELETE' }); refreshBotAccount(false); }
+
+function openNewAccountModal() {
+  document.getElementById('newAccName').value = '';
+  document.getElementById('newAccBalance').value = 1000;
+  document.getElementById('newAccModalOverlay').style.display = 'flex';
+}
+function closeNewAccountModal() { document.getElementById('newAccModalOverlay').style.display = 'none'; }
+async function submitNewAccount() {
+  const name = document.getElementById('newAccName').value.trim();
+  const startingBalance = parseFloat(document.getElementById('newAccBalance').value);
+  if (!name || !Number.isFinite(startingBalance)) return alert('Name and starting balance required.');
+  const res = await fetch('/api/srbot/accounts', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ name, startingBalance }) }).then(r => r.json());
+  closeNewAccountModal();
+  BOT_CURRENT_ACCOUNT_ID = res.id;
+  await loadBotAccounts();
+}
+async function deleteCurrentBotAccount() {
+  if (!BOT_CURRENT_ACCOUNT_ID) return;
+  if (!confirm('Delete this paper account and all its trade history? This cannot be undone.')) return;
+  await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}`, { method: 'DELETE' });
+  BOT_CURRENT_ACCOUNT_ID = null;
+  await loadBotAccounts();
+}
+
+function catmullRomToBezierPath(points) {
+  let d = `M${points[0][0].toFixed(1)},${points[0][1].toFixed(1)}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i - 1] || points[i], p1 = points[i], p2 = points[i + 1], p3 = points[i + 2] || p2;
+    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+  }
+  return d;
+}
+function renderBotEquityChart(closedTrades) {
+  const wrap = document.getElementById('botChartWrap');
+  if (closedTrades.length < 2) { wrap.innerHTML = '<div class="empty-note">Equity curve appears once a couple of trades have settled.</div>'; return; }
+  const ordered = [...closedTrades].sort((a,b) => new Date(a.settledAt) - new Date(b.settledAt));
+  let running = 0;
+  const vals = ordered.map(t => (running += t.profit));
+  const w = 760, h = 200, padL = 56, padR = 16, padT = 18, padB = 30;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const min = Math.min(0, ...vals), max = Math.max(0, ...vals);
+  const range = (max - min) || 1;
+  const x = i => padL + (vals.length === 1 ? 0 : (i / (vals.length - 1)) * plotW);
+  const y = v => padT + plotH - ((v - min) / range) * plotH;
+  const pts = vals.map((v,i) => [x(i), y(v)]);
+  const path = catmullRomToBezierPath(pts);
+  const stroke = vals[vals.length-1] >= 0 ? '#2fbf71' : '#e5484d';
+  const yTicks = Array.from(new Set([min, min+range/2, max, 0].map(v => Math.round(v*100)/100))).sort((a,b)=>a-b);
+  const yGrid = yTicks.map(v => `<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${w-padR}" y2="${y(v).toFixed(1)}" stroke="var(--border)" stroke-width="${v===0?1.4:1}" stroke-dasharray="${v===0?'0':'4,3'}"/><text x="${padL-8}" y="${(y(v)+3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)">$${v.toFixed(0)}</text>`).join('');
+  const idxs = vals.length <= 3 ? vals.map((_,i)=>i) : [0, Math.floor((vals.length-1)/2), vals.length-1];
+  const xLabels = idxs.map(i => { const d = new Date(ordered[i].settledAt); const label = isNaN(d) ? `#${i+1}` : d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); return `<text x="${x(i).toFixed(1)}" y="${h-8}" text-anchor="middle" font-size="10" fill="var(--muted)">${label}</text>`; }).join('');
+  wrap.innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:200px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;">
+    ${yGrid}<path d="${path}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${pts.map(([px,py]) => `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.5" fill="${stroke}"/>`).join('')}
+    <text x="${padL}" y="12" font-size="10" fill="var(--muted)">Cumulative P&amp;L ($) — y axis</text>${xLabels}
+    </svg><div class="hint">Equity curve — ${vals.length} closed trades, oldest (left) to newest (right).</div>`;
+}
+
+setPage(localStorage.getItem('backtestPage') === 'bot' ? 'bot' : 'forecast');
+</script>
+</body>
+</html>

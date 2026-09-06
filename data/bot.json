@@ -806,14 +806,15 @@
           "bracketLabel": "92-93°F",
           "stake": 15,
           "entryPriceCents": 91,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-06T00:04:47.822Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-06T18:58:25.515Z",
+          "profit": 1.4835,
+          "autoResolved": true
         },
         {
           "id": "1788653087822-1g0lh",
@@ -12197,14 +12198,15 @@
           "bracketLabel": "92-93°F",
           "stake": 10,
           "entryPriceCents": 91,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-06T00:04:47.841Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-06T18:58:26.593Z",
+          "profit": 0.989,
+          "autoResolved": true
         },
         {
           "id": "1788653087841-pjlr4",
@@ -18360,14 +18362,15 @@
           "bracketLabel": "92-93°F",
           "stake": 25,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-06T04:44:48.983Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-06T18:58:26.613Z",
+          "profit": 1.8817,
+          "autoResolved": true
         },
         {
           "id": "1788669888983-3h9du",

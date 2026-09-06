@@ -25355,14 +25355,15 @@
           "bracketLabel": "76-77°F",
           "stake": 1,
           "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 38,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-06T09:13:28.821Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-06T22:13:27.982Z",
+          "profit": -0.5914,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788686008821-jtvye",

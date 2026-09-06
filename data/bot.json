@@ -24963,6 +24963,25 @@
       },
       "trades": [
         {
+          "id": "1788725307551-dtazn",
+          "accountId": "acc_1788685855951_0ycwj",
+          "city": "Atlanta",
+          "code": "KATL",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 1,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-06T20:08:27.551Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788725006613-znta6",
           "accountId": "acc_1788685855951_0ycwj",
           "city": "San Francisco",
@@ -24972,14 +24991,15 @@
           "bracketLabel": "68-69°F",
           "stake": 1,
           "entryPriceCents": 91,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-06T20:03:26.613Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-06T20:08:27.110Z",
+          "profit": 0.0989,
+          "autoResolved": true
         },
         {
           "id": "1788724407847-zexp0",

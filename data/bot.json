@@ -12662,6 +12662,25 @@
       },
       "trades": [
         {
+          "id": "1788818311163-46mpe",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "78-79°F",
+          "stake": 10,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-07T21:58:31.163Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788807511001-3om0t",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Denver",
@@ -27985,6 +28004,25 @@
       },
       "trades": [
         {
+          "id": "1788818311367-pciha",
+          "accountId": "acc_1788685855951_0ycwj",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "78-79°F",
+          "stake": 1,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-07T21:58:31.367Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788815310268-3vuj9",
           "accountId": "acc_1788685855951_0ycwj",
           "city": "Atlanta",
@@ -28170,14 +28208,15 @@
           "bracketLabel": "100-101°F",
           "stake": 1,
           "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 18,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-07T16:03:31.986Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-07T21:58:31.164Z",
+          "profit": -0.8065,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788796412578-fsmxq",

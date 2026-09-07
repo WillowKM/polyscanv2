@@ -19832,6 +19832,25 @@
       },
       "trades": [
         {
+          "id": "1788763711795-plpnt",
+          "accountId": "acc_1787932846731_gxbwz",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 50,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-07T06:48:31.795Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788762511696-uzrhd",
           "accountId": "acc_1787932846731_gxbwz",
           "city": "Istanbul",
@@ -26275,6 +26294,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788763711795-70dfq",
+          "accountId": "acc_1788448978851_8ir9j",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 100,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-07T06:48:31.795Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788762511697-oaxej",
           "accountId": "acc_1788448978851_8ir9j",

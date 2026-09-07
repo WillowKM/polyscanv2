@@ -84,14 +84,15 @@
           "bracketLabel": "61°F or below",
           "stake": 15,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-07T18:08:30.951Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-07T19:28:28.961Z",
+          "profit": 0.4639,
+          "autoResolved": true
         },
         {
           "id": "1788797312035-13vah",
@@ -12677,14 +12678,15 @@
           "bracketLabel": "61°F or below",
           "stake": 10,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-07T18:08:30.972Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-07T19:28:31.166Z",
+          "profit": 0.3093,
+          "autoResolved": true
         },
         {
           "id": "1788797312071-0aawy",
@@ -27942,6 +27944,25 @@
       },
       "trades": [
         {
+          "id": "1788809311676-zoxjz",
+          "accountId": "acc_1788685855951_0ycwj",
+          "city": "Seattle",
+          "code": "KSEA",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "64-65°F",
+          "stake": 1,
+          "entryPriceCents": 92,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-07T19:28:31.676Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788808112247-eeb9a",
           "accountId": "acc_1788685855951_0ycwj",
           "city": "Seattle",
@@ -27970,14 +27991,15 @@
           "bracketLabel": "61°F or below",
           "stake": 1,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-07T19:03:30.952Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-07T19:28:31.187Z",
+          "profit": 0.0638,
+          "autoResolved": true
         },
         {
           "id": "1788804210942-z3bt6",

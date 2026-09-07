@@ -27109,7 +27109,6 @@
           "Amsterdam",
           "Busan",
           "Hong Kong",
-          "Houston",
           "Istanbul",
           "Munich",
           "Seoul",
@@ -27118,7 +27117,7 @@
           "Tokyo",
           "Wellington"
         ],
-        "minTradeAmount": 100,
+        "minTradeAmount": 125,
         "maxOpenOrders": 10,
         "maxSpreadCents": 3,
         "minVolumeFallback": 200,

@@ -46,14 +46,15 @@
           "bracketLabel": "82-83°F",
           "stake": 15,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-07T18:58:30.978Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-07T20:13:28.902Z",
+          "profit": 0.4639,
+          "autoResolved": true
         },
         {
           "id": "1788804510951-4wm4i",
@@ -950,14 +951,15 @@
           "bracketLabel": "84-85°F",
           "stake": 15,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-07T00:03:31.541Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-07T20:13:29.146Z",
+          "profit": 0.4639,
+          "autoResolved": true
         },
         {
           "id": "1788739411540-ihg97",
@@ -12641,14 +12643,15 @@
           "bracketLabel": "82-83°F",
           "stake": 10,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-07T18:58:31.001Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-07T20:13:30.705Z",
+          "profit": 0.3093,
+          "autoResolved": true
         },
         {
           "id": "1788804510972-9kcfl",
@@ -13487,14 +13490,15 @@
           "bracketLabel": "84-85°F",
           "stake": 10,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-07T00:03:31.559Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-07T20:13:30.705Z",
+          "profit": 0.3093,
+          "autoResolved": true
         },
         {
           "id": "1788739411559-nwxf2",

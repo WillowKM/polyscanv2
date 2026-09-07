@@ -445,8 +445,13 @@ body {
   <div class="vdiv"></div>
   <div class="upd" id="lastUpd">Loading…</div>
   <a href="/calculator.html" style="margin-left:auto;color:var(--muted);text-decoration:none;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;">📊 Calculator</a>
-  <a href="/backtest.html" style="color:var(--muted);text-decoration:none;font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;">🌡️ Single Runs Bot</a>
 </div>
+
+<!-- Floating nav button — the header above is a fixed-width TV-dashboard
+     layout (overflow:hidden, flex-wrap:nowrap) already packed to the edge,
+     so a second inline link there gets silently clipped off-screen instead
+     of wrapping. A fixed-position button can't be clipped that way. -->
+<a href="/backtest.html" style="position:fixed;bottom:16px;right:16px;z-index:250;display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:9px 14px;color:var(--text);text-decoration:none;font-size:12px;box-shadow:0 4px 16px rgba(0,0,0,0.4);">🌡️ Single Runs Bot</a>
 
 <!-- TICKER -->
 <div class="ticker-bar">

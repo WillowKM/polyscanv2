@@ -29432,6 +29432,25 @@
       },
       "trades": [
         {
+          "id": "1788832415583-vuz07",
+          "accountId": "acc_1788685855951_0ycwj",
+          "city": "Hong Kong",
+          "code": "HKO",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 1,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-08T01:53:35.583Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788825814902-hw57u",
           "accountId": "acc_1788685855951_0ycwj",
           "city": "Los Angeles",
@@ -29536,14 +29555,15 @@
           "bracketLabel": "15°C",
           "stake": 1,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-08T00:03:34.902Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-08T01:53:34.610Z",
+          "profit": 0.0526,
+          "autoResolved": true
         },
         {
           "id": "1788825814902-pjdqa",

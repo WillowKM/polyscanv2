@@ -30640,7 +30640,7 @@
         "reBuyAfterScalp": true,
         "stopLossEnabled": true,
         "stopLossUnit": "cents",
-        "stopLossValue": 65,
+        "stopLossValue": 35,
         "autoTradeEnabled": true
       },
       "trades": [

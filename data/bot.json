@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1788827614455-r6bsi",
+          "accountId": "acc_1787816610933_rw13a",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 15,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-08T00:33:34.455Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788827014464-dic5l",
           "accountId": "acc_1787816610933_rw13a",
           "city": "Hong Kong",
@@ -13184,6 +13203,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1788827614491-2lj9a",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 10,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-08T00:33:34.491Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1788827014487-u6fgc",
           "accountId": "acc_1787862946166_t1sfj",

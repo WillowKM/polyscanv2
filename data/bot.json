@@ -13602,6 +13602,25 @@
       },
       "trades": [
         {
+          "id": "1788881312534-gtbxl",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 10,
+          "entryPriceCents": 92,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-08T15:28:32.534Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788875911869-wmh8a",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Miami",
@@ -30484,6 +30503,25 @@
       },
       "trades": [
         {
+          "id": "1788881312879-r1vn1",
+          "accountId": "acc_1788685855951_0ycwj",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 1,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-08T15:28:32.879Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788864813422-ab1pj",
           "accountId": "acc_1788685855951_0ycwj",
           "city": "London",
@@ -30493,14 +30531,15 @@
           "bracketLabel": "20°C",
           "stake": 1,
           "entryPriceCents": 92,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-08T10:53:33.422Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-08T15:28:32.534Z",
+          "profit": 0.087,
+          "autoResolved": true
         },
         {
           "id": "1788854613301-jcy39",

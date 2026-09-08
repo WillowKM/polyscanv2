@@ -29406,8 +29406,8 @@
           "Tokyo",
           "Wellington"
         ],
-        "minTradeAmount": 100,
-        "maxOpenOrders": 10,
+        "minTradeAmount": 125,
+        "maxOpenOrders": 8,
         "maxSpreadCents": 3,
         "minVolumeFallback": 200,
         "noBuyMinCents": 95,

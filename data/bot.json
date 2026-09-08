@@ -105,14 +105,15 @@
           "bracketLabel": "88-89°F",
           "stake": 15,
           "entryPriceCents": 86,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 50,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-08T18:08:32.042Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-08T23:48:30.150Z",
+          "profit": -6.2791,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1788878012028-l3qwp",
@@ -284,14 +285,15 @@
           "bracketLabel": "90°F or higher",
           "stake": 15,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-08T06:53:33.478Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-08T23:48:30.150Z",
+          "profit": 0.4639,
+          "autoResolved": true
         },
         {
           "id": "1788848613383-5bcld",
@@ -13709,6 +13711,25 @@
       },
       "trades": [
         {
+          "id": "1788911310409-o95ua",
+          "accountId": "acc_1787862946166_t1sfj",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 10,
+          "entryPriceCents": 91,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-08T23:48:30.409Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1788910411484-y3y5s",
           "accountId": "acc_1787862946166_t1sfj",
           "city": "Los Angeles",
@@ -13956,14 +13977,15 @@
           "bracketLabel": "90°F or higher",
           "stake": 10,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-08T06:48:32.200Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-08T23:48:30.390Z",
+          "profit": 0.3093,
+          "autoResolved": true
         },
         {
           "id": "1788848613402-fhl40",
@@ -32782,14 +32804,15 @@
           "bracketLabel": "90°F or higher",
           "stake": 40,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-08T06:53:33.517Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-08T23:48:30.430Z",
+          "profit": 1.2371,
+          "autoResolved": true
         },
         {
           "id": "1788849812090-3az50",

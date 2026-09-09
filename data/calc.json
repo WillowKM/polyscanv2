@@ -6,6 +6,21 @@
   },
   "trades": [
     {
+      "id": "1788982710816-l8g9j",
+      "city": "Atlanta",
+      "strategy": "3",
+      "side": "YES",
+      "bracketLabel": "92-93°F",
+      "stake": 10,
+      "entryPriceCents": 4,
+      "session": null,
+      "status": "open",
+      "cashoutPriceCents": null,
+      "sastDate": "2026-09-09",
+      "openedAt": "2026-09-09T19:38:30.816Z",
+      "settledAt": null
+    },
+    {
       "id": "1784303237604-maz5g",
       "city": "Seattle",
       "strategy": "3",

@@ -51,7 +51,65 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1789056006479-06oxd",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "76-77°F",
+          "stake": 125,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-10T16:00:06.479Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1789056006479-r4ub7",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 125,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-10T16:00:06.479Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1789056006479-tb6uq",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 125,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-10T16:00:06.479Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     },
     "acc_1789055960229_rgwbd": {
       "id": "acc_1789055960229_rgwbd",

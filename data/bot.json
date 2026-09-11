@@ -1382,6 +1382,25 @@
       },
       "trades": [
         {
+          "id": "1789126228246-16w9t",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Tel Aviv",
+          "code": "LLBG",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-11T11:30:28.246Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789125607842-991bp",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Los Angeles",

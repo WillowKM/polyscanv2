@@ -792,14 +792,15 @@
           "bracketLabel": "82-83°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T15:35:12.771Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T21:55:06.983Z",
+          "profit": -5,
+          "autoResolved": true
         },
         {
           "id": "1789134910869-hifir",
@@ -2123,14 +2124,15 @@
           "bracketLabel": "82-83°F",
           "stake": 10,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T05:10:34.995Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T21:55:09.537Z",
+          "profit": -10,
+          "autoResolved": true
         },
         {
           "id": "1789103107980-ost1b",

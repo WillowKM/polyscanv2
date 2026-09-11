@@ -728,14 +728,15 @@
           "bracketLabel": "94-95°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T13:25:13.472Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T19:05:06.267Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789128661807-aemcy",
@@ -1754,14 +1755,15 @@
           "bracketLabel": "94-95°F",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T12:50:07.225Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T19:05:07.068Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789128321364-3mses",

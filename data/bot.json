@@ -996,14 +996,15 @@
           "bracketLabel": "100-101°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T08:55:09.104Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T22:35:07.451Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789113007328-lotfs",
@@ -1932,14 +1933,15 @@
           "bracketLabel": "100-101°F",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T12:00:07.033Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T22:35:07.951Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789126228246-16w9t",

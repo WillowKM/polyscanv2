@@ -627,14 +627,15 @@
           "bracketLabel": "33°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T05:50:07.810Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T07:55:06.094Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789101934620-ea8m5",
@@ -1264,6 +1265,25 @@
       },
       "trades": [
         {
+          "id": "1789113311585-atnfd",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Atlanta",
+          "code": "KATL",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "92-93°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-11T07:55:11.585Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789106139407-9ij63",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Atlanta",
@@ -1311,14 +1331,15 @@
           "bracketLabel": "33°C",
           "stake": 10,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T05:35:14.320Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T07:55:11.040Z",
+          "profit": 0.7527,
+          "autoResolved": true
         },
         {
           "id": "1789103434995-xvfit",

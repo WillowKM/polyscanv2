@@ -1011,6 +1011,25 @@
       },
       "trades": [
         {
+          "id": "1789086647313-gr23n",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 10,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-11T00:30:47.313Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789085410975-hjcau",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Singapore",

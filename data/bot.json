@@ -1526,6 +1526,25 @@
       },
       "trades": [
         {
+          "id": "1789147598997-h4aml",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-11T17:26:38.997Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789139707050-jya70",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Atlanta",
@@ -2024,14 +2043,15 @@
           "bracketLabel": "21°C",
           "stake": 10,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T00:30:47.313Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T17:26:38.553Z",
+          "profit": -10,
+          "autoResolved": true
         },
         {
           "id": "1789085410975-hjcau",

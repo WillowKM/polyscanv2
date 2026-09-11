@@ -1148,6 +1148,25 @@
       },
       "trades": [
         {
+          "id": "1789103434995-xvfit",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "82-83°F",
+          "stake": 10,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-11T05:10:34.995Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789103107980-ost1b",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Tel Aviv",

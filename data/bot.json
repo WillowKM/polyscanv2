@@ -523,6 +523,25 @@
       },
       "trades": [
         {
+          "id": "1789087535717-a5pun",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Wellington",
+          "code": "NZWN",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "16°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-11T00:45:35.717Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789086007768-kzt3w",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Los Angeles",

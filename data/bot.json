@@ -81,14 +81,15 @@
           "bracketLabel": "66-67°F",
           "stake": 125,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T17:35:07.408Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T18:05:06.060Z",
+          "profit": 3.866,
+          "autoResolved": true
         },
         {
           "id": "1789117508518-90dk1",
@@ -100,14 +101,15 @@
           "bracketLabel": "80-81°F",
           "stake": 125,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T09:05:08.518Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T18:05:06.061Z",
+          "profit": 6.5789,
+          "autoResolved": true
         },
         {
           "id": "1789084808486-6ieie",
@@ -707,14 +709,15 @@
           "bracketLabel": "82-83°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T12:11:01.807Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T18:05:06.848Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789127420003-mzbac",
@@ -960,14 +963,15 @@
           "bracketLabel": "80-81°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T04:45:34.620Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T18:05:06.848Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789099810480-6nvuv",
@@ -1612,14 +1616,15 @@
           "bracketLabel": "82-83°F",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T17:40:19.037Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T18:05:20.425Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789147598997-h4aml",
@@ -1864,14 +1869,15 @@
           "bracketLabel": "86-87°F",
           "stake": 10,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T05:55:39.407Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T18:05:20.425Z",
+          "profit": 0.7527,
+          "autoResolved": true
         },
         {
           "id": "1789105808468-3part",
@@ -1961,14 +1967,15 @@
           "bracketLabel": "80-81°F",
           "stake": 10,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T04:35:29.930Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T18:05:20.425Z",
+          "profit": 0.7527,
+          "autoResolved": true
         },
         {
           "id": "1789100149027-xy4d9",
@@ -2198,14 +2205,15 @@
           "bracketLabel": "92-93°F",
           "stake": 10,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-11T00:00:26.987Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-11T18:05:20.425Z",
+          "profit": 0.7527,
+          "autoResolved": true
         },
         {
           "id": "1789084826987-irqfi",

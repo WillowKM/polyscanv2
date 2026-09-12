@@ -53,6 +53,25 @@
       },
       "trades": [
         {
+          "id": "1789214108246-2mlmy",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 125,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-12T11:55:08.246Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789203308254-gfbjo",
           "accountId": "acc_1789055794688_pvayx",
           "city": "Seattle",
@@ -157,14 +176,15 @@
           "bracketLabel": "106-107°F",
           "stake": 125,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T00:00:09.207Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T11:55:06.605Z",
+          "profit": 3.866,
+          "autoResolved": true
         },
         {
           "id": "1789171209207-dxryk",
@@ -843,6 +863,25 @@
       },
       "trades": [
         {
+          "id": "1789214111108-kpbph",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-12T11:55:11.108Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789212643943-bvww9",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Seattle",
@@ -929,14 +968,15 @@
           "bracketLabel": "21°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T07:40:15.875Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T11:55:08.246Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789198247095-hcd4f",

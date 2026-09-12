@@ -823,6 +823,25 @@
       },
       "trades": [
         {
+          "id": "1789173616505-032sy",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Singapore",
+          "code": "WSSS",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "33°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-12T00:40:16.505Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789173024633-c8wg1",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Chicago",

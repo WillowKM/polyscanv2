@@ -932,14 +932,15 @@
           "bracketLabel": "92-93°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T17:56:07.831Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T18:05:06.791Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789235441974-3snol",
@@ -970,14 +971,15 @@
           "bracketLabel": "77°F or below",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T16:15:39.597Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T18:05:06.791Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789227934635-pgmk8",
@@ -1066,14 +1068,15 @@
           "bracketLabel": "78-79°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T11:15:44.372Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T18:05:06.791Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789209610983-4rkan",
@@ -1144,14 +1147,15 @@
           "bracketLabel": "78-79°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T07:30:47.095Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T18:05:06.791Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789197910537-rhqsi",
@@ -2772,14 +2776,15 @@
           "bracketLabel": "92-93°F",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T17:10:10.115Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T18:05:15.251Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789228209066-bl7xd",
@@ -2811,14 +2816,15 @@
           "bracketLabel": "77°F or below",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T15:50:09.066Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T18:05:15.251Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789227308231-i0qf5",
@@ -3065,14 +3071,15 @@
           "bracketLabel": "78-79°F",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T06:20:09.212Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T18:05:15.251Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789187708841-x15ta",

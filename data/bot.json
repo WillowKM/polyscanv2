@@ -1003,6 +1003,25 @@
       },
       "trades": [
         {
+          "id": "1789249215459-jayid",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "82-83°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-12T21:40:15.459Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789247138156-7c58o",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Chicago",

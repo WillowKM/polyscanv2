@@ -53,6 +53,25 @@
       },
       "trades": [
         {
+          "id": "1789203308254-gfbjo",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Seattle",
+          "code": "KSEA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "62-63°F",
+          "stake": 125,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-12T08:55:08.254Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789171209207-3uzmi",
           "accountId": "acc_1789055794688_pvayx",
           "city": "Miami",
@@ -157,14 +176,15 @@
           "bracketLabel": "90-91°F",
           "stake": 125,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T00:00:09.207Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T08:55:06.615Z",
+          "profit": 3.866,
+          "autoResolved": true
         },
         {
           "id": "1789171209207-gqnmg",

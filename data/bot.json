@@ -178,14 +178,15 @@
           "bracketLabel": "72-73°F",
           "stake": 125,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T14:00:08.075Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T22:10:06.938Z",
+          "profit": 5.2083,
+          "autoResolved": true
         },
         {
           "id": "1789214108246-2mlmy",
@@ -1305,14 +1306,15 @@
           "bracketLabel": "72-73°F",
           "stake": 1.91,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T11:30:43.943Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T22:10:07.449Z",
+          "profit": 0.1005,
+          "autoResolved": true
         },
         {
           "id": "1789211744372-f2cwo",
@@ -3030,6 +3032,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789251053909-0u880",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Dallas",
+          "code": "KDAL",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "102-103°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-12T22:10:53.909Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789249545215-cmnq0",
           "accountId": "acc_1789064992577_u93fo",

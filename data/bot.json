@@ -53,6 +53,25 @@
       },
       "trades": [
         {
+          "id": "1789231208046-7kz9d",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Denver",
+          "code": "KBKF",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 125,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-12T16:40:08.046Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789221608075-roxkh",
           "accountId": "acc_1789055794688_pvayx",
           "city": "Seattle",
@@ -236,14 +255,15 @@
           "bracketLabel": "74-75°F",
           "stake": 125,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-12T00:00:09.207Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-12T16:40:06.890Z",
+          "profit": 3.866,
+          "autoResolved": true
         },
         {
           "id": "1789171209207-s2rx3",

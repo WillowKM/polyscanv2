@@ -3562,6 +3562,25 @@
       },
       "trades": [
         {
+          "id": "1789273508302-g5j9q",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Tokyo",
+          "code": "RJTT",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "27°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T04:25:08.302Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789273222389-6x1yr",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Seoul",

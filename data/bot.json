@@ -1163,6 +1163,25 @@
       },
       "trades": [
         {
+          "id": "1789288508533-41z0i",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T08:35:08.533Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789286728548-zilul",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Helsinki",

@@ -1211,14 +1211,15 @@
           "bracketLabel": "19°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T08:35:08.533Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T11:30:07.371Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789286728548-zilul",
@@ -4161,14 +4162,15 @@
           "bracketLabel": "19°C",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T00:30:45.660Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T11:30:08.728Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789258234636-nk301",

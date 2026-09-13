@@ -1243,6 +1243,25 @@
       },
       "trades": [
         {
+          "id": "1789312808839-ppn0z",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T15:20:08.839Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789312212432-ypale",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Miami",

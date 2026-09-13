@@ -1143,6 +1143,25 @@
       },
       "trades": [
         {
+          "id": "1789270508923-feuji",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Busan",
+          "code": "RKPK",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T03:35:08.923Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789269609150-uxefn",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Tokyo",

@@ -1700,14 +1700,15 @@
           "bracketLabel": "86-87°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T00:10:34.146Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T15:00:07.421Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789257908698-a88r7",
@@ -3843,6 +3844,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789311608878-qhjo9",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T15:00:08.878Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789299316805-910xh",
           "accountId": "acc_1789064992577_u93fo",

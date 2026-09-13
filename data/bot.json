@@ -1203,6 +1203,25 @@
       },
       "trades": [
         {
+          "id": "1789308009562-czd2a",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Dallas",
+          "code": "KDAL",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T14:00:09.562Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789296358587-0h2fh",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Munich",

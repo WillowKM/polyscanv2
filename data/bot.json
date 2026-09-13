@@ -3944,6 +3944,25 @@
       },
       "trades": [
         {
+          "id": "1789317309368-xk0ad",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T16:35:09.368Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789311608878-qhjo9",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Miami",
@@ -6123,7 +6142,46 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1789317309746-zw89w",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T16:35:09.746Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1789317309746-zs7og",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "94-95°F",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T16:35:09.746Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     }
   }
 }

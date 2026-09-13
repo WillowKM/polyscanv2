@@ -6146,7 +6146,27 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1789321550477-47ga9",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Houston",
+          "code": "KHOU",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T17:45:50.477Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     },
     "acc_1789317169775_vipzd": {
       "id": "acc_1789317169775_vipzd",

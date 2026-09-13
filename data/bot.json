@@ -53,6 +53,25 @@
       },
       "trades": [
         {
+          "id": "1789286709488-qhbs4",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 125,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T08:05:09.488Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789257608844-wfwox",
           "accountId": "acc_1789055794688_pvayx",
           "city": "Dallas",
@@ -119,14 +138,15 @@
           "bracketLabel": "68-69°F",
           "stake": 125,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T00:00:08.844Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T08:05:07.361Z",
+          "profit": 5.2083,
+          "autoResolved": true
         },
         {
           "id": "1789257608844-yzgi3",
@@ -1142,6 +1162,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789286728548-zilul",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "17°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T08:05:28.548Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789284931834-n7pv1",
           "accountId": "acc_1789064810114_8kjx9",

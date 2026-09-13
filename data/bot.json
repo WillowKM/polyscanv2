@@ -1266,14 +1266,15 @@
           "bracketLabel": "23°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T02:15:37.061Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T05:40:07.483Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789264209522-6dtkl",
@@ -3582,6 +3583,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789278011222-x5pmw",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T05:40:11.222Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789273508302-g5j9q",
           "accountId": "acc_1789064992577_u93fo",

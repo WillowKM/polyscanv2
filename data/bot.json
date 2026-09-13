@@ -1515,14 +1515,15 @@
           "bracketLabel": "102-103°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T07:35:31.834Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T22:05:07.586Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789282840730-b4snn",
@@ -4038,6 +4039,25 @@
       },
       "trades": [
         {
+          "id": "1789337111029-g4bsm",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Dallas",
+          "code": "KDAL",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "100-101°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T22:05:11.029Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789329309894-fxt4v",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Houston",
@@ -4285,14 +4305,15 @@
           "bracketLabel": "102-103°F",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T06:45:38.610Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T22:05:10.813Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789280433667-j5i6b",

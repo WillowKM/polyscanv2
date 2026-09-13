@@ -1381,14 +1381,15 @@
           "bracketLabel": "29°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T00:25:37.141Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T04:15:07.582Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789258234146-35uie",
@@ -3542,6 +3543,25 @@
       },
       "trades": [
         {
+          "id": "1789272936557-4gklx",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T04:15:36.557Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789269013647-41u56",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Busan",
@@ -3704,14 +3724,15 @@
           "bracketLabel": "29°C",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-13T00:35:09.348Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-13T04:15:36.169Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789259445660-tud1p",

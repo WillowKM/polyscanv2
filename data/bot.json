@@ -1143,6 +1143,25 @@
       },
       "trades": [
         {
+          "id": "1789271427172-fhnsp",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Munich",
+          "code": "EDDM",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 4.33,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-13T03:50:27.172Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789270508923-feuji",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Busan",

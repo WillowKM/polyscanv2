@@ -6059,12 +6059,12 @@
       "settings": {
         "strategy": "3",
         "cities": [],
-        "minTradeAmount": 5,
-        "maxOpenOrders": 10,
+        "minTradeAmount": 50,
+        "maxOpenOrders": 39,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
-        "noBuyMinCents": 90,
-        "noBuyMaxCents": 97,
+        "noBuyMinCents": 75,
+        "noBuyMaxCents": 80,
         "yesBuyMinCents": 90,
         "yesBuyMaxCents": 99,
         "minEdgePct": 10,
@@ -6084,7 +6084,7 @@
         "stopLossEnabled": false,
         "stopLossUnit": "cents",
         "stopLossValue": 10,
-        "autoTradeEnabled": false
+        "autoTradeEnabled": true
       },
       "trades": []
     }

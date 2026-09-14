@@ -4505,6 +4505,25 @@
       },
       "trades": [
         {
+          "id": "1789353946160-cqwv0",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Wellington",
+          "code": "NZWN",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "17°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-14T02:45:46.160Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789352715374-dmelr",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Seoul",

@@ -4565,6 +4565,25 @@
       },
       "trades": [
         {
+          "id": "1789361422111-94uzn",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Seoul",
+          "code": "RKSI",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-14T04:50:22.111Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789361132782-e99o8",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Los Angeles",

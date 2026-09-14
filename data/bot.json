@@ -53,6 +53,25 @@
       },
       "trades": [
         {
+          "id": "1789345208656-anf2d",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Munich",
+          "code": "EDDM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 125,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-14T00:20:08.656Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789344309131-pu47y",
           "accountId": "acc_1789055794688_pvayx",
           "city": "London",
@@ -6629,6 +6648,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789345211423-o0rlh",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Munich",
+          "code": "EDDM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-14T00:20:11.423Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789344931278-u2dms",
           "accountId": "acc_1789317169775_vipzd",

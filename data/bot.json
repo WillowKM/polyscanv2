@@ -1925,14 +1925,15 @@
           "bracketLabel": "96-97°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-14T02:00:10.438Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-14T19:20:10.794Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789350608704-cotzo",
@@ -5427,14 +5428,15 @@
           "bracketLabel": "96-97°F",
           "stake": 3,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-14T04:05:09.097Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-14T19:20:11.344Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789356909589-p5y3r",

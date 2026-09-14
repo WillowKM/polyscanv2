@@ -7544,6 +7544,25 @@
       },
       "trades": [
         {
+          "id": "1789373415203-gxcyx",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-14T08:10:15.203Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789367710526-pmp75",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Denver",

@@ -7068,6 +7068,25 @@
       },
       "trades": [
         {
+          "id": "1789353311579-9dgi6",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Busan",
+          "code": "RKPK",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-14T02:35:11.579Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789353047899-qv2n0",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Seoul",

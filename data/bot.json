@@ -1586,14 +1586,15 @@
           "bracketLabel": "28°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-14T02:40:16.421Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-14T09:30:09.616Z",
+          "profit": -5,
+          "autoResolved": true
         },
         {
           "id": "1789352413832-kqaz4",

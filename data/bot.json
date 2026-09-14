@@ -4685,6 +4685,25 @@
       },
       "trades": [
         {
+          "id": "1789379110777-mxbfw",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Munich",
+          "code": "EDDM",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-14T09:45:10.777Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789375213838-1mn9m",
           "accountId": "acc_1789064992577_u93fo",
           "city": "London",

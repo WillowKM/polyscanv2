@@ -317,14 +317,15 @@
           "bracketLabel": "70-71°F",
           "stake": 125,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-14T00:00:08.576Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-14T20:10:10.223Z",
+          "profit": 5.2083,
+          "autoResolved": true
         },
         {
           "id": "1789344008576-aw5h0",
@@ -1650,14 +1651,15 @@
           "bracketLabel": "70-71°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-14T12:30:37.129Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-14T20:10:11.043Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789386922499-073hu",
@@ -5049,6 +5051,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789416613486-i0okv",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-14T20:10:13.486Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789416332152-z5omc",
           "accountId": "acc_1789064992577_u93fo",

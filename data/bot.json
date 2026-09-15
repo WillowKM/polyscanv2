@@ -1831,6 +1831,25 @@
       },
       "trades": [
         {
+          "id": "1789515012210-4ts55",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Denver",
+          "code": "KBKF",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "74-75°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-15T23:30:12.210Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789505752147-hydao",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Atlanta",

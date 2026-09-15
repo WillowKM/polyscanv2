@@ -9794,14 +9794,15 @@
           "bracketLabel": "72-73°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 38,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-15T03:45:11.494Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-15T19:55:15.473Z",
+          "profit": -26.25,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1789431019281-umsie",

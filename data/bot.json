@@ -5641,6 +5641,25 @@
       },
       "trades": [
         {
+          "id": "1789447512057-kpgtm",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "98-99°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-15T04:45:12.057Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789447211958-31t0w",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Miami",
@@ -9078,6 +9097,25 @@
       },
       "trades": [
         {
+          "id": "1789447512253-h3e4j",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Hong Kong",
+          "code": "HKO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-15T04:45:12.253Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789443911494-04sx9",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",
@@ -9106,14 +9144,15 @@
           "bracketLabel": "29°C",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-15T00:10:19.281Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-15T04:45:12.076Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1789416048231-4g89y",

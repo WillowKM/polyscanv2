@@ -5563,6 +5563,25 @@
       },
       "trades": [
         {
+          "id": "1789437612924-pcxay",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Hong Kong",
+          "code": "HKO",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-15T02:00:12.924Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789432819732-t35mi",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Amsterdam",

@@ -53,6 +53,25 @@
       },
       "trades": [
         {
+          "id": "1789481412140-njdi4",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "66-67°F",
+          "stake": 125,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-15T14:10:12.140Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789430712069-hz7s5",
           "accountId": "acc_1789055794688_pvayx",
           "city": "San Francisco",
@@ -157,14 +176,15 @@
           "bracketLabel": "64-65°F",
           "stake": 125,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-15T00:00:11.829Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-15T14:10:10.627Z",
+          "profit": 3.866,
+          "autoResolved": true
         },
         {
           "id": "1789430411829-r17h4",

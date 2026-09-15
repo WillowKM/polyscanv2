@@ -1723,6 +1723,25 @@
       },
       "trades": [
         {
+          "id": "1789435212024-ndb0f",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "15°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-15T01:20:12.024Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789434648604-hls99",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Wellington",

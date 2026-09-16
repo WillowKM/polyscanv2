@@ -11151,25 +11151,6 @@
           "profit": 0
         },
         {
-          "id": "1789536013886-fk5hx",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Chicago",
-          "code": "KORD",
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "74-75°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T05:20:13.886Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789535736121-8ix0a",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Denver",
@@ -11225,6 +11206,26 @@
           "openedAt": "2026-09-16T00:00:14.108Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789536013886-fk5hx",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Chicago",
+          "code": "KORD",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "74-75°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 34,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T05:20:13.886Z",
+          "settledAt": "2026-09-16T16:28:49.661Z",
+          "profit": -28.75,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1789551831077-yz43y",

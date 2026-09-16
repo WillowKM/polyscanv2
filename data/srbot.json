@@ -6,9 +6,9 @@
       "startingBalance": 1000,
       "createdAt": "2026-09-16T09:44:36.942Z",
       "settings": {
-        "executionTimeSAST": "09:00",
-        "minTradeAmount": 10,
-        "leadDays": 0,
+        "executionTimeSAST": "12:00",
+        "minTradeAmount": 200,
+        "leadDays": 1,
         "maxOpenOrders": 10,
         "autoTradeEnabled": false
       },

@@ -8,9 +8,9 @@
       "settings": {
         "executionTimeSAST": "12:00",
         "minTradeAmount": 200,
-        "leadDays": 1,
+        "leadDays": 0,
         "maxOpenOrders": 10,
-        "autoTradeEnabled": false
+        "autoTradeEnabled": true
       },
       "trades": []
     }

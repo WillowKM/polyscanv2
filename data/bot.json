@@ -6783,6 +6783,25 @@
       },
       "trades": [
         {
+          "id": "1789567660633-bn7m7",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T14:07:40.633Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789559778356-w85pd",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Panama City",
@@ -11029,25 +11048,6 @@
           "profit": 0
         },
         {
-          "id": "1789542312654-xw8b1",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "London",
-          "code": "EGLC",
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "19°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T07:05:12.654Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789541759740-gqmh5",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "London",
@@ -11141,6 +11141,26 @@
           "openedAt": "2026-09-16T00:00:14.108Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789542312654-xw8b1",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T07:05:12.654Z",
+          "settledAt": "2026-09-16T14:07:40.634Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1789539336154-f7yq0",
@@ -11500,6 +11520,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789567661739-bdl8n",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Miami",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "92-93°F",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T14:07:41.739Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789560675477-kbseh",
           "accountId": "acc_1789317169775_vipzd",

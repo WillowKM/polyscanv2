@@ -2062,25 +2062,6 @@
           "profit": 0
         },
         {
-          "id": "1789561273332-z3cej",
-          "accountId": "acc_1789064810114_8kjx9",
-          "city": "London",
-          "code": "EGLC",
-          "strategy": "4",
-          "side": "NO",
-          "bracketLabel": "18°C",
-          "stake": 5,
-          "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T12:21:13.332Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789555273098-al6d2",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Miami",
@@ -2421,6 +2402,26 @@
           "openedAt": "2026-09-14T11:10:59.397Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789561273332-z3cej",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T12:21:13.332Z",
+          "settledAt": "2026-09-16T12:56:13.505Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789517762844-8dd6g",

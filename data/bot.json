@@ -6371,6 +6371,25 @@
       },
       "trades": [
         {
+          "id": "1789523414021-i03ci",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Wellington",
+          "code": "NZWN",
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "16°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T01:50:14.021Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789520413898-ysm5l",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Tokyo",
@@ -10574,6 +10593,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789523415091-xk5q9",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Seattle",
+          "code": "KSEA",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "76-77°F",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T01:50:15.091Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789521061357-ai378",
           "accountId": "acc_1789317169775_vipzd",

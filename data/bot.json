@@ -11828,25 +11828,6 @@
           "profit": 0
         },
         {
-          "id": "1789516814654-fxf2z",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Denver",
-          "code": "KBKF",
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "80-81°F",
-          "stake": 50,
-          "entryPriceCents": 89,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T00:00:14.654Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789516814654-a4jjp",
           "accountId": "acc_1789317169775_vipzd",
           "city": "San Francisco",
@@ -11864,6 +11845,26 @@
           "openedAt": "2026-09-16T00:00:14.654Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789516814654-fxf2z",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Denver",
+          "code": "KBKF",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T00:00:14.654Z",
+          "settledAt": "2026-09-16T19:26:39.148Z",
+          "profit": 6.1798,
+          "autoResolved": true
         },
         {
           "id": "1789551832061-ez8vq",

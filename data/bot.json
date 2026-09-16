@@ -53,6 +53,25 @@
       },
       "trades": [
         {
+          "id": "1789539011877-gn1qt",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "102-103°F",
+          "stake": 125,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T06:10:11.877Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789536912227-1ffwo",
           "accountId": "acc_1789055794688_pvayx",
           "city": "Chicago",
@@ -2188,14 +2207,15 @@
           "bracketLabel": "30°C",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-16T00:16:02.844Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-16T06:10:11.939Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789517415163-nqntx",

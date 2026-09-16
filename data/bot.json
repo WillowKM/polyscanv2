@@ -11395,6 +11395,25 @@
       },
       "trades": [
         {
+          "id": "1789557695361-crpcq",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Panama City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "30°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T11:21:35.361Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789554419452-2rnc6",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Munich",

@@ -6785,6 +6785,25 @@
       },
       "trades": [
         {
+          "id": "1789572824695-u7jxu",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "London",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T15:33:44.695Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789571812738-ag69g",
           "accountId": "acc_1789064992577_u93fo",
           "city": "San Francisco",

@@ -11671,25 +11671,6 @@
           "profit": 0
         },
         {
-          "id": "1789531514730-9f2oc",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Munich",
-          "code": "EDDM",
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "27°C",
-          "stake": 50,
-          "entryPriceCents": 85,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T04:05:14.730Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789523415091-xk5q9",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Seattle",
@@ -11764,6 +11745,26 @@
           "openedAt": "2026-09-14T02:00:12.605Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789531514730-9f2oc",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Munich",
+          "code": "EDDM",
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "27°C",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "LOSS",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T04:05:14.730Z",
+          "settledAt": "2026-09-16T13:27:58.527Z",
+          "profit": -50,
+          "autoResolved": true
         },
         {
           "id": "1789554419452-2rnc6",

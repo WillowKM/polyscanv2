@@ -265,6 +265,15 @@ function todaySAST() {
 // giving real persistence for free, using storage you already have. Falls
 // back to local disk automatically if no token is configured, so nothing
 // breaks before that env var is added.
+//
+// RE-ENABLED as of Sep 2026, paired with a Render Build Filter ignoring
+// `data/**` (Settings → Build & Deploy → Build Filters → Ignored Paths).
+// That filter is what actually solves the pipeline-minutes problem: the
+// commits below still happen exactly as before (free, just an API call),
+// but Render no longer turns each one into a build/deploy. Do NOT deploy
+// this with the flag below `true` until that filter is confirmed saved in
+// Render — otherwise the exact same minute-drain restarts immediately.
+const GITHUB_PERSISTENCE_ENABLED = true;
 const GITHUB_TOKEN     = process.env.GITHUB_TOKEN || null;
 const GITHUB_REPO      = process.env.GITHUB_REPO || 'WillowKM/polyscanv2';
 const GITHUB_DATA_PATH = process.env.GITHUB_DATA_PATH || 'data/calc.json';
@@ -317,7 +326,7 @@ async function githubPutFile(data) {
 async function loadCalc() {
   if (CALC_CACHE) return CALC_CACHE; // already loaded this process's lifetime
 
-  if (GITHUB_TOKEN) {
+  if (GITHUB_TOKEN && GITHUB_PERSISTENCE_ENABLED) {
     try {
       const data = await githubGetFile();
       if (data) {
@@ -351,7 +360,7 @@ async function saveCalc(data) {
   try { fs.writeFileSync(CALC_FILE, JSON.stringify(data, null, 2)); } catch(e) {
     console.error('[Local storage] write failed:', e.message);
   }
-  if (GITHUB_TOKEN) {
+  if (GITHUB_TOKEN && GITHUB_PERSISTENCE_ENABLED) {
     try {
       await githubPutFile(data);
     } catch(e) {
@@ -3053,7 +3062,10 @@ setTimeout(() => seResearchSweep().catch(e =>
 
 setInterval(() => seResearchSweep().catch(e =>
   console.error('[StationEdge Research] Scheduled sweep failed:', e.message)
-), 15 * 60 * 1000);
+), 60 * 60 * 1000); // slowed from 15min → hourly: this is the sweep whose snapshot-save
+                     // has been failing every cycle (wrong/dropped table) — cuts that
+                     // noise and Supabase call volume 4x. The V3 sweep below, which does
+                     // the actual forecast-locking/drift-detection you rely on, is untouched.
 
 // StationEdge V3 forward-test engine — separate schedule, offset from the V2
 // sweep above so the two don't hammer the upstream APIs at the exact same
@@ -3110,7 +3122,7 @@ async function botGithubPutFile(data) {
 }
 async function loadBot() {
   if (BOT_CACHE) return BOT_CACHE;
-  if (GITHUB_TOKEN) {
+  if (GITHUB_TOKEN && GITHUB_PERSISTENCE_ENABLED) {
     try {
       const data = await botGithubGetFile();
       if (data) { if (!data.accounts) data.accounts = {}; BOT_CACHE = data; return BOT_CACHE; }
@@ -3129,7 +3141,7 @@ async function loadBot() {
 async function saveBot(data) {
   BOT_CACHE = data;
   try { fs.writeFileSync(BOT_FILE, JSON.stringify(data, null, 2)); } catch (e) { console.error('[Bot local storage] write failed:', e.message); }
-  if (GITHUB_TOKEN) {
+  if (GITHUB_TOKEN && GITHUB_PERSISTENCE_ENABLED) {
     try { await botGithubPutFile(data); } catch (e) { console.error('[Bot GitHub storage] save failed (data still safe locally):', e.message); }
   }
 }
@@ -3541,6 +3553,20 @@ async function processAccountExits(accountId, acc) {
   if (newTrades.length) acc.trades.unshift(...newTrades);
 }
 
+// Keeps every open trade (never trimmed) plus the most recent N closed ones
+// per account. Closed-trade history beyond that lives in the CSV export
+// already, so this bounds how much a single account can grow in memory —
+// this is what stopped Helsinki's hundreds-of-duplicate-trades bug from
+// staying in RAM forever even after the dedupe fix stopped it from growing further.
+const MAX_STORED_CLOSED_TRADES_PER_ACCOUNT = 300;
+function trimAccountTrades(acc) {
+  const open = acc.trades.filter(t => t.status === 'open');
+  const closed = acc.trades.filter(t => t.status !== 'open')
+    .sort((a, b) => new Date(b.settledAt || 0) - new Date(a.settledAt || 0))
+    .slice(0, MAX_STORED_CLOSED_TRADES_PER_ACCOUNT);
+  acc.trades = [...open, ...closed];
+}
+
 async function runBotTick() {
   try {
     const bot = await loadBot();
@@ -3550,6 +3576,7 @@ async function runBotTick() {
       const acc = bot.accounts[id];
       await processAccountExits(id, acc);
       await processAccountEntries(id, acc);
+      trimAccountTrades(acc);
     }
     await saveBot(bot);
   } catch (e) { console.error('[Nyamcoder x MBE] tick failed:', e.message); }
@@ -3724,7 +3751,7 @@ async function srbotGithubPutFile(data) {
 }
 async function loadSrBot() {
   if (SRBOT_CACHE) return SRBOT_CACHE;
-  if (GITHUB_TOKEN) {
+  if (GITHUB_TOKEN && GITHUB_PERSISTENCE_ENABLED) {
     try {
       const data = await srbotGithubGetFile();
       if (data) { if (!data.accounts) data.accounts = {}; SRBOT_CACHE = data; return SRBOT_CACHE; }
@@ -3741,7 +3768,7 @@ async function loadSrBot() {
 async function saveSrBot(data) {
   SRBOT_CACHE = data;
   try { fs.writeFileSync(SRBOT_FILE, JSON.stringify(data, null, 2)); } catch (e) { console.error('[SRBot local storage] write failed:', e.message); }
-  if (GITHUB_TOKEN) {
+  if (GITHUB_TOKEN && GITHUB_PERSISTENCE_ENABLED) {
     try { await srbotGithubPutFile(data); } catch (e) { console.error('[SRBot GitHub storage] save failed (data still safe locally):', e.message); }
   }
 }
@@ -3946,6 +3973,7 @@ async function srRunTick() {
       const acc = bot.accounts[id];
       await srProcessAccountExits(id, acc);
       await srProcessAccountEntries(id, acc);
+      trimAccountTrades(acc);
     }
     await saveSrBot(bot);
   } catch (e) { console.error('[SRBot] tick failed:', e.message); }

@@ -6799,25 +6799,6 @@
           "profit": 0
         },
         {
-          "id": "1789552429568-p0j2c",
-          "accountId": "acc_1789064992577_u93fo",
-          "city": "Madrid",
-          "code": null,
-          "strategy": "1",
-          "side": "NO",
-          "bracketLabel": "26°C or below",
-          "stake": 3,
-          "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T09:53:49.568Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789552429568-s7ftg",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Istanbul",
@@ -7044,6 +7025,26 @@
           "openedAt": "2026-09-14T06:25:35.534Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789552429568-p0j2c",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Madrid",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "26°C or below",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T09:53:49.568Z",
+          "settledAt": "2026-09-16T12:11:13.238Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789552695736-1j0zd",
@@ -11414,6 +11415,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789560675477-kbseh",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Mexico City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "27°C or higher",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T12:11:15.477Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789558608207-e0d7b",
           "accountId": "acc_1789317169775_vipzd",

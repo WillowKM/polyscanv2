@@ -6723,6 +6723,25 @@
       },
       "trades": [
         {
+          "id": "1789559778356-w85pd",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Panama City",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "33°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T11:56:18.356Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789556179815-ke2e2",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Atlanta",

@@ -83,7 +83,7 @@
 <div class="wrap">
   <div class="tabs">
     <button id="tabForecastBtn" class="active" onclick="setPage('forecast')">Forecast tool</button>
-    <button id="tabBotBtn" onclick="setPage('bot')">Bot (standalone — own accounts, own storage)</button>
+    <button id="tabBotBtn" onclick="setPage('bot')">SorroS Bot</button>
   </div>
 
 <div id="forecastPage">
@@ -176,8 +176,8 @@
 
 <div id="botPage" style="display:none;">
   <div class="panel">
-    <h1 style="margin-bottom:4px;">Single Runs Bot</h1>
-    <p class="sub">Standalone paper-trading bot — its own accounts, its own storage, connected live to Polymarket. Nothing here is shared with PolyScan's Nyamcoder x MBE bot. Trades the same 7 cities and models configured in the Forecast tab.</p>
+    <h1 style="margin-bottom:4px;">SorroS Bot</h1>
+    <p class="sub">Paper-trading bot driven by the same Open-Meteo models and barbell logic as the Forecast tab. Completely separate from Nyamcoder x MBE — its own accounts, its own trade history.</p>
 
     <div class="row" style="align-items:flex-end;">
       <div class="field" style="max-width:260px;"><label>Account</label>
@@ -207,7 +207,7 @@
         <label style="display:flex;align-items:center;gap:6px;padding:8px 0;font-size:13px;"><input type="checkbox" id="botAutoTradeEnabled" style="width:16px;height:16px;"> Keep buying daily</label>
       </div>
     </div>
-    <p class="hint">Waits for your execution time each day, then scans the 7 cities: barbells both legs under 80c combined, or the leading leg alone at/above it. Held to resolution — no scalp/target/stop-loss on this tool. Runs on its own 5-min cycle; "recurring" just means leaving this switch on.</p>
+    <p class="hint">Waits for your execution time each day, then scans the 7 configured cities: barbells both legs when they price under 80c combined, or takes the leading leg alone at/above it. Held to resolution. Runs on its own 5-minute cycle — "recurring" just means leaving this on.</p>
     <div class="actions">
       <button onclick="saveBotSettings()">Save settings</button>
       <button class="secondary" onclick="scanPreview()">Scan now (preview, no trades placed)</button>
@@ -229,10 +229,10 @@
   </div>
 </div><!-- /botPage -->
 
-<div class="modal-overlay" id="newAccModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:50;" onclick="if(event.target===this) closeNewAccountModal()">
+<div id="newAccModalOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:50;" onclick="if(event.target===this) closeNewAccountModal()">
   <div class="panel" style="width:320px;">
     <h3 style="margin-top:0;">New paper account</h3>
-    <div class="field"><label>Name</label><input id="newAccName" type="text" placeholder="e.g. Single Runs Test"></div>
+    <div class="field"><label>Name</label><input id="newAccName" type="text" placeholder="e.g. SorroS Test 1"></div>
     <div class="field"><label>Starting balance ($)</label><input id="newAccBalance" type="number" step="1" value="1000"></div>
     <div class="actions">
       <button class="secondary" onclick="closeNewAccountModal()">Cancel</button>
@@ -240,7 +240,6 @@
     </div>
   </div>
 </div>
-</div><!-- /wrap -->
 
 <script>
 const MODEL_DEFS = [
@@ -670,8 +669,8 @@ document.getElementById('csvBtn').addEventListener('click', () => {
 });
 
 // ══════════════════════════════════════════════════════════════════════════
-// BOT PAGE — fully standalone. Talks only to /api/srbot/*, which has its own
-// storage and accounts, entirely separate from PolyScan's Nyamcoder x MBE bot.
+// SORROS BOT PAGE — talks only to /api/srbot/*, which has its own storage
+// file and accounts, entirely separate from Nyamcoder x MBE's /api/bot/*.
 // ══════════════════════════════════════════════════════════════════════════
 let BOT_CURRENT_ACCOUNT_ID = null;
 let BOT_REFRESH_TIMER = null;
@@ -688,8 +687,7 @@ function setPage(page) {
     loadBotAccounts();
     BOT_REFRESH_TIMER = setInterval(() => refreshBotAccount(false), 20000);
   } else if (BOT_REFRESH_TIMER) {
-    clearInterval(BOT_REFRESH_TIMER);
-    BOT_REFRESH_TIMER = null;
+    clearInterval(BOT_REFRESH_TIMER); BOT_REFRESH_TIMER = null;
   }
 }
 
@@ -771,8 +769,7 @@ async function scanPreview() {
 function fmtTs(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
-  if (isNaN(d)) return '—';
-  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  return isNaN(d) ? '—' : d.toLocaleString(undefined, { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
 }
 
 function botTradeRow(t) {
@@ -809,8 +806,8 @@ function downloadBotTradesCsv() {
   window.location.href = `/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades.csv`;
 }
 
-async function closeBotTrade(tradeId) { await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades/${tradeId}/close`, { method: 'POST' }); refreshBotAccount(false); }
-async function deleteBotTrade(tradeId) { await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades/${tradeId}`, { method: 'DELETE' }); refreshBotAccount(false); }
+async function closeBotTrade(id) { await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades/${id}/close`, { method:'POST' }); refreshBotAccount(false); }
+async function deleteBotTrade(id) { await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/trades/${id}`, { method:'DELETE' }); refreshBotAccount(false); }
 
 function openNewAccountModal() {
   document.getElementById('newAccName').value = '';
@@ -822,7 +819,7 @@ async function submitNewAccount() {
   const name = document.getElementById('newAccName').value.trim();
   const startingBalance = parseFloat(document.getElementById('newAccBalance').value);
   if (!name || !Number.isFinite(startingBalance)) return alert('Name and starting balance required.');
-  const res = await fetch('/api/srbot/accounts', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ name, startingBalance }) }).then(r => r.json());
+  const res = await fetch('/api/srbot/accounts', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, startingBalance }) }).then(r => r.json());
   closeNewAccountModal();
   BOT_CURRENT_ACCOUNT_ID = res.id;
   await loadBotAccounts();
@@ -830,7 +827,7 @@ async function submitNewAccount() {
 async function deleteCurrentBotAccount() {
   if (!BOT_CURRENT_ACCOUNT_ID) return;
   if (!confirm('Delete this paper account and all its trade history? This cannot be undone.')) return;
-  await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}`, { method: 'DELETE' });
+  await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}`, { method:'DELETE' });
   BOT_CURRENT_ACCOUNT_ID = null;
   await loadBotAccounts();
 }
@@ -838,9 +835,9 @@ async function deleteCurrentBotAccount() {
 function catmullRomToBezierPath(points) {
   let d = `M${points[0][0].toFixed(1)},${points[0][1].toFixed(1)}`;
   for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[i - 1] || points[i], p1 = points[i], p2 = points[i + 1], p3 = points[i + 2] || p2;
-    const c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
-    const c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    const p0 = points[i-1] || points[i], p1 = points[i], p2 = points[i+1], p3 = points[i+2] || p2;
+    const c1x = p1[0] + (p2[0]-p0[0])/6, c1y = p1[1] + (p2[1]-p0[1])/6;
+    const c2x = p2[0] - (p3[0]-p1[0])/6, c2y = p2[1] - (p3[1]-p1[1])/6;
     d += ` C${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
   }
   return d;
@@ -855,17 +852,16 @@ function renderBotEquityChart(closedTrades) {
   const plotW = w - padL - padR, plotH = h - padT - padB;
   const min = Math.min(0, ...vals), max = Math.max(0, ...vals);
   const range = (max - min) || 1;
-  const x = i => padL + (vals.length === 1 ? 0 : (i / (vals.length - 1)) * plotW);
-  const y = v => padT + plotH - ((v - min) / range) * plotH;
+  const x = i => padL + (vals.length === 1 ? 0 : (i/(vals.length-1)) * plotW);
+  const y = v => padT + plotH - ((v-min)/range) * plotH;
   const pts = vals.map((v,i) => [x(i), y(v)]);
-  const path = catmullRomToBezierPath(pts);
   const stroke = vals[vals.length-1] >= 0 ? '#2fbf71' : '#e5484d';
   const yTicks = Array.from(new Set([min, min+range/2, max, 0].map(v => Math.round(v*100)/100))).sort((a,b)=>a-b);
   const yGrid = yTicks.map(v => `<line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${w-padR}" y2="${y(v).toFixed(1)}" stroke="var(--border)" stroke-width="${v===0?1.4:1}" stroke-dasharray="${v===0?'0':'4,3'}"/><text x="${padL-8}" y="${(y(v)+3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)">$${v.toFixed(0)}</text>`).join('');
   const idxs = vals.length <= 3 ? vals.map((_,i)=>i) : [0, Math.floor((vals.length-1)/2), vals.length-1];
   const xLabels = idxs.map(i => { const d = new Date(ordered[i].settledAt); const label = isNaN(d) ? `#${i+1}` : d.toLocaleDateString(undefined,{month:'short',day:'numeric'}); return `<text x="${x(i).toFixed(1)}" y="${h-8}" text-anchor="middle" font-size="10" fill="var(--muted)">${label}</text>`; }).join('');
   wrap.innerHTML = `<svg viewBox="0 0 ${w} ${h}" style="width:100%;height:200px;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;">
-    ${yGrid}<path d="${path}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    ${yGrid}<path d="${catmullRomToBezierPath(pts)}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
     ${pts.map(([px,py]) => `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.5" fill="${stroke}"/>`).join('')}
     <text x="${padL}" y="12" font-size="10" fill="var(--muted)">Cumulative P&amp;L ($) — y axis</text>${xLabels}
     </svg><div class="hint">Equity curve — ${vals.length} closed trades, oldest (left) to newest (right).</div>`;

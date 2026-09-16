@@ -1,0 +1,18 @@
+{
+  "accounts": {
+    "sr_1789551876942_d27kw": {
+      "id": "sr_1789551876942_d27kw",
+      "name": "SorroS test 1",
+      "startingBalance": 1000,
+      "createdAt": "2026-09-16T09:44:36.942Z",
+      "settings": {
+        "executionTimeSAST": "09:00",
+        "minTradeAmount": 10,
+        "leadDays": 0,
+        "maxOpenOrders": 10,
+        "autoTradeEnabled": false
+      },
+      "trades": []
+    }
+  }
+}

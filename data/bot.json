@@ -11652,6 +11652,25 @@
       },
       "trades": [
         {
+          "id": "1789583200441-ge3k1",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Austin",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T18:26:40.441Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789567661739-bdl8n",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Miami",

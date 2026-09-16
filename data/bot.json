@@ -2043,6 +2043,25 @@
       },
       "trades": [
         {
+          "id": "1789562220295-ttkr5",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "London",
+          "code": "EGLC",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T12:37:00.295Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789561273332-z3cej",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "London",
@@ -6780,25 +6799,6 @@
           "profit": 0
         },
         {
-          "id": "1789554674847-1m64s",
-          "accountId": "acc_1789064992577_u93fo",
-          "city": "Ankara",
-          "code": null,
-          "strategy": "1",
-          "side": "NO",
-          "bracketLabel": "25°C",
-          "stake": 3,
-          "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T10:31:14.847Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789554418119-6cucw",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Paris",
@@ -7044,6 +7044,26 @@
           "openedAt": "2026-09-14T06:25:35.534Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789554674847-1m64s",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T10:31:14.847Z",
+          "settledAt": "2026-09-16T12:31:13.028Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789552429568-p0j2c",

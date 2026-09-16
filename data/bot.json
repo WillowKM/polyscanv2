@@ -6799,25 +6799,6 @@
           "profit": 0
         },
         {
-          "id": "1789552695736-1j0zd",
-          "accountId": "acc_1789064992577_u93fo",
-          "city": "Tel Aviv",
-          "code": null,
-          "strategy": "1",
-          "side": "NO",
-          "bracketLabel": "34°C",
-          "stake": 3,
-          "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T09:58:15.736Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789552429568-p0j2c",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Madrid",
@@ -7063,6 +7044,26 @@
           "openedAt": "2026-09-14T06:25:35.534Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789552695736-1j0zd",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Tel Aviv",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T09:58:15.736Z",
+          "settledAt": "2026-09-16T12:06:57.736Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789536013714-aia2s",

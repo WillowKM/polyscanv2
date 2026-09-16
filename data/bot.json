@@ -6783,6 +6783,25 @@
       },
       "trades": [
         {
+          "id": "1789569766893-dq22n",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Warsaw",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-16T14:42:46.893Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789567660633-bn7m7",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Sao Paulo",

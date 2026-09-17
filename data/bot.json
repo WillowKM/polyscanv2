@@ -7067,6 +7067,25 @@
       },
       "trades": [
         {
+          "id": "1789653494366-t564b",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "88-89°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T13:58:14.366Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789647958089-k190n",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Los Angeles",
@@ -11651,6 +11670,25 @@
       },
       "trades": [
         {
+          "id": "1789653494612-yaggb",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Houston",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T13:58:14.612Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789586199933-z274v",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",
@@ -12186,6 +12224,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789653496306-hoay9",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Chicago",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "78-79°F",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T13:58:16.306Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789653136608-0f0zk",
           "accountId": "acc_1789317169775_vipzd",

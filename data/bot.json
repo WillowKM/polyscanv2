@@ -2388,25 +2388,6 @@
           "profit": 0
         },
         {
-          "id": "1789680393839-luwcf",
-          "accountId": "acc_1789064810114_8kjx9",
-          "city": "Austin",
-          "code": "KAUS",
-          "strategy": "4",
-          "side": "NO",
-          "bracketLabel": "98-99°F",
-          "stake": 5,
-          "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-17T21:26:33.839Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789680393839-6ym1o",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "San Francisco",
@@ -2500,6 +2481,26 @@
           "openedAt": "2026-09-16T09:10:29.354Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789680393839-luwcf",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "98-99°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T21:26:33.839Z",
+          "settledAt": "2026-09-17T22:55:57.027Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789675593576-htpb0",

@@ -53,25 +53,6 @@
       },
       "trades": [
         {
-          "id": "1789679793941-ljvad",
-          "accountId": "acc_1789055794688_pvayx",
-          "city": "Dallas",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "100-101°F",
-          "stake": 125,
-          "entryPriceCents": 96,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-17T21:16:33.941Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789671696628-4wwcf",
           "accountId": "acc_1789055794688_pvayx",
           "city": "Seattle",
@@ -108,6 +89,26 @@
           "openedAt": "2026-09-17T13:47:33.539Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789679793941-ljvad",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Dallas",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "100-101°F",
+          "stake": 125,
+          "entryPriceCents": 96,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T21:16:33.941Z",
+          "settledAt": "2026-09-17T22:26:33.378Z",
+          "profit": 5.2083,
+          "autoResolved": true
         },
         {
           "id": "1789644801653-znuf0",
@@ -2529,14 +2530,15 @@
           "bracketLabel": "100-101°F",
           "stake": 5,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-14T23:10:18.341Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-17T22:26:33.813Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789644834933-dxsux",

@@ -2368,6 +2368,25 @@
       },
       "trades": [
         {
+          "id": "1789683713235-qzzvp",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Seattle",
+          "code": "KSEA",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "72-73°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T22:21:53.235Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789680393839-luwcf",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Austin",

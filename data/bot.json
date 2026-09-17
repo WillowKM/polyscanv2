@@ -2243,6 +2243,25 @@
       },
       "trades": [
         {
+          "id": "1789663581789-zblqb",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Austin",
+          "code": "KAUS",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "100-101°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T16:46:21.789Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789661515884-xp40t",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Dallas",
@@ -7147,6 +7166,25 @@
       },
       "trades": [
         {
+          "id": "1789663582108-jb1kz",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Toronto",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T16:46:22.108Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789658742228-rvnl8",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Miami",
@@ -11914,14 +11952,15 @@
           "bracketLabel": "76-77°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 36,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-16T00:00:14.108Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-17T16:46:22.110Z",
+          "profit": -27.5,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1789535736121-8ix0a",

@@ -12103,25 +12103,6 @@
           "profit": 0
         },
         {
-          "id": "1789653494612-yaggb",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Houston",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "86-87°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-17T13:58:14.612Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789586199933-z274v",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",
@@ -12139,6 +12120,26 @@
           "openedAt": "2026-09-16T19:16:39.933Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789653494612-yaggb",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Houston",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 40,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T13:58:14.612Z",
+          "settledAt": "2026-09-17T18:52:09.970Z",
+          "profit": -25,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1789663139643-4hm2t",

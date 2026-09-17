@@ -11829,6 +11829,25 @@
       },
       "trades": [
         {
+          "id": "1789663139643-4hm2t",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Toronto",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T16:38:59.643Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789661516600-j722s",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Toronto",

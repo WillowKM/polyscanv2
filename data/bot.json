@@ -12288,14 +12288,15 @@
           "bracketLabel": "68-69°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 35,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-16T19:16:39.933Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-17T21:41:49.335Z",
+          "profit": -28.125,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1789670796208-2cyaj",
@@ -12934,25 +12935,6 @@
           "profit": 0
         },
         {
-          "id": "1789661517712-kx3tu",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Miami",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "84-85°F",
-          "stake": 50,
-          "entryPriceCents": 86,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-17T16:11:57.712Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789652870008-h5k08",
           "accountId": "acc_1789317169775_vipzd",
           "city": "San Francisco",
@@ -13027,6 +13009,26 @@
           "openedAt": "2026-09-16T00:00:14.654Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789661517712-kx3tu",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Miami",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 26,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T16:11:57.712Z",
+          "settledAt": "2026-09-17T21:41:49.412Z",
+          "profit": -34.8837,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1789656071062-rydhe",

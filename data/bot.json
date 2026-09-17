@@ -12738,9 +12738,9 @@
         "scalpUnit": "cents",
         "scalpStep": 10,
         "reBuyAfterScalp": true,
-        "stopLossEnabled": false,
+        "stopLossEnabled": true,
         "stopLossUnit": "cents",
-        "stopLossValue": 10,
+        "stopLossValue": 60,
         "autoTradeEnabled": true
       },
       "trades": [

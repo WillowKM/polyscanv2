@@ -12090,6 +12090,25 @@
       },
       "trades": [
         {
+          "id": "1789646772259-2lqjv",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "78-79°F",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T12:06:12.259Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789644838712-xb4s8",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Denver",

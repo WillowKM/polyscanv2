@@ -7028,6 +7028,25 @@
       },
       "trades": [
         {
+          "id": "1789646202691-d7pjv",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Chongqing",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-17T11:56:42.691Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789645415454-5s7fe",
           "accountId": "acc_1789064992577_u93fo",
           "city": "San Francisco",

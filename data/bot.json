@@ -2800,25 +2800,6 @@
           "profit": 0
         },
         {
-          "id": "1789708673007-yfknz",
-          "accountId": "acc_1789064810114_8kjx9",
-          "city": "Denver",
-          "code": "KBKF",
-          "strategy": "4",
-          "side": "NO",
-          "bracketLabel": "86-87°F",
-          "stake": 5,
-          "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-18T05:17:53.007Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789696600811-jn84l",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Dallas",
@@ -2912,6 +2893,26 @@
           "openedAt": "2026-09-17T14:15:53.015Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789708673007-yfknz",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Denver",
+          "code": "KBKF",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 3,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T05:17:53.007Z",
+          "settledAt": "2026-09-18T21:14:42.313Z",
+          "profit": -4.8421,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1789744543685-kf42i",

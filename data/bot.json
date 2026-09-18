@@ -2583,6 +2583,25 @@
       },
       "trades": [
         {
+          "id": "1789744785791-olr83",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Miami",
+          "code": "KMIA",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "92-93°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T15:19:45.791Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789744543685-kf42i",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Austin",

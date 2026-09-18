@@ -13717,6 +13717,25 @@
       },
       "trades": [
         {
+          "id": "1789711740741-ldxlz",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T06:09:00.741Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789708991086-z4yvs",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Wuhan",

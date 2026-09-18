@@ -7731,6 +7731,25 @@
       },
       "trades": [
         {
+          "id": "1789711415097-w7e94",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T06:03:35.097Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789710815321-k7zqw",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Chengdu",

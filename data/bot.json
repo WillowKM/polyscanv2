@@ -7731,6 +7731,25 @@
       },
       "trades": [
         {
+          "id": "1789709932831-tsza8",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Cape Town",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T05:38:52.831Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789709355581-m3zxd",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Busan",

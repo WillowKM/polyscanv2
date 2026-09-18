@@ -2686,6 +2686,25 @@
       },
       "trades": [
         {
+          "id": "1789765483437-iv7v7",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Atlanta",
+          "code": "KATL",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "94-95°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T21:04:43.437Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789752447402-wxpxl",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Los Angeles",
@@ -8269,25 +8288,6 @@
           "profit": 0
         },
         {
-          "id": "1789696603449-gkjub",
-          "accountId": "acc_1789064992577_u93fo",
-          "city": "Panama City",
-          "code": null,
-          "strategy": "1",
-          "side": "NO",
-          "bracketLabel": "34°C or higher",
-          "stake": 3,
-          "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-18T01:56:43.449Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789696603449-32og5",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Austin",
@@ -8419,6 +8419,26 @@
           "openedAt": "2026-09-16T07:10:14.205Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789696603449-gkjub",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Panama City",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "34°C or higher",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T01:56:43.449Z",
+          "settledAt": "2026-09-18T21:10:17.013Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789751572867-x0tbv",

@@ -13361,6 +13361,25 @@
       },
       "trades": [
         {
+          "id": "1789727353448-l28na",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Milan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "24°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T10:29:13.448Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789725711781-npp6d",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Houston",

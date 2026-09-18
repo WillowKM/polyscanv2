@@ -14058,14 +14058,15 @@
           "bracketLabel": "94-95°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-18T10:01:51.781Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-18T22:50:56.252Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1789696604058-sagaf",

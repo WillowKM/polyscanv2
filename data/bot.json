@@ -110,25 +110,6 @@
           "profit": 0
         },
         {
-          "id": "1789722862323-800f2",
-          "accountId": "acc_1789055794688_pvayx",
-          "city": "Denver",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "76-77°F",
-          "stake": 125,
-          "entryPriceCents": 97,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-18T09:14:22.323Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789712614076-cxo49",
           "accountId": "acc_1789055794688_pvayx",
           "city": "Austin",
@@ -203,6 +184,26 @@
           "openedAt": "2026-09-18T01:56:15.948Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789722862323-800f2",
+          "accountId": "acc_1789055794688_pvayx",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "76-77°F",
+          "stake": 125,
+          "entryPriceCents": 97,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T09:14:22.323Z",
+          "settledAt": "2026-09-18T17:12:03.625Z",
+          "profit": 3.866,
+          "autoResolved": true
         },
         {
           "id": "1789741326342-nwzno",
@@ -8105,6 +8106,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789751572867-x0tbv",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "96-97°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-18T17:12:52.867Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789751222472-gjvaz",
           "accountId": "acc_1789064992577_u93fo",

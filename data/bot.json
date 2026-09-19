@@ -2875,25 +2875,6 @@
           "profit": 0
         },
         {
-          "id": "1789854346803-ntb7h",
-          "accountId": "acc_1789064810114_8kjx9",
-          "city": "Dallas",
-          "code": "KDAL",
-          "strategy": "4",
-          "side": "NO",
-          "bracketLabel": "98-99°F",
-          "stake": 5,
-          "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-19T21:45:46.803Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789750675613-w66vw",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Seattle",
@@ -2968,6 +2949,26 @@
           "openedAt": "2026-09-17T14:15:53.015Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789854346803-ntb7h",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Dallas",
+          "code": "KDAL",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "98-99°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-19T21:45:46.803Z",
+          "settledAt": "2026-09-19T23:37:37.342Z",
+          "profit": 0.2632,
+          "autoResolved": true
         },
         {
           "id": "1789752447402-wxpxl",

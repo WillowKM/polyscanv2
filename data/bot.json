@@ -18017,12 +18017,14 @@
       "createdAt": "2026-09-19T22:18:11.654Z",
       "settings": {
         "strategy": "3",
-        "cities": [],
-        "minTradeAmount": 5,
-        "maxOpenOrders": 10,
+        "cities": [
+          "Hong Kong"
+        ],
+        "minTradeAmount": 500,
+        "maxOpenOrders": 2,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
-        "noBuyMinCents": 90,
+        "noBuyMinCents": 95,
         "noBuyMaxCents": 97,
         "yesBuyMinCents": 90,
         "yesBuyMaxCents": 99,
@@ -18043,7 +18045,7 @@
         "stopLossEnabled": false,
         "stopLossUnit": "cents",
         "stopLossValue": 10,
-        "autoTradeEnabled": false
+        "autoTradeEnabled": true
       },
       "trades": []
     }

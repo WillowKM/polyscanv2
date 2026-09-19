@@ -18056,12 +18056,14 @@
       "createdAt": "2026-09-19T22:19:28.515Z",
       "settings": {
         "strategy": "3",
-        "cities": [],
+        "cities": [
+          "Tel Aviv"
+        ],
         "minTradeAmount": 5,
         "maxOpenOrders": 10,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
-        "noBuyMinCents": 90,
+        "noBuyMinCents": 95,
         "noBuyMaxCents": 97,
         "yesBuyMinCents": 90,
         "yesBuyMaxCents": 99,

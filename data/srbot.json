@@ -13,6 +13,20 @@
         "autoTradeEnabled": true
       },
       "trades": []
+    },
+    "sr_1789912252906_gpbib": {
+      "id": "sr_1789912252906_gpbib",
+      "name": "95c - 97c Max 8 Orders",
+      "startingBalance": 1000,
+      "createdAt": "2026-09-20T13:50:52.906Z",
+      "settings": {
+        "executionTimeSAST": "09:00",
+        "minTradeAmount": 10,
+        "leadDays": 0,
+        "maxOpenOrders": 10,
+        "autoTradeEnabled": false
+      },
+      "trades": []
     }
   }
 }

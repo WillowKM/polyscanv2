@@ -3091,6 +3091,25 @@
       },
       "trades": [
         {
+          "id": "1789934853381-w6n0f",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "San Francisco",
+          "code": "KSFO",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "70-71°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T20:07:33.381Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789932615884-994du",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Austin",

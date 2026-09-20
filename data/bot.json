@@ -9070,6 +9070,25 @@
       },
       "trades": [
         {
+          "id": "1789882238702-dimep",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Shenzhen",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T05:30:38.702Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789881938352-eqx5g",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Shanghai",

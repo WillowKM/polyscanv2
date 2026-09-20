@@ -2971,6 +2971,63 @@
       },
       "trades": [
         {
+          "id": "1789873784617-m3bzt",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Los Angeles",
+          "code": "KLAX",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "72-73°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T03:09:44.617Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1789873784617-0p4zs",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Busan",
+          "code": "RKPK",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "30°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T03:09:44.617Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1789873784616-8su9f",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Hong Kong",
+          "code": "HKO",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T03:09:44.616Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789873183847-m4wpm",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Busan",
@@ -8877,6 +8934,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789873787237-7c7ux",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Beijing",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "30°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T03:09:47.237Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789873506251-oqwj1",
           "accountId": "acc_1789064992577_u93fo",
@@ -15136,6 +15212,25 @@
       },
       "trades": [
         {
+          "id": "1789873787468-acndk",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "74-75°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T03:09:47.468Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789873506492-ipu23",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Karachi",
@@ -19047,7 +19142,27 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1789873787468-le4oe",
+          "accountId": "acc_1789856291654_nh6dr",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 500,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T03:09:47.468Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     },
     "acc_1789856368515_ha0rh": {
       "id": "acc_1789856368515_ha0rh",

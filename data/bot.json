@@ -2991,6 +2991,25 @@
       },
       "trades": [
         {
+          "id": "1789876910959-jmyeg",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 3.57,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T04:01:50.959Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789876620938-2wha2",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Tel Aviv",
@@ -9030,6 +9049,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789876913762-s6sjl",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Chongqing",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "24°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T04:01:53.762Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789876623193-z6rxg",
           "accountId": "acc_1789064992577_u93fo",

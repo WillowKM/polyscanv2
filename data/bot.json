@@ -8724,6 +8724,25 @@
       },
       "trades": [
         {
+          "id": "1789863739179-m1wny",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Los Angeles",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "72-73°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T00:22:19.179Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789863440396-uptmi",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Moscow",

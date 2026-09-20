@@ -8993,6 +8993,25 @@
       },
       "trades": [
         {
+          "id": "1789875712855-j6922",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Helsinki",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T03:41:52.855Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789875453775-kb3h9",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Chengdu",

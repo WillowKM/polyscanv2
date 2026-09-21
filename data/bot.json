@@ -7608,6 +7608,25 @@
       },
       "trades": [
         {
+          "id": "1790020722542-q4t14",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "64-65°F",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T19:58:42.542Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789999445649-pdt5v",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Mexico City",

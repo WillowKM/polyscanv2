@@ -20220,8 +20220,8 @@
         "cities": [
           "Tel Aviv"
         ],
-        "minTradeAmount": 5,
-        "maxOpenOrders": 10,
+        "minTradeAmount": 500,
+        "maxOpenOrders": 2,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
         "noBuyMinCents": 95,

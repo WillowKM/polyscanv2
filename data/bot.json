@@ -11509,7 +11509,27 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1790017122187-4vyb7",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "62-63°F",
+          "stake": 100,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T18:58:42.187Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     }
   }
 }

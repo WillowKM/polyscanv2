@@ -9339,6 +9339,25 @@
       },
       "trades": [
         {
+          "id": "1789971593045-zndpp",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Guangzhou",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "37°C or higher",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T06:19:53.045Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789970656273-a0quo",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Austin",
@@ -16805,6 +16824,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789971595394-sqezk",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Paris",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "24°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T06:19:55.394Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789970978799-gymdy",
           "accountId": "acc_1789317169775_vipzd",

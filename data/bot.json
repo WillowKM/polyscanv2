@@ -16768,6 +16768,25 @@
       },
       "trades": [
         {
+          "id": "1789970978799-gymdy",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Buenos Aires",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T06:09:38.799Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789970404125-79xu6",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Sao Paulo",

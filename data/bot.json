@@ -17263,6 +17263,25 @@
       },
       "trades": [
         {
+          "id": "1789981803518-tgsk7",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Warsaw",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "13°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T09:10:03.518Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789980287121-rti4h",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Tel Aviv",
@@ -17529,25 +17548,6 @@
           "profit": 0
         },
         {
-          "id": "1789930839713-zx4pi",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Atlanta",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "90-91°F",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-20T19:00:39.713Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789912245117-r2b6k",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Los Angeles",
@@ -17717,6 +17717,26 @@
           "openedAt": "2026-09-16T12:11:15.477Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789930839713-zx4pi",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 43,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-20T19:00:39.713Z",
+          "settledAt": "2026-09-21T09:10:02.729Z",
+          "profit": -25.5682,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1789972462598-fiice",

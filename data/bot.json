@@ -3130,6 +3130,25 @@
       },
       "trades": [
         {
+          "id": "1789977733790-gdwan",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Helsinki",
+          "code": "EFHK",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "15°C",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T08:02:13.790Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789976533791-c8ma5",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "San Francisco",
@@ -17109,6 +17128,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1789977737594-mtnip",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Jeddah",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "35°C",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T08:02:17.594Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1789976282338-i1mt7",
           "accountId": "acc_1789317169775_vipzd",

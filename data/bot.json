@@ -3130,6 +3130,25 @@
       },
       "trades": [
         {
+          "id": "1789984930255-ytyij",
+          "accountId": "acc_1789064810114_8kjx9",
+          "city": "Dallas",
+          "code": "KDAL",
+          "strategy": "4",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 5,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T10:02:10.255Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789982393100-ww5sx",
           "accountId": "acc_1789064810114_8kjx9",
           "city": "Tel Aviv",
@@ -9681,25 +9700,6 @@
           "profit": 0
         },
         {
-          "id": "1789971856566-zm10p",
-          "accountId": "acc_1789064992577_u93fo",
-          "city": "Wuhan",
-          "code": null,
-          "strategy": "1",
-          "side": "NO",
-          "bracketLabel": "26°C",
-          "stake": 3,
-          "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-21T06:24:16.566Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789971856566-rld3f",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Dallas",
@@ -10097,6 +10097,26 @@
           "openedAt": "2026-09-16T07:10:14.205Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1789971856566-zm10p",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Wuhan",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T06:24:16.566Z",
+          "settledAt": "2026-09-21T10:02:10.395Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1789971593045-zndpp",
@@ -16076,26 +16096,6 @@
           "openedAt": "2026-09-11T00:00:26.987Z",
           "settledAt": "2026-09-11T20:25:08.759Z",
           "profit": -10,
-          "autoResolved": true
-        },
-        {
-          "id": "1789128321364-3mses",
-          "accountId": "acc_1789064992577_u93fo",
-          "city": "Houston",
-          "code": "KHOU",
-          "strategy": "1",
-          "side": "NO",
-          "bracketLabel": "92-93°F",
-          "stake": 3,
-          "entryPriceCents": 93,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-11T12:05:21.364Z",
-          "settledAt": "2026-09-11T20:05:33.932Z",
-          "profit": 0.2258,
           "autoResolved": true
         }
       ]

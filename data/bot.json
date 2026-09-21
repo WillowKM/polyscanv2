@@ -9472,6 +9472,25 @@
       },
       "trades": [
         {
+          "id": "1789980598014-ynx7c",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Buenos Aires",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T08:49:58.014Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789980285890-zy9hi",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Chicago",

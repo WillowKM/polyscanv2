@@ -9510,6 +9510,25 @@
       },
       "trades": [
         {
+          "id": "1789983756140-zkfjh",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Milan",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "28°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-21T09:42:36.140Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1789983172717-o7tcg",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Tel Aviv",

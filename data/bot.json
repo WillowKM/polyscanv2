@@ -11451,12 +11451,23 @@
       "createdAt": "2026-09-21T18:22:02.758Z",
       "settings": {
         "strategy": "3",
-        "cities": [],
-        "minTradeAmount": 5,
+        "cities": [
+          "Amsterdam",
+          "Ankara",
+          "Atlanta",
+          "Beijing",
+          "Busan",
+          "Hong Kong",
+          "Istanbul",
+          "San Francisco",
+          "Seoul",
+          "Tokyo"
+        ],
+        "minTradeAmount": 100,
         "maxOpenOrders": 10,
         "maxSpreadCents": 3,
-        "minVolumeFallback": 500,
-        "noBuyMinCents": 90,
+        "minVolumeFallback": 200,
+        "noBuyMinCents": 93,
         "noBuyMaxCents": 97,
         "yesBuyMinCents": 90,
         "yesBuyMaxCents": 99,
@@ -11477,7 +11488,7 @@
         "stopLossEnabled": false,
         "stopLossUnit": "cents",
         "stopLossValue": 10,
-        "autoTradeEnabled": false
+        "autoTradeEnabled": true
       },
       "trades": []
     }

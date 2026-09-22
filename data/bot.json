@@ -7800,6 +7800,25 @@
       },
       "trades": [
         {
+          "id": "1790063034861-55qrh",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "London",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T07:43:54.861Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790061536507-ywel8",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Ankara",

@@ -7990,25 +7990,6 @@
           "profit": 0
         },
         {
-          "id": "1790057338110-39xdp",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Chengdu",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "28°C",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-22T06:08:58.110Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790055537222-vostt",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Moscow",
@@ -8254,6 +8235,26 @@
           "openedAt": "2026-09-16T12:11:15.477Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790057338110-39xdp",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Chengdu",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "28°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T06:08:58.110Z",
+          "settledAt": "2026-09-22T08:48:17.035Z",
+          "profit": 6.8182,
+          "autoResolved": true
         },
         {
           "id": "1790054357694-e6fan",

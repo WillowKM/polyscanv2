@@ -14,36 +14,6 @@
       },
       "trades": [
         {
-          "id": "1790069000212-zhiwd",
-          "accountId": "sr_1789551876942_d27kw",
-          "city": "Istanbul",
-          "code": "LTFM",
-          "side": "YES",
-          "bracketLabel": "21°C",
-          "stake": 200,
-          "entryPriceCents": 0,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "openedAt": "2026-09-22T09:23:20.212Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
-          "id": "1790069000212-6k09u",
-          "accountId": "sr_1789551876942_d27kw",
-          "city": "Istanbul",
-          "code": "LTFM",
-          "side": "YES",
-          "bracketLabel": "20°C",
-          "stake": 200,
-          "entryPriceCents": 0,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "openedAt": "2026-09-22T09:23:20.212Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790069000212-ahru8",
           "accountId": "sr_1789551876942_d27kw",
           "city": "Tel Aviv",
@@ -87,6 +57,38 @@
           "openedAt": "2026-09-22T09:23:20.212Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790069000212-zhiwd",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "side": "YES",
+          "bracketLabel": "21°C",
+          "stake": 200,
+          "entryPriceCents": 0,
+          "status": "LOSS",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-09-22T09:23:20.212Z",
+          "settledAt": "2026-09-22T09:27:51.481Z",
+          "profit": -200,
+          "autoResolved": true
+        },
+        {
+          "id": "1790069000212-6k09u",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "side": "YES",
+          "bracketLabel": "20°C",
+          "stake": 200,
+          "entryPriceCents": 0,
+          "status": "LOSS",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-09-22T09:23:20.212Z",
+          "settledAt": "2026-09-22T09:27:51.481Z",
+          "profit": -200,
+          "autoResolved": true
         }
       ]
     },

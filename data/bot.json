@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790060633739-ldnbu",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Karachi",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "37°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T07:03:53.739Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790059434904-nddgz",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Ankara",
@@ -7818,6 +7837,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1790060634480-jp0xk",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Jeddah",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "35°C",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T07:03:54.480Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1790057338110-q1027",
           "accountId": "acc_1789317169775_vipzd",

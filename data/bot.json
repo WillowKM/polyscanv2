@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790055835254-vldl3",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Chengdu",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "24°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T05:43:55.254Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790054355165-xlvcq",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Buenos Aires",

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790099045706-br3y3",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T17:44:05.706Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790080308045-akyd0",
           "accountId": "acc_1789064992577_u93fo",
           "city": "San Francisco",
@@ -12138,6 +12157,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1790099046207-uz0q7",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T17:44:06.207Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1790080309341-i8qff",
           "accountId": "acc_1790014922758_e686h",

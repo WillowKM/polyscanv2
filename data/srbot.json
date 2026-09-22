@@ -12,7 +12,83 @@
         "maxOpenOrders": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1790069000212-zhiwd",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "side": "YES",
+          "bracketLabel": "21°C",
+          "stake": 200,
+          "entryPriceCents": 0,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-09-22T09:23:20.212Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1790069000212-6k09u",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "side": "YES",
+          "bracketLabel": "20°C",
+          "stake": 200,
+          "entryPriceCents": 0,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-09-22T09:23:20.212Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1790069000212-ahru8",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Tel Aviv",
+          "code": "LLBG",
+          "side": "YES",
+          "bracketLabel": "30°C",
+          "stake": 200,
+          "entryPriceCents": 81,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-09-22T09:23:20.212Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1790069000212-fan4x",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "side": "YES",
+          "bracketLabel": "20°C",
+          "stake": 345.95,
+          "entryPriceCents": 64,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-09-22T09:23:20.212Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1790069000212-vku5n",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "side": "YES",
+          "bracketLabel": "19°C",
+          "stake": 54.05,
+          "entryPriceCents": 10,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-09-22T09:23:20.212Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     },
     "sr_1789912252906_gpbib": {
       "id": "sr_1789912252906_gpbib",

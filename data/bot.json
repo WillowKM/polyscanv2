@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790059434904-nddgz",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T06:43:54.904Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790058534134-xu906",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Chengdu",
@@ -11832,6 +11851,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1790059436256-x8092",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Beijing",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T06:43:56.256Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1790058836928-uiq1b",
           "accountId": "acc_1790014922758_e686h",

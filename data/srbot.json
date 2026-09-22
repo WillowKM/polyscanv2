@@ -22,11 +22,12 @@
           "bracketLabel": "20°C",
           "stake": 345.95,
           "entryPriceCents": 64,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "openedAt": "2026-09-22T09:23:20.212Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-22T17:34:30.459Z",
+          "profit": -345.95,
+          "autoResolved": true
         },
         {
           "id": "1790069000212-vku5n",
@@ -37,11 +38,12 @@
           "bracketLabel": "19°C",
           "stake": 54.05,
           "entryPriceCents": 10,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "openedAt": "2026-09-22T09:23:20.212Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-22T17:34:30.459Z",
+          "profit": 486.45,
+          "autoResolved": true
         },
         {
           "id": "1790081853615-ch9m0",

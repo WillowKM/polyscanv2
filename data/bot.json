@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790072718501-fx9y6",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Munich",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-22T10:25:18.501Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790072418934-41uch",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Ankara",

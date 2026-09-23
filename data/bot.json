@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790142900700-bggj4",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Helsinki",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "10°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-23T05:55:00.700Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790141007853-v902b",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Los Angeles",

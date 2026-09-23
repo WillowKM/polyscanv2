@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790145396150-wxkkj",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Taipei",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "33°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-23T06:36:36.150Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790143962460-vqnvi",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Kuala Lumpur",
@@ -398,25 +417,6 @@
           "profit": 0
         },
         {
-          "id": "1790121812957-yyvha",
-          "accountId": "acc_1789064992577_u93fo",
-          "city": "Taipei",
-          "code": null,
-          "strategy": "1",
-          "side": "NO",
-          "bracketLabel": "34°C",
-          "stake": 3,
-          "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-23T00:03:32.957Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790121812956-ef5pg",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Warsaw",
@@ -510,6 +510,26 @@
           "openedAt": "2026-09-17T22:01:38.341Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790121812957-yyvha",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Taipei",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-23T00:03:32.957Z",
+          "settledAt": "2026-09-23T06:36:34.133Z",
+          "profit": 0.2258,
+          "autoResolved": true
         },
         {
           "id": "1790138186726-sk1qa",
@@ -6490,26 +6510,6 @@
           "settledAt": "2026-09-14T03:45:08.803Z",
           "profit": 0.2258,
           "autoResolved": true
-        },
-        {
-          "id": "1789337111029-g4bsm",
-          "accountId": "acc_1789064992577_u93fo",
-          "city": "Dallas",
-          "code": "KDAL",
-          "strategy": "1",
-          "side": "NO",
-          "bracketLabel": "100-101°F",
-          "stake": 3,
-          "entryPriceCents": 93,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-13T22:05:11.029Z",
-          "settledAt": "2026-09-13T23:40:15.309Z",
-          "profit": 0.2258,
-          "autoResolved": true
         }
       ]
     },
@@ -8647,25 +8647,6 @@
           "profit": 0
         },
         {
-          "id": "1790121816656-lpxfg",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Kuala Lumpur",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "31°C",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-23T00:03:36.656Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1789991827502-y6cui",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Seattle",
@@ -8702,6 +8683,26 @@
           "openedAt": "2026-09-20T13:50:45.117Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790121816656-lpxfg",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Kuala Lumpur",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "31°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 26,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-23T00:03:36.656Z",
+          "settledAt": "2026-09-23T06:36:36.386Z",
+          "profit": -35.2273,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1790122716717-ush2m",

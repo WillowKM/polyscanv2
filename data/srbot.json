@@ -37,11 +37,12 @@
           "bracketLabel": "19°C",
           "stake": 63.49,
           "entryPriceCents": 10,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "openedAt": "2026-09-23T07:00:13.593Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-23T12:31:28.608Z",
+          "profit": -63.49,
+          "autoResolved": true
         },
         {
           "id": "1790146813593-jbfgj",

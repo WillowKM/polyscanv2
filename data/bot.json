@@ -8020,6 +8020,25 @@
       },
       "trades": [
         {
+          "id": "1790139809103-9orfi",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Lucknow",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-23T05:03:29.103Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790139508074-vlpuc",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Beijing",

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790166691901-iqsra",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Moscow",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-23T12:31:31.901Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790166391036-pbftl",
           "accountId": "acc_1789064992577_u93fo",
           "city": "London",

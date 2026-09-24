@@ -6569,25 +6569,6 @@
           "profit": 0
         },
         {
-          "id": "1790213134461-ewzpe",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Helsinki",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "13°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-24T01:25:34.461Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790213134461-wmo4j",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Denver",
@@ -6776,6 +6757,26 @@
           "openedAt": "2026-09-23T00:03:33.578Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790213134461-ewzpe",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Helsinki",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "13°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-24T01:25:34.461Z",
+          "settledAt": "2026-09-24T09:29:49.810Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1790217932586-33sph",

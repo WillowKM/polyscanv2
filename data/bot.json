@@ -13861,6 +13861,25 @@
       },
       "trades": [
         {
+          "id": "1790213734246-6r96x",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Tokyo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-24T01:35:34.246Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790208934660-rm15s",
           "accountId": "acc_1790014922758_e686h",
           "city": "Busan",
@@ -13975,25 +13994,6 @@
           "profit": 0
         },
         {
-          "id": "1790208655211-dfzwp",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Seoul",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "24°C",
-          "stake": 100,
-          "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-24T00:10:55.211Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790208655211-5odog",
           "accountId": "acc_1790014922758_e686h",
           "city": "Tokyo",
@@ -14049,6 +14049,26 @@
           "openedAt": "2026-09-23T04:36:30.794Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790208655211-dfzwp",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Seoul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "24°C",
+          "stake": 100,
+          "entryPriceCents": 95,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-24T00:10:55.211Z",
+          "settledAt": "2026-09-24T01:35:33.374Z",
+          "profit": 5.2632,
+          "autoResolved": true
         },
         {
           "id": "1790121817382-1qhl6",

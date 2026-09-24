@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790209831773-h133s",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Karachi",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "36°C",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-24T00:30:31.773Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790209534366-gcpag",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Wuhan",

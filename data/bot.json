@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790217931995-hnme1",
+          "accountId": "acc_1789064992577_u93fo",
+          "city": "Dallas",
+          "code": null,
+          "strategy": "1",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 3,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-24T02:45:31.995Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790217633112-4vjn8",
           "accountId": "acc_1789064992577_u93fo",
           "city": "Chengdu",
@@ -6682,6 +6701,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1790217932586-33sph",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Shenzhen",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "33°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-24T02:45:32.586Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1790217331831-p2zw9",
           "accountId": "acc_1789317130252_9m9mx",

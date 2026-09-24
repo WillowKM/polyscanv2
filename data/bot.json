@@ -2108,25 +2108,6 @@
           "profit": 0
         },
         {
-          "id": "1790265696685-xh1h4",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Panama City",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "33°C",
-          "stake": 50,
-          "entryPriceCents": 85,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-24T16:01:36.685Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790215834692-fqavv",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Sao Paulo",
@@ -2277,6 +2258,26 @@
           "openedAt": "2026-09-20T13:50:45.117Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790265696685-xh1h4",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Panama City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "33°C",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-24T16:01:36.685Z",
+          "settledAt": "2026-09-24T19:39:05.495Z",
+          "profit": 8.8235,
+          "autoResolved": true
         },
         {
           "id": "1790266895311-83kqj",

@@ -8428,13 +8428,19 @@
       "createdAt": "2026-09-24T16:12:03.372Z",
       "settings": {
         "strategy": "3",
-        "cities": [],
-        "minTradeAmount": 5,
+        "cities": [
+          "Buenos Aires",
+          "Denver",
+          "London",
+          "Seoul",
+          "Toronto"
+        ],
+        "minTradeAmount": 100,
         "maxOpenOrders": 10,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
-        "noBuyMinCents": 90,
-        "noBuyMaxCents": 97,
+        "noBuyMinCents": 65,
+        "noBuyMaxCents": 70,
         "yesBuyMinCents": 90,
         "yesBuyMaxCents": 99,
         "minEdgePct": 10,
@@ -8453,8 +8459,8 @@
         "reBuyAfterScalp": true,
         "stopLossEnabled": false,
         "stopLossUnit": "cents",
-        "stopLossValue": 10,
-        "autoTradeEnabled": false
+        "stopLossValue": 65,
+        "autoTradeEnabled": true
       },
       "trades": []
     }

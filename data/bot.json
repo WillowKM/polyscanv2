@@ -2307,6 +2307,25 @@
       },
       "trades": [
         {
+          "id": "1790313482887-6qwil",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Moscow",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "14°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T05:18:02.887Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790313182591-sm7gn",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Panama City",

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790346061131-bqv3u",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Miami",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T14:21:01.131Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790332862605-8utcz",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Buenos Aires",
@@ -2427,6 +2446,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1790346061878-lha6x",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T14:21:01.878Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1790343061895-rktxg",
           "accountId": "acc_1789317169775_vipzd",
@@ -8559,25 +8597,6 @@
       },
       "trades": [
         {
-          "id": "1790334062456-4q8zw",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Istanbul",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "22°C",
-          "stake": 100,
-          "entryPriceCents": 96,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-25T11:01:02.456Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790333762296-cy1e1",
           "accountId": "acc_1790014922758_e686h",
           "city": "Ankara",
@@ -8671,6 +8690,26 @@
           "openedAt": "2026-09-25T00:05:15.406Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790334062456-4q8zw",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Istanbul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 100,
+          "entryPriceCents": 96,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T11:01:02.456Z",
+          "settledAt": "2026-09-25T14:21:01.878Z",
+          "profit": 4.1667,
+          "autoResolved": true
         },
         {
           "id": "1790333163528-kwq5c",

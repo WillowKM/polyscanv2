@@ -37,25 +37,6 @@
       },
       "trades": [
         {
-          "id": "1790356267557-pgigb",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Panama City",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "32°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-25T17:11:07.557Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790301117791-l19z8",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Atlanta",
@@ -130,6 +111,26 @@
           "openedAt": "2026-09-23T00:03:33.578Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790356267557-pgigb",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Panama City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T17:11:07.557Z",
+          "settledAt": "2026-09-25T21:46:35.228Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1790294991182-0tpq2",

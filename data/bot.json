@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790364907564-fvm0w",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T19:35:07.564Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790356267557-pgigb",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Panama City",
@@ -2529,25 +2548,6 @@
           "profit": 0
         },
         {
-          "id": "1790304417145-0ovzv",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Chicago",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "64-65°F",
-          "stake": 50,
-          "entryPriceCents": 90,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-25T02:46:57.145Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790303518133-hubu5",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Chicago",
@@ -2622,6 +2622,26 @@
           "openedAt": "2026-09-23T05:08:30.597Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790304417145-0ovzv",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Chicago",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "64-65°F",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 45,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T02:46:57.145Z",
+          "settledAt": "2026-09-25T19:35:07.564Z",
+          "profit": -25,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1790208654308-kg1ei",

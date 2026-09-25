@@ -2192,6 +2192,25 @@
       },
       "trades": [
         {
+          "id": "1790295745120-bzh7n",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Tokyo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T00:22:25.120Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790294714137-6mdgq",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Panama City",

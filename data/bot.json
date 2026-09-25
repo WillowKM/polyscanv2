@@ -65,14 +65,15 @@
           "bracketLabel": "62-63°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 11,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-25T00:05:12.486Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-25T23:01:36.194Z",
+          "profit": -43.125,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1790121813578-0m65a",
@@ -2525,14 +2526,15 @@
           "bracketLabel": "62-63°F",
           "stake": 50,
           "entryPriceCents": 85,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 11,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-25T08:45:30.684Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-25T23:01:38.390Z",
+          "profit": -43.5294,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1790140110597-x18b7",
@@ -8512,26 +8514,6 @@
           "openedAt": "2026-09-13T16:35:09.746Z",
           "settledAt": "2026-09-13T19:00:25.920Z",
           "profit": 6.8182,
-          "autoResolved": true
-        },
-        {
-          "id": "1789319109523-mfovo",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Houston",
-          "code": "KHOU",
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "86-87°F",
-          "stake": 50,
-          "entryPriceCents": 90,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-13T17:05:09.523Z",
-          "settledAt": "2026-09-13T18:45:47.926Z",
-          "profit": 5.5556,
           "autoResolved": true
         }
       ]

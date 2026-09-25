@@ -46,14 +46,15 @@
           "bracketLabel": "72-73°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-25T00:05:12.486Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-25T23:40:47.972Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1790294712486-fjbto",

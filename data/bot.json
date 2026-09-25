@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790326831846-6jio2",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "28°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-25T09:00:31.846Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790303515948-mps4a",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "London",

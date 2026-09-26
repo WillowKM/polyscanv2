@@ -141,14 +141,15 @@
           "bracketLabel": "94-95°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 11,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-26T00:03:29.736Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-26T22:00:09.452Z",
+          "profit": -43.125,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1790396886540-h55ac",

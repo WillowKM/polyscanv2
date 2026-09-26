@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790439946238-y2rde",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Austin",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "92-93°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T16:25:46.238Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790428346144-pi5u2",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Panama City",

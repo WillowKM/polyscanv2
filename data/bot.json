@@ -189,25 +189,6 @@
           "profit": 0
         },
         {
-          "id": "1790381309982-eexa2",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Chengdu",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "30°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-26T00:08:29.982Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790381009736-pqvh0",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Dallas",
@@ -225,6 +206,26 @@
           "openedAt": "2026-09-26T00:03:29.736Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790381309982-eexa2",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Chengdu",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "30°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T00:08:29.982Z",
+          "settledAt": "2026-09-26T08:14:50.594Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1790381009736-gc160",
@@ -3033,25 +3034,6 @@
           "profit": 0
         },
         {
-          "id": "1790392634405-htnkt",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Jeddah",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "36°C",
-          "stake": 50,
-          "entryPriceCents": 89,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-26T03:17:14.405Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790385576446-xlt24",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Jeddah",
@@ -3221,6 +3203,26 @@
           "openedAt": "2026-09-26T00:03:31.194Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790392634405-htnkt",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Jeddah",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "36°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T03:17:14.405Z",
+          "settledAt": "2026-09-26T08:09:51.961Z",
+          "profit": 6.1798,
+          "autoResolved": true
         },
         {
           "id": "1790381011194-092p8",
@@ -9200,26 +9202,6 @@
           "openedAt": "2026-09-14T08:10:15.203Z",
           "settledAt": "2026-09-14T11:55:23.191Z",
           "profit": 5.5556,
-          "autoResolved": true
-        },
-        {
-          "id": "1789355110685-p9e2d",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Hong Kong",
-          "code": "HKO",
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "28°C",
-          "stake": 50,
-          "entryPriceCents": 89,
-          "status": "LOSS",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-14T03:05:10.685Z",
-          "settledAt": "2026-09-14T09:25:36.563Z",
-          "profit": -50,
           "autoResolved": true
         }
       ]

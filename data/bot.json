@@ -132,25 +132,6 @@
           "profit": 0
         },
         {
-          "id": "1790396886540-h55ac",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Miami",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "90-91°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-26T04:28:06.540Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790381009736-pqvh0",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Dallas",
@@ -168,6 +149,26 @@
           "openedAt": "2026-09-26T00:03:29.736Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790396886540-h55ac",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Miami",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "90-91°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T04:28:06.540Z",
+          "settledAt": "2026-09-26T20:35:09.355Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1790389423585-ke3gi",

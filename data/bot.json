@@ -9336,6 +9336,25 @@
       },
       "trades": [
         {
+          "id": "1790400300149-d6uja",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Seoul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "27°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T05:25:00.149Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790400025716-7d1ui",
           "accountId": "acc_1790014922758_e686h",
           "city": "Ankara",

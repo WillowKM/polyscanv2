@@ -2785,6 +2785,25 @@
       },
       "trades": [
         {
+          "id": "1790404991183-z7ha5",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Moscow",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "15°C",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T06:43:11.183Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790404090955-t56m1",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Austin",

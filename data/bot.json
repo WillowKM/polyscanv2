@@ -2727,6 +2727,25 @@
       },
       "trades": [
         {
+          "id": "1790397169176-ql5ky",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Cape Town",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T04:32:49.176Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790392914560-8clyg",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Panama City",

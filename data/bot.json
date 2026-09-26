@@ -2689,6 +2689,25 @@
       },
       "trades": [
         {
+          "id": "1790392634405-htnkt",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Jeddah",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "36°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T03:17:14.405Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790390881038-dgkw0",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Karachi",

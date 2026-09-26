@@ -10892,13 +10892,15 @@
       "createdAt": "2026-09-26T18:50:12.502Z",
       "settings": {
         "strategy": "3",
-        "cities": [],
-        "minTradeAmount": 5,
-        "maxOpenOrders": 10,
+        "cities": [
+          "Denver"
+        ],
+        "minTradeAmount": 500,
+        "maxOpenOrders": 2,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
-        "noBuyMinCents": 90,
-        "noBuyMaxCents": 97,
+        "noBuyMinCents": 85,
+        "noBuyMaxCents": 95,
         "yesBuyMinCents": 90,
         "yesBuyMaxCents": 99,
         "minEdgePct": 10,
@@ -10918,7 +10920,7 @@
         "stopLossEnabled": false,
         "stopLossUnit": "cents",
         "stopLossValue": 10,
-        "autoTradeEnabled": false
+        "autoTradeEnabled": true
       },
       "trades": []
     }

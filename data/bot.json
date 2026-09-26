@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790389423585-ke3gi",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Miami",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T02:23:43.585Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790387964556-aezpn",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Panama City",
@@ -9239,25 +9258,6 @@
           "profit": 0
         },
         {
-          "id": "1790382359523-i6d93",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Seoul",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "22°C",
-          "stake": 100,
-          "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-26T00:25:59.523Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790381312254-9coa4",
           "accountId": "acc_1790014922758_e686h",
           "city": "San Francisco",
@@ -9370,6 +9370,26 @@
           "openedAt": "2026-09-25T18:49:03.840Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790382359523-i6d93",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Seoul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T00:25:59.523Z",
+          "settledAt": "2026-09-26T02:23:44.633Z",
+          "profit": 6.383,
+          "autoResolved": true
         },
         {
           "id": "1790294715406-juyks",

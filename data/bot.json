@@ -2808,6 +2808,25 @@
       },
       "trades": [
         {
+          "id": "1790408599702-po34d",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-26T07:43:19.702Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790408322372-zekwi",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Panama City",

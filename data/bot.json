@@ -2951,6 +2951,25 @@
       },
       "trades": [
         {
+          "id": "1790483404961-snj28",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Mexico City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T04:30:04.961Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790480306552-i15p8",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Sao Paulo",

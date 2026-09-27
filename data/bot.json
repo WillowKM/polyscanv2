@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790493315911-xsz78",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Amsterdam",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T07:15:15.911Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790488506626-3iqjn",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Buenos Aires",

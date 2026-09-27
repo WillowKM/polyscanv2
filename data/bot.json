@@ -2970,6 +2970,25 @@
       },
       "trades": [
         {
+          "id": "1790486704708-kp7qi",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T05:25:04.708Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790483404961-snj28",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Mexico City",
@@ -11087,7 +11106,27 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1790486705501-w2ml9",
+          "accountId": "acc_1790448612502_mwphv",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 500,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T05:25:05.501Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     }
   }
 }

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790487603993-c43k1",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Paris",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "28°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T05:40:03.993Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790487001976-2x5en",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Panama City",

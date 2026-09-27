@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790506674982-x7dvs",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Chicago",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T10:57:54.982Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790498552913-mzm3k",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Los Angeles",
@@ -9503,25 +9522,6 @@
       },
       "trades": [
         {
-          "id": "1790491467795-n3ntr",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Ankara",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "21°C",
-          "stake": 100,
-          "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-27T06:44:27.795Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790489964233-l3urq",
           "accountId": "acc_1790014922758_e686h",
           "city": "Atlanta",
@@ -9634,6 +9634,26 @@
           "openedAt": "2026-09-27T03:33:56.263Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790491467795-n3ntr",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T06:44:27.795Z",
+          "settledAt": "2026-09-27T10:57:55.674Z",
+          "profit": 7.5269,
+          "autoResolved": true
         },
         {
           "id": "1790480036263-g4o4i",

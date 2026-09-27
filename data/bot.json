@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790484603723-85dwj",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Paris",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T04:50:03.723Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790480034454-p4im2",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Mexico City",

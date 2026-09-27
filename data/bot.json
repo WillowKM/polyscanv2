@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790520665580-2cy6n",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Buenos Aires",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T14:51:05.580Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790507872813-z61uz",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Panama City",

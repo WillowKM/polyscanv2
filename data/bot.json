@@ -9626,14 +9626,15 @@
           "bracketLabel": "20°C",
           "stake": 100,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-27T03:33:56.263Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-27T09:32:35.706Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1790493918817-hwtdt",

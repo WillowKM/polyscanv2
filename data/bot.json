@@ -9408,13 +9408,13 @@
       },
       "trades": [
         {
-          "id": "1790483705518-mwbl8",
+          "id": "1790489684102-iany1",
           "accountId": "acc_1790014922758_e686h",
-          "city": "Busan",
+          "city": "Atlanta",
           "code": null,
           "strategy": "3",
           "side": "NO",
-          "bracketLabel": "27°C",
+          "bracketLabel": "78-79°F",
           "stake": 100,
           "entryPriceCents": 94,
           "status": "open",
@@ -9422,7 +9422,7 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-27T04:35:05.518Z",
+          "openedAt": "2026-09-27T06:14:44.102Z",
           "settledAt": null,
           "profit": 0
         },
@@ -9539,6 +9539,26 @@
           "openedAt": "2026-09-27T03:33:56.263Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790483705518-mwbl8",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "27°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T04:35:05.518Z",
+          "settledAt": "2026-09-27T06:14:43.349Z",
+          "profit": 6.383,
+          "autoResolved": true
         },
         {
           "id": "1790480307492-8es9y",

@@ -37,25 +37,6 @@
       },
       "trades": [
         {
-          "id": "1790498552913-mzm3k",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Los Angeles",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "82-83°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-27T08:42:32.913Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790480034454-p4im2",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Mexico City",
@@ -92,6 +73,26 @@
           "openedAt": "2026-09-26T10:23:08.420Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790498552913-mzm3k",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Los Angeles",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "82-83°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-27T08:42:32.913Z",
+          "settledAt": "2026-09-27T20:08:26.933Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1790520665580-2cy6n",
@@ -9463,14 +9464,15 @@
           "bracketLabel": "62-63°F",
           "stake": 100,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-27T04:25:25.118Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-27T20:08:28.753Z",
+          "profit": 5.2632,
+          "autoResolved": true
         },
         {
           "id": "1790489964233-l3urq",

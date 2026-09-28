@@ -37,11 +37,12 @@
           "bracketLabel": "30°C",
           "stake": 200,
           "entryPriceCents": 56,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "openedAt": "2026-09-28T07:08:32.598Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-28T13:50:30.721Z",
+          "profit": 157.1429,
+          "autoResolved": true
         },
         {
           "id": "1790579312598-car9o",

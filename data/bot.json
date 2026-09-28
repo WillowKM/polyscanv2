@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790574314600-03plb",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Moscow",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "17°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-28T05:45:14.600Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790568278414-50kky",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",

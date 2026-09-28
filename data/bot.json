@@ -3209,6 +3209,25 @@
       },
       "trades": [
         {
+          "id": "1790581298998-rpowc",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Amsterdam",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-28T07:41:38.998Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790577914187-84p9l",
           "accountId": "acc_1789317169775_vipzd",
           "city": "London",
@@ -9789,14 +9808,15 @@
           "bracketLabel": "27°C",
           "stake": 100,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-28T04:00:00.146Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-28T07:41:38.998Z",
+          "profit": 7.5269,
+          "autoResolved": true
         },
         {
           "id": "1790568580053-r8qzx",

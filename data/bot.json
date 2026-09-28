@@ -9476,13 +9476,13 @@
       },
       "trades": [
         {
-          "id": "1790568280536-bcvex",
+          "id": "1790568580053-r8qzx",
           "accountId": "acc_1790014922758_e686h",
-          "city": "Beijing",
+          "city": "Busan",
           "code": null,
           "strategy": "3",
           "side": "NO",
-          "bracketLabel": "23°C",
+          "bracketLabel": "28°C",
           "stake": 100,
           "entryPriceCents": 97,
           "status": "open",
@@ -9490,7 +9490,7 @@
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
-          "openedAt": "2026-09-28T04:04:40.536Z",
+          "openedAt": "2026-09-28T04:09:40.053Z",
           "settledAt": null,
           "profit": 0
         },
@@ -9569,6 +9569,26 @@
           "openedAt": "2026-09-28T04:00:00.146Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790568280536-bcvex",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Beijing",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-28T04:04:40.536Z",
+          "settledAt": "2026-09-28T04:09:39.579Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1790489684102-iany1",

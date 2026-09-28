@@ -52,11 +52,12 @@
           "bracketLabel": "20°C",
           "stake": 200,
           "entryPriceCents": 50,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "openedAt": "2026-09-28T07:08:32.598Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-28T10:56:36.997Z",
+          "profit": -200,
+          "autoResolved": true
         },
         {
           "id": "1790579312598-vqunh",

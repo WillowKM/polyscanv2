@@ -56,25 +56,6 @@
           "profit": 0
         },
         {
-          "id": "1790584859695-8edtc",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Denver",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "76-77°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-28T08:40:59.695Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790579887026-bou6i",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Dallas",
@@ -130,6 +111,26 @@
           "openedAt": "2026-09-28T04:04:38.414Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790584859695-8edtc",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "76-77°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-28T08:40:59.695Z",
+          "settledAt": "2026-09-28T20:15:00.822Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1790615415386-qk58c",
@@ -9661,14 +9662,15 @@
           "bracketLabel": "78-79°F",
           "stake": 100,
           "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 29,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-28T04:00:00.146Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-28T20:10:05.083Z",
+          "profit": -69.4737,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1790568000146-t1nch",

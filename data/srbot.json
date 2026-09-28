@@ -29,21 +29,6 @@
           "profit": 0
         },
         {
-          "id": "1790579312598-vqunh",
-          "accountId": "sr_1789551876942_d27kw",
-          "city": "Istanbul",
-          "code": "LTFM",
-          "side": "YES",
-          "bracketLabel": "18°C",
-          "stake": 200,
-          "entryPriceCents": 0,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "openedAt": "2026-09-28T07:08:32.598Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790579312598-z3f5y",
           "accountId": "sr_1789551876942_d27kw",
           "city": "Tel Aviv",
@@ -72,6 +57,22 @@
           "openedAt": "2026-09-28T07:08:32.598Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790579312598-vqunh",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "side": "YES",
+          "bracketLabel": "18°C",
+          "stake": 200,
+          "entryPriceCents": 0,
+          "status": "LOSS",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-09-28T07:08:32.598Z",
+          "settledAt": "2026-09-28T07:13:03.859Z",
+          "profit": -200,
+          "autoResolved": true
         },
         {
           "id": "1790146813593-5tlaj",

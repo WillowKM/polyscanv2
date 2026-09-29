@@ -3779,6 +3779,10 @@ function srDefaultSettings() {
     minTradeAmount: 10,          // stake per leg
     leadDays: 0,                 // 0/1/2 days ahead — test which lead time performs best
     maxOpenOrders: 10,
+    cities: [],                  // which SINGLE_RUNS_CITIES codes to trade — empty = all 7
+    cityModels: {},              // per-city model override, e.g. {EHAM:['icon_d2','icon_eu']} — falls back to that city's default list if unset/empty
+    tradingMode: 'barbell',      // 'barbell' = 2-leg pair around the median | 'favorite' = single bracket at the median only
+    barbellThresholdCents: 80,   // barbell mode only: below this combined price, split both legs; at/above it, trade the leader alone
     autoTradeEnabled: false,     // off by default, always opt-in
   };
 }
@@ -3801,9 +3805,24 @@ function srAccountBalance(acc) {
   };
 }
 
-// Same 8-city, per-city model set and 1deg/2deg barbell style as
-// backtest_platform.html — this is the one piece of domain knowledge ported
-// from that tool, since the bot has to know the same things it does.
+// Same 8 models as backtest_platform.html's Forecast tab, exact same IDs —
+// this is the full menu the per-city picker offers. "US only" ones will just
+// silently return no data if picked for a non-US city; harmless, filtered out.
+const MODEL_DEFS = [
+  { id: 'icon_d2', label: 'DWD ICON-D2' },
+  { id: 'icon_eu', label: 'DWD ICON-EU' },
+  { id: 'icon_seamless', label: 'DWD ICON Seamless' },
+  { id: 'ecmwf_ifs', label: 'ECMWF IFS 9km' },
+  { id: 'gfs_global', label: 'NCEP GFS Global' },
+  { id: 'ukmo_seamless', label: 'UKMO Seamless' },
+  { id: 'ncep_hrrr_conus', label: 'NCEP HRRR (US only)' },
+  { id: 'ncep_nam_conus', label: 'NCEP NAM (US only)' },
+];
+
+// Same 7-city catalog as backtest_platform.html's Forecast tab. `models` here
+// is now just the DEFAULT model set for a city when the account settings
+// don't specify an override — settings.cityModels is the actual source of
+// truth once a user has picked something for that city.
 const SINGLE_RUNS_CITIES = {
   EHAM: { city: 'Amsterdam', lat: 52.3105, lon: 4.7683,  models: ['icon_d2','icon_eu','ecmwf_ifs'], barbell: '1deg', unit: 'celsius' },
   LLBG: { city: 'Tel Aviv',  lat: 32.0055, lon: 34.8854, models: ['icon_eu','gfs_global','ecmwf_ifs'], barbell: '1deg', unit: 'celsius' },
@@ -3871,20 +3890,39 @@ async function srScanCandidates(settings) {
   targetDateObj.setUTCDate(targetDateObj.getUTCDate() + leadDays);
   const targetDate = targetDateObj.toISOString().slice(0, 10);
 
-  for (const [code, cfg] of Object.entries(SINGLE_RUNS_CITIES)) {
+  const cityFilter = (settings.cities && settings.cities.length) ? new Set(settings.cities) : null;
+  const entries = cityFilter
+    ? Object.entries(SINGLE_RUNS_CITIES).filter(([code]) => cityFilter.has(code))
+    : Object.entries(SINGLE_RUNS_CITIES);
+
+  for (const [code, cfg] of entries) {
+    const modelsForCity = (settings.cityModels && settings.cityModels[code] && settings.cityModels[code].length)
+      ? settings.cityModels[code]
+      : cfg.models; // fall back to the city's default set if nothing chosen
     const vals = [];
-    for (const model of cfg.models) {
+    for (const model of modelsForCity) {
       const v = await fetchOpenMeteoLiveDayMax(cfg.lat, cfg.lon, model, targetDate, cfg.unit);
       if (v !== null) vals.push(v);
     }
     if (!vals.length) continue;
     vals.sort((a, b) => a - b);
     const median = vals.length % 2 ? vals[(vals.length - 1) / 2] : (vals[vals.length / 2 - 1] + vals[vals.length / 2]) / 2;
-    const barbell = srComputeBarbell(median, cfg.barbell);
-    if (!barbell) continue;
 
     const poly = leadDays === 0 ? await fetchPolymarketEvent(cfg.city) : await fetchPolymarketEventForDate(cfg.city, leadDays);
     if (!poly || !poly.outcomes.length) continue;
+
+    // Favorite mode: skip the barbell pairing entirely — one trade, the
+    // single bracket that actually contains the median forecast.
+    if (settings.tradingMode === 'favorite') {
+      const o = srFindOutcomeForRange(poly.outcomes, [median, median], cfg.unit);
+      if (!o) continue;
+      out.push({ city: cfg.city, code, side: 'YES', bracket: o.bracket, priceCents: o.prob, volume: o.volume });
+      continue;
+    }
+
+    // Barbell mode (default): pair the two brackets straddling the median.
+    const barbell = srComputeBarbell(median, cfg.barbell);
+    if (!barbell) continue;
 
     const legs = [];
     const seen = new Set();
@@ -3894,10 +3932,12 @@ async function srScanCandidates(settings) {
     }
     if (!legs.length) continue;
 
-    // Below 80c combined: barbell both legs proportionally for equal payout.
-    // At/above 80c: one leg is already dominant — trade the leader only.
+    // Below the threshold combined: barbell both legs proportionally for
+    // equal payout. At/above it: one leg is already dominant — trade the
+    // leader only. Threshold defaults to 80c but is now a real setting.
+    const threshold = Number.isFinite(settings.barbellThresholdCents) ? settings.barbellThresholdCents : 80;
     const sumCents = legs.reduce((s, l) => s + l.priceCents, 0);
-    if (legs.length >= 2 && sumCents >= 80) {
+    if (legs.length >= 2 && sumCents >= threshold) {
       const leader = legs.reduce((a, b) => (b.priceCents > a.priceCents ? b : a));
       out.push({ city: cfg.city, code, side: 'YES', bracket: leader.bracket, priceCents: leader.priceCents, volume: leader.volume });
       continue;
@@ -3980,6 +4020,11 @@ async function srRunTick() {
 }
 
 // ── SRBOT ROUTES — /api/srbot/*, entirely separate from /api/bot/* ────────
+app.get('/api/srbot/catalog', (req, res) => {
+  const cities = Object.entries(SINGLE_RUNS_CITIES).map(([code, cfg]) => ({ code, city: cfg.city, defaultModels: cfg.models }));
+  res.json({ cities, models: MODEL_DEFS });
+});
+
 app.get('/api/srbot/accounts', async (req, res) => {
   try {
     const bot = await loadSrBot();

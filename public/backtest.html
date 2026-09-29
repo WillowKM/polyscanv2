@@ -194,6 +194,13 @@
   <div class="panel">
     <label style="margin-bottom:10px;">Inputs</label>
     <div class="row">
+      <div class="field"><label>Trading mode</label>
+        <select id="botTradingMode" onchange="onTradingModeChange()">
+          <option value="barbell">Barbell (2-leg pair)</option>
+          <option value="favorite">Favorite (single leg at median)</option>
+        </select>
+      </div>
+      <div class="field" id="botBarbellThresholdField"><label>Barbell threshold (¢)</label><input type="number" step="1" id="botBarbellThreshold" value="80"></div>
       <div class="field"><label>Execution time (SAST)</label><input type="time" id="botExecTime" value="09:00"></div>
       <div class="field"><label>Stake per leg ($)</label><input type="number" step="0.5" id="botMinTrade" value="10"></div>
       <div class="field"><label>Lead days</label>
@@ -207,12 +214,25 @@
         <label style="display:flex;align-items:center;gap:6px;padding:8px 0;font-size:13px;"><input type="checkbox" id="botAutoTradeEnabled" style="width:16px;height:16px;"> Keep buying daily</label>
       </div>
     </div>
-    <p class="hint">Waits for your execution time each day, then scans the 7 configured cities: barbells both legs when they price under 80c combined, or takes the leading leg alone at/above it. Held to resolution. Runs on its own 5-minute cycle — "recurring" just means leaving this on.</p>
+    <p class="hint" id="botModeHint">Waits for your execution time each day, then scans your selected cities: barbells both legs when they price under your threshold combined, or takes the leading leg alone at/above it. Held to resolution. Runs on its own 5-minute cycle — "recurring" just means leaving this on.</p>
     <div class="actions">
       <button onclick="saveBotSettings()">Save settings</button>
       <button class="secondary" onclick="scanPreview()">Scan now (preview, no trades placed)</button>
     </div>
     <div id="botPreviewWrap" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="panel">
+    <label style="margin-bottom:4px;">Cities &amp; Models <span class="muted" id="botCityCount" style="font-weight:400;"></span></label>
+    <p class="hint" style="margin-bottom:10px;">Tick which cities this account trades, and which models feed each one. A city with no models ticked uses its default set automatically. Cities marked (US only) apply only to Miami/Austin.</p>
+    <div style="overflow-x:auto;">
+      <table id="botCityModelGrid" style="font-size:12px;"></table>
+    </div>
+    <div class="actions" style="margin-top:10px;">
+      <button class="secondary" onclick="setAllCityModelCells(true)">Select all</button>
+      <button class="secondary" onclick="setAllCityModelCells(false)">Clear all</button>
+      <button class="secondary" onclick="resetCityModelsToDefaults()">Reset to defaults</button>
+    </div>
   </div>
 
   <div class="panel">
@@ -674,6 +694,7 @@ document.getElementById('csvBtn').addEventListener('click', () => {
 // ══════════════════════════════════════════════════════════════════════════
 let BOT_CURRENT_ACCOUNT_ID = null;
 let BOT_REFRESH_TIMER = null;
+let BOT_CATALOG = null; // {cities:[{code,city,defaultModels}], models:[{id,label}]}
 
 function setPage(page) {
   localStorage.setItem('backtestPage', page);
@@ -684,11 +705,18 @@ function setPage(page) {
   document.getElementById('tabBotBtn').classList.toggle('active', isBot);
   if (isBot) {
     if (BOT_REFRESH_TIMER) clearInterval(BOT_REFRESH_TIMER);
-    loadBotAccounts();
+    initBotCatalogThenAccounts();
     BOT_REFRESH_TIMER = setInterval(() => refreshBotAccount(false), 20000);
   } else if (BOT_REFRESH_TIMER) {
     clearInterval(BOT_REFRESH_TIMER); BOT_REFRESH_TIMER = null;
   }
+}
+
+async function initBotCatalogThenAccounts() {
+  if (!BOT_CATALOG) {
+    BOT_CATALOG = await fetch('/api/srbot/catalog').then(r => r.json());
+  }
+  await loadBotAccounts();
 }
 
 async function loadBotAccounts() {
@@ -736,6 +764,73 @@ function renderBotSettingsForm(s) {
   document.getElementById('botMinTrade').value = s.minTradeAmount ?? 10;
   document.getElementById('botLeadDays').value = s.leadDays ?? 0;
   document.getElementById('botAutoTradeEnabled').checked = !!s.autoTradeEnabled;
+  document.getElementById('botTradingMode').value = s.tradingMode || 'barbell';
+  document.getElementById('botBarbellThreshold').value = s.barbellThresholdCents ?? 80;
+  onTradingModeChange();
+  renderCityModelGrid(s);
+}
+
+function onTradingModeChange() {
+  const isFavorite = document.getElementById('botTradingMode').value === 'favorite';
+  document.getElementById('botBarbellThresholdField').style.display = isFavorite ? 'none' : '';
+  document.getElementById('botModeHint').textContent = isFavorite
+    ? 'Favorite mode: one trade per city, whichever single bracket contains the forecast median — no pairing, no threshold.'
+    : 'Barbell mode: below your threshold combined, splits both legs proportionally for equal payout; at/above it, trades the leading leg alone.';
+}
+
+// Empty settings.cities means "all cities" (same convention as Nyamcoder's
+// picker) — so with nothing saved yet, every city+its defaults render checked.
+function renderCityModelGrid(s) {
+  if (!BOT_CATALOG) return;
+  const selectedCities = (s.cities && s.cities.length) ? new Set(s.cities) : null; // null = all
+  const cityModels = s.cityModels || {};
+  const table = document.getElementById('botCityModelGrid');
+
+  const head = `<thead><tr><th style="text-align:left;">City</th>${BOT_CATALOG.models.map(m => `<th style="font-size:10.5px;font-weight:600;white-space:nowrap;padding:4px 6px;">${m.label}</th>`).join('')}</tr></thead>`;
+  const rows = BOT_CATALOG.cities.map(c => {
+    const tradeChecked = !selectedCities || selectedCities.has(c.code);
+    const modelsForCity = (cityModels[c.code] && cityModels[c.code].length) ? new Set(cityModels[c.code]) : new Set(c.defaultModels);
+    const cells = BOT_CATALOG.models.map(m =>
+      `<td style="text-align:center;"><input type="checkbox" class="cmGridModel" data-city="${c.code}" data-model="${m.id}" ${modelsForCity.has(m.id) ? 'checked' : ''}></td>`
+    ).join('');
+    return `<tr>
+      <td style="white-space:nowrap;"><label style="display:flex;align-items:center;gap:6px;"><input type="checkbox" class="cmGridCity" data-city="${c.code}" ${tradeChecked ? 'checked' : ''}> ${c.city}</label></td>
+      ${cells}
+    </tr>`;
+  }).join('');
+  table.innerHTML = head + `<tbody>${rows}</tbody>`;
+  updateBotCityCount();
+  document.querySelectorAll('.cmGridCity').forEach(el => el.addEventListener('change', updateBotCityCount));
+}
+
+function updateBotCityCount() {
+  const total = document.querySelectorAll('.cmGridCity').length;
+  const checked = document.querySelectorAll('.cmGridCity:checked').length;
+  document.getElementById('botCityCount').textContent = checked === total ? '(all cities)' : `(${checked}/${total} cities)`;
+}
+
+function setAllCityModelCells(checked) {
+  document.querySelectorAll('.cmGridModel').forEach(el => el.checked = checked);
+}
+
+function resetCityModelsToDefaults() {
+  if (!BOT_CATALOG) return;
+  document.querySelectorAll('.cmGridModel').forEach(el => {
+    const cfg = BOT_CATALOG.cities.find(c => c.code === el.dataset.city);
+    el.checked = cfg ? cfg.defaultModels.includes(el.dataset.model) : false;
+  });
+}
+
+function collectCityModelSettings() {
+  const cityEls = Array.from(document.querySelectorAll('.cmGridCity'));
+  const checkedCodes = cityEls.filter(el => el.checked).map(el => el.dataset.city);
+  const cities = checkedCodes.length === cityEls.length ? [] : checkedCodes; // all ticked → empty means "all"
+  const cityModels = {};
+  BOT_CATALOG.cities.forEach(c => {
+    const picked = Array.from(document.querySelectorAll(`.cmGridModel[data-city="${c.code}"]:checked`)).map(el => el.dataset.model);
+    if (picked.length) cityModels[c.code] = picked;
+  });
+  return { cities, cityModels };
 }
 
 async function saveBotSettings() {
@@ -745,6 +840,9 @@ async function saveBotSettings() {
     minTradeAmount: parseFloat(document.getElementById('botMinTrade').value) || 10,
     leadDays: parseInt(document.getElementById('botLeadDays').value) || 0,
     autoTradeEnabled: document.getElementById('botAutoTradeEnabled').checked,
+    tradingMode: document.getElementById('botTradingMode').value,
+    barbellThresholdCents: parseFloat(document.getElementById('botBarbellThreshold').value) || 80,
+    ...collectCityModelSettings(),
   };
   await fetch(`/api/srbot/accounts/${BOT_CURRENT_ACCOUNT_ID}/settings`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
   refreshBotAccount(true);
@@ -755,6 +853,9 @@ async function scanPreview() {
     executionTimeSAST: document.getElementById('botExecTime').value || '09:00',
     minTradeAmount: parseFloat(document.getElementById('botMinTrade').value) || 10,
     leadDays: parseInt(document.getElementById('botLeadDays').value) || 0,
+    tradingMode: document.getElementById('botTradingMode').value,
+    barbellThresholdCents: parseFloat(document.getElementById('botBarbellThreshold').value) || 80,
+    ...collectCityModelSettings(),
   };
   document.getElementById('botPreviewWrap').innerHTML = '<div class="empty-note">Scanning…</div>';
   const res = await fetch('/api/srbot/scan-preview', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) }).then(r => r.json());

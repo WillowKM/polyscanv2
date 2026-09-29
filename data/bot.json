@@ -3329,6 +3329,25 @@
       },
       "trades": [
         {
+          "id": "1790642056547-6qg4k",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Amsterdam",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "24°C",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-29T00:34:16.547Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790641775191-gcmhu",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Mexico City",

@@ -3729,14 +3729,15 @@
           "bracketLabel": "94-95°F",
           "stake": 50,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-09-27T16:38:29.020Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-09-29T20:14:12.648Z",
+          "profit": 5.5556,
+          "autoResolved": true
         },
         {
           "id": "1790705142174-x6k9v",
@@ -9716,26 +9717,6 @@
           "openedAt": "2026-09-16T00:00:14.654Z",
           "settledAt": "2026-09-17T22:06:35.697Z",
           "profit": -44.4444,
-          "exitReason": "stop_loss"
-        },
-        {
-          "id": "1789661517712-kx3tu",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Miami",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "84-85°F",
-          "stake": 50,
-          "entryPriceCents": 86,
-          "status": "CASHOUT",
-          "cashoutPriceCents": 26,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-17T16:11:57.712Z",
-          "settledAt": "2026-09-17T21:41:49.412Z",
-          "profit": -34.8837,
           "exitReason": "stop_loss"
         }
       ]

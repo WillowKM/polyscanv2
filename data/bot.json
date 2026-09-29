@@ -9919,6 +9919,25 @@
       },
       "trades": [
         {
+          "id": "1790645185902-plfut",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "70-71°F",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-29T01:26:25.902Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790644583919-r1a50",
           "accountId": "acc_1790014922758_e686h",
           "city": "Beijing",

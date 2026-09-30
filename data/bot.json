@@ -3778,6 +3778,25 @@
       },
       "trades": [
         {
+          "id": "1790761368773-p0dx8",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Cape Town",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-30T09:42:48.773Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790759268785-x4opi",
           "accountId": "acc_1789317169775_vipzd",
           "city": "London",
@@ -3949,25 +3968,6 @@
           "profit": 0
         },
         {
-          "id": "1790741560331-fdhb1",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Cape Town",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "31°C",
-          "stake": 50,
-          "entryPriceCents": 87,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-30T04:12:40.331Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790667584833-ol7fh",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Seattle",
@@ -4042,6 +4042,26 @@
           "openedAt": "2026-09-29T00:29:35.191Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790741560331-fdhb1",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Cape Town",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "31°C",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-30T04:12:40.331Z",
+          "settledAt": "2026-09-30T09:32:46.877Z",
+          "profit": 7.4713,
+          "autoResolved": true
         },
         {
           "id": "1790614514894-st2ri",
@@ -10021,26 +10041,6 @@
           "openedAt": "2026-09-17T16:22:01.866Z",
           "settledAt": "2026-09-17T22:06:35.697Z",
           "profit": 8.1395,
-          "autoResolved": true
-        },
-        {
-          "id": "1789652870008-h5k08",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "68-69°F",
-          "stake": 50,
-          "entryPriceCents": 85,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-17T13:47:50.008Z",
-          "settledAt": "2026-09-17T22:06:35.697Z",
-          "profit": 8.8235,
           "autoResolved": true
         }
       ]

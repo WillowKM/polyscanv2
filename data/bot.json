@@ -10371,25 +10371,6 @@
           "profit": 0
         },
         {
-          "id": "1790765554431-hz5nl",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Ankara",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "18°C",
-          "stake": 100,
-          "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-30T10:52:34.431Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790746307079-dia9d",
           "accountId": "acc_1790014922758_e686h",
           "city": "San Francisco",
@@ -10464,6 +10445,26 @@
           "openedAt": "2026-09-28T15:55:35.256Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790765554431-hz5nl",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-30T10:52:34.431Z",
+          "settledAt": "2026-09-30T12:27:34.367Z",
+          "profit": 6.383,
+          "autoResolved": true
         },
         {
           "id": "1790741561717-sjpd2",

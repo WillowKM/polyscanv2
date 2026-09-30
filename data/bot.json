@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1790742133287-6yrei",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Cape Town",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-30T04:22:13.287Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790687105623-5i9lb",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",

@@ -10103,25 +10103,6 @@
       },
       "trades": [
         {
-          "id": "1790741835781-sqfd6",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Busan",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "29°C",
-          "stake": 100,
-          "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-30T04:17:15.781Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790741561717-jsrnf",
           "accountId": "acc_1790014922758_e686h",
           "city": "Amsterdam",
@@ -10272,6 +10253,26 @@
           "openedAt": "2026-09-28T15:55:35.256Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790741835781-sqfd6",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 100,
+          "entryPriceCents": 95,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-09-30T04:17:15.781Z",
+          "settledAt": "2026-09-30T05:11:45.867Z",
+          "profit": 5.2632,
+          "autoResolved": true
         },
         {
           "id": "1790624225827-iqi0w",

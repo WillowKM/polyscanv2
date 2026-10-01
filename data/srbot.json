@@ -22,11 +22,12 @@
           "bracketLabel": "28°C",
           "stake": 186.32,
           "entryPriceCents": 76,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "openedAt": "2026-10-01T07:34:38.486Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-01T12:52:04.880Z",
+          "profit": 58.8379,
+          "autoResolved": true
         },
         {
           "id": "1790840078486-lgsgf",

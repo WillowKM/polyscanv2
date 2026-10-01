@@ -37,11 +37,12 @@
           "bracketLabel": "20°C",
           "stake": 400,
           "entryPriceCents": 70,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "openedAt": "2026-10-01T07:34:38.486Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-01T12:09:54.188Z",
+          "profit": -400,
+          "autoResolved": true
         },
         {
           "id": "1790840078486-yv1kk",

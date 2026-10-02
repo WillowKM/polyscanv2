@@ -4523,14 +4523,15 @@
           "bracketLabel": "20°C",
           "stake": 50,
           "entryPriceCents": 88,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-02T00:01:47.638Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-02T12:01:21.540Z",
+          "profit": 6.8182,
+          "autoResolved": true
         },
         {
           "id": "1790907884237-es9kf",
@@ -10510,26 +10511,6 @@
           "openedAt": "2026-09-19T02:41:47.256Z",
           "settledAt": "2026-09-19T21:45:46.997Z",
           "profit": 6.1798,
-          "autoResolved": true
-        },
-        {
-          "id": "1789785707256-t4qfq",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Toronto",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "16°C",
-          "stake": 50,
-          "entryPriceCents": 87,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-19T02:41:47.256Z",
-          "settledAt": "2026-09-19T21:45:46.997Z",
-          "profit": 7.4713,
           "autoResolved": true
         }
       ]

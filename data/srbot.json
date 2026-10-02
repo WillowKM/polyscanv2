@@ -14,21 +14,6 @@
       },
       "trades": [
         {
-          "id": "1790962099393-q28p2",
-          "accountId": "sr_1789551876942_d27kw",
-          "city": "Istanbul",
-          "code": "LTFM",
-          "side": "YES",
-          "bracketLabel": "18°C",
-          "stake": 138.98,
-          "entryPriceCents": 0,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "openedAt": "2026-10-02T17:28:19.393Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790962099393-e2ugy",
           "accountId": "sr_1789551876942_d27kw",
           "city": "Tel Aviv",
@@ -37,11 +22,28 @@
           "bracketLabel": "29°C",
           "stake": 200,
           "entryPriceCents": 0,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "openedAt": "2026-10-02T17:28:19.393Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-02T17:32:50.315Z",
+          "profit": -200,
+          "autoResolved": true
+        },
+        {
+          "id": "1790962099393-q28p2",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Istanbul",
+          "code": "LTFM",
+          "side": "YES",
+          "bracketLabel": "18°C",
+          "stake": 138.98,
+          "entryPriceCents": 0,
+          "status": "LOSS",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-10-02T17:28:19.393Z",
+          "settledAt": "2026-10-02T17:32:50.314Z",
+          "profit": -138.98,
+          "autoResolved": true
         },
         {
           "id": "1790941284168-s42rf",

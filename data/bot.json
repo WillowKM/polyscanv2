@@ -4266,6 +4266,25 @@
       },
       "trades": [
         {
+          "id": "1790908855342-kwxkg",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Singapore",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-02T02:40:55.342Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790907884237-es9kf",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Cape Town",

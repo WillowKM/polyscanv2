@@ -14,21 +14,6 @@
       },
       "trades": [
         {
-          "id": "1790941284168-78lvo",
-          "accountId": "sr_1789551876942_d27kw",
-          "city": "Tel Aviv",
-          "code": "LLBG",
-          "side": "YES",
-          "bracketLabel": "28°C",
-          "stake": 45.16,
-          "entryPriceCents": 0,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "openedAt": "2026-10-02T11:41:24.168Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790941284168-s42rf",
           "accountId": "sr_1789551876942_d27kw",
           "city": "Amsterdam",
@@ -42,6 +27,22 @@
           "openedAt": "2026-10-02T11:41:24.168Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790941284168-78lvo",
+          "accountId": "sr_1789551876942_d27kw",
+          "city": "Tel Aviv",
+          "code": "LLBG",
+          "side": "YES",
+          "bracketLabel": "28°C",
+          "stake": 45.16,
+          "entryPriceCents": 0,
+          "status": "LOSS",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-10-02T11:41:24.168Z",
+          "settledAt": "2026-10-02T11:46:19.710Z",
+          "profit": -45.16,
+          "autoResolved": true
         },
         {
           "id": "1790840078486-x43qh",

@@ -4286,6 +4286,25 @@
       },
       "trades": [
         {
+          "id": "1790938882148-o25ky",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Buenos Aires",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "16°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-02T11:01:22.148Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790937981889-6skbh",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Seattle",

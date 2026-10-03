@@ -4696,14 +4696,15 @@
           "bracketLabel": "66-67°F",
           "stake": 50,
           "entryPriceCents": 87,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 40,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-03T02:51:13.168Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-03T22:38:22.409Z",
+          "profit": -27.0115,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1791029379553-s61bv",
@@ -10682,26 +10683,6 @@
           "edgePct": null,
           "openedAt": "2026-09-21T08:02:17.594Z",
           "settledAt": "2026-09-21T08:07:18.861Z",
-          "profit": 8.1395,
-          "autoResolved": true
-        },
-        {
-          "id": "1789862863523-w5ytk",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Seattle",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "72-73°F",
-          "stake": 50,
-          "entryPriceCents": 86,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-20T00:07:43.523Z",
-          "settledAt": "2026-09-21T06:00:02.408Z",
           "profit": 8.1395,
           "autoResolved": true
         }

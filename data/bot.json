@@ -4677,14 +4677,15 @@
           "bracketLabel": "64-65°F",
           "stake": 50,
           "entryPriceCents": 88,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-03T19:16:55.671Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-03T23:01:35.165Z",
+          "profit": 6.8182,
+          "autoResolved": true
         },
         {
           "id": "1790995873168-yvo7r",
@@ -10665,26 +10666,6 @@
           "settledAt": "2026-09-21T08:30:47.827Z",
           "profit": 8.8235,
           "autoResolved": true
-        },
-        {
-          "id": "1789977737594-mtnip",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Jeddah",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "35°C",
-          "stake": 50,
-          "entryPriceCents": 86,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-21T08:02:17.594Z",
-          "settledAt": "2026-09-21T08:07:18.861Z",
-          "profit": 8.1395,
-          "autoResolved": true
         }
       ]
     },
@@ -11035,6 +11016,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1791068495548-fa80c",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-03T23:01:35.548Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1791066801285-63j0o",
           "accountId": "acc_1790014922758_e686h",

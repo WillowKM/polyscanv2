@@ -10800,14 +10800,15 @@
           "bracketLabel": "31°C",
           "stake": 500,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-03T02:51:13.340Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-03T05:30:36.176Z",
+          "profit": 37.6344,
+          "autoResolved": true
         },
         {
           "id": "1790899307638-mraxt",
@@ -11136,25 +11137,6 @@
           "profit": 0
         },
         {
-          "id": "1790995873819-nuoyj",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Hong Kong",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "31°C",
-          "stake": 100,
-          "entryPriceCents": 93,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-03T02:51:13.819Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790995873819-2h59o",
           "accountId": "acc_1790014922758_e686h",
           "city": "San Francisco",
@@ -11191,6 +11173,26 @@
           "openedAt": "2026-09-28T15:55:35.256Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1790995873819-nuoyj",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "31°C",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-03T02:51:13.819Z",
+          "settledAt": "2026-10-03T05:30:36.176Z",
+          "profit": 7.5269,
+          "autoResolved": true
         },
         {
           "id": "1790995873819-zryvo",

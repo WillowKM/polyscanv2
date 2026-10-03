@@ -10965,6 +10965,25 @@
       },
       "trades": [
         {
+          "id": "1791001233809-juveb",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-03T04:20:33.810Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1790998555973-8uhzq",
           "accountId": "acc_1790014922758_e686h",
           "city": "Busan",

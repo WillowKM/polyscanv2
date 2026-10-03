@@ -4601,6 +4601,25 @@
       },
       "trades": [
         {
+          "id": "1791023258841-oawk5",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Munich",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-03T10:27:38.841Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791022827509-gl7y6",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Sao Paulo",

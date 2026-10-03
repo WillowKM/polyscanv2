@@ -4601,6 +4601,25 @@
       },
       "trades": [
         {
+          "id": "1791029657829-7gz4r",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-03T12:14:17.829Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791029379553-s61bv",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Houston",

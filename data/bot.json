@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1791149326170-as7wc",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Austin",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "78-79°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-04T21:28:46.170Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791129508050-4pmzu",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",
@@ -11252,25 +11271,6 @@
           "profit": 0
         },
         {
-          "id": "1791093274582-p2qti",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "80-81°F",
-          "stake": 100,
-          "entryPriceCents": 96,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-04T05:54:34.582Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1790610935256-4sc2y",
           "accountId": "acc_1790014922758_e686h",
           "city": "San Francisco",
@@ -11288,6 +11288,26 @@
           "openedAt": "2026-09-28T15:55:35.256Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791093274582-p2qti",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 100,
+          "entryPriceCents": 96,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 55,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-04T05:54:34.582Z",
+          "settledAt": "2026-10-04T21:28:46.560Z",
+          "profit": -42.7083,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1791129509309-3nshp",

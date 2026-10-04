@@ -56,25 +56,6 @@
           "profit": 0
         },
         {
-          "id": "1791103333296-byv8k",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Dallas",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "78-79°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-04T08:42:13.296Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791094612270-4k03v",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Mexico City",
@@ -149,6 +130,26 @@
           "openedAt": "2026-09-28T04:04:38.414Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791103333296-byv8k",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Dallas",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "78-79°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 32,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-04T08:42:13.296Z",
+          "settledAt": "2026-10-04T20:52:20.285Z",
+          "profit": -30,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1791103333296-ry43i",

@@ -11355,25 +11355,6 @@
           "profit": 0
         },
         {
-          "id": "1791192246079-mbs59",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "86-87°F",
-          "stake": 100,
-          "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-05T09:24:06.079Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791192246079-huiay",
           "accountId": "acc_1790014922758_e686h",
           "city": "San Francisco",
@@ -11429,6 +11410,26 @@
           "openedAt": "2026-09-28T15:55:35.256Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791192246079-mbs59",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "86-87°F",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-05T09:24:06.079Z",
+          "settledAt": "2026-10-05T19:34:36.049Z",
+          "profit": 6.383,
+          "autoResolved": true
         },
         {
           "id": "1791198872633-r69sk",

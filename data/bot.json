@@ -11317,25 +11317,6 @@
           "profit": 0
         },
         {
-          "id": "1791215640697-j0aze",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Atlanta",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "80-81°F",
-          "stake": 100,
-          "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-05T15:54:00.697Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791198872633-sbsb3",
           "accountId": "acc_1790014922758_e686h",
           "city": "San Francisco",
@@ -11410,6 +11391,26 @@
           "openedAt": "2026-09-28T15:55:35.256Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791215640697-j0aze",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 100,
+          "entryPriceCents": 95,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-05T15:54:00.697Z",
+          "settledAt": "2026-10-05T20:53:08.512Z",
+          "profit": 5.2632,
+          "autoResolved": true
         },
         {
           "id": "1791192246079-mbs59",
@@ -14861,14 +14862,15 @@
           "bracketLabel": "84-85°F",
           "stake": 500,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-04T21:48:48.106Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-05T20:53:08.676Z",
+          "profit": 37.6344,
+          "autoResolved": true
         },
         {
           "id": "1791094882874-lr52n",

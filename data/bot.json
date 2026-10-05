@@ -4939,14 +4939,15 @@
           "bracketLabel": "24°C or higher",
           "stake": 50,
           "entryPriceCents": 89,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-05T09:24:05.778Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-05T22:12:24.864Z",
+          "profit": 6.1798,
+          "autoResolved": true
         },
         {
           "id": "1791215058303-dwb8k",
@@ -10926,26 +10927,6 @@
           "openedAt": "2026-09-22T05:19:17.694Z",
           "settledAt": "2026-09-22T08:33:57.173Z",
           "profit": 6.1798,
-          "autoResolved": true
-        },
-        {
-          "id": "1790056436683-4kb7o",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Karachi",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "37°C",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-22T05:53:56.683Z",
-          "settledAt": "2026-09-22T07:08:53.615Z",
-          "profit": 6.8182,
           "autoResolved": true
         }
       ]

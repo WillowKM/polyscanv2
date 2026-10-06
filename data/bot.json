@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1791277105830-72zvk",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Madrid",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-06T08:58:25.830Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791274406800-0u2kq",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "London",
@@ -11600,6 +11619,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1791277107244-lv2ix",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-06T08:58:27.244Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1791276207903-8p4ir",
           "accountId": "acc_1790014922758_e686h",

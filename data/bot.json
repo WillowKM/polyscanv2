@@ -5168,6 +5168,25 @@
       },
       "trades": [
         {
+          "id": "1791333559689-sz4xn",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "28°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T00:39:19.690Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791333279327-gj3bh",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Shenzhen",

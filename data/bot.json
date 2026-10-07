@@ -11322,6 +11322,25 @@
       },
       "trades": [
         {
+          "id": "1791332114769-zbiog",
+          "accountId": "acc_1789856291654_nh6dr",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "28°C",
+          "stake": 500,
+          "entryPriceCents": 92,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T00:15:14.769Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791331310359-lbi55",
           "accountId": "acc_1789856291654_nh6dr",
           "city": "Hong Kong",
@@ -11648,6 +11667,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1791332115122-3m0i7",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "31°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T00:15:15.122Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1791331612237-g9w2v",
           "accountId": "acc_1790014922758_e686h",

@@ -37,6 +37,44 @@
       },
       "trades": [
         {
+          "id": "1791335271883-pdm77",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Los Angeles",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T01:07:51.883Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1791335271883-qpvz3",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Munich",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T01:07:51.883Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791334969788-rj7ti",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",
@@ -5186,6 +5224,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1791335273665-n187z",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Seattle",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "62-63°F",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T01:07:53.665Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1791333559689-sz4xn",
           "accountId": "acc_1789317169775_vipzd",
@@ -11762,6 +11819,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1791335274229-f7rut",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "82-83°F",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T01:07:54.229Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1791332115122-3m0i7",
           "accountId": "acc_1790014922758_e686h",

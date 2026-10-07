@@ -5303,6 +5303,25 @@
       },
       "trades": [
         {
+          "id": "1791369532002-mansd",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Paris",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "17°C",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T10:38:52.002Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791367385607-gjq8m",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Paris",

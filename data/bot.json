@@ -15781,6 +15781,25 @@
       },
       "trades": [
         {
+          "id": "1791395411508-3e2sa",
+          "accountId": "acc_1790448612502_mwphv",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 500,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T17:50:11.508Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791331310782-x1fjl",
           "accountId": "acc_1790448612502_mwphv",
           "city": "Denver",
@@ -16276,7 +16295,27 @@
         "stopLossValue": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1791395411509-ge423",
+          "accountId": "acc_1791369771857_41lzb",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "84-85°F",
+          "stake": 1000,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T17:50:11.509Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     },
     "acc_1791369881439_rf1i4": {
       "id": "acc_1791369881439_rf1i4",

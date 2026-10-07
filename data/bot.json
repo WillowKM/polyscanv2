@@ -134,25 +134,6 @@
           "profit": 0
         },
         {
-          "id": "1791335271883-qpvz3",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Munich",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "23°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-07T01:07:51.883Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791334969788-rj7ti",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",
@@ -246,6 +227,26 @@
           "openedAt": "2026-09-28T04:04:38.414Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791335271883-qpvz3",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Munich",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T01:07:51.883Z",
+          "settledAt": "2026-10-07T12:29:15.370Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1791303494187-q1q1h",

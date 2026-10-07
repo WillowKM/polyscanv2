@@ -39,25 +39,6 @@
       },
       "trades": [
         {
-          "id": "1791359035412-z6s0b",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "74-75°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-07T07:43:55.412Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791357236950-fjf6h",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",
@@ -170,6 +151,26 @@
           "openedAt": "2026-09-28T04:04:38.414Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791359035412-z6s0b",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "74-75°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 31,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-07T07:43:55.412Z",
+          "settledAt": "2026-10-07T21:34:00.229Z",
+          "profit": -30.625,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1791345159304-ni2yg",

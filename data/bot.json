@@ -12102,6 +12102,25 @@
       },
       "trades": [
         {
+          "id": "1791450103687-3wygt",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Amsterdam",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "14°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-08T09:01:43.687Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791428794827-vemgs",
           "accountId": "acc_1790014922758_e686h",
           "city": "Atlanta",

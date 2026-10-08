@@ -5351,6 +5351,25 @@
       },
       "trades": [
         {
+          "id": "1791448303561-6ldl7",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Moscow",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "15°C",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-08T08:31:43.561Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791446502166-iaond",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Munich",

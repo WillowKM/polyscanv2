@@ -86,14 +86,15 @@
           "bracketLabel": "69°F or below",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-08T00:02:06.008Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-08T20:02:51.810Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1791310527810-nomcd",

@@ -11864,14 +11864,15 @@
           "bracketLabel": "88-89°F",
           "stake": 100,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-08T12:14:01.940Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-08T19:22:55.321Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1791428794827-vemgs",

@@ -11930,25 +11930,6 @@
           "profit": 0
         },
         {
-          "id": "1791418891875-04qs9",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Hong Kong",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "26°C",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-08T00:21:31.875Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791417730265-1qlr9",
           "accountId": "acc_1790014922758_e686h",
           "city": "Amsterdam",
@@ -12023,6 +12004,26 @@
           "openedAt": "2026-09-28T15:55:35.256Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791418891875-04qs9",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-08T00:21:31.875Z",
+          "settledAt": "2026-10-08T00:31:33.644Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1791335274229-f7rut",

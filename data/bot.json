@@ -67,14 +67,15 @@
           "bracketLabel": "72-73°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 31,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-08T03:36:30.933Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-08T20:52:52.476Z",
+          "profit": -30.625,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1791417726008-kuybm",

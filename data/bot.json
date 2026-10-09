@@ -11687,14 +11687,15 @@
           "bracketLabel": "31°C",
           "stake": 500,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-09T01:58:02.940Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-09T07:53:35.766Z",
+          "profit": 26.3158,
+          "autoResolved": true
         },
         {
           "id": "1791417729711-9vrdz",
@@ -12161,25 +12162,6 @@
           "profit": 0
         },
         {
-          "id": "1791511083518-9b6gc",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Hong Kong",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "31°C",
-          "stake": 100,
-          "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-09T01:58:03.518Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791511083517-bzkjj",
           "accountId": "acc_1790014922758_e686h",
           "city": "Atlanta",
@@ -12197,6 +12179,26 @@
           "openedAt": "2026-10-09T01:58:03.517Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791511083518-9b6gc",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "31°C",
+          "stake": 100,
+          "entryPriceCents": 95,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-09T01:58:03.518Z",
+          "settledAt": "2026-10-09T07:53:35.766Z",
+          "profit": 5.2632,
+          "autoResolved": true
         },
         {
           "id": "1791511083517-me9co",

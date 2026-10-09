@@ -16736,7 +16736,7 @@
         "cities": [
           "San Francisco"
         ],
-        "minTradeAmount": 400,
+        "minTradeAmount": 500,
         "maxOpenOrders": 2,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,

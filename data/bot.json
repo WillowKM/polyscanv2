@@ -5374,6 +5374,25 @@
       },
       "trades": [
         {
+          "id": "1791645237135-h83tk",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-10T15:13:57.135Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791644336812-a7qu9",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Chicago",
@@ -16590,6 +16609,25 @@
       },
       "trades": [
         {
+          "id": "1791645237353-2uozr",
+          "accountId": "acc_1790448612502_mwphv",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 500,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-10T15:13:57.353Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791331310782-x1fjl",
           "accountId": "acc_1790448612502_mwphv",
           "city": "Denver",
@@ -17267,6 +17305,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1791645237353-0fcyj",
+          "accountId": "acc_1791369771857_41lzb",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 1000,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-10T15:13:57.353Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1791395411509-ge423",
           "accountId": "acc_1791369771857_41lzb",

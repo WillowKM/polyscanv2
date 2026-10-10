@@ -11974,6 +11974,25 @@
       },
       "trades": [
         {
+          "id": "1791608808823-8rim8",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Tokyo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-10T05:06:48.823Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791606986909-qbwh3",
           "accountId": "acc_1790014922758_e686h",
           "city": "Ankara",

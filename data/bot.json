@@ -11993,25 +11993,6 @@
       },
       "trades": [
         {
-          "id": "1791616612535-h344r",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Atlanta",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "74-75°F",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-10T07:16:52.535Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791615742925-lkp0y",
           "accountId": "acc_1790014922758_e686h",
           "city": "Ankara",
@@ -12124,6 +12105,26 @@
           "openedAt": "2026-10-10T01:29:57.226Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791616612535-h344r",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "74-75°F",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-10T07:16:52.535Z",
+          "settledAt": "2026-10-10T10:43:48.875Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1791617211507-ddi1x",

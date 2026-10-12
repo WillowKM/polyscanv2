@@ -12048,25 +12048,6 @@
           "profit": 0
         },
         {
-          "id": "1791795638280-i3c7a",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Ankara",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "26°C",
-          "stake": 100,
-          "entryPriceCents": 96,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-12T09:00:38.280Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791773085079-jgdpw",
           "accountId": "acc_1790014922758_e686h",
           "city": "Amsterdam",
@@ -12122,6 +12103,26 @@
           "openedAt": "2026-10-12T00:10:06.247Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1791795638280-i3c7a",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 100,
+          "entryPriceCents": 96,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-12T09:00:38.280Z",
+          "settledAt": "2026-10-12T11:36:32.189Z",
+          "profit": 4.1667,
+          "autoResolved": true
         },
         {
           "id": "1791763806247-e32ml",

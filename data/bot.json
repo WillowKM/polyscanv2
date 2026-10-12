@@ -11924,14 +11924,15 @@
           "bracketLabel": "86-87°F",
           "stake": 100,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-12T00:34:45.721Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-12T20:04:34.156Z",
+          "profit": 7.5269,
+          "autoResolved": true
         },
         {
           "id": "1791826728107-nyaha",

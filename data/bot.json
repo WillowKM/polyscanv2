@@ -5391,6 +5391,25 @@
       },
       "trades": [
         {
+          "id": "1791773386078-kw0yg",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-12T02:49:46.078Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791772786708-0iimb",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Buenos Aires",

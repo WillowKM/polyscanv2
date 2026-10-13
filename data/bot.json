@@ -12229,14 +12229,15 @@
           "bracketLabel": "22°C",
           "stake": 100,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-13T03:30:34.882Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-13T12:00:40.448Z",
+          "profit": 7.5269,
+          "autoResolved": true
         },
         {
           "id": "1791863116833-vsthu",

@@ -5391,6 +5391,25 @@
       },
       "trades": [
         {
+          "id": "1791900624191-lli79",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Toronto",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-13T14:10:24.191Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1791888960005-lytp1",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Denver",

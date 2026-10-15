@@ -5430,6 +5430,25 @@
       },
       "trades": [
         {
+          "id": "1792043687743-zvlvt",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "London",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-15T05:54:47.743Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792040668426-ep33n",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Chicago",

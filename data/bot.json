@@ -12211,14 +12211,15 @@
           "bracketLabel": "21°C",
           "stake": 100,
           "entryPriceCents": 95,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 57,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-15T07:39:27.357Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-15T12:54:30.443Z",
+          "profit": -40,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1792050566961-02c41",

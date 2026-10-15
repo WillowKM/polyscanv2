@@ -5563,25 +5563,6 @@
           "profit": 0
         },
         {
-          "id": "1791862234673-bb0h6",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Chicago",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "82-83°F",
-          "stake": 50,
-          "entryPriceCents": 90,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-13T03:30:34.673Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1791454953146-djl3a",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Seattle",

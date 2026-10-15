@@ -48,14 +48,15 @@
           "bracketLabel": "72-73°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-14T16:14:25.208Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-15T04:38:38.629Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1791679225587-ydd2w",
@@ -5409,6 +5410,44 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1792039119962-d1m2m",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Mexico City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-15T04:38:39.962Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1792039119962-igp0y",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "50-51°F",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-15T04:38:39.962Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1791888960005-lytp1",
           "accountId": "acc_1789317169775_vipzd",
@@ -11934,6 +11973,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1792039120302-2vupg",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Beijing",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "28°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-15T04:38:40.302Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1791864200749-wt2bb",
           "accountId": "acc_1790014922758_e686h",

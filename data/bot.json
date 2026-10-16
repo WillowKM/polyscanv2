@@ -5561,6 +5561,25 @@
       },
       "trades": [
         {
+          "id": "1792134871052-h5cz8",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Karachi",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "38°C",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T07:14:31.052Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792132471266-epmba",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Munich",

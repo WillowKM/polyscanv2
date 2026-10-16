@@ -5504,6 +5504,25 @@
       },
       "trades": [
         {
+          "id": "1792128572163-hb2n6",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Tel Aviv",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "28°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T05:29:32.163Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792127372246-8zgnk",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Chicago",
@@ -12353,25 +12372,6 @@
       },
       "trades": [
         {
-          "id": "1792126771953-werwv",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Busan",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "27°C",
-          "stake": 100,
-          "entryPriceCents": 96,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-16T04:59:31.953Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792118072195-fh72v",
           "accountId": "acc_1790014922758_e686h",
           "city": "Busan",
@@ -12465,6 +12465,26 @@
           "openedAt": "2026-10-16T00:04:32.651Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1792126771953-werwv",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "27°C",
+          "stake": 100,
+          "entryPriceCents": 96,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T04:59:31.953Z",
+          "settledAt": "2026-10-16T05:29:32.164Z",
+          "profit": 4.1667,
+          "autoResolved": true
         },
         {
           "id": "1792113271921-ag12n",

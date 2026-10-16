@@ -12469,25 +12469,6 @@
           "profit": 0
         },
         {
-          "id": "1792109072651-s30sw",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Busan",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "27°C",
-          "stake": 100,
-          "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-16T00:04:32.651Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792109072651-l683a",
           "accountId": "acc_1790014922758_e686h",
           "city": "Seoul",
@@ -12505,6 +12486,26 @@
           "openedAt": "2026-10-16T00:04:32.651Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1792109072651-s30sw",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "27°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T00:04:32.651Z",
+          "settledAt": "2026-10-16T04:39:31.103Z",
+          "profit": 6.383,
+          "autoResolved": true
         },
         {
           "id": "1792111471622-cibnj",

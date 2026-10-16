@@ -5969,14 +5969,15 @@
           "bracketLabel": "24°C",
           "stake": 50,
           "entryPriceCents": 89,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-16T00:04:31.765Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-16T10:04:30.493Z",
+          "profit": 6.1798,
+          "autoResolved": true
         },
         {
           "id": "1792116272064-86pt5",
@@ -11956,26 +11957,6 @@
           "openedAt": "2026-09-29T14:49:23.388Z",
           "settledAt": "2026-09-29T18:30:16.436Z",
           "profit": 7.4713,
-          "autoResolved": true
-        },
-        {
-          "id": "1790678506807-cszbd",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Sao Paulo",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "31°C",
-          "stake": 50,
-          "entryPriceCents": 90,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-29T10:41:46.807Z",
-          "settledAt": "2026-09-29T17:25:26.341Z",
-          "profit": 5.5556,
           "autoResolved": true
         }
       ]

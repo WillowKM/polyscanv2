@@ -19190,14 +19190,15 @@
           "bracketLabel": "80-81°F",
           "stake": 1000,
           "entryPriceCents": 88,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 99,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-15T16:19:29.747Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-16T05:33:24.193Z",
+          "profit": 125,
+          "exitReason": "manual"
         },
         {
           "id": "1791862515525-wqsa4",

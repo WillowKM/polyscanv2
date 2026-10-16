@@ -56,25 +56,6 @@
           "profit": 0
         },
         {
-          "id": "1792142970056-qubbn",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Cape Town",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "22°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-16T09:29:30.056Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792138170697-rqvgm",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Paris",
@@ -187,6 +168,26 @@
           "openedAt": "2026-10-15T05:04:26.220Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1792142970056-qubbn",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Cape Town",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 35,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T09:29:30.056Z",
+          "settledAt": "2026-10-16T12:04:28.561Z",
+          "profit": -28.125,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1792133970114-swpun",
@@ -5639,6 +5640,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1792152271977-jh84l",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "60-61°F",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T12:04:31.977Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1792146870643-7y04f",
           "accountId": "acc_1789317169775_vipzd",

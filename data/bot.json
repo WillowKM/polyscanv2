@@ -5580,6 +5580,25 @@
       },
       "trades": [
         {
+          "id": "1792137872273-e44g4",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Mexico City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C or higher",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T08:04:32.273Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792134871052-h5cz8",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Karachi",

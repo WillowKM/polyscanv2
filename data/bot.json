@@ -5449,6 +5449,25 @@
       },
       "trades": [
         {
+          "id": "1792118671552-6t2pn",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 3.53,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T02:44:31.552Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792118371404-il2wl",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Busan",

@@ -5449,6 +5449,25 @@
       },
       "trades": [
         {
+          "id": "1792109971415-kos57",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Munich",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "16°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-16T00:19:31.415Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792109671832-6alt4",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Busan",

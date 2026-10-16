@@ -5753,14 +5753,15 @@
           "bracketLabel": "80-81°F",
           "stake": 50,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-16T00:04:31.765Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-16T21:54:30.527Z",
+          "profit": 5.5556,
+          "autoResolved": true
         },
         {
           "id": "1792112371056-a21am",
@@ -11740,26 +11741,6 @@
           "openedAt": "2026-10-01T06:17:52.486Z",
           "settledAt": "2026-10-01T12:36:03.749Z",
           "profit": 6.8182,
-          "autoResolved": true
-        },
-        {
-          "id": "1790641775191-w4k9t",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Denver",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "66-67°F",
-          "stake": 50,
-          "entryPriceCents": 86,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-29T00:29:35.191Z",
-          "settledAt": "2026-09-30T22:21:34.763Z",
-          "profit": 8.1395,
           "autoResolved": true
         }
       ]

@@ -46,14 +46,15 @@
           "bracketLabel": "88-89°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-16T00:14:28.672Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-16T23:09:28.484Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1792040666220-cqmmd",

@@ -19170,7 +19170,7 @@
         "alignedYesMinCents": 60,
         "exitMode": "hold",
         "targetUnit": "cents",
-        "targetValue": 5,
+        "targetValue": 99,
         "scalpUnit": "cents",
         "scalpStep": 10,
         "reBuyAfterScalp": true,

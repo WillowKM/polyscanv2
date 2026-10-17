@@ -19776,7 +19776,7 @@
         "requireStableDrift": false,
         "minHistoricalN": 0,
         "alignedYesMinCents": 60,
-        "exitMode": "hold",
+        "exitMode": "target",
         "targetUnit": "cents",
         "targetValue": 99,
         "scalpUnit": "cents",

@@ -12520,6 +12520,25 @@
       },
       "trades": [
         {
+          "id": "1792201608770-1appo",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Tokyo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "25°C",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-17T01:46:48.770Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792200086415-evmhs",
           "accountId": "acc_1790014922758_e686h",
           "city": "Beijing",

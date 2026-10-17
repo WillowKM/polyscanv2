@@ -12757,14 +12757,15 @@
           "bracketLabel": "23°C",
           "stake": 100,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-17T00:04:30.361Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-17T03:06:53.632Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1792200086415-evmhs",

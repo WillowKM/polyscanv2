@@ -12653,6 +12653,25 @@
       },
       "trades": [
         {
+          "id": "1792207523458-k8emr",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Seoul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "24°C",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-17T03:25:23.458Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792204744548-k0jhc",
           "accountId": "acc_1790014922758_e686h",
           "city": "Beijing",

@@ -84,14 +84,15 @@
           "bracketLabel": "19°C or higher",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-17T01:42:07.911Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-17T22:32:23.375Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1792207015755-h9ljy",
@@ -6074,14 +6075,15 @@
           "bracketLabel": "19°C or higher",
           "stake": 50,
           "entryPriceCents": 85,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-17T06:35:41.366Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-17T22:32:25.076Z",
+          "profit": 8.8235,
+          "autoResolved": true
         },
         {
           "id": "1792199783596-ocpwg",
@@ -12061,26 +12063,6 @@
           "openedAt": "2026-10-02T02:24:44.237Z",
           "settledAt": "2026-10-02T08:59:37.852Z",
           "profit": 8.1395,
-          "autoResolved": true
-        },
-        {
-          "id": "1790908855342-kwxkg",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Singapore",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "34°C",
-          "stake": 50,
-          "entryPriceCents": 87,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-02T02:40:55.342Z",
-          "settledAt": "2026-10-02T08:54:56.405Z",
-          "profit": 7.4713,
           "autoResolved": true
         }
       ]

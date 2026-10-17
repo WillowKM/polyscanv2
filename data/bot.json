@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1792254267813-e1o1j",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Panama City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-17T16:24:27.813Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792219518563-ticxz",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Sao Paulo",

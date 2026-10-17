@@ -12742,14 +12742,15 @@
           "bracketLabel": "9°C or below",
           "stake": 100,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-17T00:04:30.361Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-17T08:11:21.142Z",
+          "profit": 5.2632,
+          "autoResolved": true
         },
         {
           "id": "1792201608770-1appo",

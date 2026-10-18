@@ -364,6 +364,20 @@
         "autoTradeEnabled": false
       },
       "trades": []
+    },
+    "sr_1792314254977_h2vt3": {
+      "id": "sr_1792314254977_h2vt3",
+      "name": "Singapore 1  Bracket $1000",
+      "startingBalance": 1000,
+      "createdAt": "2026-10-18T09:04:14.977Z",
+      "settings": {
+        "executionTimeSAST": "09:00",
+        "minTradeAmount": 10,
+        "leadDays": 0,
+        "maxOpenOrders": 10,
+        "autoTradeEnabled": false
+      },
+      "trades": []
     }
   }
 }

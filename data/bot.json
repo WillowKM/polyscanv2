@@ -6203,6 +6203,25 @@
       },
       "trades": [
         {
+          "id": "1792369408469-wfudk",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Helsinki",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "11°C",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-19T00:23:28.469Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792368808069-9uez6",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Denver",

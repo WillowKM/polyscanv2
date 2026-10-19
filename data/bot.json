@@ -19492,14 +19492,15 @@
           "bracketLabel": "60-61°F",
           "stake": 500,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-19T10:08:47.760Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-19T19:04:29.583Z",
+          "profit": 37.6344,
+          "autoResolved": true
         },
         {
           "id": "1792307467679-gca24",
@@ -20230,14 +20231,15 @@
           "bracketLabel": "60-61°F",
           "stake": 1000,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-19T10:08:47.760Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-19T19:04:29.583Z",
+          "profit": 75.2688,
+          "autoResolved": true
         },
         {
           "id": "1792307467679-kzc35",

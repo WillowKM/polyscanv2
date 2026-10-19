@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1792375450906-ut26u",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Austin",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "80-81°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-19T02:04:10.906Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792374550743-j328o",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Sao Paulo",
@@ -6260,25 +6279,6 @@
       },
       "trades": [
         {
-          "id": "1792372751766-h4i5h",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Shanghai",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "23°C",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-19T01:19:11.766Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792372152512-7leay",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Seoul",
@@ -6429,6 +6429,26 @@
           "openedAt": "2026-10-19T00:03:28.718Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1792372751766-h4i5h",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Shanghai",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-19T01:19:11.766Z",
+          "settledAt": "2026-10-19T02:04:10.906Z",
+          "profit": 6.8182,
+          "autoResolved": true
         },
         {
           "id": "1792335985636-8gurk",
@@ -12408,26 +12428,6 @@
           "openedAt": "2026-10-02T02:14:42.492Z",
           "settledAt": "2026-10-02T22:07:54.838Z",
           "profit": 7.4713,
-          "autoResolved": true
-        },
-        {
-          "id": "1790936801329-0nplf",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Houston",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "92-93°F",
-          "stake": 50,
-          "entryPriceCents": 90,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-02T10:26:41.329Z",
-          "settledAt": "2026-10-02T21:58:16.263Z",
-          "profit": 5.5556,
           "autoResolved": true
         }
       ]

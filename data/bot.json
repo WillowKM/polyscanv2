@@ -6205,26 +6205,6 @@
           "settledAt": "2026-09-16T16:28:49.661Z",
           "profit": -28.75,
           "exitReason": "stop_loss"
-        },
-        {
-          "id": "1789551831077-yz43y",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Madrid",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "29°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-16T09:43:51.077Z",
-          "settledAt": "2026-09-16T15:37:47.700Z",
-          "profit": 12.5,
-          "autoResolved": true
         }
       ]
     },

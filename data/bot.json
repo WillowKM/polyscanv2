@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1792474210450-qt9lx",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Chongqing",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-20T05:30:10.450Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792473911620-cd7ig",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Sao Paulo",

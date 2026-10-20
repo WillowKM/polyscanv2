@@ -13108,6 +13108,25 @@
       },
       "trades": [
         {
+          "id": "1792486646607-lohq3",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-20T08:57:26.607Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792483003083-gfhep",
           "accountId": "acc_1790014922758_e686h",
           "city": "Amsterdam",

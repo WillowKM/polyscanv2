@@ -19882,6 +19882,25 @@
       },
       "trades": [
         {
+          "id": "1792486365742-d1ava",
+          "accountId": "acc_1791265985079_ygdnn",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "70-71°F",
+          "stake": 500,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-20T08:52:45.742Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792483603098-s9806",
           "accountId": "acc_1791265985079_ygdnn",
           "city": "San Francisco",

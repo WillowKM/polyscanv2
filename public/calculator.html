@@ -199,7 +199,13 @@ tr:hover td { background:rgba(255,255,255,0.02); }
 </div>
 
 <!-- ═══════════════ NYAMCODER x MBE — BOT PANEL ═══════════════ -->
-<div class="panel bot-only" style="display:none;">
+<div class="bot-only" id="botSubSwitch" style="display:none;margin-bottom:12px;">
+  <div style="display:inline-flex;background:var(--bg3);border:1px solid var(--border);border-radius:7px;overflow:hidden;">
+    <button id="subBtnPaper" class="btn small" style="border-radius:0;" onclick="setBotSub('paper')">Paper accounts</button>
+    <button id="subBtnReal" class="btn secondary small" style="border-radius:0;" onclick="setBotSub('real')">Real account (Polymarket)</button>
+  </div>
+</div>
+<div class="panel bot-only" id="paperPanel" style="display:none;">
   <h2>Nyamcoder x MBE <span class="note">— paper-trading bot, scans + trades every 5 minutes. Off by default per account.</span></h2>
 
   <div class="grid-inputs" style="margin-bottom:16px;">
@@ -317,6 +323,60 @@ tr:hover td { background:rgba(255,255,255,0.02); }
       <div id="botClosedTradesWrap"></div>
     </details>
   </div>
+</div>
+
+<!-- ═══════════════ REAL ACCOUNT (Polymarket) — controls the laptop copier ═══════════════ -->
+<div class="panel" id="livePanel" style="display:none;">
+  <h2>Real account <span class="note">— your laptop copier places the orders; this page only sets the rules and shows what happened</span></h2>
+
+  <div class="grid-inputs" style="margin-bottom:10px;">
+    <div class="field"><label>Access key</label><input id="liveKeyInput" type="password" placeholder="paste once" style="width:200px;" autocomplete="off"></div>
+    <button class="btn secondary small" onclick="liveSaveKey()">Save key</button>
+    <button class="btn secondary small" onclick="liveForgetKey()">Forget key</button>
+  </div>
+  <div id="liveLockedMsg" class="empty-note"></div>
+
+  <div id="liveStatus" style="margin-bottom:14px;"></div>
+
+  <div id="liveForm" style="display:none;">
+    <div class="grid-inputs">
+      <label style="display:flex;align-items:center;gap:8px;font-size:14px;"><input type="checkbox" id="liveEnabled" style="width:18px;height:18px;"> <b>Copying ON</b> <span class="muted">— off means the copier does nothing</span></label>
+      <div class="field"><label>Copy new trades from paper account</label>
+        <select id="liveSource" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:14px;width:300px;"></select>
+      </div>
+      <div class="field"><label>Sides to copy</label>
+        <div style="display:flex;gap:12px;padding:8px 0;font-size:13px;">
+          <label><input type="checkbox" id="liveSideYes"> YES</label>
+          <label><input type="checkbox" id="liveSideNo"> NO</label>
+        </div>
+      </div>
+    </div>
+    <div class="grid-inputs">
+      <div class="field"><label>Stake per order ($)</label><input id="liveStake" type="number" step="0.5" min="0.5"></div>
+      <div class="field"><label>Daily spend limit ($)</label><input id="liveDaily" type="number" step="1" min="0.5"></div>
+      <div class="field"><label>Entry price min (¢)</label><input id="liveMinPx" type="number" step="1" min="1" max="99"></div>
+      <div class="field"><label>Entry price max (¢)</label><input id="liveMaxPx" type="number" step="1" min="1" max="99"></div>
+      <div class="field"><label>Max price move (¢)</label><input id="liveMaxMove" type="number" step="1" min="0"></div>
+      <div class="field"><label>Max trade age (min)</label><input id="liveMaxAge" type="number" step="1" min="1"></div>
+    </div>
+    <div class="field" style="width:340px;margin-bottom:12px;"><label>Cities <span class="muted" id="liveCitiesCount"></span></label>
+      <input type="text" id="liveCitiesSearch" placeholder="Search cities…" oninput="liveFilterCities()" style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:7px 10px;font-size:12.5px;margin-bottom:6px;box-sizing:border-box;">
+      <div style="display:flex;gap:6px;margin-bottom:6px;">
+        <button type="button" class="btn secondary small" onclick="liveCitiesSet(true)">All</button>
+        <button type="button" class="btn secondary small" onclick="liveCitiesSet(false)">None</button>
+      </div>
+      <div id="liveCitiesBox" style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px;max-height:180px;overflow-y:auto;font-size:12.5px;"></div>
+      <div class="muted" style="font-size:10.5px;margin-top:4px;">No cities ticked = ALL cities are copied.</div>
+    </div>
+    <div class="grid-inputs">
+      <button class="btn" onclick="liveSave()">Save settings</button>
+      <span id="liveSaveMsg" class="muted"></span>
+    </div>
+    <p class="muted" style="font-size:11px;margin:0 0 12px;">The laptop also enforces its own hard ceilings on stake and daily spend that this page can never raise. Switching the copier from dry-run to real orders is done on the laptop only.</p>
+  </div>
+
+  <h2 style="margin:16px 0 8px;font-size:13px;">Recent copier activity</h2>
+  <div id="liveEvents"><div class="empty-note">Nothing yet.</div></div>
 </div>
 
 <!-- NEW BOT ACCOUNT MODAL -->
@@ -1104,6 +1164,7 @@ function setMode(mode) {
     clearInterval(BOT_REFRESH_TIMER);
     BOT_REFRESH_TIMER = null;
   }
+  applyBotSub();
 }
 
 async function initBotPanel() {
@@ -1480,6 +1541,167 @@ async function deleteCurrentBotAccount() {
   await fetch(`/api/bot/accounts/${BOT_CURRENT_ACCOUNT_ID}`, { method: 'DELETE' });
   BOT_CURRENT_ACCOUNT_ID = null;
   await loadBotAccounts();
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// REAL ACCOUNT — settings + status for the laptop copier (talks to /api/live/*)
+// Orders are placed ONLY by the copier on your own computer; this page just stores the rules.
+// ══════════════════════════════════════════════════════════════════════════
+let LIVE_TIMER = null;
+let LIVE_CITIES_READY = false;
+
+function liveKey() { return localStorage.getItem('liveKey') || ''; }
+function liveEsc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+async function liveFetch(path, opts = {}) {
+  const r = await fetch(path, { ...opts, headers: { 'Content-Type': 'application/json', 'x-live-key': liveKey(), ...(opts.headers || {}) } });
+  let body = {}; try { body = await r.json(); } catch (e) {}
+  if (!r.ok) throw new Error(body.error || ('HTTP ' + r.status));
+  return body;
+}
+
+function setBotSub(sub) { localStorage.setItem('botSub', sub); applyBotSub(); }
+function applyBotSub() {
+  const inBot = localStorage.getItem('polyscanMode') === 'bot';
+  const real = localStorage.getItem('botSub') === 'real';
+  document.getElementById('botSubSwitch').style.display = inBot ? '' : 'none';
+  document.getElementById('paperPanel').style.display = (inBot && !real) ? '' : 'none';
+  document.getElementById('livePanel').style.display = (inBot && real) ? '' : 'none';
+  document.getElementById('subBtnPaper').className = real ? 'btn secondary small' : 'btn small';
+  document.getElementById('subBtnReal').className = real ? 'btn small' : 'btn secondary small';
+  if (inBot) document.getElementById('modeSubLabel').textContent = real
+    ? 'Real account — orders come from your laptop copier, not from this page'
+    : 'Paper trading — no real orders are ever placed';
+  if (LIVE_TIMER) { clearInterval(LIVE_TIMER); LIVE_TIMER = null; }
+  if (inBot && real) { liveInit(); LIVE_TIMER = setInterval(liveRefreshStatus, 15000); }
+}
+
+function liveLocked(msg) {
+  document.getElementById('liveForm').style.display = 'none';
+  document.getElementById('liveStatus').innerHTML = '';
+  document.getElementById('liveLockedMsg').textContent = msg;
+}
+function liveSaveKey() {
+  const v = document.getElementById('liveKeyInput').value.trim();
+  if (!v || v.startsWith('•')) return;
+  localStorage.setItem('liveKey', v);
+  document.getElementById('liveKeyInput').value = '';
+  liveLoadAll();
+}
+function liveForgetKey() {
+  localStorage.removeItem('liveKey');
+  document.getElementById('liveKeyInput').value = '';
+  liveLocked('Key removed from this browser. Enter it again to load the settings.');
+}
+async function liveInit() {
+  if (!liveKey()) { liveLocked('Enter your access key to load the real-account settings.'); return; }
+  await liveLoadAll();
+}
+
+async function liveLoadAll() {
+  try {
+    const [{ settings }, accRes, cityRes] = await Promise.all([
+      liveFetch('/api/live/settings'),
+      fetch('/api/bot/accounts').then(r => r.json()),
+      LIVE_CITIES_READY ? Promise.resolve(null) : fetch('/api/bot/cities').then(r => r.json()),
+    ]);
+    if (cityRes) {
+      document.getElementById('liveCitiesBox').innerHTML = cityRes.cities.map(c => `
+        <label class="live-city-row" data-city="${liveEsc(c.city.toLowerCase())}" style="display:flex;align-items:center;gap:8px;padding:5px 8px;cursor:pointer;">
+          <input type="checkbox" class="liveCityChk" value="${liveEsc(c.city)}" onchange="liveUpdateCitiesCount()"> <span>${liveEsc(c.city)}</span></label>`).join('');
+      LIVE_CITIES_READY = true;
+    }
+    const sel = document.getElementById('liveSource');
+    sel.innerHTML = '<option value="">— choose a paper account —</option>' +
+      (accRes.accounts || []).map(a => `<option value="${liveEsc(a.id)}">${liveEsc(a.name)}</option>`).join('');
+    liveRender(settings);
+    document.getElementById('liveLockedMsg').textContent = '';
+    document.getElementById('liveForm').style.display = '';
+    liveRefreshStatus();
+  } catch (e) { liveLocked(`Could not load settings: ${e.message}`); }
+}
+
+function liveRender(s) {
+  document.getElementById('liveEnabled').checked = !!s.enabled;
+  document.getElementById('liveSource').value = s.sourceAccountId || '';
+  document.getElementById('liveSideYes').checked = (s.sides || []).includes('YES');
+  document.getElementById('liveSideNo').checked = (s.sides || []).includes('NO');
+  document.getElementById('liveStake').value = s.stakePerOrderUSD;
+  document.getElementById('liveDaily').value = s.dailySpendLimitUSD;
+  document.getElementById('liveMinPx').value = s.minEntryPriceCents;
+  document.getElementById('liveMaxPx').value = s.maxEntryPriceCents;
+  document.getElementById('liveMaxMove').value = s.maxPriceMoveCents;
+  document.getElementById('liveMaxAge').value = s.maxTradeAgeMinutes;
+  const picked = new Set(s.cities || []);
+  document.querySelectorAll('.liveCityChk').forEach(el => el.checked = picked.has(el.value));
+  liveUpdateCitiesCount();
+}
+function liveCollect() {
+  const sides = [];
+  if (document.getElementById('liveSideYes').checked) sides.push('YES');
+  if (document.getElementById('liveSideNo').checked) sides.push('NO');
+  return {
+    enabled: document.getElementById('liveEnabled').checked,
+    sourceAccountId: document.getElementById('liveSource').value,
+    sides,
+    cities: Array.from(document.querySelectorAll('.liveCityChk:checked')).map(el => el.value),
+    stakePerOrderUSD: parseFloat(document.getElementById('liveStake').value),
+    dailySpendLimitUSD: parseFloat(document.getElementById('liveDaily').value),
+    minEntryPriceCents: parseFloat(document.getElementById('liveMinPx').value),
+    maxEntryPriceCents: parseFloat(document.getElementById('liveMaxPx').value),
+    maxPriceMoveCents: parseFloat(document.getElementById('liveMaxMove').value),
+    maxTradeAgeMinutes: parseFloat(document.getElementById('liveMaxAge').value),
+  };
+}
+async function liveSave() {
+  const msg = document.getElementById('liveSaveMsg');
+  msg.textContent = 'Saving…';
+  try {
+    const r = await liveFetch('/api/live/settings', { method: 'PUT', body: JSON.stringify(liveCollect()) });
+    liveRender(r.settings);
+    msg.textContent = 'Saved. The copier picks this up within a minute.';
+    liveRefreshStatus();
+  } catch (e) { msg.textContent = 'Not saved: ' + e.message; }
+}
+async function livePause() {
+  try { const r = await liveFetch('/api/live/settings', { method: 'PUT', body: JSON.stringify({ enabled: false }) }); liveRender(r.settings); liveRefreshStatus(); }
+  catch (e) { document.getElementById('liveSaveMsg').textContent = 'Could not pause: ' + e.message; }
+}
+
+function liveFilterCities() {
+  const q = document.getElementById('liveCitiesSearch').value.trim().toLowerCase();
+  document.querySelectorAll('.live-city-row').forEach(r => { r.style.display = r.dataset.city.includes(q) ? '' : 'none'; });
+}
+function liveCitiesSet(on) {
+  document.querySelectorAll('.live-city-row').forEach(r => { if (r.style.display !== 'none') r.querySelector('.liveCityChk').checked = on; });
+  liveUpdateCitiesCount();
+}
+function liveUpdateCitiesCount() {
+  const n = document.querySelectorAll('.liveCityChk:checked').length;
+  document.getElementById('liveCitiesCount').textContent = n ? `(${n} selected)` : '(all cities)';
+}
+
+function liveAgo(iso) {
+  const s = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 1000));
+  return s < 90 ? `${s}s ago` : s < 5400 ? `${Math.round(s / 60)} min ago` : `${Math.round(s / 3600)} h ago`;
+}
+async function liveRefreshStatus() {
+  if (!liveKey()) return;
+  try {
+    const st = await liveFetch('/api/live/status');
+    const dailyLimit = st.effective ? st.effective.dailySpendLimitUSD : null;
+    const mode = st.mode ? `<span class="pill ${st.mode === 'live' ? 'red' : 'orange'}">${st.mode === 'live' ? 'LIVE — REAL MONEY' : 'DRY RUN — no real orders'}</span>` : '';
+    const online = st.online
+      ? `<span class="pill green">Copier online</span> ${mode} <span class="muted">seen ${liveAgo(st.lastSeenAt)} · spent today $${(st.spentToday || 0).toFixed(2)}${dailyLimit != null ? ' of $' + dailyLimit : ''}${st.ceilings ? ' · laptop ceilings $' + st.ceilings.maxStakeUSD + '/order, $' + st.ceilings.maxDailySpendUSD + '/day' : ''}</span>`
+      : `<span class="pill grey">Copier offline</span> <span class="muted">${st.lastSeenAt ? 'last seen ' + liveAgo(st.lastSeenAt) : 'not seen since the server last restarted'} — start it on the laptop (node copier.js)</span>`;
+    document.getElementById('liveStatus').innerHTML = `${online} <button class="btn loss small" style="margin-left:10px;" onclick="livePause()">Pause copying now</button>`;
+    const ev = st.events || [];
+    document.getElementById('liveEvents').innerHTML = ev.length
+      ? `<table><thead><tr><th>When</th><th>Result</th><th>City</th><th>Side</th><th>Bracket</th><th>Detail</th></tr></thead><tbody>${ev.map(e => {
+          const cls = e.status === 'bought' ? 'green' : (e.status === 'dry-run' ? 'orange' : (e.status === 'skipped' ? 'grey' : 'red'));
+          return `<tr><td style="white-space:nowrap;font-size:11px;">${liveAgo(e.at)}</td><td><span class="pill ${cls}">${liveEsc(e.status)}</span></td><td>${liveEsc(e.city)}</td><td>${liveEsc(e.side)}</td><td>${liveEsc(e.bracket)}</td><td style="font-size:11.5px;">${liveEsc(e.reason)}</td></tr>`;
+        }).join('')}</tbody></table>`
+      : '<div class="empty-note">Nothing yet — it only copies trades the paper account opens while the copier is running.</div>';
+  } catch (e) { document.getElementById('liveStatus').innerHTML = `<span class="muted">Status unavailable: ${liveEsc(e.message)}</span>`; }
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────

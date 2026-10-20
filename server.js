@@ -4140,6 +4140,150 @@ app.post('/api/srbot/scan-preview', async (req, res) => {
 setTimeout(() => srRunTick().catch(e => console.error('[SRBot] Initial tick failed:', e.message)), 25 * 1000);
 setInterval(() => srRunTick().catch(e => console.error('[SRBot] Scheduled tick failed:', e.message)), 5 * 60 * 1000);
 
+// ══════════════════════════════════════════════════════════════════════════
+// LIVE COPIER CONTROL — settings + status for the real-account copier that
+// runs on Willow's own laptop. THIS SERVER NEVER PLACES ORDERS AND NEVER SEES
+// THE WALLET KEY (Polymarket rejects orders from Render's server regions).
+// It only stores the settings the copier pulls, and shows what the copier reports.
+// Every endpoint requires the LIVE_ACCESS_KEY env var (fails closed if unset).
+// ══════════════════════════════════════════════════════════════════════════
+const _liveCrypto = require('crypto');
+const LIVE_FILE = path.join(DATA_DIR, 'live.json');
+const GITHUB_DATA_PATH_LIVE = process.env.GITHUB_DATA_PATH_LIVE || 'data/live.json';
+let LIVE_CACHE = null;
+let LIVE_SHA = null;
+
+async function liveGhGet() {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH_LIVE}`;
+  const res = await fetch(url, { headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json', 'User-Agent': 'PolyScan24-7' } });
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`GitHub GET failed: HTTP ${res.status}`);
+  const json = await res.json();
+  LIVE_SHA = json.sha;
+  return JSON.parse(Buffer.from(json.content, 'base64').toString('utf8'));
+}
+async function liveGhPut(data) {
+  const url = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_DATA_PATH_LIVE}`;
+  const body = { message: `Update live settings — ${new Date().toISOString()}`, content: Buffer.from(JSON.stringify(data, null, 2)).toString('base64'), ...(LIVE_SHA ? { sha: LIVE_SHA } : {}) };
+  const res = await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github+json', 'Content-Type': 'application/json', 'User-Agent': 'PolyScan24-7' }, body: JSON.stringify(body) });
+  if (!res.ok) { const t = await res.text().catch(() => ''); throw new Error(`GitHub PUT failed: HTTP ${res.status} ${t}`); }
+  const json = await res.json();
+  LIVE_SHA = json.content?.sha || LIVE_SHA;
+}
+
+function liveDefaultSettings() {
+  return {
+    enabled: false,            // OFF until you switch it on in the page
+    sourceAccountId: '',       // which paper account's new trades get copied
+    cities: [],                // empty = all cities
+    sides: ['YES', 'NO'],
+    stakePerOrderUSD: 2,
+    dailySpendLimitUSD: 10,
+    minEntryPriceCents: 85,
+    maxEntryPriceCents: 95,
+    maxPriceMoveCents: 3,
+    maxTradeAgeMinutes: 15,
+  };
+}
+async function loadLive() {
+  if (LIVE_CACHE) return LIVE_CACHE;
+  if (GITHUB_TOKEN && GITHUB_PERSISTENCE_ENABLED) {
+    try { const d = await liveGhGet(); if (d && d.settings) { LIVE_CACHE = d; return LIVE_CACHE; } }
+    catch (e) { console.error('[Live GitHub storage] load failed, falling back to local disk:', e.message); }
+  }
+  try { const d = JSON.parse(fs.readFileSync(LIVE_FILE, 'utf8')); if (d && d.settings) { LIVE_CACHE = d; return LIVE_CACHE; } } catch (e) {}
+  LIVE_CACHE = { settings: liveDefaultSettings() };
+  return LIVE_CACHE;
+}
+async function saveLive(d) {
+  LIVE_CACHE = d;
+  try { fs.writeFileSync(LIVE_FILE, JSON.stringify(d, null, 2)); } catch (e) { console.error('[Live local storage] write failed:', e.message); }
+  if (GITHUB_TOKEN && GITHUB_PERSISTENCE_ENABLED) {
+    try { await liveGhPut(d); } catch (e) { console.error('[Live GitHub storage] save failed (data still safe locally):', e.message); }
+  }
+}
+
+// Validates a (partial) settings update; throws with a readable message on bad input.
+function liveSanitize(cur, inp) {
+  const s = { ...liveDefaultSettings(), ...cur };
+  if ('enabled' in inp) s.enabled = !!inp.enabled;
+  if ('sourceAccountId' in inp) s.sourceAccountId = String(inp.sourceAccountId || '').slice(0, 100);
+  if ('cities' in inp) {
+    if (!Array.isArray(inp.cities)) throw new Error('cities must be a list');
+    s.cities = inp.cities.map(c => String(c).slice(0, 60)).slice(0, 100);
+  }
+  if ('sides' in inp) {
+    const ok = (Array.isArray(inp.sides) ? inp.sides : []).map(x => String(x).toUpperCase()).filter(x => x === 'YES' || x === 'NO');
+    s.sides = ok.length ? [...new Set(ok)] : ['YES', 'NO'];
+  }
+  const num = (key, min, max, label) => {
+    if (!(key in inp)) return;
+    const v = Number(inp[key]);
+    if (!Number.isFinite(v) || v < min || v > max) throw new Error(`${label} must be a number between ${min} and ${max}`);
+    s[key] = v;
+  };
+  num('stakePerOrderUSD', 0.5, 1000, 'Stake per order');
+  num('dailySpendLimitUSD', 0.5, 10000, 'Daily limit');
+  num('minEntryPriceCents', 1, 99, 'Min entry price');
+  num('maxEntryPriceCents', 1, 99, 'Max entry price');
+  num('maxPriceMoveCents', 0, 50, 'Max price move');
+  num('maxTradeAgeMinutes', 1, 240, 'Max trade age');
+  if (s.maxEntryPriceCents < s.minEntryPriceCents) throw new Error('Max entry price must be at least the min entry price');
+  if (s.dailySpendLimitUSD < s.stakePerOrderUSD) throw new Error('Daily limit must be at least one stake');
+  return s;
+}
+
+function requireLiveKey(req, res, next) {
+  const key = process.env.LIVE_ACCESS_KEY;
+  if (!key) return res.status(503).json({ error: 'LIVE_ACCESS_KEY is not set on the server' });
+  const a = Buffer.from(String(req.get('x-live-key') || ''));
+  const b = Buffer.from(key);
+  if (a.length !== b.length || !_liveCrypto.timingSafeEqual(a, b)) return res.status(401).json({ error: 'wrong access key' });
+  next();
+}
+
+// Kept in memory only (a restart clears it). The copier's own log file is the permanent record.
+const LIVE_STATE = { lastSeenAt: null, mode: null, version: null, spentToday: 0, effective: null, ceilings: null, events: [] };
+
+app.get('/api/live/settings', requireLiveKey, async (req, res) => {
+  try { res.json({ settings: (await loadLive()).settings }); }
+  catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.put('/api/live/settings', requireLiveKey, async (req, res) => {
+  try {
+    const live = await loadLive();
+    live.settings = liveSanitize(live.settings, req.body || {});
+    await saveLive(live);
+    res.json({ ok: true, settings: live.settings });
+  } catch (e) { res.status(400).json({ error: e.message }); }
+});
+
+// The copier posts this every cycle — it doubles as the "copier is online" heartbeat.
+app.post('/api/live/report', requireLiveKey, (req, res) => {
+  const b = req.body || {};
+  LIVE_STATE.lastSeenAt = new Date().toISOString();
+  LIVE_STATE.mode = b.mode === 'live' ? 'live' : 'dry-run';
+  LIVE_STATE.version = String(b.version || '').slice(0, 20);
+  LIVE_STATE.spentToday = Number(b.spentToday) || 0;
+  LIVE_STATE.effective = b.effective && typeof b.effective === 'object' ? b.effective : null;
+  LIVE_STATE.ceilings = b.ceilings && typeof b.ceilings === 'object' ? b.ceilings : null;
+  for (const e of (Array.isArray(b.events) ? b.events : []).slice(0, 50)) {
+    LIVE_STATE.events.unshift({
+      at: String(e.at || new Date().toISOString()).slice(0, 40), status: String(e.status || '').slice(0, 20),
+      city: String(e.city || '').slice(0, 60), side: String(e.side || '').slice(0, 5),
+      bracket: String(e.bracket || '').slice(0, 60), reason: String(e.reason || '').slice(0, 400),
+    });
+  }
+  LIVE_STATE.events = LIVE_STATE.events.slice(0, 200);
+  res.json({ ok: true });
+});
+
+app.get('/api/live/status', requireLiveKey, (req, res) => {
+  const online = !!LIVE_STATE.lastSeenAt && (Date.now() - Date.parse(LIVE_STATE.lastSeenAt)) < 180000; // seen in the last 3 min
+  res.json({ online, ...LIVE_STATE, events: LIVE_STATE.events.slice(0, 60) });
+});
+
 app.get('/health', (req, res) => {
   res.json({ status:'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length, polyCached: Object.keys(POLY_CACHE).length });
 });

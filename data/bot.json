@@ -12843,25 +12843,6 @@
           "profit": 0
         },
         {
-          "id": "1792468980418-gdll7",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Beijing",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "12°C or below",
-          "stake": 100,
-          "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-20T04:03:00.418Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792566054697-lq41o",
           "accountId": "acc_1790014922758_e686h",
           "city": "Ankara",

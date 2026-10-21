@@ -377,7 +377,23 @@
         "maxOpenOrders": 10,
         "autoTradeEnabled": true
       },
-      "trades": []
+      "trades": [
+        {
+          "id": "1792578166780-qw6rw",
+          "accountId": "sr_1792314254977_h2vt3",
+          "city": "Amsterdam",
+          "code": "EHAM",
+          "side": "YES",
+          "bracketLabel": "13°C",
+          "stake": 1000,
+          "entryPriceCents": 63,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "openedAt": "2026-10-21T10:22:46.780Z",
+          "settledAt": null,
+          "profit": 0
+        }
+      ]
     }
   }
 }

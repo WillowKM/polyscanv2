@@ -6200,6 +6200,25 @@
       },
       "trades": [
         {
+          "id": "1792646228063-wg2hc",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Singapore",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "33°C",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-22T05:17:08.063Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792645328302-zxams",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Wuhan",

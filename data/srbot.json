@@ -387,11 +387,12 @@
           "bracketLabel": "13°C",
           "stake": 1000,
           "entryPriceCents": 63,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "openedAt": "2026-10-21T10:22:46.780Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-22T15:59:17.375Z",
+          "profit": -1000,
+          "autoResolved": true
         }
       ]
     }

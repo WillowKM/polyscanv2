@@ -122,14 +122,15 @@
           "bracketLabel": "60-61°F",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 9,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-18T06:28:43.334Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-22T22:00:03.550Z",
+          "profit": -44.375,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1792651991981-u33wd",
@@ -6108,26 +6109,6 @@
           "edgePct": null,
           "openedAt": "2026-09-18T15:40:14.923Z",
           "settledAt": "2026-09-20T02:55:32.210Z",
-          "profit": 12.5,
-          "autoResolved": true
-        },
-        {
-          "id": "1789785704720-5e01k",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Guangzhou",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "37°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-19T02:41:44.720Z",
-          "settledAt": "2026-09-19T13:04:40.554Z",
           "profit": 12.5,
           "autoResolved": true
         }

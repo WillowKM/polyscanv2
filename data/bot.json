@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1792677671583-2z3lj",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Toronto",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-22T14:01:11.583Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792669344119-rjvlk",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Mexico City",
@@ -6466,25 +6485,6 @@
           "profit": 0
         },
         {
-          "id": "1792627222352-rybau",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Moscow",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "11°C",
-          "stake": 50,
-          "entryPriceCents": 85,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-22T00:00:22.352Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792627222352-5d1lf",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Milan",
@@ -6559,6 +6559,26 @@
           "openedAt": "2026-10-20T05:55:12.773Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1792627222352-rybau",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Moscow",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "11°C",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-22T00:00:22.352Z",
+          "settledAt": "2026-10-22T14:01:11.584Z",
+          "profit": 8.8235,
+          "autoResolved": true
         },
         {
           "id": "1792630436338-mcjsa",
@@ -12538,26 +12558,6 @@
           "openedAt": "2026-10-05T10:03:47.178Z",
           "settledAt": "2026-10-05T18:03:07.254Z",
           "profit": 5.5556,
-          "autoResolved": true
-        },
-        {
-          "id": "1791200954353-59jv2",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Chicago",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "64-65°F",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-05T11:49:14.353Z",
-          "settledAt": "2026-10-05T17:58:08.427Z",
-          "profit": 6.8182,
           "autoResolved": true
         }
       ]

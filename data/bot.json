@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1792742994009-q6wak",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Mexico City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "24°C or higher",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T08:09:54.009Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792741793132-bn0g9",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Munich",
@@ -6276,6 +6295,25 @@
       },
       "trades": [
         {
+          "id": "1792742995552-5jpcd",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Munich",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "9°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T08:09:55.552Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792737293683-edopr",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Cape Town",
@@ -12477,14 +12515,15 @@
           "bracketLabel": "32°C",
           "stake": 500,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-23T00:04:21.798Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-23T08:09:55.553Z",
+          "profit": -500,
+          "autoResolved": true
         },
         {
           "id": "1792718914974-ru7lt",
@@ -21036,14 +21075,15 @@
           "bracketLabel": "32°C",
           "stake": 1000,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-23T00:04:22.487Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-23T08:09:55.710Z",
+          "profit": -1000,
+          "autoResolved": true
         },
         {
           "id": "1792627223227-rjuha",

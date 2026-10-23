@@ -6238,6 +6238,25 @@
       },
       "trades": [
         {
+          "id": "1792733693889-xiziq",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Tel Aviv",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "35°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T05:34:53.889Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792721013652-hrvyp",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Buenos Aires",

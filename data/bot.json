@@ -6200,6 +6200,25 @@
       },
       "trades": [
         {
+          "id": "1792716482873-tjgbv",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Istanbul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T00:48:02.873Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792715881263-4ddq1",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Wellington",

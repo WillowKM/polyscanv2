@@ -18906,25 +18906,6 @@
       },
       "trades": [
         {
-          "id": "1792733996499-jzkmk",
-          "accountId": "acc_1790448612502_mwphv",
-          "city": "Denver",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "74-75°F",
-          "stake": 500,
-          "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-23T05:39:56.499Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792627223227-5q44c",
           "accountId": "acc_1790448612502_mwphv",
           "city": "Denver",
@@ -18942,6 +18923,26 @@
           "openedAt": "2026-10-22T00:00:23.227Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1792733996499-jzkmk",
+          "accountId": "acc_1790448612502_mwphv",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "74-75°F",
+          "stake": 500,
+          "entryPriceCents": 94,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T05:39:56.499Z",
+          "settledAt": "2026-10-23T19:04:16.449Z",
+          "profit": 31.9149,
+          "autoResolved": true
         },
         {
           "id": "1792426468880-gu7pc",
@@ -20212,14 +20213,15 @@
           "bracketLabel": "74-75°F",
           "stake": 1000,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-23T05:39:56.499Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-23T19:04:16.450Z",
+          "profit": 63.8298,
+          "autoResolved": true
         },
         {
           "id": "1792475713262-u6fx2",

@@ -13131,25 +13131,6 @@
           "profit": 0
         },
         {
-          "id": "1792713862486-zmhdt",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Hong Kong",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "32°C",
-          "stake": 100,
-          "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-23T00:04:22.486Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792713862486-cvabv",
           "accountId": "acc_1790014922758_e686h",
           "city": "Beijing",
@@ -13186,6 +13167,26 @@
           "openedAt": "2026-10-23T00:04:22.486Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1792713862486-zmhdt",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 49,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T00:04:22.486Z",
+          "settledAt": "2026-10-23T06:19:55.628Z",
+          "profit": -47.8723,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1792717714850-95lr8",
@@ -19165,26 +19166,6 @@
           "openedAt": "2026-09-24T00:10:55.211Z",
           "settledAt": "2026-09-24T20:54:17.583Z",
           "profit": 3.0928,
-          "autoResolved": true
-        },
-        {
-          "id": "1790267793899-0bd05",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "70-71°F",
-          "stake": 100,
-          "entryPriceCents": 94,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-24T16:36:33.899Z",
-          "settledAt": "2026-09-24T20:49:35.670Z",
-          "profit": 6.383,
           "autoResolved": true
         }
       ]

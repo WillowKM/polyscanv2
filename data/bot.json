@@ -12978,6 +12978,25 @@
       },
       "trades": [
         {
+          "id": "1792716181510-yyuib",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Beijing",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "15°C",
+          "stake": 100,
+          "entryPriceCents": 94,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T00:43:01.510Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792715601642-anbzp",
           "accountId": "acc_1790014922758_e686h",
           "city": "Istanbul",

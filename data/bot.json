@@ -13121,14 +13121,15 @@
           "bracketLabel": "18°C",
           "stake": 100,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-23T00:04:22.486Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-23T07:54:55.122Z",
+          "profit": 7.5269,
+          "autoResolved": true
         },
         {
           "id": "1792713862486-7ha2l",
@@ -19108,26 +19109,6 @@
           "openedAt": "2026-09-25T00:09:54.091Z",
           "settledAt": "2026-09-25T02:16:57.148Z",
           "profit": 5.2632,
-          "autoResolved": true
-        },
-        {
-          "id": "1790294994091-odbbe",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Seoul",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "21°C or below",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-25T00:09:54.091Z",
-          "settledAt": "2026-09-25T00:27:07.246Z",
-          "profit": 3.0928,
           "autoResolved": true
         }
       ]

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1792758296409-jh0h2",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Buenos Aires",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T12:24:56.409Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792746831674-xa9da",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Munich",
@@ -132,25 +151,6 @@
           "profit": 0
         },
         {
-          "id": "1792722812613-l3laq",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Tokyo",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "21°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-23T02:33:32.613Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1792713859668-h4gpb",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Sao Paulo",
@@ -225,6 +225,26 @@
           "openedAt": "2026-10-21T16:09:52.765Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1792722812613-l3laq",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Tokyo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T02:33:32.613Z",
+          "settledAt": "2026-10-23T12:24:54.342Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1792722812613-355qu",
@@ -6205,26 +6225,6 @@
           "settledAt": "2026-09-21T11:22:51.709Z",
           "profit": -31.875,
           "exitReason": "stop_loss"
-        },
-        {
-          "id": "1789975180162-b9rsn",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Karachi",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "39°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-21T07:19:40.162Z",
-          "settledAt": "2026-09-21T08:39:57.119Z",
-          "profit": 12.5,
-          "autoResolved": true
         }
       ]
     },

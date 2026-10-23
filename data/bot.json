@@ -6257,6 +6257,25 @@
       },
       "trades": [
         {
+          "id": "1792740295410-9h9qt",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Istanbul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-23T07:24:55.410Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792737293683-edopr",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Cape Town",

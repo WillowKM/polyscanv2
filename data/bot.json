@@ -6162,6 +6162,25 @@
       },
       "trades": [
         {
+          "id": "1792802200646-uq4ox",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Seoul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-24T00:36:40.646Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792801620216-i07y8",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Milan",
@@ -12846,6 +12865,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1792802201509-v7zmj",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 100,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-24T00:36:41.509Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1792801621343-14twe",
           "accountId": "acc_1790014922758_e686h",

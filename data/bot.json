@@ -12926,6 +12926,25 @@
       },
       "trades": [
         {
+          "id": "1792979559181-uvyco",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-26T01:52:39.181Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1792979021183-yb1aj",
           "accountId": "acc_1790014922758_e686h",
           "city": "Beijing",

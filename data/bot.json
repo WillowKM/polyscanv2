@@ -6105,6 +6105,25 @@
       },
       "trades": [
         {
+          "id": "1793131713171-x5rnu",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Houston",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "76-77°F",
+          "stake": 50,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-27T20:08:33.171Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793129614220-pg8hx",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Houston",
@@ -12897,14 +12916,15 @@
           "bracketLabel": "76-77°F",
           "stake": 100,
           "entryPriceCents": 94,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-27T16:23:32.360Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-27T20:08:33.171Z",
+          "profit": 6.383,
+          "autoResolved": true
         },
         {
           "id": "1793099996355-xyxje",
@@ -18884,26 +18904,6 @@
           "openedAt": "2026-09-27T06:44:27.795Z",
           "settledAt": "2026-09-27T10:57:55.674Z",
           "profit": 7.5269,
-          "autoResolved": true
-        },
-        {
-          "id": "1790480036263-g4o4i",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Amsterdam",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "23°C",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-27T03:33:56.263Z",
-          "settledAt": "2026-09-27T10:17:36.641Z",
-          "profit": 3.0928,
           "autoResolved": true
         }
       ]

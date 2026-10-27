@@ -6228,14 +6228,15 @@
           "bracketLabel": "82-83°F",
           "stake": 50,
           "entryPriceCents": 89,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-27T05:14:27.940Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-27T15:35:18.279Z",
+          "profit": 6.1798,
+          "autoResolved": true
         },
         {
           "id": "1793079535855-rxszu",
@@ -12215,26 +12216,6 @@
           "openedAt": "2026-10-09T01:58:02.771Z",
           "settledAt": "2026-10-09T17:28:31.215Z",
           "profit": 5.5556,
-          "autoResolved": true
-        },
-        {
-          "id": "1791512560620-ucy2a",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Buenos Aires",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "15°C",
-          "stake": 50,
-          "entryPriceCents": 85,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-09T02:22:40.620Z",
-          "settledAt": "2026-10-09T17:08:31.258Z",
-          "profit": 8.8235,
           "autoResolved": true
         }
       ]

@@ -6133,14 +6133,15 @@
           "bracketLabel": "68-69°F",
           "stake": 50,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-27T15:40:19.546Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-27T22:39:07.670Z",
+          "profit": 5.5556,
+          "autoResolved": true
         },
         {
           "id": "1793129614220-pg8hx",
@@ -12120,26 +12121,6 @@
           "openedAt": "2026-10-08T03:36:34.032Z",
           "settledAt": "2026-10-09T21:27:47.791Z",
           "profit": 5.5556,
-          "autoResolved": true
-        },
-        {
-          "id": "1791511361072-uonoq",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Mexico City",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "18°C",
-          "stake": 50,
-          "entryPriceCents": 86,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-09T02:02:41.072Z",
-          "settledAt": "2026-10-09T19:48:32.069Z",
-          "profit": 8.1395,
           "autoResolved": true
         }
       ]
@@ -18880,14 +18861,15 @@
           "bracketLabel": "68-69°F",
           "stake": 500,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-27T15:40:19.707Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-27T22:39:07.796Z",
+          "profit": 55.5556,
+          "autoResolved": true
         },
         {
           "id": "1793078334651-4ds3b",

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793202758426-28sbd",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "62-63°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-28T15:52:38.426Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793171458092-k1vyh",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Warsaw",

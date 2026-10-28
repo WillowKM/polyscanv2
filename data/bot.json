@@ -46,14 +46,15 @@
           "bracketLabel": "13°C",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-28T07:10:58.092Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-28T12:08:14.608Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1793163801043-pcyn9",
@@ -6033,26 +6034,6 @@
           "openedAt": "2026-09-23T12:11:30.086Z",
           "settledAt": "2026-09-23T22:11:42.170Z",
           "profit": 12.5,
-          "autoResolved": true
-        },
-        {
-          "id": "1790140407027-g5ckh",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Panama City",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "33°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "LOSS",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-23T05:13:27.027Z",
-          "settledAt": "2026-09-23T20:56:53.958Z",
-          "profit": -50,
           "autoResolved": true
         }
       ]

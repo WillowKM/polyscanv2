@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793171458092-k1vyh",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Warsaw",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "13°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-28T07:10:58.092Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793163801043-pcyn9",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Cape Town",

@@ -6143,6 +6143,25 @@
       },
       "trades": [
         {
+          "id": "1793247663857-5t5nu",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Toronto",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-29T04:21:03.857Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793247363269-hcnkd",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Cape Town",

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793248562770-dryaq",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Seoul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "14°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-29T04:36:02.770Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793245862908-bnhc4",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Munich",

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793255935976-hfcsw",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Moscow",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "13°C or higher",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-29T06:38:55.976Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793254735949-l64k3",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Ankara",

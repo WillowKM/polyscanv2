@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793250664379-f0gzr",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Jeddah",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "36°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-29T05:11:04.379Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793248562770-dryaq",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Seoul",

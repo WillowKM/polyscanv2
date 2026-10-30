@@ -18910,25 +18910,6 @@
       },
       "trades": [
         {
-          "id": "1793341905578-ydcms",
-          "accountId": "acc_1790448612502_mwphv",
-          "city": "Denver",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "68-69°F",
-          "stake": 500,
-          "entryPriceCents": 91,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-30T06:31:45.578Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1793338465483-wew1g",
           "accountId": "acc_1790448612502_mwphv",
           "city": "Denver",
@@ -18946,6 +18927,26 @@
           "openedAt": "2026-10-30T05:34:25.483Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1793341905578-ydcms",
+          "accountId": "acc_1790448612502_mwphv",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 500,
+          "entryPriceCents": 91,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-30T06:31:45.578Z",
+          "settledAt": "2026-10-30T22:27:55.319Z",
+          "profit": 49.4505,
+          "autoResolved": true
         },
         {
           "id": "1793148865993-p4996",

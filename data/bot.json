@@ -18900,14 +18900,15 @@
           "bracketLabel": "62-63°F",
           "stake": 500,
           "entryPriceCents": 87,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-30T05:34:25.483Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-30T23:47:56.687Z",
+          "profit": -500,
+          "autoResolved": true
         },
         {
           "id": "1793341905578-ydcms",
@@ -20539,14 +20540,15 @@
           "bracketLabel": "62-63°F",
           "stake": 1000,
           "entryPriceCents": 87,
-          "status": "open",
+          "status": "LOSS",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-30T05:34:25.483Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-30T23:47:56.688Z",
+          "profit": -1000,
+          "autoResolved": true
         },
         {
           "id": "1793241214842-s2gd5",

@@ -19052,7 +19052,7 @@
         "cities": [
           "Denver"
         ],
-        "minTradeAmount": 500,
+        "minTradeAmount": 750,
         "maxOpenOrders": 2,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,

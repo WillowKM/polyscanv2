@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793343384909-pfyfn",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-30T06:56:24.909Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793336384308-volio",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Panama City",

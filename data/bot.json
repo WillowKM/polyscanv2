@@ -6152,14 +6152,15 @@
           "bracketLabel": "66-67°F",
           "stake": 50,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-30T16:55:44.344Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-30T22:32:55.967Z",
+          "profit": 5.5556,
+          "autoResolved": true
         },
         {
           "id": "1793338464975-4v7ev",
@@ -12139,26 +12140,6 @@
           "openedAt": "2026-10-11T11:42:24.286Z",
           "settledAt": "2026-10-11T15:24:34.327Z",
           "profit": 7.4713,
-          "autoResolved": true
-        },
-        {
-          "id": "1791704164394-ds6u8",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Istanbul",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "28°C",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-11T07:36:04.394Z",
-          "settledAt": "2026-10-11T15:24:34.327Z",
-          "profit": 6.8182,
           "autoResolved": true
         }
       ]

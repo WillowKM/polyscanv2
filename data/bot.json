@@ -19299,7 +19299,7 @@
         "cities": [
           "Denver"
         ],
-        "minTradeAmount": 750,
+        "minTradeAmount": 500,
         "maxOpenOrders": 2,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,

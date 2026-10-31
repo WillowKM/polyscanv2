@@ -6342,14 +6342,15 @@
           "bracketLabel": "78-79°F",
           "stake": 50,
           "entryPriceCents": 89,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-31T00:27:56.967Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-31T16:58:27.798Z",
+          "profit": 6.1798,
+          "autoResolved": true
         },
         {
           "id": "1793407077382-m6vn4",
@@ -12329,26 +12330,6 @@
           "openedAt": "2026-10-12T01:49:45.551Z",
           "settledAt": "2026-10-12T04:46:32.213Z",
           "profit": -30.5882,
-          "exitReason": "stop_loss"
-        },
-        {
-          "id": "1791763804882-s4wx7",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Seoul",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "27°C",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "CASHOUT",
-          "cashoutPriceCents": 11,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-12T00:10:04.882Z",
-          "settledAt": "2026-10-12T04:36:52.383Z",
-          "profit": -43.75,
           "exitReason": "stop_loss"
         }
       ]

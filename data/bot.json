@@ -13194,25 +13194,6 @@
           "profit": 0
         },
         {
-          "id": "1793435636737-zm5hj",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Ankara",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "13°C",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-31T08:33:56.737Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1793432010535-f7hqz",
           "accountId": "acc_1790014922758_e686h",
           "city": "Ankara",
@@ -13325,6 +13306,26 @@
           "openedAt": "2026-10-31T00:02:58.461Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1793435636737-zm5hj",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "13°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-31T08:33:56.737Z",
+          "settledAt": "2026-10-31T10:56:13.353Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1793405277256-qdfar",
@@ -19305,26 +19306,6 @@
           "settledAt": "2026-09-30T07:22:48.952Z",
           "profit": -69.4737,
           "exitReason": "stop_loss"
-        },
-        {
-          "id": "1790741835781-sqfd6",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Busan",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "29°C",
-          "stake": 100,
-          "entryPriceCents": 95,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-30T04:17:15.781Z",
-          "settledAt": "2026-09-30T05:11:45.867Z",
-          "profit": 5.2632,
-          "autoResolved": true
         }
       ]
     },

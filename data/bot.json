@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793436237846-2fdha",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-31T08:43:57.846Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793417788663-p1ui6",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Dallas",
@@ -6237,6 +6256,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1793436238687-b6uow",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Chicago",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "62-63°F",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-31T08:43:58.687Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1793433694006-k8vtt",
           "accountId": "acc_1789317169775_vipzd",

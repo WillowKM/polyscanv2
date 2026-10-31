@@ -56,25 +56,6 @@
           "profit": 0
         },
         {
-          "id": "1793436237846-2fdha",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Sao Paulo",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "26°C",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-31T08:43:57.846Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1793417788663-p1ui6",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Dallas",
@@ -168,6 +149,26 @@
           "openedAt": "2026-10-30T06:56:24.909Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1793436237846-2fdha",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "26°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-31T08:43:57.846Z",
+          "settledAt": "2026-10-31T16:27:14.503Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1793409477386-dq3ou",
@@ -6148,26 +6149,6 @@
           "settledAt": "2026-09-24T21:09:15.214Z",
           "profit": 12.5,
           "autoResolved": true
-        },
-        {
-          "id": "1790217331831-p2zw9",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "76-77°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "CASHOUT",
-          "cashoutPriceCents": 36,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-24T02:35:31.831Z",
-          "settledAt": "2026-09-24T21:04:15.214Z",
-          "profit": -27.5,
-          "exitReason": "stop_loss"
         }
       ]
     },
@@ -6333,25 +6314,6 @@
           "profit": 0
         },
         {
-          "id": "1793407077382-m6vn4",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "London",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "16°C",
-          "stake": 50,
-          "entryPriceCents": 86,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-31T00:37:57.382Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1793406476967-o2ghq",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Houston",
@@ -6388,6 +6350,26 @@
           "openedAt": "2026-10-31T00:27:56.967Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1793407077382-m6vn4",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "London",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "16°C",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-10-31T00:37:57.382Z",
+          "settledAt": "2026-10-31T16:27:14.711Z",
+          "profit": 8.1395,
+          "autoResolved": true
         },
         {
           "id": "1793405276600-0qnpu",
@@ -12368,26 +12350,6 @@
           "settledAt": "2026-10-12T04:36:52.383Z",
           "profit": -43.75,
           "exitReason": "stop_loss"
-        },
-        {
-          "id": "1791773386078-kw0yg",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Busan",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "26°C",
-          "stake": 50,
-          "entryPriceCents": 89,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-12T02:49:46.078Z",
-          "settledAt": "2026-10-12T04:36:52.043Z",
-          "profit": 6.1798,
-          "autoResolved": true
         }
       ]
     },
@@ -13146,14 +13108,15 @@
           "bracketLabel": "68-69°F",
           "stake": 100,
           "entryPriceCents": 93,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-10-31T00:02:58.461Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-10-31T16:27:14.816Z",
+          "profit": 7.5269,
+          "autoResolved": true
         },
         {
           "id": "1793443594036-ouxo3",
@@ -19133,26 +19096,6 @@
           "openedAt": "2026-09-30T10:52:34.431Z",
           "settledAt": "2026-09-30T12:27:34.367Z",
           "profit": 6.383,
-          "autoResolved": true
-        },
-        {
-          "id": "1790741561717-sjpd2",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Amsterdam",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "26°C",
-          "stake": 100,
-          "entryPriceCents": 96,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-30T04:12:41.717Z",
-          "settledAt": "2026-09-30T12:07:34.075Z",
-          "profit": 4.1667,
           "autoResolved": true
         }
       ]

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793510263440-l45fy",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Houston",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "82-83°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-01T05:17:43.440Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793405876518-zin0q",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",

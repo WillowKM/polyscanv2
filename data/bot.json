@@ -13042,6 +13042,25 @@
       },
       "trades": [
         {
+          "id": "1793510567041-i6px7",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "64-65°F",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-01T05:22:47.041Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793506985155-trso6",
           "accountId": "acc_1790014922758_e686h",
           "city": "Busan",

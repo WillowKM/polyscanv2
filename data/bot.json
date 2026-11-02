@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793600606518-illoe",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Moscow",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "3°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-02T06:23:26.518Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793558576412-fdc00",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Mexico City",

@@ -6295,6 +6295,25 @@
       },
       "trades": [
         {
+          "id": "1793628573240-gce54",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Madrid",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-02T14:09:33.240Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793626493691-7v3yc",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Denver",

@@ -6238,6 +6238,25 @@
       },
       "trades": [
         {
+          "id": "1793701495831-cm639",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "London",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "11°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-03T10:24:55.831Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793701195930-q6s22",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Buenos Aires",
@@ -13137,6 +13156,25 @@
       },
       "trades": [
         {
+          "id": "1793701496149-9duhr",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Ankara",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "19°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-03T10:24:56.149Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793700922280-nkkpi",
           "accountId": "acc_1790014922758_e686h",
           "city": "Atlanta",
@@ -13222,14 +13260,15 @@
           "bracketLabel": "20°C",
           "stake": 100,
           "entryPriceCents": 97,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-03T03:46:34.270Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-03T10:24:55.832Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1793681118021-heddb",
@@ -19209,26 +19248,6 @@
           "openedAt": "2026-10-02T00:01:48.668Z",
           "settledAt": "2026-10-02T08:54:56.930Z",
           "profit": 5.2632,
-          "autoResolved": true
-        },
-        {
-          "id": "1790899308668-46n1u",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Seoul",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "20°C",
-          "stake": 100,
-          "entryPriceCents": 96,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-02T00:01:48.668Z",
-          "settledAt": "2026-10-02T08:54:56.930Z",
-          "profit": 4.1667,
           "autoResolved": true
         }
       ]

@@ -6210,7 +6210,7 @@
           "Wuhan"
         ],
         "minTradeAmount": 50,
-        "maxOpenOrders": 39,
+        "maxOpenOrders": 29,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
         "noBuyMinCents": 85,

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1793701194648-gwj2n",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Panama City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-03T10:19:54.648Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793678163052-j67f6",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Buenos Aires",
@@ -6218,6 +6237,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1793701195930-q6s22",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Buenos Aires",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "21°C",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-03T10:19:55.930Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1793700922126-xyao5",
           "accountId": "acc_1789317169775_vipzd",

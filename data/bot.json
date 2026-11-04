@@ -6200,6 +6200,25 @@
       },
       "trades": [
         {
+          "id": "1793777755309-4k4ku",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Toronto",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-04T07:35:55.309Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793776871684-qx75z",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Munich",

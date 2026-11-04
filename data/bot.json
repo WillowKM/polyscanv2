@@ -13004,6 +13004,25 @@
       },
       "trades": [
         {
+          "id": "1793752762291-2zggf",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "15°C",
+          "stake": 100,
+          "entryPriceCents": 93,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-04T00:39:22.291Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1793751883328-4wq3u",
           "accountId": "acc_1790014922758_e686h",
           "city": "Busan",

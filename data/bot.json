@@ -21752,8 +21752,8 @@
         "cities": [
           "Hong Kong"
         ],
-        "minTradeAmount": 650,
-        "maxOpenOrders": 1,
+        "minTradeAmount": 150,
+        "maxOpenOrders": 2,
         "maxSpreadCents": 3,
         "minVolumeFallback": 500,
         "noBuyMinCents": 85,

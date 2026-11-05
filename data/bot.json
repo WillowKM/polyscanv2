@@ -56,25 +56,6 @@
           "profit": 0
         },
         {
-          "id": "1793891736033-d6b49",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Atlanta",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "78-79°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-11-05T15:15:36.033Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1793751882370-08wze",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Cape Town",
@@ -130,6 +111,26 @@
           "openedAt": "2026-10-31T00:17:56.518Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1793891736033-d6b49",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "78-79°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 35,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-05T15:15:36.033Z",
+          "settledAt": "2026-11-05T17:48:25.453Z",
+          "profit": -28.125,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1793789174404-chope",
@@ -6110,26 +6111,6 @@
           "settledAt": "2026-09-25T23:40:47.972Z",
           "profit": 12.5,
           "autoResolved": true
-        },
-        {
-          "id": "1790294712486-fjbto",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Seattle",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "62-63°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "CASHOUT",
-          "cashoutPriceCents": 11,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-25T00:05:12.486Z",
-          "settledAt": "2026-09-25T23:01:36.194Z",
-          "profit": -43.125,
-          "exitReason": "stop_loss"
         }
       ]
     },

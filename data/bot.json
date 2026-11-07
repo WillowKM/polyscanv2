@@ -13470,14 +13470,15 @@
           "bracketLabel": "10°C",
           "stake": 100,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-07T00:01:23.727Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-07T11:45:29.345Z",
+          "profit": 4.1667,
+          "autoResolved": true
         },
         {
           "id": "1794022809071-248oj",
@@ -19457,26 +19458,6 @@
           "openedAt": "2026-10-06T04:18:48.008Z",
           "settledAt": "2026-10-06T06:09:30.817Z",
           "profit": 4.1667,
-          "autoResolved": true
-        },
-        {
-          "id": "1791218890389-jic9y",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "84-85°F",
-          "stake": 100,
-          "entryPriceCents": 95,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-05T16:48:10.389Z",
-          "settledAt": "2026-10-05T22:07:50.343Z",
-          "profit": 5.2632,
           "autoResolved": true
         }
       ]

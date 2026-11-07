@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794022207695-dmo1g",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Kuala Lumpur",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "34°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-07T03:30:07.695Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794014757368-vgt2p",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Jeddah",

@@ -6352,6 +6352,25 @@
       },
       "trades": [
         {
+          "id": "1794030501771-tihue",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Paris",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "12°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-07T05:48:21.771Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794029603369-fc9ol",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Toronto",

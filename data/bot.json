@@ -12609,6 +12609,25 @@
       },
       "trades": [
         {
+          "id": "1794097890013-0978j",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Seoul",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "6°C",
+          "stake": 100,
+          "entryPriceCents": 96,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-08T00:31:30.013Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794097608152-yfluo",
           "accountId": "acc_1790014922758_e686h",
           "city": "Busan",

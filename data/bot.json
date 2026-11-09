@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794208945388-qtola",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Austin",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "66-67°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-09T07:22:25.388Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794208044883-kzp4c",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Denver",

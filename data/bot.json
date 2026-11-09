@@ -198,14 +198,15 @@
           "bracketLabel": "31°C",
           "stake": 50,
           "entryPriceCents": 80,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-04T00:24:42.370Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-09T10:30:09.679Z",
+          "profit": 12.5,
+          "autoResolved": true
         },
         {
           "id": "1794009982274-nvr7i",
@@ -6186,26 +6187,6 @@
           "settledAt": "2026-09-27T19:08:46.797Z",
           "profit": 12.5,
           "autoResolved": true
-        },
-        {
-          "id": "1790506674982-x7dvs",
-          "accountId": "acc_1789317130252_9m9mx",
-          "city": "Chicago",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "68-69°F",
-          "stake": 50,
-          "entryPriceCents": 80,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-09-27T10:57:54.982Z",
-          "settledAt": "2026-09-27T19:08:46.744Z",
-          "profit": 12.5,
-          "autoResolved": true
         }
       ]
     },
@@ -6275,25 +6256,6 @@
         "autoTradeEnabled": true
       },
       "trades": [
-        {
-          "id": "1794212244407-o0bpv",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Cape Town",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "31°C",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-11-09T08:17:24.407Z",
-          "settledAt": null,
-          "profit": 0
-        },
         {
           "id": "1794211646225-da0l5",
           "accountId": "acc_1789317169775_vipzd",
@@ -6502,6 +6464,26 @@
           "openedAt": "2026-11-03T10:15:22.126Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1794212244407-o0bpv",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Cape Town",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "31°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-09T08:17:24.407Z",
+          "settledAt": "2026-11-09T10:30:09.775Z",
+          "profit": 6.8182,
+          "autoResolved": true
         },
         {
           "id": "1794207019990-cgi22",
@@ -12482,26 +12464,6 @@
           "settledAt": "2026-10-16T11:34:30.104Z",
           "profit": -28.8235,
           "exitReason": "stop_loss"
-        },
-        {
-          "id": "1792116572337-x2qco",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Munich",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "17°C",
-          "stake": 50,
-          "entryPriceCents": 85,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-16T02:09:32.337Z",
-          "settledAt": "2026-10-16T11:29:29.942Z",
-          "profit": 8.8235,
-          "autoResolved": true
         }
       ]
     },

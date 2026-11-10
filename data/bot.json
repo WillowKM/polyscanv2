@@ -6181,6 +6181,44 @@
       },
       "trades": [
         {
+          "id": "1794269148402-y9y40",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Amsterdam",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "9°C",
+          "stake": 50,
+          "entryPriceCents": 86,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-10T00:05:48.402Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
+          "id": "1794269148402-qjute",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Taipei",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-10T00:05:48.402Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794268846028-17e30",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Shenzhen",
@@ -12285,6 +12323,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1794269149539-xxul9",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Hong Kong",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "20°C",
+          "stake": 100,
+          "entryPriceCents": 95,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-10T00:05:49.539Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1794268846850-ad42g",
           "accountId": "acc_1790014922758_e686h",
@@ -19561,6 +19618,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1794269149875-byyeg",
+          "accountId": "acc_1791265985079_ygdnn",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 500,
+          "entryPriceCents": 87,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-10T00:05:49.875Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1794268847169-hc3em",
           "accountId": "acc_1791265985079_ygdnn",

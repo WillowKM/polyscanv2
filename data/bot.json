@@ -12447,14 +12447,15 @@
           "bracketLabel": "10°C",
           "stake": 100,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-10T00:00:46.850Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-11T06:42:00.203Z",
+          "profit": 4.1667,
+          "autoResolved": true
         },
         {
           "id": "1794302276596-7dglx",
@@ -18435,26 +18436,6 @@
           "settledAt": "2026-10-07T20:13:56.259Z",
           "profit": 7.5269,
           "autoResolved": true
-        },
-        {
-          "id": "1791192246079-huiay",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "76-77°F",
-          "stake": 100,
-          "entryPriceCents": 94,
-          "status": "CASHOUT",
-          "cashoutPriceCents": 59,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-05T09:24:06.079Z",
-          "settledAt": "2026-10-07T19:26:45.051Z",
-          "profit": -37.234,
-          "exitReason": "stop_loss"
         }
       ]
     },

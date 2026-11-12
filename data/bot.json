@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794452477827-ycl2l",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Jeddah",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-12T03:01:17.827Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794446132085-0xhyy",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Manila",
@@ -6237,6 +6256,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1794452478692-stdyo",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Houston",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "82-83°F",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-12T03:01:18.692Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1794450033204-8q6rm",
           "accountId": "acc_1789317169775_vipzd",

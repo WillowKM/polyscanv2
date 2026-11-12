@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794442531026-crxy4",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Chengdu",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "18°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-12T00:15:31.026Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794438930301-soby1",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "San Francisco",

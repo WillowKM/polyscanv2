@@ -6257,6 +6257,25 @@
       },
       "trades": [
         {
+          "id": "1794455723623-toqfk",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Shanghai",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "22°C",
+          "stake": 50,
+          "entryPriceCents": 88,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-12T03:55:23.623Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794453059013-awz5b",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Toronto",

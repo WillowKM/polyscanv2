@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794462672945-njc4l",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Panama City",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-12T05:51:12.945Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794452477827-ycl2l",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Jeddah",

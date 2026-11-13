@@ -6219,6 +6219,25 @@
       },
       "trades": [
         {
+          "id": "1794538059485-a98m3",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Taipei",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 50,
+          "entryPriceCents": 89,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-13T02:47:39.485Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794532961258-1art8",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Houston",

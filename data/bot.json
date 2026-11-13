@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794535058809-4p099",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Kuala Lumpur",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "32°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-13T01:57:38.809Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794533861706-a125x",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Moscow",

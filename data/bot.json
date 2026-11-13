@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794546793859-smado",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Dallas",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "66-67°F",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-13T05:13:13.860Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794546007947-jtmq7",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Dallas",

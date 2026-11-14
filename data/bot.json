@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794623862292-fcxug",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Taipei",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "29°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-14T02:37:42.292Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794622206040-em1or",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Sao Paulo",

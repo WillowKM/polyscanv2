@@ -6219,6 +6219,25 @@
       },
       "trades": [
         {
+          "id": "1794715603652-ofwbb",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Houston",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "60-61°F",
+          "stake": 50,
+          "entryPriceCents": 90,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-15T04:06:43.652Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794712605913-78xq7",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Taipei",
@@ -12438,25 +12457,6 @@
       },
       "trades": [
         {
-          "id": "1794712904181-5gi0d",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Busan",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "16°C",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-11-15T03:21:44.181Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1794712003891-0l1h1",
           "accountId": "acc_1790014922758_e686h",
           "city": "Busan",
@@ -12588,6 +12588,26 @@
           "openedAt": "2026-11-15T00:01:26.349Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1794712904181-5gi0d",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Busan",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "16°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-15T03:21:44.181Z",
+          "settledAt": "2026-11-15T04:06:43.652Z",
+          "profit": 3.0928,
+          "autoResolved": true
         },
         {
           "id": "1794713505724-5bume",
@@ -18567,26 +18587,6 @@
           "openedAt": "2026-10-11T00:05:54.920Z",
           "settledAt": "2026-10-11T18:25:01.004Z",
           "profit": 4.1667,
-          "autoResolved": true
-        },
-        {
-          "id": "1791733696121-1iv5m",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Atlanta",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "64-65°F",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-11T15:48:16.121Z",
-          "settledAt": "2026-10-11T17:45:00.276Z",
-          "profit": 3.0928,
           "autoResolved": true
         }
       ]

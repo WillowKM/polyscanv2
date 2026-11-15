@@ -12286,6 +12286,25 @@
       },
       "trades": [
         {
+          "id": "1794766932062-cd0gy",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Atlanta",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "58-59°F",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-15T18:22:12.062Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794700886349-crrwa",
           "accountId": "acc_1790014922758_e686h",
           "city": "Ankara",

@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1794714702460-keocb",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Sao Paulo",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "30°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-15T03:51:42.460Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794713202723-dnxve",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Jeddah",

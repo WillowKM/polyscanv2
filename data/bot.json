@@ -12438,6 +12438,25 @@
       },
       "trades": [
         {
+          "id": "1794804773980-2yodt",
+          "accountId": "acc_1790014922758_e686h",
+          "city": "Amsterdam",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "12°C",
+          "stake": 100,
+          "entryPriceCents": 97,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-16T04:52:53.980Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794793815956-0xkwf",
           "accountId": "acc_1790014922758_e686h",
           "city": "Hong Kong",
@@ -12523,14 +12542,15 @@
           "bracketLabel": "11°C",
           "stake": 100,
           "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
+          "status": "CASHOUT",
+          "cashoutPriceCents": 50,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-15T19:07:12.385Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-16T04:52:53.325Z",
+          "profit": -46.8085,
+          "exitReason": "stop_loss"
         },
         {
           "id": "1794793217803-jt8aw",
@@ -18509,26 +18529,6 @@
           "edgePct": null,
           "openedAt": "2026-10-12T02:44:45.079Z",
           "settledAt": "2026-10-12T14:45:24.436Z",
-          "profit": 3.0928,
-          "autoResolved": true
-        },
-        {
-          "id": "1791799292609-q4ifj",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Amsterdam",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "15°C",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-12T10:01:32.609Z",
-          "settledAt": "2026-10-12T11:56:33.640Z",
           "profit": 3.0928,
           "autoResolved": true
         }

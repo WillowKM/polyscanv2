@@ -6143,6 +6143,25 @@
       },
       "trades": [
         {
+          "id": "1794896257330-vg894",
+          "accountId": "acc_1789317169775_vipzd",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 50,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-17T06:17:37.330Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1794893879244-43fh7",
           "accountId": "acc_1789317169775_vipzd",
           "city": "Denver",
@@ -18363,6 +18382,25 @@
         "autoTradeEnabled": true
       },
       "trades": [
+        {
+          "id": "1794896258342-prc3l",
+          "accountId": "acc_1790448612502_mwphv",
+          "city": "Denver",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "68-69°F",
+          "stake": 500,
+          "entryPriceCents": 85,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-17T06:17:38.342Z",
+          "settledAt": null,
+          "profit": 0
+        },
         {
           "id": "1794893880234-nd6ca",
           "accountId": "acc_1790448612502_mwphv",

@@ -30,7 +30,7 @@
         "scalpUnit": "cents",
         "scalpStep": 10,
         "reBuyAfterScalp": true,
-        "stopLossEnabled": true,
+        "stopLossEnabled": false,
         "stopLossUnit": "cents",
         "stopLossValue": 45,
         "autoTradeEnabled": true

@@ -12409,14 +12409,15 @@
           "bracketLabel": "20°C",
           "stake": 100,
           "entryPriceCents": 96,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-17T05:38:00.233Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-17T12:05:42.448Z",
+          "profit": 4.1667,
+          "autoResolved": true
         },
         {
           "id": "1794895659317-2nj30",
@@ -18396,26 +18397,6 @@
           "openedAt": "2026-10-13T03:45:16.833Z",
           "settledAt": "2026-10-13T11:25:41.073Z",
           "profit": 7.5269,
-          "autoResolved": true
-        },
-        {
-          "id": "1791886079284-9d7yh",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Amsterdam",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "17°C",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-13T10:07:59.284Z",
-          "settledAt": "2026-10-13T11:00:39.415Z",
-          "profit": 3.0928,
           "autoResolved": true
         }
       ]

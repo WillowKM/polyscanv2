@@ -12314,14 +12314,15 @@
           "bracketLabel": "62-63°F",
           "stake": 100,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-18T00:03:56.783Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-18T15:54:09.384Z",
+          "profit": 5.2632,
+          "autoResolved": true
         },
         {
           "id": "1794997333666-tkziz",
@@ -18301,26 +18302,6 @@
           "openedAt": "2026-10-16T04:59:31.953Z",
           "settledAt": "2026-10-16T05:29:32.164Z",
           "profit": 4.1667,
-          "autoResolved": true
-        },
-        {
-          "id": "1792113271921-ag12n",
-          "accountId": "acc_1790014922758_e686h",
-          "city": "Busan",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "22°C",
-          "stake": 100,
-          "entryPriceCents": 97,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-16T01:14:31.921Z",
-          "settledAt": "2026-10-16T05:14:31.328Z",
-          "profit": 3.0928,
           "autoResolved": true
         }
       ]

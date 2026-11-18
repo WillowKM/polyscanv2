@@ -6323,14 +6323,15 @@
           "bracketLabel": "24°C",
           "stake": 50,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-18T00:03:56.008Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-18T14:04:42.377Z",
+          "profit": 5.5556,
+          "autoResolved": true
         },
         {
           "id": "1795003635305-dlbfi",
@@ -12310,26 +12311,6 @@
           "openedAt": "2026-10-23T11:17:56.891Z",
           "settledAt": "2026-10-23T14:29:34.942Z",
           "profit": 5.5556,
-          "autoResolved": true
-        },
-        {
-          "id": "1792714464327-cie27",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Munich",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "13°C",
-          "stake": 50,
-          "entryPriceCents": 89,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-23T00:14:24.327Z",
-          "settledAt": "2026-10-23T14:24:34.926Z",
-          "profit": 6.1798,
           "autoResolved": true
         }
       ]

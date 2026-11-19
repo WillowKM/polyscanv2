@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1795052660993-nnpxi",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Chongqing",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "15°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-19T01:44:20.993Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1795052080911-6i2zd",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Shenzhen",

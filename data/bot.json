@@ -37,6 +37,25 @@
       },
       "trades": [
         {
+          "id": "1795052080911-6i2zd",
+          "accountId": "acc_1789317130252_9m9mx",
+          "city": "Shenzhen",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "23°C",
+          "stake": 50,
+          "entryPriceCents": 80,
+          "status": "open",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-19T01:34:40.911Z",
+          "settledAt": null,
+          "profit": 0
+        },
+        {
           "id": "1795048679346-mo0nz",
           "accountId": "acc_1789317130252_9m9mx",
           "city": "Cape Town",
@@ -6247,14 +6266,15 @@
           "bracketLabel": "28°C",
           "stake": 50,
           "entryPriceCents": 90,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-19T00:09:34.464Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-19T01:34:40.912Z",
+          "profit": 5.5556,
+          "autoResolved": true
         },
         {
           "id": "1794975305300-fbgbp",
@@ -12233,26 +12253,6 @@
           "edgePct": null,
           "openedAt": "2026-10-24T00:27:00.216Z",
           "settledAt": "2026-10-24T17:46:17.953Z",
-          "profit": 6.8182,
-          "autoResolved": true
-        },
-        {
-          "id": "1792817895544-gtyxh",
-          "accountId": "acc_1789317169775_vipzd",
-          "city": "Denver",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "56-57°F",
-          "stake": 50,
-          "entryPriceCents": 88,
-          "status": "WIN",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-10-24T04:58:15.544Z",
-          "settledAt": "2026-10-24T09:19:05.168Z",
           "profit": 6.8182,
           "autoResolved": true
         }

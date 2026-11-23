@@ -337,6 +337,17 @@ tr:hover td { background:rgba(255,255,255,0.02); }
   <div id="liveLockedMsg" class="empty-note"></div>
 
   <div id="liveStatus" style="margin-bottom:14px;"></div>
+  <div id="liveReplica" class="live-replica" style="display:none;">
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+      <div style="display:inline-flex;background:var(--bg3);border:1px solid var(--border);border-radius:7px;overflow:hidden;">
+        <button id="liveViewDry" class="btn small" style="border-radius:0;" onclick="setLiveView('dry-run')">Dry run</button>
+        <button id="liveViewLive" class="btn secondary small" style="border-radius:0;" onclick="setLiveView('live')">Live (real money)</button>
+      </div>
+      <span class="muted" id="liveViewNote" style="font-size:11px;"></span>
+    </div>
+    <div class="stat-row" id="liveStatRow"></div>
+    <div id="liveChartWrap" style="margin-top:14px;"></div>
+  </div>
 
   <div id="liveForm" style="display:none;">
     <div class="grid-inputs">
@@ -375,6 +386,18 @@ tr:hover td { background:rgba(255,255,255,0.02); }
     <p class="muted" style="font-size:11px;margin:0 0 12px;">The laptop also enforces its own hard ceilings on stake and daily spend that this page can never raise. Switching the copier from dry-run to real orders is done on the laptop only.</p>
   </div>
 
+  <div id="liveReplica2" class="live-replica" style="display:none;">
+    <h2 style="margin:16px 0 8px;font-size:13px;">Open Trades</h2>
+    <div id="liveOpenWrap"></div>
+    <details id="liveClosedDetails" style="margin-top:14px;">
+      <summary style="cursor:pointer;font-weight:600;font-size:14px;padding:4px 0;">Closed Trades <span id="liveClosedCount" class="muted"></span></summary>
+      <div style="margin:10px 0;display:flex;gap:8px;">
+        <button class="btn secondary small" onclick="liveDownloadCsv()">Download CSV (backtest)</button>
+        <button class="btn secondary small" id="liveClearBtn" onclick="liveClearHistory()">Clear dry-run history</button>
+      </div>
+      <div id="liveClosedWrap"></div>
+    </details>
+  </div>
   <h2 style="margin:16px 0 8px;font-size:13px;">Recent copier activity</h2>
   <div id="liveEvents"><div class="empty-note">Nothing yet.</div></div>
 </div>
@@ -1578,6 +1601,7 @@ function applyBotSub() {
 function liveLocked(msg) {
   document.getElementById('liveForm').style.display = 'none';
   document.getElementById('liveStatus').innerHTML = '';
+  document.querySelectorAll('.live-replica').forEach(e => { e.style.display = 'none'; });
   document.getElementById('liveLockedMsg').textContent = msg;
 }
 function liveSaveKey() {
@@ -1616,6 +1640,7 @@ async function liveLoadAll() {
     liveRender(settings);
     document.getElementById('liveLockedMsg').textContent = '';
     document.getElementById('liveForm').style.display = '';
+    document.querySelectorAll('.live-replica').forEach(e => { e.style.display = ''; });
     liveRefreshStatus();
   } catch (e) { liveLocked(`Could not load settings: ${e.message}`); }
 }
@@ -1701,7 +1726,120 @@ async function liveRefreshStatus() {
           return `<tr><td style="white-space:nowrap;font-size:11px;">${liveAgo(e.at)}</td><td><span class="pill ${cls}">${liveEsc(e.status)}</span></td><td>${liveEsc(e.city)}</td><td>${liveEsc(e.side)}</td><td>${liveEsc(e.bracket)}</td><td style="font-size:11.5px;">${liveEsc(e.reason)}</td></tr>`;
         }).join('')}</tbody></table>`
       : '<div class="empty-note">Nothing yet — it only copies trades the paper account opens while the copier is running.</div>';
+    if (st.mode === 'live') LIVE_VIEW_DEFAULT = 'live';
+    liveRefreshTrades();
   } catch (e) { document.getElementById('liveStatus').innerHTML = `<span class="muted">Status unavailable: ${liveEsc(e.message)}</span>`; }
+}
+
+// ── REAL ACCOUNT: replica of the paper page (stat cards, equity chart, open/closed trades) ──
+let LIVE_VIEW_DEFAULT = 'dry-run';
+let LIVE_LAST_TRADES = [];
+function liveView() { return localStorage.getItem('liveView') || LIVE_VIEW_DEFAULT; }
+function setLiveView(v) { localStorage.setItem('liveView', v); return liveRefreshTrades(); }
+
+function liveTradeRow(t) {
+  const statusPill = t.status === 'open' ? '<span class="pill grey">OPEN</span>' : t.status === 'WIN' ? '<span class="pill green">WIN</span>' : '<span class="pill red">LOSS</span>';
+  const pnlCell = t.status === 'open'
+    ? (t.currentPriceCents != null
+        ? `${t.currentPriceCents.toFixed(1)}¢ <span class="${t.unrealizedProfit >= 0 ? 'hi' : 'lo'}" style="font-size:11px;">(${t.unrealizedProfit >= 0 ? '+' : ''}$${t.unrealizedProfit.toFixed(2)})</span>`
+        : '<span class="muted">live price unavailable</span>')
+    : `${t.profit >= 0 ? '+' : ''}$${t.profit.toFixed(2)}`;
+  return `<tr><td>${liveEsc(t.city)}</td><td><span class="pill grey">S${liveEsc(t.strategy || '?')}</span></td>
+    <td><span class="pill ${t.side === 'YES' ? 'green' : 'red'}">${liveEsc(t.side)}</span></td><td>${liveEsc(t.bracketLabel)}</td>
+    <td class="mono">$${t.stake.toFixed(2)}</td>
+    <td class="mono">${t.entryPriceCents}¢${t.paperEntryCents != null ? ` <span class="muted" style="font-size:10.5px;">(paper ${t.paperEntryCents}¢)</span>` : ''}</td>
+    <td class="mono">${pnlCell}</td><td>${statusPill}</td><td style="font-size:11px;white-space:nowrap;">${fmtTs(t.openedAt)}</td></tr>`;
+}
+function renderLiveStats(s) {
+  const cls = s.settledProfit > 0 ? 'hi' : s.settledProfit < 0 ? 'lo' : '';
+  const rate = s.settledCount ? Math.round(100 * s.wins / s.settledCount) + '%' : '—';
+  document.getElementById('liveStatRow').innerHTML = `
+    <div class="stat ${cls}"><div class="lbl">Settled P&amp;L</div><div class="val">${s.settledProfit >= 0 ? '+' : ''}$${s.settledProfit.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Open / Exposure</div><div class="val">${s.openCount} · $${s.openExposure.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">W / L / Cashout</div><div class="val" style="font-size:16px;">${s.wins} / ${s.losses} / 0</div></div>
+    <div class="stat"><div class="lbl">Win rate</div><div class="val">${rate}</div></div>
+    <div class="stat"><div class="lbl">Total staked</div><div class="val">$${s.totalStaked.toFixed(2)}</div></div>`;
+}
+function renderLiveEquityChart(closedTrades) {
+  const wrap = document.getElementById('liveChartWrap');
+  if (closedTrades.length < 2) { wrap.innerHTML = '<div class="empty-note">Equity curve appears once a couple of trades have settled.</div>'; return; }
+  const ordered = [...closedTrades].sort((a,b) => new Date(a.settledAt) - new Date(b.settledAt));
+  let running = 0;
+  const vals = ordered.map(t => (running += t.profit));
+
+  const w = 760, h = 220, padL = 56, padR = 16, padT = 18, padB = 30;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const min = Math.min(0, ...vals), max = Math.max(0, ...vals);
+  const range = (max - min) || 1;
+  const x = i => padL + (vals.length === 1 ? 0 : (i / (vals.length - 1)) * plotW);
+  const y = v => padT + plotH - ((v - min) / range) * plotH;
+  const pts = vals.map((v,i) => [x(i), y(v)]);
+  const path = catmullRomToBezierPath(pts);
+  const last = vals[vals.length - 1];
+  const stroke = last >= 0 ? '#3fd67a' : '#ff5c5c';
+
+  // Y-axis: 4 evenly spaced ticks across the actual range, always including 0.
+  const yTicks = Array.from(new Set([min, min + range/2, max, 0].map(v => Math.round(v * 100) / 100))).sort((a,b) => a - b);
+  const yGrid = yTicks.map(v => `
+    <line x1="${padL}" y1="${y(v).toFixed(1)}" x2="${w-padR}" y2="${y(v).toFixed(1)}" stroke="var(--border)" stroke-width="${v===0?1.4:1}" stroke-dasharray="${v===0?'0':'4,3'}"/>
+    <text x="${padL-8}" y="${(y(v)+3.5).toFixed(1)}" text-anchor="end" font-size="10" fill="var(--muted)">$${v.toFixed(0)}</text>`).join('');
+
+  // X-axis: date labels at first, middle, last point — enough to read the timeframe without crowding.
+  const idxs = vals.length <= 3 ? vals.map((_,i)=>i) : [0, Math.floor((vals.length-1)/2), vals.length-1];
+  const xLabels = idxs.map(i => {
+    const d = new Date(ordered[i].settledAt);
+    const label = isNaN(d) ? `#${i+1}` : d.toLocaleDateString(undefined, { month:'short', day:'numeric' });
+    return `<text x="${x(i).toFixed(1)}" y="${h-8}" text-anchor="middle" font-size="10" fill="var(--muted)">${label}</text>`;
+  }).join('');
+
+  wrap.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:220px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;">
+      ${yGrid}
+      <path d="${path}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${pts.map(([px,py]) => `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="2.5" fill="${stroke}"/>`).join('')}
+      <text x="${padL}" y="12" font-size="10" fill="var(--muted)">Cumulative P&amp;L ($) — y axis</text>
+      ${xLabels}
+      <text x="${w-padR}" y="${h-8}" text-anchor="end" font-size="9" fill="var(--muted)" opacity="0.7">date settled — x axis</text>
+    </svg>
+    <div class="muted" style="font-size:11px;margin-top:4px;">Equity curve — cumulative settled P&amp;L across ${vals.length} closed trades, oldest (left) to newest (right).</div>`;
+}
+
+async function liveRefreshTrades() {
+  if (!liveKey()) return;
+  const v = liveView();
+  document.getElementById('liveViewDry').className = v === 'dry-run' ? 'btn small' : 'btn secondary small';
+  document.getElementById('liveViewLive').className = v === 'live' ? 'btn small' : 'btn secondary small';
+  document.getElementById('liveClearBtn').style.display = v === 'dry-run' ? '' : 'none';
+  document.getElementById('liveViewNote').textContent = v === 'live'
+    ? 'Real orders placed by the laptop. P&L is estimated from the price at order time (fees not included).'
+    : 'Dry run: what the copier WOULD have bought. Hypothetical, no real money.';
+  try {
+    const { trades, summary } = await liveFetch('/api/live/trades?mode=' + v);
+    LIVE_LAST_TRADES = trades;
+    renderLiveStats(summary);
+    const open = trades.filter(t => t.status === 'open'), closed = trades.filter(t => t.status !== 'open');
+    const head = '<thead><tr><th>City</th><th>Str.</th><th>Side</th><th>Bracket</th><th>Stake</th><th>Entry</th><th>Live / P&amp;L</th><th>Status</th><th>Opened</th></tr></thead>';
+    document.getElementById('liveOpenWrap').innerHTML = open.length ? `<table>${head}<tbody>${open.map(liveTradeRow).join('')}</tbody></table>` : '<div class="empty-note">No open trades.</div>';
+    document.getElementById('liveClosedCount').textContent = `(${closed.length})`;
+    document.getElementById('liveClosedWrap').innerHTML = closed.length ? `<table>${head}<tbody>${closed.map(liveTradeRow).join('')}</tbody></table>` : '<div class="empty-note">Nothing closed yet.</div>';
+    renderLiveEquityChart(closed);
+  } catch (e) { document.getElementById('liveStatRow').innerHTML = `<div class="empty-note">Could not load trades: ${liveEsc(e.message)}</div>`; }
+}
+function liveBuildCsv(trades) {
+  const cols = ['mode', 'city', 'strategy', 'side', 'bracketLabel', 'stake', 'entryPriceCents', 'paperEntryCents', 'status', 'profit', 'openedAt', 'settledAt'];
+  const esc = v => { const s = v == null ? '' : String(v); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  return [cols.join(',')].concat(trades.map(t => cols.map(c => esc(t[c])).join(','))).join('\n');
+}
+function liveDownloadCsv() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([liveBuildCsv(LIVE_LAST_TRADES)], { type: 'text/csv' }));
+  a.download = `real-account-${liveView()}-trades.csv`;
+  a.click();
+}
+async function liveClearHistory() {
+  if (!confirm('Delete all DRY-RUN history shown here? Real (live) trades are not touched.')) return;
+  try { await liveFetch('/api/live/trades?mode=dry-run', { method: 'DELETE' }); } catch (e) {}
+  return liveRefreshTrades();
 }
 
 // ── INIT ─────────────────────────────────────────────────────────────────

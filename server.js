@@ -3558,7 +3558,7 @@ async function processAccountExits(accountId, acc) {
 // already, so this bounds how much a single account can grow in memory —
 // this is what stopped Helsinki's hundreds-of-duplicate-trades bug from
 // staying in RAM forever even after the dedupe fix stopped it from growing further.
-const MAX_STORED_CLOSED_TRADES_PER_ACCOUNT = 300;
+const MAX_STORED_CLOSED_TRADES_PER_ACCOUNT = 750;
 function trimAccountTrades(acc) {
   const open = acc.trades.filter(t => t.status === 'open');
   const closed = acc.trades.filter(t => t.status !== 'open')

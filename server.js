@@ -3498,7 +3498,7 @@ async function processAccountExits(accountId, acc) {
   const open = acc.trades.filter(t => t.status === 'open');
   const newTrades = [];
   for (const trade of open) {
-    const polyData = await fetchPolymarketEvent(trade.city);
+    const polyData = await fetchEventForTrade(trade);
     const match = polyData?.outcomes?.find(o => o.bracket === trade.bracketLabel);
     if (!match || match.prob === null) continue;
     const currentSideCents = trade.side === 'YES' ? match.prob : (100 - match.prob);
@@ -3621,7 +3621,7 @@ app.get('/api/bot/accounts/:id', async (req, res) => {
     // fresh as everything else on the dashboard, not a separate live feed.
     const trades = await Promise.all(acc.trades.map(async t => {
       if (t.status !== 'open') return t;
-      const polyData = await fetchPolymarketEvent(t.city);
+      const polyData = await fetchEventForTrade(t);
       const match = polyData?.outcomes?.find(o => o.bracket === t.bracketLabel);
       if (!match || match.prob === null) return { ...t, currentPriceCents: null, unrealizedProfit: null };
       const currentSideCents = t.side === 'YES' ? match.prob : (100 - match.prob);
@@ -3662,7 +3662,7 @@ app.post('/api/bot/accounts/:id/trades/:tradeId/close', async (req, res) => {
     if (!acc) return res.status(404).json({ error: 'account not found' });
     const trade = acc.trades.find(t => t.id === req.params.tradeId && t.status === 'open');
     if (!trade) return res.status(404).json({ error: 'open trade not found' });
-    const polyData = await fetchPolymarketEvent(trade.city);
+    const polyData = await fetchEventForTrade(trade);
     const match = polyData?.outcomes?.find(o => o.bracket === trade.bracketLabel);
     const currentSideCents = match ? (trade.side === 'YES' ? match.prob : (100 - match.prob)) : trade.entryPriceCents;
     trade.status = 'CASHOUT'; trade.cashoutPriceCents = currentSideCents;
@@ -4260,7 +4260,7 @@ app.put('/api/live/settings', requireLiveKey, async (req, res) => {
 });
 
 // The copier posts this every cycle — it doubles as the "copier is online" heartbeat.
-app.post('/api/live/report', requireLiveKey, (req, res) => {
+app.post('/api/live/report', requireLiveKey, async (req, res) => {
   const b = req.body || {};
   LIVE_STATE.lastSeenAt = new Date().toISOString();
   LIVE_STATE.mode = b.mode === 'live' ? 'live' : 'dry-run';
@@ -4276,6 +4276,29 @@ app.post('/api/live/report', requireLiveKey, (req, res) => {
     });
   }
   LIVE_STATE.events = LIVE_STATE.events.slice(0, 200);
+  // Record each reported order (dry-run "would buy" or a real fill) in the ledger. Re-sent events are ignored.
+  try {
+    const live = await loadLive(); const trades = liveTrades(live); let added = 0;
+    for (const e of (Array.isArray(b.events) ? b.events : []).slice(0, 50)) {
+      const o = e && e.order;
+      if (!o || (e.status !== 'dry-run' && e.status !== 'bought')) continue;
+      const mode = e.status === 'bought' ? 'live' : 'dry-run';
+      const key = `${mode}:${String(o.paperTradeId || '').slice(0, 80)}`;
+      const stake = Number(o.stake), entry = Number(o.entryCents);
+      if (!o.paperTradeId || !(stake > 0) || !(entry > 0 && entry < 100) || !e.city || !e.bracket) continue;
+      if (trades.some(t => t.orderKey === key)) continue;
+      const ref = new Date(o.paperOpenedAt);
+      trades.unshift({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`, orderKey: key, mode,
+        city: String(e.city).slice(0, 60), side: e.side === 'NO' ? 'NO' : 'YES', bracketLabel: String(e.bracket).slice(0, 60),
+        stake: liveRound2(stake), entryPriceCents: Math.round(entry * 10) / 10, paperEntryCents: Number(o.paperEntryCents) || null,
+        strategy: String(o.strategy || '').slice(0, 10), status: 'open', cashoutPriceCents: null,
+        openedAt: new Date().toISOString(), marketRefAt: isNaN(ref) ? new Date().toISOString() : ref.toISOString(),
+        settledAt: null, profit: 0 });
+      added++;
+    }
+    if (added) { liveTrimTrades(live); await saveLive(live); }
+  } catch (err) { console.error('[Live] could not record orders:', err.message); }
   res.json({ ok: true });
 });
 
@@ -4283,6 +4306,94 @@ app.get('/api/live/status', requireLiveKey, (req, res) => {
   const online = !!LIVE_STATE.lastSeenAt && (Date.now() - Date.parse(LIVE_STATE.lastSeenAt)) < 180000; // seen in the last 3 min
   res.json({ online, ...LIVE_STATE, events: LIVE_STATE.events.slice(0, 60) });
 });
+
+// ══════════════════════════════════════════════════════════════════════════
+// LIVE LEDGER — records every order the laptop copier reports (dry-run "would buy"
+// and real fills) so the Real account page can show a full replica of the paper
+// page: stat cards, equity chart, open/closed trades with live prices and P&L.
+// View-only: this server never places or cancels anything.
+// ══════════════════════════════════════════════════════════════════════════
+const liveRound2 = n => Math.round(n * 100) / 100;
+function liveTrades(live) { if (!Array.isArray(live.trades)) live.trades = []; return live.trades; }
+function liveTrimTrades(live) {
+  const all = liveTrades(live);
+  const open = all.filter(t => t.status === 'open');
+  const closed = all.filter(t => t.status !== 'open').sort((a, b) => Date.parse(b.settledAt || 0) - Date.parse(a.settledAt || 0)).slice(0, 500);
+  live.trades = [...open, ...closed].sort((a, b) => Date.parse(b.openedAt) - Date.parse(a.openedAt));
+}
+
+// A trade belongs to the Polymarket market of the UTC day it was opened. Polymarket's event slug is
+// built from the date, so looking a trade up by "today" breaks the moment the UTC day rolls over.
+function tradeEventDaysAhead(refISO, now = new Date()) {
+  const o = new Date(refISO);
+  if (isNaN(o)) return 0;
+  const oDay = Date.UTC(o.getUTCFullYear(), o.getUTCMonth(), o.getUTCDate());
+  const nDay = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  return Math.round((oDay - nDay) / 86400000); // 0 = today's market, -1 = yesterday's, ...
+}
+async function fetchEventForTrade(trade, refISO) {
+  const d = tradeEventDaysAhead(refISO || trade.openedAt);
+  return d === 0 ? fetchPolymarketEvent(trade.city) : fetchPolymarketEventForDate(trade.city, d);
+}
+
+async function liveSettleTick() {
+  const live = await loadLive();
+  const open = liveTrades(live).filter(t => t.status === 'open');
+  if (!open.length) return;
+  let changed = false;
+  for (const t of open) {
+    let ev; try { ev = await fetchEventForTrade(t, t.marketRefAt); } catch (e) { continue; }
+    const m = ev && ev.outcomes && ev.outcomes.find(o => o.bracket === t.bracketLabel);
+    if (!m || m.prob === null) continue;
+    if (m.prob >= 99.1 || m.prob <= 0.9) { // same rule the paper bot uses: the bracket has effectively resolved
+      const yesWon = m.prob >= 99.1;
+      t.status = (yesWon === (t.side === 'YES')) ? 'WIN' : 'LOSS';
+      t.settledAt = new Date().toISOString();
+      t.profit = computeProfit(t);
+      changed = true;
+    }
+  }
+  if (changed) { liveTrimTrades(live); await saveLive(live); }
+}
+
+app.get('/api/live/trades', requireLiveKey, async (req, res) => {
+  try {
+    const mode = req.query.mode === 'live' ? 'live' : 'dry-run';
+    const live = await loadLive();
+    const mine = liveTrades(live).filter(t => t.mode === mode);
+    const trades = await Promise.all(mine.map(async t => {
+      if (t.status !== 'open') return t;
+      try {
+        const ev = await fetchEventForTrade(t, t.marketRefAt);
+        const m = ev && ev.outcomes && ev.outcomes.find(o => o.bracket === t.bracketLabel);
+        if (!m || m.prob === null) return { ...t, currentPriceCents: null, unrealizedProfit: null };
+        const cur = t.side === 'YES' ? m.prob : 100 - m.prob;
+        const shares = t.stake / (t.entryPriceCents / 100);
+        return { ...t, currentPriceCents: cur, unrealizedProfit: parseFloat((shares * (cur / 100) - t.stake).toFixed(4)) };
+      } catch (e) { return { ...t, currentPriceCents: null, unrealizedProfit: null }; }
+    }));
+    const open = trades.filter(t => t.status === 'open'), settled = trades.filter(t => t.status !== 'open');
+    res.json({ trades, summary: {
+      mode, settledProfit: liveRound2(settled.reduce((s, t) => s + (t.profit || 0), 0)),
+      openExposure: liveRound2(open.reduce((s, t) => s + t.stake, 0)), openCount: open.length, settledCount: settled.length,
+      wins: settled.filter(t => t.status === 'WIN').length, losses: settled.filter(t => t.status === 'LOSS').length,
+      totalStaked: liveRound2(trades.reduce((s, t) => s + t.stake, 0)) } });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/live/trades', requireLiveKey, async (req, res) => {
+  try {
+    const mode = req.query.mode === 'live' ? 'live' : 'dry-run';
+    const live = await loadLive();
+    const before = liveTrades(live).length;
+    live.trades = liveTrades(live).filter(t => t.mode !== mode);
+    await saveLive(live);
+    res.json({ ok: true, removed: before - live.trades.length });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+setTimeout(() => liveSettleTick().catch(e => console.error('[Live] settle failed:', e.message)), 40 * 1000);
+setInterval(() => liveSettleTick().catch(e => console.error('[Live] settle failed:', e.message)), 5 * 60 * 1000);
 
 app.get('/health', (req, res) => {
   res.json({ status:'ok', uptime: process.uptime(), cached: Object.keys(CACHE).length, polyCached: Object.keys(POLY_CACHE).length });

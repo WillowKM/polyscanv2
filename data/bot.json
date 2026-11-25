@@ -48,14 +48,15 @@
           "bracketLabel": "60-61°F",
           "stake": 500,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-23T00:06:02.757Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-25T23:06:58.025Z",
+          "profit": 26.3158,
+          "autoResolved": true
         },
         {
           "id": "1795579470543-adihk",
@@ -1127,14 +1128,15 @@
           "bracketLabel": "60-61°F",
           "stake": 1000,
           "entryPriceCents": 95,
-          "status": "open",
+          "status": "WIN",
           "cashoutPriceCents": null,
           "scalpChainId": null,
           "qualifies": null,
           "edgePct": null,
           "openedAt": "2026-11-23T00:06:02.757Z",
-          "settledAt": null,
-          "profit": 0
+          "settledAt": "2026-11-25T23:06:58.025Z",
+          "profit": 52.6316,
+          "autoResolved": true
         },
         {
           "id": "1795046975099-m580t",

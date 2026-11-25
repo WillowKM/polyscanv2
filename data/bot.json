@@ -39,25 +39,6 @@
       },
       "trades": [
         {
-          "id": "1795579470543-adihk",
-          "accountId": "acc_1791265985079_ygdnn",
-          "city": "San Francisco",
-          "code": null,
-          "strategy": "3",
-          "side": "NO",
-          "bracketLabel": "66-67°F",
-          "stake": 500,
-          "entryPriceCents": 94,
-          "status": "open",
-          "cashoutPriceCents": null,
-          "scalpChainId": null,
-          "qualifies": null,
-          "edgePct": null,
-          "openedAt": "2026-11-25T04:04:30.543Z",
-          "settledAt": null,
-          "profit": 0
-        },
-        {
           "id": "1795392362757-u8cvj",
           "accountId": "acc_1791265985079_ygdnn",
           "city": "San Francisco",
@@ -75,6 +56,26 @@
           "openedAt": "2026-11-23T00:06:02.757Z",
           "settledAt": null,
           "profit": 0
+        },
+        {
+          "id": "1795579470543-adihk",
+          "accountId": "acc_1791265985079_ygdnn",
+          "city": "San Francisco",
+          "code": null,
+          "strategy": "3",
+          "side": "NO",
+          "bracketLabel": "66-67°F",
+          "stake": 500,
+          "entryPriceCents": 94,
+          "status": "WIN",
+          "cashoutPriceCents": null,
+          "scalpChainId": null,
+          "qualifies": null,
+          "edgePct": null,
+          "openedAt": "2026-11-25T04:04:30.543Z",
+          "settledAt": "2026-11-25T22:16:57.815Z",
+          "profit": 31.9149,
+          "autoResolved": true
         },
         {
           "id": "1795478658480-iy57p",
